@@ -21,6 +21,10 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Collaborated closely with the NLP team to monitor and optimize downstream performance
 - Onboarding and mentoring junior team members
 
+##### Research
+- [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092)
+- [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16v2.pdf)
+
 #### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
 
 - Research project: "Develop a large scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements"
@@ -32,13 +36,13 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Master's degree, Speech & Language Processing @ The University of Edinburgh (2018 - 2019)
 
-Thesis: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
+**Thesis**: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
 
 #### Bachelor of Arts - BA, Linguistics and Language Applications @ City University of Hong Kong (2014 - 2018)
 
-Thesis: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
+**Thesis**: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
-Conference: AI and Linguistics Conference - East China Normal University - Oct. 26-28 2018 - "Can linguistics help neural machine translation? - Evidence from a case study of interlingual vs neural machine translation of numerical expressions" - Dr. Chunyu Kit (CityU) and Kenneth Wang Yau Li (Edinburgh)
+**Conference**: AI and Linguistics Conference - East China Normal University - Oct. 26-28 2018 - "Can linguistics help neural machine translation? - Evidence from a case study of interlingual vs neural machine translation of numerical expressions" - Dr. Chunyu Kit (CityU) and Kenneth Wang Yau Li (Edinburgh)
 
 ---
 
@@ -47,18 +51,20 @@ Conference: AI and Linguistics Conference - East China Normal University - Oct. 
 ## ASR
 #### Data augmentation with GPT-2 and out-of-domain data
 
-- (*Data augmentation*) Finetune GPT-2 on in-house data and generate augmented data for LM training. 
+- (**Data augmentation**) Finetune GPT-2 on in-house data and generate augmented data for LM training. 
 - Explore data augmentation with public out-of-domain data for LM training
 
 #### Lattice rescoring with LLM
 
-- (*LLM rescoring*) Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
+- (**LLM rescoring**) Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
 
 #### Keyword contextual biasing
 
-- (*TTS Data augmentation*) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
+- (**TTS Data augmentation**) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
 #### Whisper
+
+
 
 ## NLP
 
@@ -66,8 +72,8 @@ Conference: AI and Linguistics Conference - East China Normal University - Oct. 
 
 - Led the creation of a grammatical error correction system, adopting the Grammarly [Gector](https://github.com/grammarly/gector) model as the core structure.
 - Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
-- (*Model quantization*) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
-- (*LLM with RAG*) Explored providing reference material with LLM (MPT-7B) and RAG
+- (**Model quantization**) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
+- (**LLM with RAG**) Explored providing reference material with LLM (MPT-7B) and RAG
 - Optimize model with in-domain-data and model architecture.
 
 

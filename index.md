@@ -12,7 +12,8 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
-#### Speech Recognition Engineer - Dialpad - Feb 2020 - Aug 2023
+#### Speech Recognition Engineer 
+##### Dialpad (Feb 2020 - Aug 2023)
 
 - Drove research and development to develop better models for speech recognition with Kaldi, NeMo, and K2
 - Enhanced transcript accuracy through data augmentation and model optimization
@@ -20,7 +21,8 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Maintained routine model building and monitoring of model performance
 - Collaborated closely with the natural language processing team to optimize input quality and ensure superior outcomes
 
-#### Research Assistant - City University of Hong Kong - Jul 2018 - Sep 2018
+#### Research Assistant
+##### City University of Hong Kong (Jul 2018 - Sep 2018)
 
 - Research project: "Develop a large scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements"
 - Analysed Chinese word segmentation tasks with eye tracking data
@@ -29,11 +31,13 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Education
 
-#### Master's degree, Speech & Language Processing - The University of Edinburgh - 2018 - 2019
+#### Master's degree, Speech & Language Processing
+##### The University of Edinburgh (2018 - 2019)
 
 Thesis: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
 
-#### City University of Hong Kong - Bachelor of Arts - BA, Linguistics and Language Applications - 2014 - 2018
+#### Bachelor of Arts - BA, Linguistics and Language Applications
+##### City University of Hong Kong (2014 - 2018)
 
 Thesis: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
@@ -66,6 +70,7 @@ Build grammarticall error correction system based on [Gector](https://github.com
 
 #### Model quantization
 
+#### LLM with RAG
 
 
 ## TTS
@@ -74,7 +79,7 @@ Build grammarticall error correction system based on [Gector](https://github.com
 ## EEG
 ##### EEG Foundation model with EEG-Conformer and GPT
 #### EEG Foundation model with wav2vec2
-
+#### ECoG Video Watching Analysis
 ---
 
 # Research

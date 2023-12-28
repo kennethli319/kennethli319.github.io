@@ -47,6 +47,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 # Projects
 
 ## ASR
+
 #### Data augmentation with GPT-2 and out-of-domain data
 
 - (**Data augmentation**) Finetune GPT-2 on in-house data and generate augmented data for LM training. 
@@ -60,8 +61,6 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - (**TTS Data augmentation**) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
-#### Whisper
-
 - 
 
 ## NLP
@@ -73,9 +72,6 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - (**Model quantization**) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
 - (**LLM with RAG**) Explored providing reference material with LLM (MPT-7B) and RAG
 - Optimize model with in-domain-data and model architecture.
-
-
-## TTS
 
 ## Neuroscience
 

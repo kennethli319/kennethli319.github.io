@@ -12,17 +12,16 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
-#### Speech Recognition Engineer 
-##### Dialpad (Feb 2020 - Aug 2023)
+##### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 
-- Drove research and development to develop better models for speech recognition with Kaldi, NeMo, and K2
-- Enhanced transcript accuracy through data augmentation and model optimization
-- Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing
-- Maintained routine model building and monitoring of model performance
-- Collaborated closely with the natural language processing team to optimize input quality and ensure superior outcomes
+• Drove research and development to develop better models for speech recognition with Kaldi, NeMo and K2
+• Enhanced transcript accuracy through data augmentation (GPT-2) and model optimization
+• Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
+• Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
+• Collaborated closely with the NLP team to monitor and optimize downstream performance
+• Onboarding and mentoring junior team members
 
-#### Research Assistant
-##### City University of Hong Kong (Jul 2018 - Sep 2018)
+##### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
 
 - Research project: "Develop a large scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements"
 - Analysed Chinese word segmentation tasks with eye tracking data
@@ -31,13 +30,11 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Education
 
-#### Master's degree, Speech & Language Processing
-##### The University of Edinburgh (2018 - 2019)
+##### Master's degree, Speech & Language Processing @ The University of Edinburgh (2018 - 2019)
 
 Thesis: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
 
-#### Bachelor of Arts - BA, Linguistics and Language Applications
-##### City University of Hong Kong (2014 - 2018)
+##### Bachelor of Arts - BA, Linguistics and Language Applications @ City University of Hong Kong (2014 - 2018)
 
 Thesis: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
@@ -55,10 +52,11 @@ Explore data augmentation with public out-of-domain data for LM training
 
 #### Lattice rescoring with LLM
 
-Rescore ASR nbest lattice with various LLM, improving offline performance by 3% relative
+Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
 
 #### Keyword contextual biasing
 
+Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
 #### Whisper
 
@@ -66,7 +64,11 @@ Rescore ASR nbest lattice with various LLM, improving offline performance by 3% 
 
 #### Grammatical Error Correction with Gector
 
-Build grammarticall error correction system based on [Gector](https://github.com/grammarly/gector) and optimize model with in-domain-data and model architecture.
+- Led the creation of a grammatical error correction system, adopting the Grammarly [Gector](https://github.com/grammarly/gector) model as the core structure.
+- Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
+- Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
+- Explored providing reference material with LLM (MPT-7B) and RAG
+- Optimize model with in-domain-data and model architecture.
 
 #### Model quantization
 

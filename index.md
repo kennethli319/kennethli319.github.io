@@ -47,16 +47,16 @@ Conference: AI and Linguistics Conference - East China Normal University - Oct. 
 ## ASR
 #### Data augmentation with GPT-2 and out-of-domain data
 
-Finetune GPT-2 on in-house data and generate augmented data for LM training. 
-Explore data augmentation with public out-of-domain data for LM training
+- (*Data augmentation*) Finetune GPT-2 on in-house data and generate augmented data for LM training. 
+- Explore data augmentation with public out-of-domain data for LM training
 
 #### Lattice rescoring with LLM
 
-Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
+- (*LLM rescoring*) Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
 
 #### Keyword contextual biasing
 
-Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
+- (*TTS Data augmentation*) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
 #### Whisper
 
@@ -66,13 +66,9 @@ Improved keyword adaptation that suits customers' unique vocabulary with context
 
 - Led the creation of a grammatical error correction system, adopting the Grammarly [Gector](https://github.com/grammarly/gector) model as the core structure.
 - Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
-- Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
-- Explored providing reference material with LLM (MPT-7B) and RAG
+- (*Model quantization*) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
+- (*LLM with RAG*) Explored providing reference material with LLM (MPT-7B) and RAG
 - Optimize model with in-domain-data and model architecture.
-
-#### Model quantization
-
-#### LLM with RAG
 
 
 ## TTS

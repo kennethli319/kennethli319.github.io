@@ -20,8 +20,6 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
 - Collaborated closely with the NLP team to monitor and optimize downstream performance
 - Onboarding and mentoring junior team members
-
-##### Research
 - [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092)
 - [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16v2.pdf)
 
@@ -64,7 +62,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Whisper
 
-
+- 
 
 ## NLP
 
@@ -78,11 +76,17 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 
 ## TTS
-#### Concatination
 
-## EEG
-#### EEG Foundation model with EEG-Conformer and GPT
-#### EEG Foundation model with wav2vec2
+## Neuroscience
+
+#### Brain-to-Text
+
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024](https://eval.ai/web/challenges/challenge-page/2099/overview) contest. 
+
+#### EEG Foundation model with EEG-Conformer, GPT and wav2vec2
+
+- Replicate a foundation model architecturee for EEG analysis and processing as studied in [Neuro-GPT: Developing A Foundation Model for EEG](https://arxiv.org/abs/2311.03764) and [DeWave: Discrete EEG Waves Encoding for Brain Dynamics to Text Translation](https://openreview.net/pdf?id=WaLI8slhLw).
+
 #### ECoG Video Watching Analysis
 ---
 

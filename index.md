@@ -10,7 +10,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
-Dialpad - Speech Recognition Engineer - Feb 2020 - Aug 2023
+### Speech Recognition Engineer - Dialpad - Feb 2020 - Aug 2023
 
 - Drove research and development to develop better models for speech recognition with Kaldi, NeMo, and K2
 - Enhanced transcript accuracy through data augmentation and model optimization
@@ -18,13 +18,18 @@ Dialpad - Speech Recognition Engineer - Feb 2020 - Aug 2023
 - Maintained routine model building and monitoring of model performance
 - Collaborated closely with the natural language processing team to optimize input quality and ensure superior outcomes
 
+### Research Assistant - City University of Hong Kong - Jul 2018 - Sep 2018
+
+- Research project: "Develop a large scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements"
+- Analysed Chinese word segmentation tasks with eye tracking data
+
 # Education
 
-The University of Edinburgh - Master's degree, Speech & Language Processing - 2018 - 2019
+### Master's degree, Speech & Language Processing - The University of Edinburgh - 2018 - 2019
 
 Thesis: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
 
-City University of Hong Kong - Bachelor of Arts - BA, Linguistics and Language Applications - 2014 - 2018
+### City University of Hong Kong - Bachelor of Arts - BA, Linguistics and Language Applications - 2014 - 2018
 
 Thesis: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
@@ -33,9 +38,31 @@ Conference: AI and Linguistics Conference - East China Normal University - Oct. 
 # Projects
 
 ## ASR
+### Data augmentation with GPT-2 and out-of-domain data
+
+Finetune GPT-2 on in-house data and generate augmented data for LM training. 
+Explore data augmentation with public out-of-domain data for LM training
+
+### Lattice rescoring with LLM
+
+Rescore ASR nbest lattice with various LLM, improving offline performance by 3% relative
+
+### Keyword contextual biasing
+
+
+### Whisper
+
 ## NLP
+### Grammatical Error Correction with Gector
+### Model quantization
+### 
+
 ## TTS
+### Concatination
+
 ## EEG
+### EEG Foundation model with EEG-Conformer and GPT
+### EEG Foundation model with wav2vec2
 
 # Research
 

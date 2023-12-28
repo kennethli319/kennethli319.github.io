@@ -12,16 +12,16 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
-##### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
+#### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 
-• Drove research and development to develop better models for speech recognition with Kaldi, NeMo and K2
-• Enhanced transcript accuracy through data augmentation (GPT-2) and model optimization
-• Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
-• Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
-• Collaborated closely with the NLP team to monitor and optimize downstream performance
-• Onboarding and mentoring junior team members
+- Drove research and development to develop better models for speech recognition with Kaldi, NeMo and K2
+- Enhanced transcript accuracy through data augmentation (GPT-2) and model optimization
+- Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
+- Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
+- Collaborated closely with the NLP team to monitor and optimize downstream performance
+- Onboarding and mentoring junior team members
 
-##### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
+#### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
 
 - Research project: "Develop a large scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements"
 - Analysed Chinese word segmentation tasks with eye tracking data
@@ -30,11 +30,11 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Education
 
-##### Master's degree, Speech & Language Processing @ The University of Edinburgh (2018 - 2019)
+#### Master's degree, Speech & Language Processing @ The University of Edinburgh (2018 - 2019)
 
 Thesis: Robust Word Recognition and Alignment of Child Speech Therapy Sessions using Audio and Ultrasound Imaging (with Kaldi and PyTorch)
 
-##### Bachelor of Arts - BA, Linguistics and Language Applications @ City University of Hong Kong (2014 - 2018)
+#### Bachelor of Arts - BA, Linguistics and Language Applications @ City University of Hong Kong (2014 - 2018)
 
 Thesis: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
@@ -79,7 +79,7 @@ Improved keyword adaptation that suits customers' unique vocabulary with context
 #### Concatination
 
 ## EEG
-##### EEG Foundation model with EEG-Conformer and GPT
+#### EEG Foundation model with EEG-Conformer and GPT
 #### EEG Foundation model with wav2vec2
 #### ECoG Video Watching Analysis
 ---

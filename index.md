@@ -2,7 +2,8 @@
 layout: default
 ---
 
-[LinkedIn](https://www.linkedin.com/in/wang-yau-li/)
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) 
+[[Link to another page]](./another-page.html).
 
 # About
 

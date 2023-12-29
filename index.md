@@ -2,13 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) 
-[Experience](#Experience) 
-[Education](#Education) 
-[Projects](#Projects) 
-[Research](#Research) 
-
-[[Interests]](./interests.html)
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) | [[Interests]](./interests.html)
 
 
 # About

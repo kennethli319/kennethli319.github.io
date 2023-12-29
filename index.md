@@ -3,7 +3,13 @@ layout: default
 ---
 
 [[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) 
-[[Link to another page]](./interests.html).
+[Experience](#Experience) 
+[Education](#Education) 
+[Projects](#Projects) 
+[Research](#Research) 
+
+[[Interests]](./interests.html)
+
 
 # About
 

@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) | [[Interests]](./interests.html)
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/)
 
 
 # About

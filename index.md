@@ -18,7 +18,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Enhanced transcript accuracy through data augmentation (GPT-2) and model optimization
 - Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 - Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
-- Collaborated closely with the NLP team to monitor and optimize downstream performance
+- Collaborated closely with the NLP team to monitor and optimize downstream performance (ASR impacts on NLP)
 - Onboarding and mentoring junior team members
 - [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092)
 - [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16v2.pdf)
@@ -40,7 +40,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 **Thesis**: A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (with Java and Tensorflow)
 
-**Conference**: AI and Linguistics Conference - East China Normal University - Oct. 26-28 2018 - "Can linguistics help neural machine translation? - Evidence from a case study of interlingual vs neural machine translation of numerical expressions" - Dr. Chunyu Kit (CityU) and Kenneth Wang Yau Li (Edinburgh)
+**Conference**: AI and Linguistics Conference - East China Normal University - Oct. 26-28 2018
 
 ---
 
@@ -50,12 +50,12 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Data augmentation with GPT-2 and out-of-domain data
 
-- (**Data augmentation**) Finetune GPT-2 on in-house data and generate augmented data for LM training. 
+- (**Data augmentation**) Finetune GPT-2 on in-house data and generate augmented data for LM training
 - Explore data augmentation with public out-of-domain data for LM training
 
 #### Lattice rescoring with LLM
 
-- (**LLM rescoring**) Rescore ASR nbest lattice with various LLMs (GPT, FLAN), improving offline performance by 3% relative
+- (**LLM rescoring**) Rescore ASR lattice / n-best output with various LLMs (GPT, FLAN), improving offline performance by 3% relative
 
 #### Keyword contextual biasing
 
@@ -70,8 +70,8 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Led the creation of a grammatical error correction system, adopting the Grammarly [Gector](https://github.com/grammarly/gector) model as the core structure.
 - Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
 - (**Model quantization**) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
-- (**LLM with RAG**) Explored providing reference material with LLM (MPT-7B) and RAG
-- Optimize model with in-domain-data and model architecture.
+- (**LLM with RAG**) Explored providing reference material with LLM (MPT-7B) and Retrieval-Augmented Generation (RAG)
+- Optimize model with in-domain-data and model architecture (tags, vocabulary size).
 
 ## Neuroscience
 
@@ -83,7 +83,6 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - Replicate a foundation model architecturee for EEG analysis and processing as studied in [Neuro-GPT: Developing A Foundation Model for EEG](https://arxiv.org/abs/2311.03764) and [DeWave: Discrete EEG Waves Encoding for Brain Dynamics to Text Translation](https://openreview.net/pdf?id=WaLI8slhLw).
 
-#### ECoG Video Watching Analysis
 ---
 
 # Research

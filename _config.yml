@@ -1,6 +1,5 @@
-title: Minimal theme
-logo: /assets/img/logo.png
-description: Minimal is a theme for GitHub Pages.
-show_downloads: true
-google_analytics:
+title: Wang Yau Kenneth Li
+logo: /assets/img/photo.png
+description: 
+show_downloads: false
 theme: jekyll-theme-minimal

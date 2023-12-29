@@ -62,8 +62,6 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - (**TTS Data augmentation**) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
-- 
-
 ## NLP
 
 #### Grammatical Error Correction with Gector

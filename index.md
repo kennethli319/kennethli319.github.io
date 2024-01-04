@@ -85,7 +85,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024](https://eval.ai/web/challenges/challenge-page/2099/overview) contest. 
 
-#### Biosignal foundation model with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE
+#### Biosignal foundation model with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE [(EEG-foundation)](https://github.com/kennethli319/EEG-foundation)
 
 - (**Foundation model**) Replicate a foundation model architecturee for EEG analysis and processing as studied in [Neuro-GPT: Developing A Foundation Model for EEG](https://arxiv.org/abs/2311.03764), [DeWave: Discrete EEG Waves Encoding for Brain Dynamics to Text Translation](https://openreview.net/pdf?id=WaLI8slhLw), [LARGE BRAIN MODEL FOR LEARNING GENERIC REPRESENTATIONS WITH TREMENDOUS EEG DATA IN BCI](https://openreview.net/pdf?id=QzTpTRVtrP) and [BIOT: Biosignal Transformer for Cross-data Learning in the Wild](https://openreview.net/pdf?id=c2LZyTyddi).
 

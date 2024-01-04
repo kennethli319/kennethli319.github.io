@@ -15,7 +15,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Self-employed (Oct 2023 - Dec 2023)
 
-- Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE. [(Github)](https://github.com/kennethli319/EEG-foundation)
+- Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
 - Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest
 - Explored open source LLMs and voice-foundation models (ASR, TTS, voice conversion)
 

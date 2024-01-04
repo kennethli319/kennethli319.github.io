@@ -13,6 +13,12 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
+#### Self-employed (Oct 2023 - Dec 2023)
+
+- Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE. [(Github)](https://github.com/kennethli319/EEG-foundation)
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest
+- Explored open source LLMs and voice-foundation models (ASR, TTS, voice conversion)
+
 #### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 
 - Drove research and development to develop better models for speech recognition with Kaldi, NeMo and K2
@@ -21,6 +27,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
 - Collaborated closely with the NLP team to monitor and optimize downstream performance (ASR impacts on NLP)
 - Onboarding and mentoring junior team members
+- Co-supervised Master’s thesis projects at University of Edinburgh  and The University of British Columbia
 - [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092)
 - [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16v2.pdf)
 
@@ -78,9 +85,9 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024](https://eval.ai/web/challenges/challenge-page/2099/overview) contest. 
 
-#### EEG Foundation model with EEG-Conformer, GPT and wav2vec2
+#### Biosignal foundation model with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE
 
-- Replicate a foundation model architecturee for EEG analysis and processing as studied in [Neuro-GPT: Developing A Foundation Model for EEG](https://arxiv.org/abs/2311.03764) and [DeWave: Discrete EEG Waves Encoding for Brain Dynamics to Text Translation](https://openreview.net/pdf?id=WaLI8slhLw).
+- (**Foundation model**) Replicate a foundation model architecturee for EEG analysis and processing as studied in [Neuro-GPT: Developing A Foundation Model for EEG](https://arxiv.org/abs/2311.03764), [DeWave: Discrete EEG Waves Encoding for Brain Dynamics to Text Translation](https://openreview.net/pdf?id=WaLI8slhLw), [LARGE BRAIN MODEL FOR LEARNING GENERIC REPRESENTATIONS WITH TREMENDOUS EEG DATA IN BCI](https://openreview.net/pdf?id=QzTpTRVtrP) and [BIOT: Biosignal Transformer for Cross-data Learning in the Wild](https://openreview.net/pdf?id=c2LZyTyddi).
 
 ---
 

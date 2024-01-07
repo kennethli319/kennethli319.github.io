@@ -77,6 +77,11 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - (**TTS Data augmentation**) Improved keyword adaptation that suits customers' unique vocabulary with contextual biasing (n-gram boosting and lattice boosting) and TTS-augmented data
 
+#### Multilingual ASR
+
+- [Third Prize in MUCS 2021](https://navana-tech.github.io/MUCS2021/assets/img/winners/subtask1/3.PNG): MUltilingual and Code-Switching ASR Challenges for Low Resource Indian LanguagesThird Prize in MUCS 2021: MUltilingual and Code-Switching ASR Challenges for Low Resource Indian Languages
+- Team contributions to multilingual and low-resource ASR for Indian Languages. Benchmarking and [open-sourcing various end-to-end methods](https://github.com/dialpad/mucs_2021_dialpad) and studying effects of channel distortions on language identification.
+
 ## NLP
 
 #### Grammatical Error Correction with Gector

@@ -15,9 +15,10 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Self-employed (Oct 2023 - Dec 2023)
 
+- Explored the synergy of ASR, NLP, and Neuroscience to effectively translate brain waves (invasive and non-invasive) into textual representations.
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
-- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest
-- Explored open source LLMs and voice-foundation models (ASR, TTS, voice conversion)
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest (WER 14.87).
+- Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
 
 #### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 
@@ -27,9 +28,16 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Improved offline performance (3% relative) by lattice rescoring with LLMs (GPT, FLAN)
 - Collaborated closely with the NLP team to monitor and optimize downstream performance (ASR impacts on NLP)
 - Onboarding and mentoring junior team members
-- Co-supervised Master’s thesis projects at University of Edinburgh  and The University of British Columbia
+- Co-supervised Master’s thesis projects at University of Edinburgh and The University of British Columbia
 - [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092)
 - [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16v2.pdf)
+
+#### NLP Consultant @ The Hong Kong Polytechnic University (Sep 2020 – May 2023)
+
+- Led the creation of a grammatical error correction system, adopting the Grammarly Gector model (with BERT, RoBERTa) as the core structure.
+- Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
+- Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
+- Provided reference materials with LLM (MPT-7B) and Retrieval-Augmented Generation (RAG)
 
 #### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
 

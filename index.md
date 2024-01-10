@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/)
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319)
 
 
 # About
@@ -19,6 +19,8 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
 - Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest (WER 14.87).
 - Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
+- Recognized by Nvidia Inception, AWS Activate, HKSTP Ideation, HK Tech 300, Microsoft Founder Hub, Communitech Founder Program
+- After the discontinuation, our major works will be released as open-source projects, contributing to the wider community and technological advancement
 
 #### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 
@@ -34,10 +36,11 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### NLP Consultant @ The Hong Kong Polytechnic University (Sep 2020 – May 2023)
 
-- Led the creation of a grammatical error correction system, adopting the Grammarly Gector model (with BERT, RoBERTa) as the core structure.
-- Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
-- Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
-- Provided reference materials with LLM (MPT-7B) and Retrieval-Augmented Generation (RAG)
+- Led the creation of a grammatical error correction system, adopting the Grammarly Gector model (with BERT, RoBERTa) as the core structure
+- Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance
+- Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system’s capabilities.
+- Explored providing reference material with LLM (MPT-7B) and Retrieval-Augmented Generation (RAG)
+- Optimize model with in-domain-data and model architecture (e.g. additional tags, vocabulary size)
 
 #### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
 
@@ -82,6 +85,10 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - [Third Prize in MUCS 2021](https://navana-tech.github.io/MUCS2021/assets/img/winners/subtask1/3.PNG): MUltilingual and Code-Switching ASR Challenges for Low Resource Indian LanguagesThird Prize in MUCS 2021: MUltilingual and Code-Switching ASR Challenges for Low Resource Indian Languages
 - Team contributions to multilingual and low-resource ASR for Indian Languages. Benchmarking and [open-sourcing various end-to-end methods](https://github.com/dialpad/mucs_2021_dialpad) and studying effects of channel distortions on language identification.
 
+## TTS / Music generation
+
+#### Nvidia-tts on Huggingface Space
+
 ## NLP
 
 #### Grammatical Error Correction with Gector
@@ -90,7 +97,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Provided pivotal technical leadership in refining the grammatical error correction (GEC) system, orchestrating the seamless integration of rule-based and neural network-based methodologies to enhance system efficiency and performance.
 - (**Model quantization**) Investigated and implemented advanced techniques in quantization, data augmentation, and model optimization to further elevate the system's capabilities.
 - (**LLM with RAG**) Explored providing reference material with LLM (MPT-7B) and Retrieval-Augmented Generation (RAG)
-- Optimize model with in-domain-data and model architecture (tags, vocabulary size).
+- Optimize model with in-domain-data and model architecture (e.g. additional tags, vocabulary size)
 
 ## Neuroscience
 

@@ -13,7 +13,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 # Experience
 
-#### Self-employed (Oct 2023 - Dec 2023)
+#### Founder @ [InnerSpeech](https://www.innerspeech.ai/) (Oct 2023 - Dec 2023)
 
 - Explored the synergy of ASR, NLP, and Neuroscience to effectively translate brain waves (invasive and non-invasive) into textual representations.
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.

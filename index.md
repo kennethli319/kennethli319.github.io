@@ -91,6 +91,9 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 ## NLP
 
+#### [RAG-Transcript: Essence of Presentations](https://innerspeech.notion.site/BCI-NEUROTECHNOLOGY-SPRING-SCHOOL-2023-2d3bfeb0718c4f21b6da83a789a35b69)
+- AI-augmented learning experience: RAG-Transcript harnesses Whisper to transcribe presentations and Retrieval-Augmented Generation (RAG) to distill their key ideas into concise summaries. Ideal for professionals and students, it offers a quick, accurate way to grasp essential points from lengthy spoken content.
+
 #### Grammatical Error Correction with Gector
 
 - Led the creation of a grammatical error correction system, adopting the Grammarly [Gector](https://github.com/grammarly/gector) model as the core structure.

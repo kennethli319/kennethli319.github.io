@@ -2,9 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319)
-
-Multimodal toolbox: [TTS](https://huggingface.co/spaces/kennethli319/nvidia-tts) [ASR](https://huggingface.co/spaces/nvidia/parakeet-rnnt-1.1b) [RAG](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [TTS](https://huggingface.co/spaces/kennethli319/nvidia-tts) [ASR](https://huggingface.co/spaces/nvidia/parakeet-rnnt-1.1b) [RAG](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
 
 # About
 
@@ -94,7 +92,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 ## NLP
 
-#### RAG-Transcript: Essence of Presentations [Project]](https://innerspeech.notion.site/BCI-NEUROTECHNOLOGY-SPRING-SCHOOL-2023-2d3bfeb0718c4f21b6da83a789a35b69)
+#### RAG-Transcript: Essence of Presentations [Project](https://innerspeech.notion.site/BCI-NEUROTECHNOLOGY-SPRING-SCHOOL-2023-2d3bfeb0718c4f21b6da83a789a35b69)
 - AI-augmented learning experience: RAG-Transcript harnesses Whisper to transcribe presentations and Retrieval-Augmented Generation (RAG) to distill their key ideas into concise summaries. Ideal for professionals and students, it offers a quick, accurate way to grasp essential points from lengthy spoken content.
 
 #### Grammatical Error Correction with Gector [Demo]()

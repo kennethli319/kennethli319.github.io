@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/toolbox-tts) [[ASR]](https://huggingface.co/spaces/nvidia/parakeet-rnnt-1.1b) [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
 
 # About
 
@@ -84,11 +84,11 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - [Third Prize in MUCS 2021](https://navana-tech.github.io/MUCS2021/assets/img/winners/subtask1/3.PNG): MUltilingual and Code-Switching ASR Challenges for Low Resource Indian LanguagesThird Prize in MUCS 2021: MUltilingual and Code-Switching ASR Challenges for Low Resource Indian Languages
 - Team contributions to multilingual and low-resource ASR for Indian Languages. Benchmarking and [open-sourcing various end-to-end methods](https://github.com/dialpad/mucs_2021_dialpad) and studying effects of channel distortions on language identification.
 
-#### ASR with wav2vec2 / whisper / Nemo [(Demo)]()
+#### ASR with wav2vec2 / whisper / Nemo [(Demo)](https://huggingface.co/spaces/kennethli319/ASR-toolbox)
 
 ## TTS / Music generation
 
-#### TTS on CPU [(Demo)](https://huggingface.co/spaces/kennethli319/toolbox-tts)
+#### TTS on CPU [(Demo)](https://huggingface.co/spaces/kennethli319/TTS-toolbox)
 
 ## NLP
 

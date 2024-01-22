@@ -16,7 +16,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - Explored the synergy of ASR, NLP, and Neuroscience to effectively translate brain waves (invasive and non-invasive) into textual representations.
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
-- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest (WER 14.87).
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest (WER 11.60).
 - Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
 - Recognized by Nvidia Inception, AWS Activate, HKSTP Ideation, HK Tech 300, Microsoft Founder Hub, Communitech Founder Program
 - After the discontinuation, our major works will be released as open-source projects, contributing to the wider community and technological advancement

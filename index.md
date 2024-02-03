@@ -2,8 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)] [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)][[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)] [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
-
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust) [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust) [[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)] 
 # About
 
 I am deeply passionate about leveraging my expertise in Linguistics and Machine Learning to revolutionize Human-Computer Interaction. Aspiring to contribute significantly to the AI industry, I focus on automatic speech recognition (ASR), natural language understanding (NLU), and neurotechnology. My commitment lies in enhancing user experiences by developing innovative solutions in these cutting-edge fields.

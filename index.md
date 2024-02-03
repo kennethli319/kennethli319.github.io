@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
+[[LinkedIn]](https://www.linkedin.com/in/wang-yau-li/) [[Huggingface Spaces]](https://huggingface.co/kennethli319) [Multimodal toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)] [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)][[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)] [[RAG]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust)]
 
 # About
 
@@ -16,7 +16,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 - Explored the synergy of ASR, NLP, and Neuroscience to effectively translate brain waves (invasive and non-invasive) into textual representations.
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
-- Replicated 'A high-performance speech neuroprosthesis', and participated in the Brain-to-Text Benchmark 2024 contest (WER 11.60).
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024 contest](https://eval.ai/web/challenges/challenge-page/2099/leaderboard/4944) (WER 11.60).
 - Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
 - Recognized by Nvidia Inception, AWS Activate, HKSTP Ideation, HK Tech 300, Microsoft Founder Hub, Communitech Founder Program
 - After the discontinuation, our major works will be released as open-source projects, contributing to the wider community and technological advancement
@@ -92,7 +92,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 ## NLP
 
-#### RAG-Transcript: Essence of Presentations [Project](https://innerspeech.notion.site/BCI-NEUROTECHNOLOGY-SPRING-SCHOOL-2023-2d3bfeb0718c4f21b6da83a789a35b69)
+#### RAG-Transcript: Essence of Presentations [(Project)](https://innerspeech.notion.site/BCI-NEUROTECHNOLOGY-SPRING-SCHOOL-2023-2d3bfeb0718c4f21b6da83a789a35b69)
 - AI-augmented learning experience: RAG-Transcript harnesses Whisper to transcribe presentations and Retrieval-Augmented Generation (RAG) to distill their key ideas into concise summaries. Ideal for professionals and students, it offers a quick, accurate way to grasp essential points from lengthy spoken content.
 
 #### Grammatical Error Correction with Gector [(Demo)]()

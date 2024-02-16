@@ -5,17 +5,19 @@ layout: default
 [Toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[TTS-VC]](https://huggingface.co/spaces/kennethli319/xtts) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust) [[RAG]](https://huggingface.co/spaces/kennethli319/RAGArchcd) [[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/LLaVA-1.6)] 
 # About
 
-I am deeply passionate about leveraging my expertise in Linguistics and Machine Learning to revolutionize Human-Computer Interaction. Aspiring to contribute significantly to the AI industry, I focus on automatic speech recognition (ASR), natural language understanding (NLU), and neurotechnology. My commitment lies in enhancing user experiences by developing innovative solutions in these cutting-edge fields.
+I am deeply passionate about leveraging my expertise in Linguistics and Machine Learning to revolutionize Human-Computer Interaction. Aspiring to contribute significantly to the AI industry, I focus on automatic speech recognition (ASR), test-to-speech (TTS), natural language understanding (NLU), and neurotechnology. My commitment lies in enhancing user experiences by developing innovative solutions in these cutting-edge fields.
 
 ---
 
 # Experience
 
-#### Founder @ [InnerSpeech](https://www.innerspeech.ai/) (Oct 2023 - Dec 2023)
+#### Founder @ [InnerSpeech](https://www.innerspeech.ai/) (Sep 2023 - present)
 
 - Explored the synergy of ASR, NLP, and Neuroscience to effectively translate brain waves (invasive and non-invasive) into textual representations.
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE.
-- Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024 contest](https://eval.ai/web/challenges/challenge-page/2099/leaderboard/4944) (WER 11.60).
+ → Inspired by architecture used in audio-speech foundation models like AudioLM, w2v-BERT, Tortoise-TTS
+ → Established multi-node multi-GPU training with DeepSpeed
+- Replicated 'A high-performance speech neuroprosthesis', and participated in the [Brain-to-Text Benchmark 2024 contest](https://eval.ai/web/challenges/challenge-page/2099/leaderboard/4944) (WER 11.06, 2nd place).
 - Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
 - Recognized by Nvidia Inception, AWS Activate, HKSTP Ideation, HK Tech 300, Microsoft Founder Hub, Communitech Founder Program
 - After the discontinuation, our major works will be released as open-source projects, contributing to the wider community and technological advancement

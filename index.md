@@ -4,7 +4,7 @@ layout: default
 
 [Toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[TTS-VC]](https://huggingface.co/spaces/kennethli319/xtts) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust) [[RAG]](https://huggingface.co/spaces/kennethli319/RAGArchcd) [[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/LLaVA-1.6)] 
 
-[Notes: [[ASR]](asr.rst)]
+[Notes: [[ASR]](./asr.rst)]
 # About
 
 I am deeply passionate about leveraging my expertise in Linguistics and Machine Learning to revolutionize Human-Computer Interaction. Aspiring to contribute significantly to the AI industry, I focus on automatic speech recognition (ASR), test-to-speech (TTS), natural language understanding (NLU), and neurotechnology. My commitment lies in enhancing user experiences by developing innovative solutions in these cutting-edge fields.

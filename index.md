@@ -24,7 +24,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 - Built biosignal foundation models with EEG-Conformer, GPT, Wav2Vec2 and VQ-VAE on multi-node multi-GPU cluster (H100, A100, V100S)
 - Replicated 'A high-performance speech neuroprosthesis', and participated in the[Brain-to-Text Benchmark 2024 contest](https://eval.ai/web/challenges/challenge-page/2099/leaderboard/4944) (10% WER on leaderboard and 9% WER pending)
 - Conducted explorations with multimodal (image, audio, and text) foundational models for contextual information augmentation with Parameter-Efficient Fine-Tuning (e.g. LoRA)
-- Our major work will be released as open-source projects, contributing to the wider community and technological advancement
+- Our major work will be released as [open-source projects](https://github.com/innerspeech), contributing to the wider community and technological advancement
 
 #### Speech Recognition Engineer @ Dialpad (Feb 2020 - Aug 2023)
 

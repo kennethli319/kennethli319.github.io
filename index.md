@@ -15,7 +15,7 @@ I am deeply passionate about leveraging my expertise in Linguistics and Machine 
 
 #### Machine Learning Engineer / Consultant @ kea (Apr 2024 - Present)
 
-- Improving speech recognition models for restaurant ordering
+- Improving speech recognition models for restaurant ordering through fine-tuning and contextual biasing
 
 #### Founder @ [InnerSpeech](https://www.innerspeech.ai/) (Sep 2023 - present)
 

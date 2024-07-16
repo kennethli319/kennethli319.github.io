@@ -16,4 +16,4 @@
 15. Technological progression can be measured by the speed at which information is conveyed, transformed, or transferred between individuals, including the cost and time required to train or equip individuals to comprehend technological concepts.
 16. "as humans we experience only a tiny slice of the full scale of reality"
 17. "We're never gonna know the impact of discovering any single building block of relait"
--Julu2024
+-July2024

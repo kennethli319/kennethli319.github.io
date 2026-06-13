@@ -8,6 +8,8 @@ layout: default
 
 # About
 
+> Not until we are lost do we begin to understand ourselves.
+
 Speech-focused ML engineer in the San Francisco Bay Area, open to Forward-Deployed Engineering, Applied AI, and Speech/Audio ML roles on TN Visa. I work on production-oriented ML systems, evaluation pipelines, and automated workflows across ASR, TTS, streaming and full-duplex speech systems, keyword boosting, LLM-as-judge evaluation, RAG, and neural speech interfaces.
 
 I enjoy turning ambiguous product and research problems into usable systems: customer-facing technical discovery, rapid prototyping, product integration, debugging, deployment-minded iteration, and evaluation design.

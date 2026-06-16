@@ -46,6 +46,7 @@
         <li><strong>Role-conditioned duplex:</strong> the agent must keep persona, task, and voice constraints while reacting in real time.</li>
         <li><strong>Action-aware duplex:</strong> planning and tool calls are emitted alongside speech on a shared timeline.</li>
         <li><strong>Retrieval-aware duplex:</strong> factuality must improve without breaking real-time conversational flow.</li>
+        <li><strong>Multimodal duplex:</strong> speech, vision, tools, and slower reasoning layers must coordinate without blocking live interaction.</li>
         <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, privacy, and multi-round tool-use benchmarks are becoming mandatory.</li>
       </ol>
     </section>
@@ -109,6 +110,26 @@
             decisions into ordinary autoregressive prediction. The reported
             result is strong interruption and turn-taking without a separate
             turn-taking module.
+          </p>
+        </article>
+        <article class="card">
+          <h3>DuplexOmni Splits Interaction From Thinking</h3>
+          <p>
+            DuplexOmni extends the duplex frame to speech plus video and keeps
+            a low-latency interaction layer separate from a slower, pluggable
+            thinking layer. The serving lesson is to let perception and speech
+            continue while deeper reasoning, tools, or external agents return
+            results asynchronously.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Nemotron 3 VoiceChat Makes Deployment Concrete</h3>
+          <p>
+            NVIDIA positions Nemotron 3 VoiceChat as a 12B end-to-end,
+            real-time full-duplex speech-to-speech model with open,
+            inspectable weights. That makes the research trend more operational:
+            teams can compare unified native S2S serving against cascaded
+            stacks under enterprise latency, cost, and observability constraints.
           </p>
         </article>
         <article class="card">
@@ -218,6 +239,25 @@
             whether speech fillers or acknowledgements cover the wait, whether
             the final answer cites grounded state, and whether stale retrieval
             is cancelled after interruption.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Async Thinking Gates</h3>
+          <p>
+            Multimodal duplex systems need explicit contracts for slower
+            reasoning paths: when background thinking starts, what partial
+            answer can be spoken before it returns, how updates are merged into
+            ongoing speech, and how stale tool or reasoning results are
+            cancelled after user correction.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Open-Weight Deployment Gates</h3>
+          <p>
+            Open full-duplex S2S weights shift risk from API integration to
+            platform ownership. Review GPU fit, codec/tokenizer versions,
+            session isolation, voice safety filters, red-team coverage,
+            telemetry minimization, and rollback to a known cascaded stack.
           </p>
         </article>
       </div>
@@ -411,6 +451,8 @@
         <li><a href="https://arxiv.org/abs/2603.09180">DuplexCascade: VAD-Free Cascaded ASR-LLM-TTS Pipeline and Micro-Turn Optimization</a></li>
         <li><a href="https://seed.bytedance.com/en/blog/introducing-seed-full-duplex-speech-llm-attentive-listening-robust-interference-suppression-enabling-more-natural-interaction">ByteDance Seed: Introducing Seed Full-Duplex Speech LLM</a></li>
         <li><a href="https://arxiv.org/abs/2606.14528">BayLing-Duplex: Native Full-Duplex Speech Dialogue with a Single Autoregressive LLM</a></li>
+        <li><a href="https://arxiv.org/abs/2606.09186">DuplexOmni: Real-Time Listening, Seeing, Thinking, and Speaking for Full-Duplex Interaction</a></li>
+        <li><a href="https://build.nvidia.com/nvidia/nemotron-voicechat/modelcard">NVIDIA Nemotron 3 VoiceChat Model Card</a></li>
         <li><a href="https://arxiv.org/abs/2605.20755">DuplexSLA: A Full-Duplex Spoken Language Model with Synchronized Speech, Language, and Action</a></li>
         <li><a href="https://arxiv.org/abs/2604.19221">UAF: A Unified Audio Front-end LLM for Full-Duplex Speech Interaction</a></li>
         <li><a href="https://arxiv.org/abs/2606.11167">Multi-Faceted Interactivity Alignment in Full-Duplex Speech Models</a></li>

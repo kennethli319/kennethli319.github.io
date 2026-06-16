@@ -47,7 +47,7 @@
         <li><strong>Action-aware duplex:</strong> planning and tool calls are emitted alongside speech on a shared timeline.</li>
         <li><strong>Retrieval-aware duplex:</strong> factuality must improve without breaking real-time conversational flow.</li>
         <li><strong>Multimodal duplex:</strong> speech, vision, tools, and slower reasoning layers must coordinate without blocking live interaction.</li>
-        <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, privacy, and multi-round tool-use benchmarks are becoming mandatory.</li>
+        <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, privacy, temporal instruction following, and multi-round tool-use benchmarks are becoming mandatory.</li>
       </ol>
     </section>
 
@@ -141,6 +141,16 @@
             inspectable weights. That makes the research trend more operational:
             teams can compare unified native S2S serving against cascaded
             stacks under enterprise latency, cost, and observability constraints.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Raon-SpeechChat Adds Another Open Deployment Target</h3>
+          <p>
+            KRAFTON's Raon-SpeechChat-9B is another public full-duplex speech
+            language model built for simultaneous listening and speaking. Its
+            release strengthens the practical comparison set for teams that
+            want to test open native-duplex models against API systems and
+            modular cascades.
           </p>
         </article>
         <article class="card">
@@ -302,6 +312,15 @@
             primary user.
           </p>
         </article>
+        <article class="card">
+          <h3>Semantic Interruption Gates</h3>
+          <p>
+            SID-Bench and its Average Penalty Time metric make interruption
+            handling less binary. Measure both trigger-happy false alarms and
+            late stops, then tune the gate using semantic intent, not only VAD
+            energy or partial transcript confidence.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -356,6 +375,26 @@
           </p>
         </article>
         <article class="card">
+          <h3>HumDial-FDBench Adds Challenge Pressure</h3>
+          <p>
+            The ICASSP 2026 HumDial full-duplex track releases dual-channel
+            human conversations and a public benchmark for interruptions,
+            overlapping speech, feedback, and dynamic turn negotiation. Treat it
+            as the evaluation bridge between scripted overlap clips and messy
+            human dialogue.
+          </p>
+        </article>
+        <article class="card">
+          <h3>FDB v1.5 Separates Overlap Behaviors</h3>
+          <p>
+            Full-Duplex-Bench v1.5 tests user interruptions, backchannels,
+            background speech, and users talking to someone else as separate
+            overlap classes. This matters because a good assistant should stop
+            quickly for a real barge-in but hold the floor through noise or
+            side speech.
+          </p>
+        </article>
+        <article class="card">
           <h3>Turn-Detector Tests Need Real Audio</h3>
           <p>
             FastTurn and JAL-Turn both emphasize realistic overlap, pauses,
@@ -363,6 +402,16 @@
             and launch reviews, do not evaluate turn-taking only from clean
             transcripts. Include raw streaming audio, partial ASR states,
             speaker changes, and timing windows.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Game-Time Tests Temporal Instruction Following</h3>
+          <p>
+            Game-Time shows that spoken language models can handle basic tasks
+            but still fail tempo, synchronized response, and simultaneous
+            speaking constraints. Add temporal command-following to duplex evals
+            when the product depends on coaching, tutoring, games, or live
+            collaboration.
           </p>
         </article>
       </div>
@@ -506,16 +555,21 @@
         <li><a href="https://arxiv.org/abs/2606.09186">DuplexOmni: Real-Time Listening, Seeing, Thinking, and Speaking for Full-Duplex Interaction</a></li>
         <li><a href="https://arxiv.org/abs/2604.15804">Qwen3.5-Omni Technical Report</a></li>
         <li><a href="https://build.nvidia.com/nvidia/nemotron-voicechat/modelcard">NVIDIA Nemotron 3 VoiceChat Model Card</a></li>
+        <li><a href="https://huggingface.co/KRAFTON/Raon-SpeechChat-9B">KRAFTON Raon-SpeechChat-9B Model Card</a></li>
         <li><a href="https://arxiv.org/abs/2605.20755">DuplexSLA: A Full-Duplex Spoken Language Model with Synchronized Speech, Language, and Action</a></li>
         <li><a href="https://arxiv.org/abs/2604.19221">UAF: A Unified Audio Front-end LLM for Full-Duplex Speech Interaction</a></li>
         <li><a href="https://arxiv.org/abs/2604.01897">FastTurn: Unifying Acoustic and Streaming Semantic Cues for Low-Latency and Robust Turn Detection</a></li>
         <li><a href="https://arxiv.org/abs/2603.26515">JAL-Turn: Joint Acoustic-Linguistic Modeling for Real-Time and Robust Turn-Taking Detection</a></li>
+        <li><a href="https://arxiv.org/abs/2603.24144">Semantic-Aware Interruption Detection in Spoken Dialogue Systems: Benchmark, Metric, and Model</a></li>
         <li><a href="https://arxiv.org/abs/2508.07375">TurnGuide: Enhancing Meaningful Full Duplex Spoken Interactions via Dynamic Turn-Level Text-Speech Interleaving</a></li>
         <li><a href="https://arxiv.org/abs/2606.11167">Multi-Faceted Interactivity Alignment in Full-Duplex Speech Models</a></li>
         <li><a href="https://arxiv.org/abs/2604.12928">MoshiRAG: Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models</a></li>
         <li><a href="https://arxiv.org/abs/2603.08179">Privacy-Preserving End-to-End Full-Duplex Speech Dialogue Models</a></li>
+        <li><a href="https://arxiv.org/abs/2604.21406">Full-Duplex Interaction in Spoken Dialogue Systems: ICASSP 2026 HumDial Challenge</a></li>
         <li><a href="https://arxiv.org/abs/2604.04847">Full-Duplex-Bench-v3: Benchmarking Tool Use for Full-Duplex Voice Agents Under Real-World Disfluency</a></li>
         <li><a href="https://arxiv.org/abs/2603.13686">Tau2-Voice: Benchmarking Full-Duplex Voice Agents on Real-World Domains</a></li>
+        <li><a href="https://arxiv.org/abs/2507.23159">Full-Duplex-Bench v1.5: Evaluating Overlap Handling for Full-Duplex Speech Models</a></li>
+        <li><a href="https://arxiv.org/abs/2509.26388">Game-Time: Evaluating Temporal Dynamics in Spoken Language Models</a></li>
         <li><a href="https://arxiv.org/abs/2605.20356">Synchronization and Turn-Taking in Full-Duplex Speech Dialogue Models</a></li>
         <li><a href="https://arxiv.org/abs/2503.04721">Full-Duplex-Bench: Evaluating Turn-Taking Capabilities</a></li>
         <li><a href="https://arxiv.org/abs/2510.07838">Full-Duplex-Bench-v2: Multi-Turn Evaluation Framework</a></li>

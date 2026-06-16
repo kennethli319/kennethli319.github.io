@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Arrays, Intervals, Heaps, And Matrices</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#method">Method</a>
+      <a href="#arrays">Arrays</a>
+      <a href="#intervals">Intervals</a>
+      <a href="#heaps">Heaps</a>
+      <a href="#matrices">Matrices</a>
+      <a href="#linked">Linked Lists</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Arrays, Intervals, Heaps, And Matrices</h1>
+    <p class="lede">
+      A senior interview chapter for the high-frequency implementation rounds:
+      state the invariant, handle edge cases, then write compact Python that
+      survives follow-up questions.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Method</p>
+        <h2>Talk Like A Builder, Code Like A Reviewer</h2>
+        <p>
+          These problems look smaller than ML system design, but the same
+          discipline applies: define the contract, protect invariants, test
+          failure modes, and explain tradeoffs under constraints.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Restate:</strong> inputs, output, mutation rules, sortedness, duplicates, and whether one valid answer is guaranteed.</li>
+        <li><strong>Choose a pattern:</strong> hash map, prefix/suffix scan, two pointers, monotonic stack, heap, matrix boundary walk, or pointer rewiring.</li>
+        <li><strong>Declare the invariant:</strong> say what remains true after each loop, heap operation, or pointer move.</li>
+        <li><strong>Test before running:</strong> empty input, single item, duplicates, all equal values, negative values, overflow-like products, and disconnected links.</li>
+        <li><strong>Close with complexity:</strong> include hidden costs from sorting, heap operations, recursion stack, slicing, and copied arrays.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What separates a senior solution from a memorized one?</summary>
+        <p>
+          A senior solution makes assumptions explicit, names the invariant,
+          handles edge cases without drama, and can adapt when the interviewer
+          changes one constraint. The code is short because the reasoning is
+          clean, not because the candidate skipped explanation.
+        </p>
+      </details>
+    </section>
+
+    <section id="arrays" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Arrays And Hashing</p>
+        <h2>Frequency, Complement, Prefix, And Monotonic Patterns</h2>
+        <p>
+          These are the warm-up problems that become production skills: feature
+          aggregation, deduplication, telemetry windows, ranking, and invariant
+          checks for streaming data.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Contains Duplicate</h3>
+        <p>Return true if any value appears at least twice in the array.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use a set. Invariant: before reading <code>nums[i]</code>, the set
+            contains exactly the values seen at earlier indices. Mistake to
+            avoid: sorting changes the cost to <code>O(n log n)</code> and can
+            obscure the simpler expected answer. Test empty, one element,
+            duplicate adjacent, duplicate far apart, and negative values.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Valid Anagram</h3>
+        <p>Return true when two strings contain the same character multiset.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Count characters in both strings or add for one string and subtract
+            for the other. Invariant: after processing aligned positions, the
+            counter equals the frequency difference for the prefixes. Mistake to
+            avoid: assuming ASCII only without asking. Test unequal lengths,
+            repeated characters, mixed case if allowed, and Unicode if the
+            interviewer leaves character set open.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Top K Frequent Elements</h3>
+        <p>Return the <code>k</code> values that appear most frequently.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Count with a hash map, then use bucket sort for <code>O(n)</code>
+            expected time or a heap for <code>O(n log k)</code>. Invariant for
+            the heap version: the heap contains the best <code>k</code> elements
+            among processed frequency pairs. Mistake to avoid: sorting all
+            counts when the follow-up asks for better than <code>O(n log n)</code>.
+            Test <code>k = 1</code>, <code>k</code> equals distinct count, ties,
+            and all values equal.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Maximum Product Subarray</h3>
+        <p>Return the largest product of a contiguous non-empty subarray.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Track both max and min products ending at the current index because
+            a negative value can swap them. Invariant: after processing
+            <code>x</code>, <code>hi</code> and <code>lo</code> are the largest
+            and smallest products of subarrays ending at <code>x</code>. Mistake
+            to avoid: only tracking the max, which fails on two negatives. Test
+            zeros, all negatives, one element, and alternating signs.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Maximum Product Subarray</h3>
+        <p>Implement the min/max ending-state approach.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def max_product(nums):
+    best = hi = lo = nums[0]
+    for x in nums[1:]:
+        if x &lt; 0:
+            hi, lo = lo, hi
+        hi = max(x, hi * x)
+        lo = min(x, lo * x)
+        best = max(best, hi)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Container With Most Water</h3>
+        <p>Choose two vertical lines that hold the most water.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use two pointers. Invariant: after evaluating a pair, moving the
+            shorter side is the only move that can possibly improve area because
+            width always shrinks. Mistake to avoid: moving the taller side and
+            skipping candidates with a higher limiting height. Test strictly
+            increasing heights, strictly decreasing heights, equal heights, and
+            two-element input.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="intervals" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Intervals</p>
+        <h2>Sort Once, Preserve The Meaning Of The Active Range</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Insert Interval</h3>
+        <p>Insert a new interval into a sorted non-overlapping interval list.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Append intervals before the new interval, merge all overlaps, then
+            append the rest. Invariant: output is sorted and non-overlapping for
+            everything already consumed. Mistake to avoid: treating touching
+            endpoints incorrectly; ask whether <code>[1, 2]</code> and
+            <code>[2, 3]</code> overlap. Test insert before all, after all,
+            merging one, merging many, and exact endpoint contact.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Merge Intervals</h3>
+        <p>Merge all overlapping intervals.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Sort by start, then maintain the last merged interval. Invariant:
+            the merged list covers exactly the processed intervals and has no
+            overlaps. Mistake to avoid: forgetting to update the end with
+            <code>max</code> when a later interval is contained by the active
+            one. Test nested intervals, unsorted input, endpoint contact, and a
+            single interval.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Non-Overlapping Intervals</h3>
+        <p>Return the minimum number of intervals to remove so the rest do not overlap.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Greedily keep intervals with the earliest end time. Invariant: among
+            processed intervals, the kept set has maximum size and the smallest
+            possible last end for that size. Mistake to avoid: sorting by start
+            and removing the next interval without comparing ends. Test
+            identical intervals, nested intervals, endpoint contact, and no
+            overlaps.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Meeting Rooms II Variant</h3>
+        <p>Given intervals, return the minimum number of rooms needed.</p>
+        <details class="qa">
+          <summary>Hidden answer: heap invariant and Python solution</summary>
+          <p>
+            This common follow-up uses a min-heap of meeting end times.
+            Invariant: the heap contains the end time of each room currently in
+            use after processing meetings in start-time order.
+          </p>
+          <pre><code class="language-python">import heapq
+
+def min_meeting_rooms(intervals):
+    rooms = []
+    for start, end in sorted(intervals):
+        if rooms and rooms[0] &lt;= start:
+            heapq.heappop(rooms)
+        heapq.heappush(rooms, end)
+    return len(rooms)</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="heaps" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Heaps</p>
+        <h2>Streaming Priority Under Memory Constraints</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Find Median From Data Stream</h3>
+        <p>Support adding numbers and returning the current median.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use a max-heap for the lower half and a min-heap for the upper half.
+            Invariant: every value in the lower heap is less than or equal to
+            every value in the upper heap, and heap sizes differ by at most one.
+            Mistake to avoid: balancing sizes without preserving ordering. Test
+            increasing input, decreasing input, duplicates, negatives, and even
+            versus odd counts.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Merge K Sorted Lists</h3>
+        <p>Merge <code>k</code> sorted linked lists into one sorted list.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Push each non-empty list head into a heap, pop the smallest node,
+            and push that node's successor. Invariant: the heap contains the
+            smallest unmerged node from each active list. Mistake to avoid:
+            pushing nodes directly in Python without a tie-breaker when values
+            match. Test empty list array, all lists empty, duplicates across
+            lists, and one very long list.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="matrices" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Matrices</p>
+        <h2>Boundary Discipline And Coordinate Invariants</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Set Matrix Zeroes</h3>
+        <p>If a cell is zero, set its entire row and column to zero in place.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use the first row and first column as marker storage, plus flags for
+            whether they originally contained zero. Invariant: after the marker
+            pass, <code>matrix[r][0]</code> and <code>matrix[0][c]</code>
+            encode whether row <code>r</code> or column <code>c</code> should be
+            zeroed. Mistake to avoid: overwriting markers before the inner cells
+            are processed. Test one row, one column, zero at <code>[0][0]</code>,
+            and multiple zeroes.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Spiral Matrix</h3>
+        <p>Return all matrix values in spiral order.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Maintain top, bottom, left, and right boundaries. Invariant: after
+            each side traversal, the corresponding boundary moves inward and no
+            visited cell remains inside the active rectangle. Mistake to avoid:
+            traversing bottom or left after the boundaries have crossed. Test
+            square, single row, single column, wide rectangle, and tall
+            rectangle.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Rotate Image</h3>
+        <p>Rotate an <code>n x n</code> matrix 90 degrees clockwise in place.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Transpose across the main diagonal, then reverse each row. Invariant
+            after transpose: <code>matrix[r][c]</code> has swapped with
+            <code>matrix[c][r]</code> exactly once for <code>c &gt; r</code>.
+            Mistake to avoid: swapping each pair twice. Test <code>1 x 1</code>,
+            <code>2 x 2</code>, odd size, and even size.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Spiral Matrix</h3>
+        <p>Implement the boundary walk without duplicate visits.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def spiral_order(matrix):
+    if not matrix or not matrix[0]:
+        return []
+
+    out = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top &lt;= bottom and left &lt;= right:
+        for c in range(left, right + 1):
+            out.append(matrix[top][c])
+        top += 1
+
+        for r in range(top, bottom + 1):
+            out.append(matrix[r][right])
+        right -= 1
+
+        if top &lt;= bottom:
+            for c in range(right, left - 1, -1):
+                out.append(matrix[bottom][c])
+            bottom -= 1
+
+        if left &lt;= right:
+            for r in range(bottom, top - 1, -1):
+                out.append(matrix[r][left])
+            left += 1
+
+    return out</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="linked" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Linked Lists</p>
+        <h2>Pointer Moves You Can Explain Without Hand-Waving</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Reverse Linked List</h3>
+        <p>Reverse a singly linked list.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Iterate with <code>prev</code> and <code>cur</code>. Invariant:
+            <code>prev</code> is the reversed prefix and <code>cur</code> is the
+            head of the unreversed suffix. Mistake to avoid: losing
+            <code>cur.next</code> before saving it. Test empty list, one node,
+            two nodes, and longer list.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Linked List Cycle</h3>
+        <p>Return true if the list contains a cycle.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use Floyd's slow and fast pointers. Invariant: if a cycle exists,
+            the fast pointer gains one node per step on the slow pointer modulo
+            the cycle length, so they eventually meet. Mistake to avoid:
+            dereferencing <code>fast.next</code> without checking it. Test empty,
+            no cycle, cycle at head, and cycle in the middle.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Remove Nth Node From End</h3>
+        <p>Remove the <code>n</code>th node from the end of a singly linked list.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use a dummy node and move <code>fast</code> ahead by
+            <code>n</code> steps, then move <code>slow</code> and
+            <code>fast</code> together. Invariant: the gap between pointers is
+            <code>n</code>, so when <code>fast</code> reaches the end,
+            <code>slow.next</code> is the node to remove. Mistake to avoid:
+            failing when removing the head. Test one node, remove head, remove
+            tail, and middle removal.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Reverse Linked List</h3>
+        <p>Implement iterative pointer rewiring.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def reverse_list(head):
+    prev = None
+    cur = head
+    while cur:
+        nxt = cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+    return prev</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Connection</p>
+        <h2>Why This Matters For Audio ML Work</h2>
+      </div>
+      <ul class="checklist">
+        <li>Hash maps power slice metrics, cache keys, deduplication, and request aggregation.</li>
+        <li>Intervals show up in VAD segments, speaker diarization turns, subtitle spans, and rollout windows.</li>
+        <li>Heaps model streaming top-k, priority queues, schedulers, and latency-aware batch assembly.</li>
+        <li>Matrices map to spectrograms, confusion tables, attention maps, and batched feature tensors.</li>
+        <li>Linked-list pointer discipline mirrors stream buffers, queues, and resource ownership bugs.</li>
+      </ul>
+      <details class="qa">
+        <summary>Question: How should you explain a coding problem in a senior ML interview?</summary>
+        <p>
+          Tie the algorithm to a real system only after solving the prompt
+          correctly. Interviewers want reliable fundamentals first, then mature
+          engineering judgment: constraints, correctness, complexity, tests, and
+          how the pattern appears in production ML systems.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>Practice by invariant first. Code from memory only after the reasoning is stable.</p>
+  </footer>
+</body>
+</html>

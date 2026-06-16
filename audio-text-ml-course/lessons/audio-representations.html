@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 03 - Audio Representations</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#waveform">Waveform</a>
+      <a href="#stft">STFT</a>
+      <a href="#mel">Mel</a>
+      <a href="#augmentation">Augmentation</a>
+      <a href="#checkpoints">Questions</a>
+    </nav>
+    <p class="eyebrow">Module 03</p>
+    <h1>Audio Representations</h1>
+    <p class="lede">
+      Speech models do not start with words. They start with pressure samples,
+      frames, spectra, or learned audio tokens. This lesson turns raw audio into
+      the representations used by ASR, TTS, and speech-to-speech systems.
+    </p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Outcome</p>
+        <h2>What You Should Be Able To Build</h2>
+      </div>
+      <ul class="checklist">
+        <li>Load audio and reason about sample rate, duration, channels, and amplitude.</li>
+        <li>Explain why short-time analysis is needed for speech.</li>
+        <li>Implement an STFT and interpret the time-frequency tradeoff.</li>
+        <li>Convert power spectra to mel filterbank features.</li>
+        <li>Explain why log-mel features became a durable ASR/TTS interface.</li>
+        <li>Design augmentations that improve robustness without destroying labels.</li>
+      </ul>
+    </section>
+
+    <section id="waveform" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Raw Signal</p>
+        <h2>Waveform Is Pressure Over Time</h2>
+      </div>
+      <p>
+        Digital audio is a sequence of samples. At 16 kHz, one second of mono
+        speech has 16,000 values. At 48 kHz, it has 48,000 values. A model can
+        learn directly from waveform, but the sequence is long and local
+        structure matters.
+      </p>
+      <pre><code class="language-python">import wave
+import numpy as np
+
+
+def load_wav_mono(path: str):
+    with wave.open(path, "rb") as f:
+        sample_rate = f.getframerate()
+        channels = f.getnchannels()
+        width = f.getsampwidth()
+        frames = f.readframes(f.getnframes())
+
+    if width != 2:
+        raise ValueError("This minimal loader expects 16-bit PCM WAV.")
+
+    audio = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+    if channels > 1:
+        audio = audio.reshape(-1, channels).mean(axis=1)
+    duration = len(audio) / sample_rate
+    return audio, sample_rate, duration
+
+
+audio, sr, seconds = load_wav_mono("example.wav")
+print(sr, seconds, audio.min(), audio.max())</code></pre>
+
+      <details class="qa">
+        <summary>Question: Why normalize int16 audio by 32768?</summary>
+        <p>
+          Sixteen-bit PCM stores samples as integers from about -32768 to 32767.
+          Dividing by 32768 maps the signal into roughly [-1, 1], which is a
+          numerically convenient range for feature extraction and neural nets.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Question: Why does sample rate matter for speech models?</summary>
+        <p>
+          Sample rate controls the highest representable frequency and the
+          number of time steps. A model trained for 16 kHz expects different
+          temporal spacing from a model trained for 48 kHz. Mismatched sample
+          rates can shift features and hurt recognition or synthesis quality.
+        </p>
+      </details>
+    </section>
+
+    <section id="stft" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Time-Frequency</p>
+        <h2>STFT: Local Frequency Snapshots</h2>
+      </div>
+      <p>
+        Speech changes over time. A single Fourier transform over a full
+        utterance loses when things happened. The short-time Fourier transform
+        cuts audio into overlapping windows and computes a spectrum per frame.
+      </p>
+      <pre><code class="language-python">import numpy as np
+
+
+def stft(audio: np.ndarray, n_fft: int = 400, hop: int = 160):
+    # 25 ms window and 10 ms hop at 16 kHz are common ASR defaults.
+    window = np.hanning(n_fft).astype(np.float32)
+    frames = []
+    for start in range(0, max(0, len(audio) - n_fft + 1), hop):
+        chunk = audio[start:start + n_fft]
+        spectrum = np.fft.rfft(chunk * window)
+        frames.append(spectrum)
+    return np.stack(frames, axis=0)  # [time, frequency]
+
+
+spec = stft(audio, n_fft=400, hop=160)
+power = np.abs(spec) ** 2
+print(power.shape)</code></pre>
+
+      <details class="qa">
+        <summary>Question: What is the tradeoff in choosing n_fft?</summary>
+        <p>
+          Larger windows improve frequency resolution but blur timing. Smaller
+          windows improve time resolution but make frequency estimates coarser.
+          Speech systems often use 20-25 ms windows because phonetic cues are
+          locally stable at that scale.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Question: Why overlap frames?</summary>
+        <p>
+          Overlap avoids missing transitions that fall at frame boundaries and
+          gives smoother time evolution. A 10 ms hop with a 25 ms window is a
+          common compromise for ASR features.
+        </p>
+      </details>
+    </section>
+
+    <section id="mel" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Perception</p>
+        <h2>Mel Filterbanks Compress Frequency</h2>
+      </div>
+      <p>
+        Human pitch perception is not linear in Hertz. Mel filters group
+        frequencies into perceptual bands, and log compression turns multiplicative
+        energy differences into additive scale differences. Log-mel features are
+        a practical middle ground: compact, robust, and still speech-rich.
+      </p>
+      <pre><code class="language-python">def hz_to_mel(hz):
+    return 2595.0 * np.log10(1.0 + hz / 700.0)
+
+
+def mel_to_hz(mel):
+    return 700.0 * (10 ** (mel / 2595.0) - 1.0)
+
+
+def mel_filterbank(sample_rate: int, n_fft: int, n_mels: int = 80):
+    max_hz = sample_rate / 2
+    mel_points = np.linspace(hz_to_mel(0), hz_to_mel(max_hz), n_mels + 2)
+    hz_points = mel_to_hz(mel_points)
+    bins = np.floor((n_fft + 1) * hz_points / sample_rate).astype(int)
+
+    fb = np.zeros((n_mels, n_fft // 2 + 1), dtype=np.float32)
+    for i in range(n_mels):
+        left, center, right = bins[i], bins[i + 1], bins[i + 2]
+        for j in range(left, center):
+            fb[i, j] = (j - left) / max(1, center - left)
+        for j in range(center, right):
+            fb[i, j] = (right - j) / max(1, right - center)
+    return fb
+
+
+fb = mel_filterbank(sample_rate=sr, n_fft=400, n_mels=80)
+mel_power = power @ fb.T
+log_mel = np.log(np.maximum(mel_power, 1e-10))
+print(log_mel.shape)  # [time, n_mels]</code></pre>
+
+      <details class="qa">
+        <summary>Question: Why take log after mel power?</summary>
+        <p>
+          Speech energy varies over a large dynamic range. Log compression makes
+          quiet but important structure more visible and makes ratios of energy
+          behave more like additive differences.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Question: Are mel features always better than waveform?</summary>
+        <p>
+          No. Mel features bake in a useful speech prior and shorten the input,
+          but waveform or learned codec tokens can preserve information that mel
+          features discard. The best representation depends on task, data size,
+          latency, and model architecture.
+        </p>
+      </details>
+    </section>
+
+    <section id="augmentation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Robustness</p>
+        <h2>Augmentation Should Preserve The Label</h2>
+      </div>
+      <p>
+        Speech models should survive background noise, volume changes, mild
+        speed variation, and missing frequency bands. But augmentation must not
+        change the transcript or speaker label unless the training objective
+        expects that change.
+      </p>
+      <pre><code class="language-python">def add_noise(audio, snr_db=20.0, rng=np.random.default_rng(0)):
+    noise = rng.standard_normal(len(audio)).astype(np.float32)
+    signal_power = np.mean(audio ** 2) + 1e-12
+    noise_power = np.mean(noise ** 2) + 1e-12
+    target_noise_power = signal_power / (10 ** (snr_db / 10))
+    noise = noise * np.sqrt(target_noise_power / noise_power)
+    return np.clip(audio + noise, -1.0, 1.0)
+
+
+def time_mask(log_mel, max_width=20, rng=np.random.default_rng(0)):
+    out = log_mel.copy()
+    width = int(rng.integers(0, max_width + 1))
+    if width == 0 or width >= out.shape[0]:
+        return out
+    start = int(rng.integers(0, out.shape[0] - width))
+    out[start:start + width, :] = out.mean()
+    return out</code></pre>
+
+      <details class="qa">
+        <summary>Question: Why can augmentation hurt?</summary>
+        <p>
+          If augmentation creates unrealistic audio or changes the label, the
+          model learns the wrong invariances. Heavy time stretching can change
+          phonetic cues, aggressive noise can hide words, and speaker-changing
+          transforms can corrupt speaker tasks.
+        </p>
+      </details>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Engineer Lens</p>
+        <h2>Representation Choices Are Product Choices</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR</h3>
+          <p>Log-mel features are efficient and robust. Waveform models need more data or stronger pretraining but may capture richer cues.</p>
+        </article>
+        <article class="card">
+          <h3>TTS</h3>
+          <p>Mel spectrograms are common acoustic targets, but modern systems increasingly use neural codec tokens for expressive speech generation.</p>
+        </article>
+        <article class="card">
+          <h3>Speech-To-Speech</h3>
+          <p>Semantic tokens can carry linguistic content while acoustic tokens carry voice, prosody, and sound quality.</p>
+        </article>
+        <article class="card">
+          <h3>Inference</h3>
+          <p>Feature computation adds latency. Streaming systems need frame-by-frame features and careful buffering.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="checkpoints" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Checkpoint</p>
+        <h2>Questions With Hidden Answers</h2>
+      </div>
+
+      <details class="qa">
+        <summary>1. Why do ASR systems often use 10 ms feature hops?</summary>
+        <p>
+          It gives enough temporal detail for phonetic changes while keeping the
+          sequence much shorter than raw waveform samples. At 16 kHz, 10 ms is
+          160 samples, so the model sees 100 frames per second instead of 16,000
+          samples per second.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>2. What is lost when converting waveform to log-mel?</summary>
+        <p>
+          Exact phase, fine frequency detail inside mel bands, and some
+          high-resolution temporal detail are lost. This is acceptable for many
+          ASR systems but can matter for synthesis, speaker identity, and audio
+          quality.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>3. Why are codec tokens important for modern speech-to-speech systems?</summary>
+        <p>
+          They turn continuous audio into discrete tokens that language-model
+          style architectures can model. Separate semantic and acoustic token
+          streams can help disentangle content from voice and prosody.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>4. How would you debug an ASR model that fails in noisy rooms?</summary>
+        <p>
+          Build an error set by noise type and SNR, compare clean versus noisy
+          WER, inspect spectrograms, test noise augmentation, check VAD behavior,
+          and verify whether failures are substitutions, insertions, deletions,
+          or endpointing errors.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

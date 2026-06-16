@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ML Foundations For Speech Engineers</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#math">Math</a>
+      <a href="#training">Training</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#debugging">Debugging</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Modules 01-02</p>
+    <h1>ML Foundations For Speech Engineers</h1>
+    <p class="lede">
+      Senior audio ML work depends on fundamentals: tensor shapes, losses,
+      gradients, optimization, train/validation discipline, and debugging
+      instincts that transfer from toy models to ASR, TTS, and speech agents.
+    </p>
+  </header>
+
+  <main>
+    <section id="math" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Core Math</p>
+        <h2>Know What The Model Is Optimizing</h2>
+        <p>
+          A strong engineer can explain the objective before opening a profiler.
+          These foundations show up in acoustic modeling, language modeling,
+          speaker embeddings, retrieval, ranking, and production calibration.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Vectors And Matrices</h3>
+          <p>Audio batches are tensors: batch, time, feature, channel, layer, head, and vocabulary axes must stay explicit.</p>
+          <details class="qa">
+            <summary>Question: Why do shape mistakes survive code review?</summary>
+            <p>
+              Many tensor libraries broadcast silently. A wrong axis can produce
+              plausible numbers while training the wrong objective. Senior
+              engineers write shape comments, assertions, and tests for feature
+              extraction, masking, padding, and batch collation.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Probability</h3>
+          <p>ASR and TTS systems rank uncertain hypotheses, not certainties. Learn likelihoods, priors, calibration, and confidence.</p>
+          <details class="qa">
+            <summary>Question: Why is confidence not accuracy?</summary>
+            <p>
+              Confidence is a model score or derived probability. Accuracy is
+              measured against labels. A model can be overconfident on noisy
+              microphones or rare names, so launch decisions require calibration
+              curves and slice metrics, not raw confidence alone.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Loss Functions</h3>
+          <p>Cross entropy, CTC, contrastive losses, regression losses, and ranking losses encode different supervision assumptions.</p>
+          <details class="qa">
+            <summary>Question: When is cross entropy the wrong mental model?</summary>
+            <p>
+              Cross entropy fits aligned classification targets. Streaming ASR
+              often has unaligned audio and text, so CTC or transducer losses
+              marginalize alignments. Retrieval uses contrastive objectives,
+              and TTS may combine duration, acoustic, adversarial, and vocoder
+              losses.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Optimization</h3>
+          <p>Learning rate, batch size, initialization, normalization, clipping, and schedulers determine whether gradients are useful.</p>
+          <details class="qa">
+            <summary>Question: What should you check before blaming the model?</summary>
+            <p>
+              Check data labels, leakage, feature normalization, loss scale,
+              gradient norms, learning rate, batch construction, masking,
+              train/eval mode, random seeds, and whether the model can overfit
+              a tiny batch. Most early failures are pipeline failures.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="training" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Training Loop</p>
+        <h2>A Minimal Classifier With Senior Habits</h2>
+        <p>
+          This tiny example is not an ASR system. It is a clean template for
+          habits that matter later: explicit shapes, split metrics, deterministic
+          seeds, and small-batch overfit checks.
+        </p>
+      </div>
+      <pre><code class="language-python">import random
+import numpy as np
+import torch
+from torch import nn
+
+
+def seed_everything(seed=7):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
+class TinyClassifier(nn.Module):
+    def __init__(self, in_features, hidden, classes):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(in_features, hidden),
+            nn.ReLU(),
+            nn.LayerNorm(hidden),
+            nn.Linear(hidden, classes),
+        )
+
+    def forward(self, x):
+        # x: [batch, features]
+        return self.net(x)
+
+
+def train_step(model, batch, optimizer):
+    model.train()
+    x, y = batch
+    logits = model(x)
+    assert logits.shape[0] == y.shape[0]
+    loss = nn.functional.cross_entropy(logits, y)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+    optimizer.step()
+    return float(loss.detach())</code></pre>
+      <details class="qa">
+        <summary>Question: Why include a tiny-batch overfit test?</summary>
+        <p>
+          If the model cannot drive loss near zero on a handful of examples,
+          something basic is broken: labels, shapes, masking, optimizer, feature
+          scale, loss wiring, or train/eval mode. This test is cheap and catches
+          failures before expensive experiments.
+        </p>
+      </details>
+      <details class="qa">
+        <summary>Question: How does this map to speech?</summary>
+        <p>
+          Replace fixed vectors with frames or learned audio tokens, add
+          padding masks, and choose a sequence objective. The same discipline
+          remains: verify tensor axes, loss behavior, gradient scale, split
+          metrics, deterministic fixtures, and a small overfit run.
+        </p>
+      </details>
+    </section>
+
+    <section id="evaluation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Evaluation</p>
+        <h2>Measure Generalization, Not Just Training Loss</h2>
+      </div>
+      <ul class="checklist">
+        <li>Split data by speaker, session, device, domain, and time when leakage is possible.</li>
+        <li>Track aggregate metrics and critical slices separately.</li>
+        <li>Compare against a frozen baseline before claiming progress.</li>
+        <li>Report confidence intervals or repeated-seed variance for small eval sets.</li>
+        <li>Keep private audio and transcripts out of Git; store sanitized aggregate results only.</li>
+      </ul>
+      <article class="prompt">
+        <h3>Exam Prompt: Design A Validation Split For Wake-Word Detection</h3>
+        <p>
+          You have recordings from 500 speakers, multiple rooms, and several
+          microphone models. How do you split train, validation, and test data?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: validation design</summary>
+          <p>
+            Split primarily by speaker so identity does not leak. Reserve
+            device and room slices in validation and test, and keep a
+            time-based holdout if recordings were collected over multiple
+            app versions. Report false accepts, false rejects, latency, and
+            noisy/far-field slices. Use a locked test set only for release
+            decisions, not iterative tuning.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Exam Prompt: Accuracy Improved But Product Quality Dropped</h3>
+        <p>
+          Offline validation accuracy increased, but users report worse
+          dictation quality after release. What hypotheses do you test first?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation path</summary>
+          <p>
+            Check data mismatch, leakage in validation, degraded latency,
+            partial transcript churn, punctuation or normalization changes,
+            entity error rate, accent or device slices, confidence calibration,
+            rollout mix, and downstream UI behavior. Product quality may depend
+            on timing, stability, and edit distance on important words, not
+            global accuracy alone.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="debugging" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Debugging</p>
+        <h2>First Checks When Training Looks Wrong</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Loss Does Not Move</h3>
+          <p>Start with labels, feature scale, learning rate, frozen parameters, masking, and optimizer wiring.</p>
+          <details class="qa">
+            <summary>Question: What is the fastest useful experiment?</summary>
+            <p>
+              Overfit 8 to 32 examples with augmentation disabled. If that
+              fails, inspect one batch by hand, print shapes, check logits,
+              check gradients, and confirm labels match the input examples.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Validation Regresses</h3>
+          <p>Look for overfitting, leakage removal, train/eval mismatch, bad augmentation, or slice-specific failures.</p>
+          <details class="qa">
+            <summary>Question: What makes speech validation fragile?</summary>
+            <p>
+              Speakers, microphones, rooms, language mix, noise, silence, and
+              transcript normalization can shift independently. A validation
+              set that misses one of those axes can approve a model that fails
+              in production.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Interview</p>
+        <h2>Foundations Prompts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Explain Bias, Variance, And Data Scale For ASR</h3>
+        <p>
+          A candidate model underfits clean speech and performs poorly on noisy
+          speech. Explain what you would change and how you would measure it.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response shape</summary>
+          <p>
+            Separate capacity from data mismatch. Underfitting clean speech
+            suggests optimization, architecture, feature, or capacity issues.
+            Poor noisy performance may require augmentation, better data
+            coverage, denoising, or robust objectives. Measure clean and noisy
+            slices separately, include entity error and latency, and require
+            a baseline comparison before shipping.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Diagnose A Train-Serving Skew</h3>
+        <p>
+          Offline eval is strong, but production requests show lower confidence
+          and higher correction rate. What do you inspect?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: skew checklist</summary>
+          <p>
+            Compare sample rate, channel handling, loudness normalization, VAD,
+            text normalization, tokenizer version, model artifact hash,
+            dependency versions, padding and masks, runtime precision, feature
+            extraction config, traffic slices, and client microphone changes.
+            Add canaries that run the same public fixture through training and
+            serving paths.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

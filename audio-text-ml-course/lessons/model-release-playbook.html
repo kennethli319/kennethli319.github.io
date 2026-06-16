@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Model Release Playbook</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#contract">Contract</a>
+      <a href="#gates">Gates</a>
+      <a href="#rollout">Rollout</a>
+      <a href="#debug">Debug</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Production Playbook</p>
+    <h1>Speech Model Release And Rollback</h1>
+    <p class="lede">
+      A senior-level release checklist for ASR, TTS, speech embeddings, and
+      speech-to-speech systems. Use it for interviews, design reviews, and
+      real production readiness.
+    </p>
+  </header>
+
+  <main>
+    <section id="contract" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Artifact Contract</p>
+        <h2>What Must Ship With A Model</h2>
+        <p>
+          A model is not only weights. A production release needs every input,
+          transform, dependency, metric, and rollback path required to recreate
+          behavior.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Identity:</strong> model name, semantic version, owner, training code commit, serving code commit, and release date.</li>
+        <li><strong>Inputs:</strong> sample rate, channels, codec, max duration, language assumptions, text normalization, tokenizer, and feature config.</li>
+        <li><strong>Outputs:</strong> transcript schema, timestamps, confidence, speaker labels, audio format, or embedding dimension.</li>
+        <li><strong>Eval:</strong> baseline comparison, slice metrics, latency percentiles, memory footprint, cost estimate, and known regressions.</li>
+        <li><strong>Controls:</strong> canary plan, rollback command, feature flag, data retention policy, and on-call owner.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is feature config part of the artifact?</summary>
+        <p>
+          Speech models are sensitive to preprocessing. A mel-bin count,
+          normalization rule, VAD threshold, codec setting, or tokenizer update
+          can change accuracy, latency, and failure modes without changing
+          weights. Senior release reviews treat preprocessing as part of the
+          model contract.
+        </p>
+      </details>
+    </section>
+
+    <section id="gates" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Promotion Gates</p>
+        <h2>Block Releases That Cannot Be Operated</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Quality Gate</h3>
+          <p>Compare against the current production model on global and critical slices.</p>
+          <details class="qa">
+            <summary>Hidden answer: ASR gate example</summary>
+            <p>
+              Require no global WER regression, no critical entity error
+              regression, and no material loss on accents, noise buckets,
+              domain vocabulary, short utterances, long calls, and code-switched
+              speech. Add manual review for any slice with high business risk.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Serving Gate</h3>
+          <p>Prove the release can satisfy latency, memory, and concurrency constraints.</p>
+          <details class="qa">
+            <summary>Hidden answer: Load test checklist</summary>
+            <p>
+              Measure p50, p95, p99, queue time, first partial, final latency,
+              first audio byte, GPU memory, batch size, timeout rate, retry
+              rate, and cost per audio hour. Run warm and cold tests because
+              speech users feel first-turn latency sharply.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Privacy Gate</h3>
+          <p>Verify raw audio, transcripts, voiceprints, and API tokens are not logged or committed.</p>
+          <details class="qa">
+            <summary>Hidden answer: Privacy-safe observability</summary>
+            <p>
+              Prefer trace IDs, durations, language probabilities, confidence
+              distributions, redacted text, aggregate acoustic quality signals,
+              and explicitly opted-in debug samples. Do not store private audio
+              by default just because it makes debugging easier.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Rollback Gate</h3>
+          <p>Demonstrate that the old path can be restored before user impact grows.</p>
+          <details class="qa">
+            <summary>Hidden answer: Rollback readiness</summary>
+            <p>
+              Keep the previous model artifact available, preserve compatible
+              request and response schemas, document the flag or routing change,
+              and test rollback in staging. If migration changes state or
+              outputs, define a forward-fix plan too.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="rollout" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rollout</p>
+        <h2>Canary By Risk, Not Just Percentage</h2>
+      </div>
+      <article class="prompt">
+        <h3>Release Plan: New Streaming ASR Model</h3>
+        <p>
+          The candidate model improves offline WER by 7 percent relative, but
+          uses more memory and changes partial transcript behavior. Propose a
+          production rollout.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Senior rollout plan</summary>
+          <p>
+            Start with shadow traffic to compare transcripts, latency, and
+            partial churn without user exposure. Then canary low-risk tenants,
+            short calls, and one language before expanding. Gate each step on
+            WER proxies, entity errors, p95 latency, p99 latency, queue depth,
+            OOMs, partial churn, cancellation rate, and support tickets. Keep
+            old workers warm until the canary is stable.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Release Plan: New TTS Voice</h3>
+        <p>
+          A new voice has better preference-test scores but slower first audio
+          byte. The product goal is conversational response.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Tradeoff framing</summary>
+          <p>
+            Separate quality-sensitive and latency-sensitive use cases. Canary
+            on non-critical flows first, stream by sentence, keep warm pools,
+            cache fixed prompts, and set an explicit first-audio-byte budget.
+            Roll back or route to the old voice when p95 latency breaks the
+            conversation SLO, even if offline preference scores look better.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="debug" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Debugging</p>
+        <h2>First 30 Minutes Of An Incident</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Scope:</strong> identify affected tenants, languages, devices, model versions, and traffic paths.</li>
+        <li><strong>Stabilize:</strong> pause rollout, reduce traffic, disable shadow load, or roll back if SLO impact is active.</li>
+        <li><strong>Compare:</strong> replay sanitized fixtures through old and new paths with the same preprocessing and decode settings.</li>
+        <li><strong>Localize:</strong> split queueing, preprocessing, model inference, decoding, postprocessing, network, and UI rendering time.</li>
+        <li><strong>Learn:</strong> add the missing metric, test, fixture, or release gate that would have caught the issue earlier.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the common senior mistake during incidents?</summary>
+        <p>
+          Optimizing before scoping. A strong response first protects users and
+          narrows the blast radius. Only then does it chase root cause. The
+          difference matters because a model bug, a batcher bug, a network
+          issue, and a UI partial-rendering bug can all look like "bad ASR" to
+          users.
+        </p>
+      </details>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Mock Exam</p>
+        <h2>Release Review Prompts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Approve Or Block?</h3>
+        <p>
+          A speech embedding model improves retrieval recall by 3 percent, but
+          doubles embedding latency and slightly changes vector dimensionality.
+          Should it ship?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Decision criteria</summary>
+          <p>
+            Do not approve without a migration plan. Changing dimensionality can
+            require reindexing, dual writes, backfills, compatibility shims, and
+            rollback planning. Compare product value from recall against
+            latency, infrastructure cost, index rebuild time, retrieval quality
+            by slice, and whether clients can handle mixed versions.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Design The CI/CD Checks</h3>
+        <p>
+          You own a repository that serves ASR and TTS models. What checks run
+          before merging model wrapper changes?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Practical checklist</summary>
+          <p>
+            Include unit tests for schema, sample-rate handling, empty audio,
+            long audio, invalid codec, timeout cancellation, and deterministic
+            fixtures. Add golden-output tests for sanitized samples, latency
+            smoke tests, dependency lock checks, secret scanning, artifact
+            metadata validation, container build, and a staging canary with
+            rollback verification.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

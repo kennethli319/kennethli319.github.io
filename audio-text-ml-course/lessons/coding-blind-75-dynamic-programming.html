@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Dynamic Programming Deep Dive</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#method">Method</a>
+      <a href="#one-d">1D DP</a>
+      <a href="#two-d">2D DP</a>
+      <a href="#interview">Interview</a>
+      <a href="#production">Production</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Dynamic Programming Deep Dive</h1>
+    <p class="lede">
+      Turn DP from a memorized trick into a repeatable interview method:
+      define the state, prove the recurrence, choose iteration order, and test
+      impossible cases before coding.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">DP Method</p>
+        <h2>State First, Recurrence Second</h2>
+        <p>
+          A strong DP answer is not just code. It explains what each table
+          entry means, which smaller answers are trusted, and why the final
+          entry answers the original prompt.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>State:</strong> define <code>dp[i]</code>, <code>dp[i][j]</code>, or memo arguments in one sentence.</li>
+        <li><strong>Base:</strong> state the smallest valid and impossible inputs.</li>
+        <li><strong>Transition:</strong> list the previous states needed to compute the current state.</li>
+        <li><strong>Order:</strong> choose top-down memoization or bottom-up iteration so dependencies are ready.</li>
+        <li><strong>Answer:</strong> point to the exact cell or return value.</li>
+        <li><strong>Tests:</strong> include empty input, one item, zeros, duplicates, impossible target, and large values.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: How do you know a coding prompt is probably DP?</summary>
+        <p>
+          Look for repeated subproblems over prefixes, suffixes, indices,
+          amounts, capacities, or two sequence positions. If a brute-force
+          recursion keeps solving the same smaller question, memoize it. If
+          greedy choices can be locally attractive but globally wrong, DP is a
+          candidate.
+        </p>
+      </details>
+    </section>
+
+    <section id="one-d" class="band">
+      <div class="section-head">
+        <p class="eyebrow">1D DP</p>
+        <h2>Prefixes, Amounts, And Rolling State</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked DP 1: Climbing Stairs</h3>
+        <p>
+          You can climb one or two steps at a time. Return how many distinct
+          ways there are to reach step <code>n</code>.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state, recurrence, tests, and Python solution</summary>
+          <p>
+            State: <code>ways[i]</code> is the number of ways to reach step
+            <code>i</code>. Recurrence: the last move came from
+            <code>i - 1</code> or <code>i - 2</code>. Test <code>n = 1</code>,
+            <code>n = 2</code>, and a larger value. The rolling variables store
+            the two previous states.
+          </p>
+          <pre><code class="language-python">def climb_stairs(n):
+    if n &lt;= 2:
+        return n
+
+    two_back = 1
+    one_back = 2
+    for _ in range(3, n + 1):
+        two_back, one_back = one_back, one_back + two_back
+    return one_back</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 2: House Robber</h3>
+        <p>
+          Given non-negative values in houses on a line, return the maximum
+          amount you can rob without robbing adjacent houses.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            State: the best value after considering the prefix ending at the
+            current house. Invariant: <code>prev1</code> is the best value for
+            the processed prefix and <code>prev2</code> is the best value before
+            that. The common mistake is adding the current house to a value that
+            may already include the previous house.
+          </p>
+          <pre><code class="language-python">def rob(nums):
+    prev2 = 0
+    prev1 = 0
+    for value in nums:
+        take = prev2 + value
+        skip = prev1
+        prev2, prev1 = prev1, max(take, skip)
+    return prev1</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 3: Coin Change</h3>
+        <p>
+          Given coin denominations and an amount, return the fewest coins
+          needed to make that amount, or <code>-1</code> if impossible.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state, edge cases, and Python solution</summary>
+          <p>
+            State: <code>dp[a]</code> is the fewest coins needed for amount
+            <code>a</code>. Base: <code>dp[0] = 0</code>. Impossible states
+            remain larger than any valid answer. Test amount zero, impossible
+            amounts, duplicate coin values, and coin systems where greedy fails.
+          </p>
+          <pre><code class="language-python">def coin_change(coins, amount):
+    inf = amount + 1
+    dp = [inf] * (amount + 1)
+    dp[0] = 0
+
+    for a in range(1, amount + 1):
+        for coin in coins:
+            if coin &lt;= a:
+                dp[a] = min(dp[a], dp[a - coin] + 1)
+
+    return -1 if dp[amount] == inf else dp[amount]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 4: Longest Increasing Subsequence</h3>
+        <p>
+          Return the length of the longest strictly increasing subsequence.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: two valid approaches</summary>
+          <p>
+            The O(n^2) DP state is <code>dp[i]</code>: the best increasing
+            subsequence ending at <code>i</code>. The faster O(n log n)
+            approach keeps <code>tails[k]</code>, the smallest possible tail
+            for a subsequence of length <code>k + 1</code>. The tails list is
+            not necessarily the final subsequence; it is a compact frontier.
+          </p>
+          <pre><code class="language-python">from bisect import bisect_left
+
+
+def length_of_lis(nums):
+    tails = []
+    for value in nums:
+        i = bisect_left(tails, value)
+        if i == len(tails):
+            tails.append(value)
+        else:
+            tails[i] = value
+    return len(tails)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Blind 75 Prompt: Decode Ways</h3>
+        <p>
+          Given a digit string where A is 1 through Z is 26, return how many
+          valid decodings exist.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state and mistakes</summary>
+          <p>
+            State: <code>dp[i]</code> is the number of decodings for the prefix
+            <code>s[:i]</code>. A one-digit transition is valid for 1 through
+            9; a two-digit transition is valid for 10 through 26. Common
+            mistakes are treating <code>0</code> as decodable by itself and
+            forgetting that <code>30</code> is invalid.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="two-d" class="band">
+      <div class="section-head">
+        <p class="eyebrow">2D DP</p>
+        <h2>Two Indices Mean Two Prefixes Or A Grid</h2>
+        <p>
+          Most 2D DP interview prompts compare two sequences, walk a grid, or
+          track a start and end index. Say exactly what each axis means.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked DP 5: Unique Paths</h3>
+        <p>
+          A robot starts at the top-left of an <code>m x n</code> grid and can
+          move only right or down. Return the number of paths to the bottom-right.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state, memory optimization, and Python solution</summary>
+          <p>
+            State: <code>dp[c]</code> is the number of paths to the current row
+            and column <code>c</code>. Each cell can be reached from above or
+            left. A one-dimensional table works because the old
+            <code>dp[c]</code> is the value from above and <code>dp[c - 1]</code>
+            is the value from the left.
+          </p>
+          <pre><code class="language-python">def unique_paths(m, n):
+    dp = [1] * n
+    for _ in range(1, m):
+        for c in range(1, n):
+            dp[c] += dp[c - 1]
+    return dp[-1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 6: Longest Common Subsequence</h3>
+        <p>
+          Given two strings, return the length of their longest common
+          subsequence.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state, recurrence, and Python solution</summary>
+          <p>
+            State: <code>dp[i][j]</code> is the LCS length between prefixes
+            <code>text1[:i]</code> and <code>text2[:j]</code>. If the final
+            characters match, extend the diagonal answer. Otherwise, drop one
+            final character from either prefix and keep the better answer.
+          </p>
+          <pre><code class="language-python">def longest_common_subsequence(text1, text2):
+    rows = len(text1) + 1
+    cols = len(text2) + 1
+    dp = [[0] * cols for _ in range(rows)]
+
+    for i in range(1, rows):
+        for j in range(1, cols):
+            if text1[i - 1] == text2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp[-1][-1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 7: Word Break</h3>
+        <p>
+          Given a string and dictionary, return whether the string can be
+          segmented into dictionary words.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: state, pruning, and Python solution</summary>
+          <p>
+            State: <code>dp[i]</code> means the prefix <code>s[:i]</code> can
+            be segmented. Prune with the maximum dictionary word length so the
+            inner loop does not inspect impossible cuts on long inputs.
+          </p>
+          <pre><code class="language-python">def word_break(s, word_dict):
+    words = set(word_dict)
+    if not words:
+        return s == ""
+
+    max_len = max(len(word) for word in words)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True
+
+    for i in range(1, len(s) + 1):
+        start = max(0, i - max_len)
+        for j in range(start, i):
+            if dp[j] and s[j:i] in words:
+                dp[i] = True
+                break
+    return dp[-1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Blind 75 Prompt: Palindromic Substrings</h3>
+        <p>
+          Count how many substrings of a string are palindromes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: expand-around-center strategy</summary>
+          <p>
+            This is often easier without a DP table. Expand around every odd
+            and even center while the characters match. The invariant is that
+            every expansion step has found one more palindrome with that center.
+            Test empty string, one character, repeated characters, and mixed
+            odd/even palindromes.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Drills</p>
+        <h2>Explain These Before Opening The Answers</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Top-Down Or Bottom-Up?</h3>
+        <p>
+          For <code>Coin Change</code>, when would you choose top-down
+          memoization instead of a bottom-up table?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Top-down is attractive when the reachable state space is much
+            smaller than the full table, when the recurrence is easier to state
+            recursively, or when you need a fast prototype. Bottom-up is often
+            better when every amount is likely to be reached, recursion depth is
+            risky, or you want predictable memory and iteration order.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: How Do You Debug A Wrong DP Answer?</h3>
+        <p>
+          Your code passes sample tests but fails hidden cases. What do you do
+          in the interview?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Write the state definition next to the table, then trace a tiny
+            input by hand. Check base cases, index offsets, inclusive versus
+            exclusive prefixes, impossible sentinel values, and iteration order.
+            Add one test for each transition path. If memory was optimized,
+            temporarily expand to the full table to verify correctness first.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: What Is The Complexity?</h3>
+        <p>
+          Explain the time and memory complexity of <code>Word Break</code> in
+          Python.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            With a set for dictionary lookup and maximum word length
+            <code>L</code>, the loop considers at most <code>L</code> cuts for
+            each of <code>n</code> positions. Python slicing can copy up to
+            <code>L</code> characters, so the practical bound is closer to
+            O(n * L^2) unless substring views or trie traversal are used. The
+            DP array is O(n), and the dictionary is O(total dictionary text).
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="production" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Connection</p>
+        <h2>DP-Like Thinking In ML Engineering</h2>
+        <p>
+          Interview DP is not production ML by itself, but the same discipline
+          appears in decoders, dynamic batching, route planning, and cost-aware
+          serving decisions.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Production Follow-Up 1: Beam Search For ASR</h3>
+        <p>
+          How is DP thinking useful when explaining CTC or transducer decoding?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Decoding maintains partial hypotheses and scores over time steps.
+            The state includes the prefix, time, model score, language-model
+            score, and sometimes blank or nonblank endings. The senior tradeoff
+            is beam width versus latency and memory, with slice-level quality
+            checks for accents, noise, and domain terms.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Production Follow-Up 2: Capacity Planning</h3>
+        <p>
+          A shared inference platform must assign requests to model pools while
+          preserving interactive SLOs. What DP-flavored simplification could
+          appear in a follow-up?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            A simplified offline planning problem can look like knapsack:
+            choose model replicas or optimization work under a GPU budget to
+            maximize quality or traffic covered. In production, queueing,
+            burstiness, rollout risk, and noisy estimates matter, so the DP
+            solution becomes a planning aid rather than the serving policy.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep interview notes and synthetic fixtures in Git. Keep private audio, transcripts, and credentials out of Git.</p>
+  </footer>
+</body>
+</html>

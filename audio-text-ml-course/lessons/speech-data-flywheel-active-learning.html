@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Data Flywheels And Active Learning</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#flywheel">Flywheel</a>
+      <a href="#sampling">Sampling</a>
+      <a href="#labels">Labels</a>
+      <a href="#release">Release</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#code">Code</a>
+    </nav>
+    <p class="eyebrow">Senior Data Systems</p>
+    <h1>Speech Data Flywheels And Active Learning</h1>
+    <p class="lede">
+      Practice the senior skill of improving ASR, TTS, and voice agents from
+      production signals without leaking private audio, overfitting to noisy
+      metrics, or building a labeling process that cannot support release
+      decisions.
+    </p>
+  </header>
+
+  <main>
+    <section id="flywheel" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Operating Loop</p>
+        <h2>Make The Data Loop Auditable</h2>
+        <p>
+          A data flywheel is not "collect more examples." It is a controlled
+          system for turning allowed production signals into candidate examples,
+          labels, eval slices, model changes, release gates, and post-launch
+          monitoring.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Instrument:</strong> log aggregate quality, latency, confidence, retry, correction, endpointing, and route signals.</li>
+        <li><strong>Filter:</strong> exclude disallowed consent scopes, sensitive categories, retention-expired data, and raw payloads that the team cannot review.</li>
+        <li><strong>Select:</strong> choose examples by uncertainty, slice gap, production impact, and diversity rather than random volume alone.</li>
+        <li><strong>Label:</strong> use rubrics that separate acoustic, linguistic, retrieval, reasoning, safety, and delivery failures.</li>
+        <li><strong>Evaluate:</strong> promote only when offline, shadow, canary, and production guardrail metrics agree enough for the risk.</li>
+        <li><strong>Retire:</strong> archive or delete examples according to policy, and keep immutable metadata for reproducibility.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the invariant of a safe data flywheel?</summary>
+        <p>
+          Every example used for training or evaluation must have a documented
+          source, consent scope, retention policy, label rubric, split
+          assignment, and model-release lineage. If an example cannot be traced
+          or is not allowed for the intended use, it must not enter the loop.
+        </p>
+      </details>
+    </section>
+
+    <section id="sampling" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Active Learning</p>
+        <h2>Sample For Decisions, Not Just Volume</h2>
+        <p>
+          Active learning should answer a release or research question. For
+          speech systems, useful selection often combines model uncertainty,
+          user impact, audio conditions, language/domain coverage, and known
+          slice gaps.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR Selection Signals</h3>
+          <p>Low confidence, high partial churn, endpointing retries, rare entities, code-switching, far-field audio, noisy mobile, and correction clusters.</p>
+          <details class="qa">
+            <summary>Hidden answer: common sampling mistake</summary>
+            <p>
+              Sampling only the lowest-confidence utterances can overrepresent
+              noise, unsupported languages, or unusable audio. A senior plan
+              stratifies by product slice and adds diversity caps so the label
+              batch improves the eval set instead of becoming a junk drawer.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Selection Signals</h3>
+          <p>Pronunciation complaints, long-form instability, number/date errors, emotional tone mismatch, clipping, latency outliers, and speaker consistency.</p>
+          <details class="qa">
+            <summary>Hidden answer: why TTS active learning is different</summary>
+            <p>
+              TTS examples are often text prompts plus generated audio, so the
+              team needs separate labels for text difficulty, pronunciation,
+              prosody, audio artifacts, safety, and latency. Preference alone
+              does not explain what to fix.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Voice Agent Selection Signals</h3>
+          <p>ASR entity substitutions, retrieval misses, stale citations, low task completion, repeated clarification, barge-in failures, and unsafe tool attempts.</p>
+          <details class="qa">
+            <summary>Hidden answer: stage-aware sampling</summary>
+            <p>
+              Select examples with stage tags. Otherwise a failed answer may be
+              mislabeled as an LLM issue when the root cause was ASR, retrieval,
+              stale index metadata, tool policy, or TTS delivery.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Privacy-Safe Proxies</h3>
+          <p>Use synthetic utterances, aggregate metrics, redacted text, hashed slice IDs, generated noise conditions, and review-approved fixtures.</p>
+          <details class="qa">
+            <summary>Hidden answer: when proxies are enough</summary>
+            <p>
+              Proxies are enough for pipeline logic, CI gates, data contracts,
+              release tooling, and many regression tests. They are not enough
+              to claim final ASR, TTS, or human-experience quality for a real
+              target population.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="labels" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Labeling Ops</p>
+        <h2>Turn Rubrics Into Reproducible Decisions</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt: ASR Label Disagreement</h3>
+        <p>
+          Two annotators disagree about whether "twenty one pilots" should be
+          normalized as a band name or a number phrase. How should the labeling
+          system handle this before the next release?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Add domain-specific normalization rules, capture disagreement as a
+            rubric bug, route ambiguous examples to adjudication, and version
+            the label policy. The release review should report how many labels
+            changed because metric movement may come from policy changes rather
+            than model quality.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt: TTS Human Preference Drift</h3>
+        <p>
+          Preference scores improved after the annotation vendor changed, but
+          pronunciation complaints increased in production. What happened?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: diagnosis</summary>
+          <p>
+            The vendor shift likely changed the measurement. Audit rater
+            demographics, rubric training, gold checks, prompt mix, language
+            coverage, and inter-rater agreement. Add separate pronunciation and
+            named-entity scores so a pleasant voice cannot hide practical
+            failures.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt: Spoken RAG Label Schema</h3>
+        <p>
+          Design labels for a voice assistant that answers policy questions
+          from retrieved documents.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: label schema</summary>
+          <p>
+            Include ASR entity accuracy, query intent, retrieval recall,
+            source freshness, answer groundedness, citation correctness,
+            refusal correctness, task success, latency, spoken clarity, and
+            safety outcome. Keep stage labels separate from the final
+            end-to-end score.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="release" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Release Engineering</p>
+        <h2>Connect Data Changes To Rollout Gates</h2>
+        <p>
+          A training-data update is a production change. It can improve
+          aggregate metrics while hurting a valuable slice, increasing cost,
+          breaking latency, or changing safety behavior.
+        </p>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Data Diff</h3>
+          <p>Report added, removed, relabeled, and reweighted examples by slice, source, consent scope, and label policy.</p>
+          <details class="qa">
+            <summary>Question: What should block the release?</summary>
+            <p>
+              Unknown source, missing consent, split leakage, eval-set
+              contamination, unexplained relabeling, or missing slice coverage
+              for the launch population should block until resolved.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Eval Diff</h3>
+          <p>Compare aggregate quality, slice quality, calibration, robustness, latency, memory, cost, and safety guardrails.</p>
+          <details class="qa">
+            <summary>Question: Why include cost in a data release?</summary>
+            <p>
+              Data changes can alter output length, beam behavior, retry rate,
+              tool calls, context size, and TTS duration. A model can be more
+              accurate but too expensive or slow for the product budget.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Online Diff</h3>
+          <p>Use shadow traffic, canary cohorts, rollback flags, burn-rate alerts, and post-launch sample audits.</p>
+          <details class="qa">
+            <summary>Question: What makes a canary meaningful?</summary>
+            <p>
+              It must include the slices at risk, enough volume for the gate,
+              clear owner response time, predefined rollback triggers, and
+              telemetry that separates model, data, retrieval, and serving
+              failures.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Exercises</p>
+        <h2>Practice First-Hour Data Debugging</h2>
+      </div>
+      <article class="prompt">
+        <h3>Incident 1: Good Offline WER, Bad Production Dictation</h3>
+        <p>
+          Offline WER improved by 3 percent relative, but mobile dictation
+          complaints increased after launch.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour plan</summary>
+          <p>
+            Check slice coverage, endpointing and partial churn, UI correction
+            changes, device mix, noisy mobile performance, rare entity recall,
+            canary cohort composition, and label normalization. Roll back or
+            route the affected slice if user harm is clear while preserving
+            aggregate-only incident notes.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Incident 2: Active Learning Batch Hurts Accented Speech</h3>
+        <p>
+          The latest training batch came from low-confidence sampling. It
+          improved call-center audio but regressed accented assistant queries.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: root cause and prevention</summary>
+          <p>
+            The sampler likely shifted the training distribution without slice
+            caps or weighting review. Add stratified sampling, per-slice
+            regression budgets, active-learning batch manifests, and an eval
+            gate that protects accented assistant traffic.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Incident 3: Voice Agent Answers Stale Policies</h3>
+        <p>
+          A new index refresh improves retrieval recall but increases stale
+          spoken answers.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: data-system fix</summary>
+          <p>
+            Add freshness labels, source-effective dates, stale-source eval
+            slices, answer citation checks, and index lineage in the release
+            manifest. The rollback target may be the index, ranker, prompt, or
+            document ingestion job rather than the ASR or LLM model.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="code" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Rank Aggregate Examples For Privacy-Safe Review</h2>
+        <p>
+          This toy utility scores synthetic aggregate records. It demonstrates
+          the control logic for active-learning queues without storing private
+          audio or transcripts.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Task: Prioritize Review Candidates</h3>
+        <p>
+          Given aggregate candidate metadata, prefer examples with high model
+          uncertainty, high user impact, undercovered slices, and recent
+          regressions. Exclude disallowed consent scopes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def rank_review_candidates(records, allowed_scopes):
+    ranked = []
+    for row in records:
+        if row["consent_scope"] not in allowed_scopes:
+            continue
+        uncertainty = 1.0 - row["confidence"]
+        impact = min(row["daily_sessions"] / 1000.0, 3.0)
+        coverage_gap = 1.5 if row["slice_coverage"] &lt; 0.2 else 0.0
+        regression = 2.0 if row["recent_regression"] else 0.0
+        privacy_penalty = 1.0 if row.get("sensitive_proxy", False) else 0.0
+        score = uncertainty + impact + coverage_gap + regression - privacy_penalty
+        ranked.append((score, row["candidate_id"]))
+    return [candidate_id for score, candidate_id in sorted(ranked, reverse=True)]</code></pre>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Question: What tests should you write?</h3>
+        <details class="qa">
+          <summary>Hidden answer: edge cases</summary>
+          <p>
+            Test disallowed consent exclusion, low-coverage boost, regression
+            boost, capped impact, sensitive proxy penalty, tie behavior, empty
+            input, and a case where the highest-uncertainty example is not the
+            best candidate because it has no launch relevance.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Interview Follow-Up: How would this change for production?</h3>
+        <details class="qa">
+          <summary>Hidden answer: production design</summary>
+          <p>
+            Replace hand weights with a review policy owned by data, legal,
+            product, and ML leads. Add quotas by slice, deduplication, human
+            review capacity, lineage IDs, audit logs, retention enforcement,
+            and offline simulation showing that the sampler improves release
+            decisions rather than only increasing label volume.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coding Interview Track - Blind 75</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#method">Method</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#blind75">Blind 75</a>
+      <a href="#mistakes">Mistakes</a>
+      <a href="#worked">Worked</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Coding Interview Chapter</h1>
+    <p class="lede">
+      Senior ML engineers still need strong general coding. This chapter covers
+      the Blind 75 problem set by pattern, with strategy, common mistakes, and
+      hidden answer notes for each problem.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">How To Practice</p>
+        <h2>Learn Patterns, Then Problems</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Classify:</strong> name the pattern before writing code.</li>
+        <li><strong>State invariants:</strong> explain what stays true after each loop or recursion step.</li>
+        <li><strong>Code small:</strong> implement the core idea before optimizing.</li>
+        <li><strong>Test edges:</strong> empty input, one element, duplicates, negative values, cycles, disconnected graphs.</li>
+        <li><strong>Explain cost:</strong> give time and memory complexity without hand-waving.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why include Blind 75 in an audio ML course?</summary>
+        <p>
+          Senior ML roles often include practical coding rounds. Audio and model
+          serving work needs clean data structures, graph traversal, dynamic
+          programming, streaming windows, caches, and debugging discipline. This
+          track builds that foundation.
+        </p>
+      </details>
+    </section>
+
+    <section id="patterns" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Pattern Map</p>
+        <h2>The Core Moves</h2>
+      </div>
+      <div class="grid three">
+        <article class="card"><h3>Hash Map</h3><p>Use when you need fast lookup, counts, complements, grouping, or last-seen positions.</p></article>
+        <article class="card"><h3>Two Pointers</h3><p>Use on sorted arrays, palindromes, partitioning, or shrinking windows from both ends.</p></article>
+        <article class="card"><h3>Sliding Window</h3><p>Use for contiguous subarrays or substrings with a constraint that can be maintained incrementally.</p></article>
+        <article class="card"><h3>DFS/BFS</h3><p>Use for trees, graphs, islands, reachability, and shortest paths in unweighted graphs.</p></article>
+        <article class="card"><h3>Dynamic Programming</h3><p>Use when subproblems repeat and the answer can be built from smaller states.</p></article>
+        <article class="card"><h3>Heap</h3><p>Use for top-k, streaming medians, k-way merge, and priority scheduling.</p></article>
+      </div>
+      <p>
+        Deep dives:
+        <a class="lesson-link" href="coding-blind-75-arrays-intervals.html">arrays, intervals, heaps, and matrices</a>,
+        <a class="lesson-link" href="coding-blind-75-graphs-dp.html">graphs, trees, and DP</a>,
+        <a class="lesson-link" href="coding-blind-75-strings-backtracking.html">strings, backtracking, and tries</a>,
+        <a class="lesson-link" href="coding-blind-75-dynamic-programming.html">dynamic programming state and recurrence drills</a>,
+        <a class="lesson-link" href="coding-blind-75-trees-tries.html">tree recursion, BST bounds, and trie prefix search</a>,
+        <a class="lesson-link" href="coding-blind-75-stacks-windows.html">stacks, monotonic structures, and sliding windows</a>,
+        <a class="lesson-link" href="coding-blind-75-bits-math.html">bit manipulation, masks, and math invariants</a>.
+      </p>
+    </section>
+
+    <section id="blind75" class="band">
+      <div class="section-head">
+        <p class="eyebrow">All Questions</p>
+        <h2>Blind 75 Problem Bank</h2>
+        <p>
+          Open each item only after solving or at least writing a plan. The
+          hidden answer gives the core strategy and the mistake to avoid, not a
+          memorized full solution.
+        </p>
+      </div>
+      <div id="problem-list" class="problem-list"></div>
+    </section>
+
+    <section id="mistakes" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Common Failure Modes</p>
+        <h2>What Breaks Interview Solutions</h2>
+      </div>
+      <ul class="checklist">
+        <li>Solving before restating constraints and edge cases.</li>
+        <li>Using recursion without a base case and visited-state story.</li>
+        <li>Forgetting duplicate handling in two-pointer and backtracking problems.</li>
+        <li>Returning the right value for the happy path but not for empty or one-element input.</li>
+        <li>Misreporting complexity because slicing, sorting, heap operations, or recursion stack are ignored.</li>
+        <li>Trying to memorize code instead of learning the invariant.</li>
+      </ul>
+    </section>
+
+    <section id="worked" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Worked Python</p>
+        <h2>First Solutions To Memorize By Invariant</h2>
+        <p>
+          Read the prompt, write your own solution, then open the hidden answer.
+          The point is not to memorize syntax. The point is to internalize the
+          invariant that makes the implementation short.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked 1: Two Sum</h3>
+        <p>
+          Return the two indices whose values add to the target. Exactly one
+          answer exists, and an index may not be reused.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: before processing <code>nums[i]</code>, the map contains
+            values from indices less than <code>i</code>. If the complement is
+            already present, the pair is valid and cannot reuse the same index.
+          </p>
+          <pre><code class="language-python">def two_sum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        need = target - x
+        if need in seen:
+            return [seen[need], i]
+        seen[x] = i
+    raise ValueError("no solution")</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 2: Product Of Array Except Self</h3>
+        <p>
+          Return an array where each position contains the product of every
+          other number. Do not use division.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: after the forward pass, <code>out[i]</code> is the
+            product of values left of <code>i</code>. During the reverse pass,
+            <code>right</code> is the product of values right of <code>i</code>.
+          </p>
+          <pre><code class="language-python">def product_except_self(nums):
+    out = [1] * len(nums)
+    left = 1
+    for i, x in enumerate(nums):
+        out[i] = left
+        left *= x
+
+    right = 1
+    for i in range(len(nums) - 1, -1, -1):
+        out[i] *= right
+        right *= nums[i]
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 3: Longest Substring Without Repeating Characters</h3>
+        <p>
+          Return the length of the longest substring with no repeated
+          characters.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the active window from <code>left</code> to
+            <code>right</code> contains no duplicates after updating
+            <code>left</code>. Never move <code>left</code> backward.
+          </p>
+          <pre><code class="language-python">def length_of_longest_substring(s):
+    last = {}
+    left = 0
+    best = 0
+    for right, ch in enumerate(s):
+        if ch in last and last[ch] >= left:
+            left = last[ch] + 1
+        last[ch] = right
+        best = max(best, right - left + 1)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 4: Number Of Islands</h3>
+        <p>
+          Count connected components of land in a grid of "1" and "0" cells.
+          Land connects horizontally and vertically.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: when DFS starts from an unvisited land cell, it marks
+            exactly one island. Mark before pushing neighbors so the same cell
+            cannot be added repeatedly.
+          </p>
+          <pre><code class="language-python">def num_islands(grid):
+    if not grid:
+        return 0
+
+    rows, cols = len(grid), len(grid[0])
+    islands = 0
+
+    def flood(r, c):
+        stack = [(r, c)]
+        grid[r][c] = "0"
+        while stack:
+            x, y = stack.pop()
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if 0 &lt;= nx &lt; rows and 0 &lt;= ny &lt; cols and grid[nx][ny] == "1":
+                    grid[nx][ny] = "0"
+                    stack.append((nx, ny))
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == "1":
+                islands += 1
+                flood(r, c)
+    return islands</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 5: Coin Change</h3>
+        <p>
+          Given coin denominations and an amount, return the fewest coins
+          needed to make that amount, or -1 if impossible.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: after computing <code>dp[a]</code>, it stores the fewest
+            coins needed for amount <code>a</code> using any denomination.
+            Greedy fails for many coin systems, so use dynamic programming.
+          </p>
+          <pre><code class="language-python">def coin_change(coins, amount):
+    inf = amount + 1
+    dp = [inf] * (amount + 1)
+    dp[0] = 0
+    for a in range(1, amount + 1):
+        for coin in coins:
+            if coin &lt;= a:
+                dp[a] = min(dp[a], dp[a - coin] + 1)
+    return -1 if dp[amount] == inf else dp[amount]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 6: Search In Rotated Sorted Array</h3>
+        <p>
+          Given a rotated sorted array with unique values, return the index of
+          the target or -1 if absent. The expected time is O(log n).
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the target, if present, is always inside the closed
+            search interval. At least one side of <code>mid</code> is sorted,
+            so use that side to decide which half can be discarded.
+          </p>
+          <pre><code class="language-python">def search_rotated(nums, target):
+    left, right = 0, len(nums) - 1
+    while left &lt;= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+
+        if nums[left] &lt;= nums[mid]:
+            if nums[left] &lt;= target &lt; nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:
+            if nums[mid] &lt; target &lt;= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+    return -1</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 7: Course Schedule</h3>
+        <p>
+          Given course prerequisites, return whether all courses can be
+          completed.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: a course with indegree zero has no remaining unmet
+            prerequisites. Removing it can only reduce indegrees of courses
+            that depend on it. If every course is removed, there is no cycle.
+          </p>
+          <pre><code class="language-python">from collections import deque
+
+
+def can_finish(num_courses, prerequisites):
+    graph = [[] for _ in range(num_courses)]
+    indegree = [0] * num_courses
+    for course, prereq in prerequisites:
+        graph[prereq].append(course)
+        indegree[course] += 1
+
+    ready = deque(i for i, degree in enumerate(indegree) if degree == 0)
+    taken = 0
+    while ready:
+        prereq = ready.popleft()
+        taken += 1
+        for course in graph[prereq]:
+            indegree[course] -= 1
+            if indegree[course] == 0:
+                ready.append(course)
+    return taken == num_courses</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 8: Merge Intervals</h3>
+        <p>
+          Given intervals, merge all overlapping intervals and return the
+          non-overlapping result.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the result list is sorted and non-overlapping, and its
+            last interval is the only interval that can overlap the next sorted
+            input interval.
+          </p>
+          <pre><code class="language-python">def merge_intervals(intervals):
+    if not intervals:
+        return []
+
+    intervals.sort(key=lambda item: item[0])
+    merged = [intervals[0]]
+    for start, end in intervals[1:]:
+        last = merged[-1]
+        if start &lt;= last[1]:
+            last[1] = max(last[1], end)
+        else:
+            merged.append([start, end])
+    return merged</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 9: Minimum Window Substring</h3>
+        <p>
+          Given strings <code>s</code> and <code>t</code>, return the smallest
+          substring of <code>s</code> containing every character of
+          <code>t</code> with multiplicity.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: when <code>formed == required</code>, the current window
+            satisfies all required counts. Shrink from the left until removing a
+            character would break the invariant.
+          </p>
+          <pre><code class="language-python">from collections import Counter, defaultdict
+
+
+def min_window(s, t):
+    need = Counter(t)
+    window = defaultdict(int)
+    required = len(need)
+    formed = 0
+    best = (float("inf"), 0, 0)
+    left = 0
+
+    for right, ch in enumerate(s):
+        window[ch] += 1
+        if ch in need and window[ch] == need[ch]:
+            formed += 1
+
+        while formed == required:
+            if right - left + 1 &lt; best[0]:
+                best = (right - left + 1, left, right)
+            drop = s[left]
+            window[drop] -= 1
+            if drop in need and window[drop] &lt; need[drop]:
+                formed -= 1
+            left += 1
+
+    if best[0] == float("inf"):
+        return ""
+    return s[best[1]:best[2] + 1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 10: Find Median From Data Stream</h3>
+        <p>
+          Design a data structure that accepts integers one by one and returns
+          the current median.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the low heap stores the smaller half as negatives, the
+            high heap stores the larger half, and their sizes differ by at most
+            one. The median is one heap top or the average of both tops.
+          </p>
+          <pre><code class="language-python">import heapq
+
+
+class MedianFinder:
+    def __init__(self):
+        self.low = []
+        self.high = []
+
+    def add_num(self, num):
+        heapq.heappush(self.low, -num)
+        heapq.heappush(self.high, -heapq.heappop(self.low))
+        if len(self.high) &gt; len(self.low):
+            heapq.heappush(self.low, -heapq.heappop(self.high))
+
+    def find_median(self):
+        if len(self.low) &gt; len(self.high):
+            return float(-self.low[0])
+        return (-self.low[0] + self.high[0]) / 2</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 11: Valid Parentheses</h3>
+        <p>
+          Given a string containing bracket characters, return whether every
+          opening bracket is closed by the same type in the correct order.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the stack stores the exact closing brackets required for
+            the prefix processed so far. A closing bracket is valid only if it
+            matches the most recent expected closer.
+          </p>
+          <pre><code class="language-python">def is_valid_parentheses(s):
+    pairs = {"(": ")", "[": "]", "{": "}"}
+    stack = []
+    for ch in s:
+        if ch in pairs:
+            stack.append(pairs[ch])
+        elif not stack or stack.pop() != ch:
+            return False
+    return not stack</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 12: Word Break</h3>
+        <p>
+          Given a string and dictionary, return whether the string can be
+          segmented into dictionary words.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: <code>dp[i]</code> means the prefix
+            <code>s[:i]</code> can be segmented. To compute it, find any prior
+            cut <code>j</code> where the prefix is valid and
+            <code>s[j:i]</code> is a dictionary word.
+          </p>
+          <pre><code class="language-python">def word_break(s, word_dict):
+    words = set(word_dict)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True
+
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if dp[j] and s[j:i] in words:
+                dp[i] = True
+                break
+    return dp[-1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 13: Insert Interval</h3>
+        <p>
+          Given sorted non-overlapping intervals and one new interval, insert
+          and merge where needed.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: intervals before the merge point are already finalized,
+            the current new interval absorbs every overlap, and intervals after
+            it can be appended unchanged.
+          </p>
+          <pre><code class="language-python">def insert_interval(intervals, new_interval):
+    result = []
+    i = 0
+    n = len(intervals)
+
+    while i &lt; n and intervals[i][1] &lt; new_interval[0]:
+        result.append(intervals[i])
+        i += 1
+
+    while i &lt; n and intervals[i][0] &lt;= new_interval[1]:
+        new_interval[0] = min(new_interval[0], intervals[i][0])
+        new_interval[1] = max(new_interval[1], intervals[i][1])
+        i += 1
+    result.append(new_interval)
+
+    result.extend(intervals[i:])
+    return result</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 14: Longest Increasing Subsequence</h3>
+        <p>
+          Given an integer array, return the length of the longest strictly
+          increasing subsequence.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: <code>tails[k]</code> is the smallest possible tail
+            value for an increasing subsequence of length <code>k + 1</code>.
+            Smaller tails preserve more future options. The list is not
+            necessarily the final subsequence.
+          </p>
+          <pre><code class="language-python">from bisect import bisect_left
+
+
+def length_of_lis(nums):
+    tails = []
+    for x in nums:
+        i = bisect_left(tails, x)
+        if i == len(tails):
+            tails.append(x)
+        else:
+            tails[i] = x
+    return len(tails)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 15: Decode Ways</h3>
+        <p>
+          Given a digit string where A is 1 through Z is 26, return how many
+          ways the string can be decoded.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: after processing position <code>i</code>,
+            <code>prev1</code> is the number of decodes for the prefix ending
+            at <code>i</code>, and <code>prev2</code> is the count for the
+            prefix before it. Zeros only work as part of 10 or 20.
+          </p>
+          <pre><code class="language-python">def num_decodings(s):
+    if not s or s[0] == "0":
+        return 0
+
+    prev2, prev1 = 1, 1
+    for i in range(1, len(s)):
+        current = 0
+        if s[i] != "0":
+            current += prev1
+        two_digit = int(s[i - 1:i + 1])
+        if 10 &lt;= two_digit &lt;= 26:
+            current += prev2
+        prev2, prev1 = prev1, current
+    return prev1</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 16: Pacific Atlantic Water Flow</h3>
+        <p>
+          Given a height matrix, return cells where water can flow to both the
+          Pacific and Atlantic oceans.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: reverse traversal from an ocean marks every cell that
+            can reach that ocean by non-increasing forward flow. Moving
+            backward, you may only step to equal or higher neighbors.
+          </p>
+          <pre><code class="language-python">def pacific_atlantic(heights):
+    if not heights or not heights[0]:
+        return []
+
+    rows, cols = len(heights), len(heights[0])
+
+    def reach(starts):
+        seen = set(starts)
+        stack = list(starts)
+        while stack:
+            r, c = stack.pop()
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if (
+                    0 &lt;= nr &lt; rows
+                    and 0 &lt;= nc &lt; cols
+                    and (nr, nc) not in seen
+                    and heights[nr][nc] &gt;= heights[r][c]
+                ):
+                    seen.add((nr, nc))
+                    stack.append((nr, nc))
+        return seen
+
+    pacific = [(0, c) for c in range(cols)] + [(r, 0) for r in range(rows)]
+    atlantic = [(rows - 1, c) for c in range(cols)] + [
+        (r, cols - 1) for r in range(rows)
+    ]
+    both = reach(pacific) &amp; reach(atlantic)
+    return [[r, c] for r, c in sorted(both)]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 17: Binary Tree Maximum Path Sum</h3>
+        <p>
+          Given a binary tree, return the largest path sum. A path may start
+          and end at any nodes, but it cannot reuse a node.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: DFS returns the best one-branch gain that can continue
+            upward to the parent. The global answer may use both branches at
+            the current node, but that split path cannot be returned upward.
+          </p>
+          <pre><code class="language-python">def max_path_sum(root):
+    best = -10**18
+
+    def gain(node):
+        nonlocal best
+        if not node:
+            return 0
+        left = max(0, gain(node.left))
+        right = max(0, gain(node.right))
+        best = max(best, node.val + left + right)
+        return node.val + max(left, right)
+
+    gain(root)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 18: Top K Frequent Elements</h3>
+        <p>
+          Given an integer array and integer <code>k</code>, return the
+          <code>k</code> most frequent elements.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: each bucket index represents an exact frequency. After
+            counting, scanning buckets from high to low yields elements in
+            descending frequency without sorting all unique values.
+          </p>
+          <pre><code class="language-python">from collections import Counter
+
+
+def top_k_frequent(nums, k):
+    counts = Counter(nums)
+    buckets = [[] for _ in range(len(nums) + 1)]
+    for value, freq in counts.items():
+        buckets[freq].append(value)
+
+    result = []
+    for freq in range(len(buckets) - 1, 0, -1):
+        for value in buckets[freq]:
+            result.append(value)
+            if len(result) == k:
+                return result
+    return result</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 19: Valid Anagram</h3>
+        <p>
+          Given two strings, return whether they contain the same characters
+          with the same counts.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: after counting both strings, every character must have
+            the same frequency. Length mismatch is an immediate failure because
+            equal counts cannot hold.
+          </p>
+          <pre><code class="language-python">from collections import Counter
+
+
+def is_anagram(s, t):
+    if len(s) != len(t):
+        return False
+    return Counter(s) == Counter(t)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 20: Group Anagrams</h3>
+        <p>
+          Given a list of strings, group words that are anagrams of one
+          another.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: every word maps to a canonical key shared by exactly its
+            anagram group. For lowercase English letters, a 26-count tuple is a
+            stable hashable key.
+          </p>
+          <pre><code class="language-python">from collections import defaultdict
+
+
+def group_anagrams(words):
+    groups = defaultdict(list)
+    for word in words:
+        counts = [0] * 26
+        for ch in word:
+            counts[ord(ch) - ord("a")] += 1
+        groups[tuple(counts)].append(word)
+    return list(groups.values())</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 21: Meeting Rooms II</h3>
+        <p>
+          Given meeting intervals, return the minimum number of rooms required
+          so no meetings overlap in the same room.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the heap contains end times for meetings currently using
+            rooms. Before adding a meeting, free every room whose end time is
+            less than or equal to the new start.
+          </p>
+          <pre><code class="language-python">import heapq
+
+
+def min_meeting_rooms(intervals):
+    intervals.sort(key=lambda item: item[0])
+    active = []
+    best = 0
+    for start, end in intervals:
+        while active and active[0] &lt;= start:
+            heapq.heappop(active)
+        heapq.heappush(active, end)
+        best = max(best, len(active))
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 22: Jump Game</h3>
+        <p>
+          Given maximum jump lengths at each index, return whether the last
+          index is reachable.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: <code>farthest</code> is the greatest index reachable
+            from any index processed so far. If the current index is beyond it,
+            no later jump can repair the gap.
+          </p>
+          <pre><code class="language-python">def can_jump(nums):
+    farthest = 0
+    for i, jump in enumerate(nums):
+        if i &gt; farthest:
+            return False
+        farthest = max(farthest, i + jump)
+        if farthest &gt;= len(nums) - 1:
+            return True
+    return True</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 23: Best Time To Buy And Sell Stock</h3>
+        <p>
+          Given daily prices, return the maximum profit from one buy followed
+          by one sell. Return zero if no profitable trade exists.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: before evaluating a sale on day <code>i</code>,
+            <code>min_price</code> is the cheapest valid buy price from an
+            earlier day. The best profit never needs a future buy date.
+          </p>
+          <pre><code class="language-python">def max_profit(prices):
+    min_price = float("inf")
+    best = 0
+    for price in prices:
+        best = max(best, price - min_price)
+        min_price = min(min_price, price)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 24: Valid Palindrome</h3>
+        <p>
+          Return whether a string is a palindrome after ignoring
+          non-alphanumeric characters and case.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: every character outside the active
+            <code>left..right</code> window has already been matched or ignored.
+            Skip punctuation before comparing normalized characters.
+          </p>
+          <pre><code class="language-python">def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left &lt; right:
+        while left &lt; right and not s[left].isalnum():
+            left += 1
+        while left &lt; right and not s[right].isalnum():
+            right -= 1
+        if s[left].lower() != s[right].lower():
+            return False
+        left += 1
+        right -= 1
+    return True</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 25: Non-Overlapping Intervals</h3>
+        <p>
+          Given intervals, return the minimum number that must be removed so
+          the remaining intervals do not overlap.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: after sorting by end time, keeping the interval that
+            ends earliest preserves the most room for future intervals. Every
+            overlapping interval skipped counts as one removal.
+          </p>
+          <pre><code class="language-python">def erase_overlap_intervals(intervals):
+    if not intervals:
+        return 0
+
+    intervals.sort(key=lambda item: item[1])
+    removals = 0
+    last_end = intervals[0][1]
+    for start, end in intervals[1:]:
+        if start &lt; last_end:
+            removals += 1
+        else:
+            last_end = end
+    return removals</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 26: Graph Valid Tree</h3>
+        <p>
+          Given <code>n</code> nodes and undirected edges, return whether the
+          graph is one connected tree.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: a valid tree has exactly <code>n - 1</code> edges and
+            every node is reachable from any starting node. The edge count
+            rules out cycles once connectivity is proven.
+          </p>
+          <pre><code class="language-python">from collections import defaultdict
+
+
+def valid_tree(n, edges):
+    if len(edges) != n - 1:
+        return False
+
+    graph = defaultdict(list)
+    for a, b in edges:
+        graph[a].append(b)
+        graph[b].append(a)
+
+    seen = {0}
+    stack = [0]
+    while stack:
+        node = stack.pop()
+        for nxt in graph[node]:
+            if nxt not in seen:
+                seen.add(nxt)
+                stack.append(nxt)
+    return len(seen) == n</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 27: Contains Duplicate</h3>
+        <p>
+          Given an integer array, return whether any value appears at least
+          twice.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: before reading <code>nums[i]</code>, the set contains
+            exactly the distinct values from earlier indices. If the current
+            value is already present, the duplicate pair uses two different
+            indices. Test <code>[1,2,3,1]</code>, <code>[1,2,3,4]</code>,
+            <code>[]</code>, and repeated negative values.
+          </p>
+          <pre><code class="language-python">def contains_duplicate(nums):
+    seen = set()
+    for x in nums:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 28: Maximum Subarray</h3>
+        <p>
+          Given an integer array, return the largest possible sum of a
+          contiguous non-empty subarray.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: <code>ending_here</code> is the best subarray sum that
+            must end at the current index. The global best is the best value
+            seen across all endings. Test all-negative arrays, one element,
+            and arrays where the best subarray starts after a large loss.
+          </p>
+          <pre><code class="language-python">def max_subarray(nums):
+    if not nums:
+        raise ValueError("nums must be non-empty")
+
+    ending_here = nums[0]
+    best = nums[0]
+    for x in nums[1:]:
+        ending_here = max(x, ending_here + x)
+        best = max(best, ending_here)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 29: Maximum Product Subarray</h3>
+        <p>
+          Given an integer array, return the largest possible product of a
+          contiguous non-empty subarray.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: <code>hi</code> and <code>lo</code> are the largest and
+            smallest products ending at the current index. The smallest value
+            matters because a negative number can turn it into the largest.
+            Test zeros, all negatives, one element, and two separated positive
+            regions split by zero.
+          </p>
+          <pre><code class="language-python">def max_product(nums):
+    if not nums:
+        raise ValueError("nums must be non-empty")
+
+    hi = lo = best = nums[0]
+    for x in nums[1:]:
+        if x &lt; 0:
+            hi, lo = lo, hi
+        hi = max(x, hi * x)
+        lo = min(x, lo * x)
+        best = max(best, hi)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 30: Find Minimum In Rotated Sorted Array</h3>
+        <p>
+          Given a rotated sorted array with unique values, return the minimum
+          value in O(log n) time.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the minimum is always inside the closed interval
+            <code>left..right</code>. If <code>nums[mid]</code> is greater
+            than the right boundary, the minimum must be to the right;
+            otherwise it is at <code>mid</code> or to the left. Test no
+            rotation, rotation by one, two elements, and a single element.
+          </p>
+          <pre><code class="language-python">def find_min_rotated(nums):
+    if not nums:
+        raise ValueError("nums must be non-empty")
+
+    left, right = 0, len(nums) - 1
+    while left &lt; right:
+        mid = (left + right) // 2
+        if nums[mid] &gt; nums[right]:
+            left = mid + 1
+        else:
+            right = mid
+    return nums[left]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 31: 3Sum</h3>
+        <p>
+          Given an integer array, return all unique triplets whose values sum
+          to zero.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: after sorting and fixing index <code>i</code>, the
+            two-pointer scan explores all pairs to the right of <code>i</code>
+            exactly once. Skip duplicate fixed values and duplicate pointer
+            values only after recording a valid triplet. Test all zeros,
+            duplicates around a valid answer, no answer, and arrays shorter
+            than three.
+          </p>
+          <pre><code class="language-python">def three_sum(nums):
+    nums.sort()
+    out = []
+    for i in range(len(nums) - 2):
+        if i &gt; 0 and nums[i] == nums[i - 1]:
+            continue
+        left, right = i + 1, len(nums) - 1
+        while left &lt; right:
+            total = nums[i] + nums[left] + nums[right]
+            if total == 0:
+                out.append([nums[i], nums[left], nums[right]])
+                left += 1
+                right -= 1
+                while left &lt; right and nums[left] == nums[left - 1]:
+                    left += 1
+                while left &lt; right and nums[right] == nums[right + 1]:
+                    right -= 1
+            elif total &lt; 0:
+                left += 1
+            else:
+                right -= 1
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 32: Container With Most Water</h3>
+        <p>
+          Given vertical line heights, return the maximum area of water that
+          can be contained by two lines.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the current area is limited by the shorter wall. Moving
+            the taller wall inward cannot improve the area for the shorter
+            wall because width only shrinks, so discard the shorter side.
+            Test monotonic heights, equal heights, two elements, and repeated
+            plateaus.
+          </p>
+          <pre><code class="language-python">def max_area(height):
+    left, right = 0, len(height) - 1
+    best = 0
+    while left &lt; right:
+        width = right - left
+        best = max(best, width * min(height[left], height[right]))
+        if height[left] &lt;= height[right]:
+            left += 1
+        else:
+            right -= 1
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 33: Validate Binary Search Tree</h3>
+        <p>
+          Given a binary tree, return whether it satisfies the strict binary
+          search tree ordering property.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: every node must be inside the open interval inherited
+            from all ancestors, not only from its immediate parent. Test a
+            violation deep in a subtree, duplicate values, an empty tree, and
+            large negative or positive bounds.
+          </p>
+          <pre><code class="language-python">def is_valid_bst(root):
+    def valid(node, low, high):
+        if node is None:
+            return True
+        if not low &lt; node.val &lt; high:
+            return False
+        return valid(node.left, low, node.val) and valid(node.right, node.val, high)
+
+    return valid(root, float("-inf"), float("inf"))</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 34: Binary Tree Maximum Path Sum</h3>
+        <p>
+          Return the maximum sum of any non-empty path in a binary tree. A path
+          may start and end at any nodes but cannot reuse a node.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the recursive return value is the best one-sided gain
+            that can continue to the parent. The global answer may use both
+            left and right gains at the current node. Test all-negative trees,
+            a best path that does not include the root, and single-node trees.
+          </p>
+          <pre><code class="language-python">def max_path_sum(root):
+    best = float("-inf")
+
+    def gain(node):
+        nonlocal best
+        if node is None:
+            return 0
+        left = max(gain(node.left), 0)
+        right = max(gain(node.right), 0)
+        best = max(best, node.val + left + right)
+        return node.val + max(left, right)
+
+    gain(root)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 35: Top K Frequent Elements</h3>
+        <p>
+          Given integers and an integer <code>k</code>, return the
+          <code>k</code> most frequent values.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: bucket <code>i</code> contains exactly the values that
+            appeared <code>i</code> times. Scanning buckets from high to low
+            returns values in descending frequency without sorting all pairs.
+            Test ties, <code>k</code> equal to the number of unique values, and
+            negative integers.
+          </p>
+          <pre><code class="language-python">from collections import Counter
+
+
+def top_k_frequent(nums, k):
+    counts = Counter(nums)
+    buckets = [[] for _ in range(len(nums) + 1)]
+    for value, freq in counts.items():
+        buckets[freq].append(value)
+
+    out = []
+    for freq in range(len(buckets) - 1, 0, -1):
+        for value in buckets[freq]:
+            out.append(value)
+            if len(out) == k:
+                return out
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 36: Implement Trie</h3>
+        <p>
+          Design a prefix tree with <code>insert</code>, <code>search</code>,
+          and <code>starts_with</code>.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: walking a word follows exactly one child edge per
+            character, and the terminal marker distinguishes a complete word
+            from a prefix. Test searching a prefix before insertion as a full
+            word, inserting overlapping words, and empty-prefix behavior.
+          </p>
+          <pre><code class="language-python">class Trie:
+    def __init__(self):
+        self.root = {}
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node["#"] = True
+
+    def search(self, word):
+        node = self._walk(word)
+        return node is not None and "#" in node
+
+    def starts_with(self, prefix):
+        return self._walk(prefix) is not None
+
+    def _walk(self, text):
+        node = self.root
+        for ch in text:
+            if ch not in node:
+                return None
+            node = node[ch]
+        return node</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 37: Reverse Linked List</h3>
+        <p>
+          Given the head of a singly linked list, reverse the list and return
+          the new head.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: <code>prev</code> is the reversed prefix and
+            <code>curr</code> is the first node not yet reversed. Save
+            <code>curr.next</code> before rewiring. Test empty, one node, two
+            nodes, and a longer list.
+          </p>
+          <pre><code class="language-python">def reverse_list(head):
+    prev = None
+    curr = head
+    while curr:
+        nxt = curr.next
+        curr.next = prev
+        prev = curr
+        curr = nxt
+    return prev</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 38: Remove Nth Node From End</h3>
+        <p>
+          Remove the nth node from the end of a singly linked list and return
+          the head.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: after advancing <code>fast</code> by <code>n</code>
+            nodes, the gap between <code>fast</code> and <code>slow</code> is
+            exactly <code>n</code>. A dummy node makes deleting the head the
+            same as deleting any other node. Test removing the head, tail,
+            only node, and a middle node.
+          </p>
+          <pre><code class="language-python">def remove_nth_from_end(head, n):
+    dummy = ListNode(0, head)
+    fast = slow = dummy
+
+    for _ in range(n):
+        fast = fast.next
+
+    while fast.next:
+        fast = fast.next
+        slow = slow.next
+
+    slow.next = slow.next.next
+    return dummy.next</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 39: Set Matrix Zeroes</h3>
+        <p>
+          If any cell in a matrix is zero, set its entire row and column to
+          zero in place.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the first row and first column become marker storage for
+            whether each row or column should be zeroed. Separate flags protect
+            their original zero state. Test a zero in the first row, first
+            column, no zeros, and a one-by-one matrix.
+          </p>
+          <pre><code class="language-python">def set_zeroes(matrix):
+    rows, cols = len(matrix), len(matrix[0])
+    first_row_zero = any(matrix[0][c] == 0 for c in range(cols))
+    first_col_zero = any(matrix[r][0] == 0 for r in range(rows))
+
+    for r in range(1, rows):
+        for c in range(1, cols):
+            if matrix[r][c] == 0:
+                matrix[r][0] = 0
+                matrix[0][c] = 0
+
+    for r in range(1, rows):
+        for c in range(1, cols):
+            if matrix[r][0] == 0 or matrix[0][c] == 0:
+                matrix[r][c] = 0
+
+    if first_row_zero:
+        for c in range(cols):
+            matrix[0][c] = 0
+    if first_col_zero:
+        for r in range(rows):
+            matrix[r][0] = 0</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 40: Spiral Matrix</h3>
+        <p>
+          Return all matrix values in clockwise spiral order.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: <code>top</code>, <code>bottom</code>,
+            <code>left</code>, and <code>right</code> bound the unvisited
+            rectangle. After each side is emitted, shrink that side and guard
+            against single-row or single-column double visits. Test one row,
+            one column, square, and rectangular matrices.
+          </p>
+          <pre><code class="language-python">def spiral_order(matrix):
+    if not matrix or not matrix[0]:
+        return []
+
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+    out = []
+
+    while top &lt;= bottom and left &lt;= right:
+        for c in range(left, right + 1):
+            out.append(matrix[top][c])
+        top += 1
+
+        for r in range(top, bottom + 1):
+            out.append(matrix[r][right])
+        right -= 1
+
+        if top &lt;= bottom:
+            for c in range(right, left - 1, -1):
+                out.append(matrix[bottom][c])
+            bottom -= 1
+
+        if left &lt;= right:
+            for r in range(bottom, top - 1, -1):
+                out.append(matrix[r][left])
+            left += 1
+
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 41: Longest Palindromic Substring</h3>
+        <p>
+          Return the longest contiguous substring that is a palindrome.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: every palindrome has either one center or a gap between
+            two centers. Expanding from all centers finds every candidate.
+            Test odd length, even length, all same characters, and no repeated
+            adjacent characters.
+          </p>
+          <pre><code class="language-python">def longest_palindrome(s):
+    best = (0, 0)
+
+    def expand(left, right):
+        while left &gt;= 0 and right &lt; len(s) and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return left + 1, right - 1
+
+    for i in range(len(s)):
+        for left, right in (expand(i, i), expand(i, i + 1)):
+            if right - left &gt; best[1] - best[0]:
+                best = (left, right)
+    return s[best[0]:best[1] + 1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 42: Encode And Decode Strings</h3>
+        <p>
+          Design methods to encode a list of strings into one string and
+          decode it back exactly.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: every encoded item carries its exact length before the
+            payload, so the decoder never guesses based on delimiter content.
+            Test empty strings, strings containing the delimiter, repeated
+            strings, and an empty list.
+          </p>
+          <pre><code class="language-python">def encode(strings):
+    return "".join(f"{len(s)}#{s}" for s in strings)
+
+
+def decode(blob):
+    out = []
+    i = 0
+    while i &lt; len(blob):
+        j = blob.index("#", i)
+        size = int(blob[i:j])
+        start = j + 1
+        out.append(blob[start:start + size])
+        i = start + size
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 43: Serialize And Deserialize Binary Tree</h3>
+        <p>
+          Convert a binary tree to a string and reconstruct the exact same
+          tree shape and values.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: preorder traversal with null markers fully determines
+            tree shape. During deserialization, consuming tokens in the same
+            preorder order rebuilds each subtree exactly once. Test empty
+            tree, single node, skewed tree, duplicate values, and negative
+            values.
+          </p>
+          <pre><code class="language-python">def serialize(root):
+    vals = []
+
+    def walk(node):
+        if node is None:
+            vals.append("#")
+            return
+        vals.append(str(node.val))
+        walk(node.left)
+        walk(node.right)
+
+    walk(root)
+    return ",".join(vals)
+
+
+def deserialize(data):
+    vals = iter(data.split(","))
+
+    def build():
+        val = next(vals)
+        if val == "#":
+            return None
+        node = TreeNode(int(val))
+        node.left = build()
+        node.right = build()
+        return node
+
+    return build()</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked 44: Add And Search Word</h3>
+        <p>
+          Implement a trie-backed word dictionary where search supports
+          <code>.</code> as a wildcard for any single character.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: a normal character follows one trie edge, while a dot
+            branches over all child edges at that depth. The end marker still
+            decides whether the whole pattern is a word. Test dot at the
+            beginning, middle, and end; exact search; prefix-only search; and
+            no-match patterns.
+          </p>
+          <pre><code class="language-python">class WordDictionary:
+    def __init__(self):
+        self.root = {}
+
+    def add_word(self, word):
+        node = self.root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node["#"] = True
+
+    def search(self, pattern):
+        def dfs(i, node):
+            if i == len(pattern):
+                return "#" in node
+            ch = pattern[i]
+            if ch == ".":
+                return any(key != "#" and dfs(i + 1, child)
+                           for key, child in node.items())
+            return ch in node and dfs(i + 1, node[ch])
+
+        return dfs(0, self.root)</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sources</p>
+        <h2>References For The Problem Set</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://neetcode.io/practice/practice/blind75">NeetCode Blind 75</a> - current interactive Blind 75 practice list with topic groupings.</li>
+        <li><a href="https://leetcode.com/problem-list/oizxjoit/">LeetCode Blind 75 problem list</a> - LeetCode-hosted problem list.</li>
+        <li><a href="https://leetcode.com/discuss/post/460599/blind-75-leetcode-questions-by-krishnade-9xev/">LeetCode Discuss Blind 75 list</a> - commonly referenced public list.</li>
+        <li><a href="https://dev.to/educative/leetcode-blind-75-1e00">Educative Blind 75 patterns overview</a> - pattern categories and practice framing.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+
+  <script>
+    const problems = [
+      ["Arrays & Hashing", "Two Sum", "Hash map complement", "Scan once. For each value x, ask whether target - x was seen. Store value to index after the check.", "Returning the same index twice or using a nested loop when O(n) is expected."],
+      ["Arrays & Hashing", "Best Time to Buy and Sell Stock", "One-pass min prefix", "Track the lowest price so far and the best profit if selling today. This is a streaming invariant.", "Resetting the buy price after the sell day incorrectly or allowing negative profit when the answer should be zero."],
+      ["Arrays & Hashing", "Contains Duplicate", "Set membership", "Insert each value into a set; if it already exists, return true.", "Sorting when order must be preserved elsewhere, or ignoring memory tradeoff."],
+      ["Arrays & Hashing", "Product of Array Except Self", "Prefix and suffix products", "Build left products, then multiply by a running right product in reverse. Avoid division.", "Breaking on zeros or using division despite the constraint."],
+      ["Arrays & Hashing", "Maximum Subarray", "Kadane DP", "At each index, decide whether to extend the previous sum or start fresh. Track global best.", "Initializing best to zero, which fails when every number is negative."],
+      ["Arrays & Hashing", "Maximum Product Subarray", "Track max and min products", "Negative values can flip min to max. Keep both the largest and smallest product ending here.", "Only tracking max product and losing the effect of two negatives."],
+      ["Arrays & Hashing", "Find Minimum in Rotated Sorted Array", "Modified binary search", "Compare middle to right boundary. If mid is greater than right, minimum is to the right; otherwise it is at mid or left.", "Using linear search or off-by-one loops that never terminate."],
+      ["Arrays & Hashing", "Search in Rotated Sorted Array", "Sorted half binary search", "At each step identify which half is sorted, then decide whether target lies inside that half.", "Checking both halves recursively and losing O(log n)."],
+      ["Arrays & Hashing", "3Sum", "Sort plus two pointers", "Sort, fix one value, then use left/right pointers for the remaining two. Skip duplicates after using values.", "Skipping duplicates before moving pointers correctly, causing missed triples."],
+      ["Arrays & Hashing", "Container With Most Water", "Two pointers by limiting height", "Area is limited by the shorter wall. Move the shorter side inward because the longer side cannot improve while width shrinks.", "Moving the taller pointer or trying every pair."],
+
+      ["Binary", "Sum of Two Integers", "Bit operations", "Use XOR for sum without carry and AND-shift for carry. Repeat until carry is zero, respecting fixed-width integer behavior.", "Forgetting language-specific signed integer behavior."],
+      ["Binary", "Number of 1 Bits", "Bit counting", "Repeatedly clear the lowest set bit with n &= n - 1, counting iterations.", "Looping over decimal digits instead of bits."],
+      ["Binary", "Counting Bits", "DP by half or lowest bit", "Use dp[i] = dp[i >> 1] + (i & 1), or dp[i] = dp[i & (i - 1)] + 1.", "Recomputing each number from scratch when O(n) is expected."],
+      ["Binary", "Missing Number", "XOR or sum formula", "XOR all indices and values, or compare expected n(n+1)/2 with actual sum.", "Overflow in languages with fixed integer widths when using sum."],
+      ["Binary", "Reverse Bits", "Shift and mask", "Iterate 32 times, append the lowest bit of input to the result, then shift input.", "Stopping early and losing leading zeros."],
+
+      ["Dynamic Programming", "Climbing Stairs", "Fibonacci DP", "Ways to step i equals ways to i-1 plus ways to i-2. Keep two variables.", "Using exponential recursion without memoization."],
+      ["Dynamic Programming", "Coin Change", "Min-count DP", "dp[amount] is the fewest coins needed. Initialize infinity, dp[0]=0, relax by each coin.", "Using greedy, which fails for many coin systems."],
+      ["Dynamic Programming", "Longest Increasing Subsequence", "DP or patience sorting", "O(n^2) DP is clear; O(n log n) keeps tails where tails[k] is the smallest ending value for length k+1.", "Thinking tails is the actual subsequence rather than a compact state."],
+      ["Dynamic Programming", "Longest Common Subsequence", "2D DP", "dp[i][j] compares prefixes. If chars match, use diagonal + 1; otherwise max of left/up.", "Confusing subsequence with substring."],
+      ["Dynamic Programming", "Word Break", "Prefix DP", "dp[i] means s[:i] can be segmented. Try dictionary words or previous cut positions.", "Trying all sentence splits without memoization."],
+      ["Dynamic Programming", "Combination Sum IV", "Order-sensitive DP", "dp[target] sums dp[target-num] for every number. Because order matters, target is the outer loop.", "Using combination-style loops and accidentally ignoring order."],
+      ["Dynamic Programming", "House Robber", "Take or skip DP", "At each house choose max(previous best, best two houses back + current).", "Forgetting that adjacent houses cannot both be selected."],
+      ["Dynamic Programming", "House Robber II", "Circular DP split", "A circle means first and last conflict. Solve two linear cases: exclude first or exclude last.", "Running House Robber directly on the circular array."],
+      ["Dynamic Programming", "Decode Ways", "String DP", "dp[i] depends on whether one-digit and two-digit decodes ending at i are valid.", "Mishandling zeros such as 06, 10, and 20."],
+      ["Dynamic Programming", "Unique Paths", "Grid DP", "Ways to each cell equal top plus left. Use a 1D row for memory efficiency.", "Overcomplicating with DFS on a large grid."],
+      ["Dynamic Programming", "Jump Game", "Greedy farthest reach", "Track the farthest reachable index while scanning. If current index exceeds it, fail.", "Using DP when the greedy invariant is simpler."],
+
+      ["Graph", "Clone Graph", "DFS/BFS with map", "Map original nodes to cloned nodes. Traverse neighbors and create clones lazily.", "Creating duplicate clones for the same original node."],
+      ["Graph", "Course Schedule", "Cycle detection or topological sort", "Build prerequisite graph. Use indegree BFS or DFS colors to detect cycles.", "Treating prerequisites as undirected edges."],
+      ["Graph", "Pacific Atlantic Water Flow", "Reverse DFS/BFS from oceans", "Instead of starting from each cell, traverse backward from each ocean to cells that can flow into it.", "Doing a DFS from every cell and timing out."],
+      ["Graph", "Number of Islands", "Grid DFS/BFS", "Visit each land cell once, flood-fill connected land, count components.", "Forgetting to mark visited before recursing, causing repeat work."],
+      ["Graph", "Longest Consecutive Sequence", "Set starts only", "Put numbers in a set. Start a streak only when n-1 is absent.", "Sorting for O(n log n) or starting from every number."],
+      ["Graph", "Alien Dictionary", "Topological sort from first differing chars", "Compare adjacent words to derive ordering edges, then topologically sort letters.", "Missing the invalid prefix case, such as abc before ab."],
+      ["Graph", "Graph Valid Tree", "Connected and acyclic", "A tree with n nodes has n-1 edges and must be connected. Use DFS/union-find.", "Checking only edge count or only connectivity."],
+      ["Graph", "Number of Connected Components", "Union-find or DFS", "Union every edge, then count roots; or build adjacency and count DFS starts.", "Forgetting isolated nodes."],
+
+      ["Intervals", "Insert Interval", "Merge around new interval", "Append intervals before, merge overlapping middle with the new interval, append intervals after.", "Failing to include the new interval when it belongs at the start or end."],
+      ["Intervals", "Merge Intervals", "Sort by start", "Sort intervals, then merge if the next start is <= current end.", "Sorting by end and making merge logic harder."],
+      ["Intervals", "Non-overlapping Intervals", "Greedy by earliest end", "Sort by end time and keep intervals that finish earliest; count removals for overlaps.", "Greedy by start, which can keep long intervals that block many short ones."],
+      ["Intervals", "Meeting Rooms", "Sort starts", "Sort by start and check whether any meeting starts before the previous one ends.", "Using pairwise comparisons."],
+      ["Intervals", "Meeting Rooms II", "Min-heap or sweep line", "Sort meetings by start and track active end times in a min-heap; max heap size is rooms needed.", "Forgetting to pop all rooms that already ended."],
+
+      ["Linked List", "Reverse Linked List", "Pointer reversal", "Keep prev, curr, next. Reverse curr.next, then advance.", "Losing the rest of the list by overwriting next too early."],
+      ["Linked List", "Linked List Cycle", "Fast and slow pointers", "Move slow by one and fast by two. If they meet, there is a cycle.", "Using a set when O(1) memory is requested."],
+      ["Linked List", "Merge Two Sorted Lists", "Dummy head", "Use a dummy node and append the smaller current node from either list.", "Forgetting to attach the remaining tail."],
+      ["Linked List", "Merge K Sorted Lists", "Min-heap or divide and conquer", "Push one node from each list into a heap, or repeatedly merge pairs of lists.", "Flattening and sorting all values when node structure matters."],
+      ["Linked List", "Remove Nth Node From End", "Two pointers with dummy", "Advance fast n steps, then move fast and slow until fast reaches the end. Delete slow.next.", "Failing when the removed node is the head."],
+      ["Linked List", "Reorder List", "Split, reverse, merge", "Find middle, reverse second half, then weave first and second halves.", "Creating a cycle by not terminating the first half."],
+
+      ["Matrix", "Set Matrix Zeroes", "First row/column markers", "Use first row and column as zero markers, plus flags for whether they originally had zeros.", "Zeroing immediately and spreading zeros incorrectly."],
+      ["Matrix", "Spiral Matrix", "Boundary traversal", "Maintain top, bottom, left, right boundaries and shrink after each direction.", "Double-visiting when a single row or column remains."],
+      ["Matrix", "Rotate Image", "Transpose then reverse rows", "For clockwise rotation, transpose matrix in place, then reverse each row.", "Allocating another matrix when in-place is required."],
+      ["Matrix", "Word Search", "Backtracking DFS", "From each cell, DFS matching characters, marking visited during the current path only.", "Using a global visited set across different starts."],
+
+      ["String", "Longest Substring Without Repeating Characters", "Sliding window with last seen", "Move left past the previous occurrence of the current character and update best length.", "Moving left backward when a repeat is outside the current window."],
+      ["String", "Longest Repeating Character Replacement", "Sliding window with max frequency", "Keep a window where length - most frequent count <= k. Shrink when invalid.", "Recomputing too much or reducing max frequency incorrectly; stale max is acceptable."],
+      ["String", "Minimum Window Substring", "Need/have sliding window", "Expand right until requirements are met, then shrink left while preserving validity.", "Checking only unique chars and not required counts."],
+      ["String", "Valid Anagram", "Counts", "Compare character counts or sort both strings if complexity permits.", "Ignoring Unicode or character-set assumptions when asked."],
+      ["String", "Group Anagrams", "Canonical key", "Use sorted string or 26-count tuple as a hash key.", "Using a mutable list as a dictionary key."],
+      ["String", "Valid Parentheses", "Stack", "Push expected closers or openers; pop and match on close.", "Not checking leftover open brackets."],
+      ["String", "Valid Palindrome", "Two pointers with filtering", "Move inward, skipping non-alphanumeric characters and comparing lowercase chars.", "Building a cleaned string when O(1) memory is preferred."],
+      ["String", "Longest Palindromic Substring", "Expand around centers", "Each palindrome has a center. Expand from every single and between-character center.", "Only checking odd-length palindromes."],
+      ["String", "Palindromic Substrings", "Count center expansions", "For each possible center, expand while chars match and count every valid expansion.", "Counting only maximal palindromes."],
+      ["String", "Encode and Decode Strings", "Length-prefixed encoding", "Encode each string as length + delimiter + bytes/chars, then parse exactly that length.", "Using a delimiter alone, which fails when strings contain the delimiter."],
+
+      ["Tree", "Maximum Depth of Binary Tree", "Recursive or BFS depth", "Depth is 1 + max(left depth, right depth), with null depth zero.", "Off-by-one around empty tree."],
+      ["Tree", "Same Tree", "Recursive structural equality", "Two trees are same if both roots are null, or values match and left/right subtrees match.", "Comparing traversals only, which can be ambiguous without null markers."],
+      ["Tree", "Invert Binary Tree", "Postorder or preorder swap", "Swap left and right for every node recursively or iteratively.", "Only swapping the root."],
+      ["Tree", "Binary Tree Maximum Path Sum", "DFS gain", "Return max downward gain to parent; update global best with left + node + right.", "Returning a split path upward, which is invalid because parent can only continue one side."],
+      ["Tree", "Binary Tree Level Order Traversal", "BFS queue", "Process nodes level by level using queue size to delimit levels.", "Mixing levels because queue length changes during iteration."],
+      ["Tree", "Serialize and Deserialize Binary Tree", "Traversal with null markers", "Preorder or level-order encode values plus nulls so shape is recoverable.", "Omitting nulls, which loses structure."],
+      ["Tree", "Subtree of Another Tree", "Tree equality at candidate roots", "Traverse main tree. When values match, run same-tree comparison.", "Assuming matching root value is enough."],
+      ["Tree", "Construct Binary Tree from Preorder and Inorder Traversal", "Root plus inorder split", "Preorder gives root. Inorder splits left/right. Use index map and bounds for O(n).", "Slicing arrays repeatedly and turning O(n) into O(n^2)."],
+      ["Tree", "Validate Binary Search Tree", "Value bounds", "Every node must be within lower and upper bounds inherited from ancestors.", "Checking only immediate children."],
+      ["Tree", "Kth Smallest Element in a BST", "Inorder traversal", "BST inorder traversal is sorted. Stop after visiting k nodes.", "Traversing the whole tree when early stop is possible."],
+      ["Tree", "Lowest Common Ancestor of a BST", "Use BST ordering", "If both targets are smaller, go left; if larger, go right; otherwise current node is split/LCA.", "Using general-tree LCA and missing the BST shortcut."],
+      ["Tree", "Implement Trie", "Prefix tree nodes", "Each node stores children and an end-of-word marker. Insert/search by walking characters.", "Not distinguishing full word from prefix."],
+      ["Tree", "Add and Search Word", "Trie plus wildcard DFS", "Normal chars follow one child. Dot branches over all children recursively.", "Treating dot as a literal character."],
+      ["Tree", "Word Search II", "Trie-guided backtracking", "Build a trie of words, DFS the board, prune paths not in trie, and mark found words once.", "Running Word Search separately for every word."],
+
+      ["Heap", "Top K Frequent Elements", "Frequency map plus heap or buckets", "Count frequencies. Use bucket sort by frequency or a heap of size k.", "Sorting full items when linear bucket solution is expected."],
+      ["Heap", "Find Median from Data Stream", "Two heaps", "Max-heap for lower half, min-heap for upper half. Balance sizes and compute median from tops.", "Letting heaps become unbalanced or reversing heap roles."]
+    ];
+
+    const container = document.getElementById("problem-list");
+    const grouped = new Map();
+    for (const item of problems) {
+      const [category] = item;
+      if (!grouped.has(category)) grouped.set(category, []);
+      grouped.get(category).push(item);
+    }
+
+    let count = 1;
+    for (const [category, items] of grouped) {
+      const section = document.createElement("section");
+      section.className = "problem-group";
+      const heading = document.createElement("h3");
+      heading.textContent = category;
+      section.appendChild(heading);
+
+      for (const [, title, pattern, strategy, mistake] of items) {
+        const article = document.createElement("article");
+        article.className = "problem-card";
+
+        const h4 = document.createElement("h4");
+        h4.textContent = `${count}. ${title}`;
+        article.appendChild(h4);
+
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>Pattern:</strong> ${pattern}`;
+        article.appendChild(p);
+
+        const details = document.createElement("details");
+        details.className = "qa";
+        const summary = document.createElement("summary");
+        summary.textContent = "Hidden answer: strategy and common mistake";
+        const body = document.createElement("p");
+        body.innerHTML = `<strong>Strategy:</strong> ${strategy}<br><strong>Common mistake:</strong> ${mistake}`;
+        details.appendChild(summary);
+        details.appendChild(body);
+        article.appendChild(details);
+
+        section.appendChild(article);
+        count += 1;
+      }
+      container.appendChild(section);
+    }
+  </script>
+</body>
+</html>

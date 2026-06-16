@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior ML Interview And Exam Track</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#bar">Senior Bar</a>
+      <a href="#systems">System Design</a>
+      <a href="#rd">R&amp;D</a>
+      <a href="#production">Production</a>
+      <a href="#audio">Audio</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Interview Track</p>
+    <h1>Senior ML Engineer Readiness</h1>
+    <p class="lede">
+      A practical exam track for senior machine learning and AI engineering
+      roles. The goal is not memorized answers. The goal is to reason through
+      ambiguous research and production problems with enough detail to earn
+      trust on a real audio and speech ML team.
+    </p>
+  </header>
+
+  <main>
+    <section id="bar" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Current Hiring Signal</p>
+        <h2>What Senior Interviews Actually Test</h2>
+        <p>
+          A current online pass across ML system design, MLOps/deployment, AI
+          engineering, and speech-recognition interview material shows a common
+          pattern: senior loops test judgment under constraints. Strong
+          candidates can move from problem framing to data, modeling,
+          evaluation, serving, monitoring, rollback, and cost.
+        </p>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>R&amp;D Depth</h3>
+          <p>Explain architectures, losses, optimization limits, papers, ablations, and why a result should or should not transfer to speech.</p>
+        </article>
+        <article class="card">
+          <h3>Production Ownership</h3>
+          <p>Design reliable pipelines, model registries, rollout plans, observability, drift response, and rollback paths.</p>
+        </article>
+        <article class="card">
+          <h3>Infrastructure Judgment</h3>
+          <p>Choose between batch and online inference, CPU/GPU placement, batching, quantization, caching, and graceful degradation.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Format</p>
+        <h2>Use This As A Mock Onsite</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>75 minutes:</strong> end-to-end ML system design for a speech product.</li>
+        <li><strong>45 minutes:</strong> applied ML and deep learning fundamentals.</li>
+        <li><strong>45 minutes:</strong> coding, debugging, and code review.</li>
+        <li><strong>45 minutes:</strong> MLOps, model serving, monitoring, and incident response.</li>
+        <li><strong>30 minutes:</strong> research discussion and paper-to-production tradeoffs.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is system design the largest block?</summary>
+        <p>
+          Senior ML work is mostly choosing and operating the right system under
+          imperfect constraints. Model architecture is only one part. The
+          candidate must also handle data quality, evaluation, serving latency,
+          monitoring, stakeholder metrics, privacy, cost, and rollback.
+        </p>
+      </details>
+    </section>
+
+    <section id="systems" class="band">
+      <div class="section-head">
+        <p class="eyebrow">System Design</p>
+        <h2>End-To-End Audio ML Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Design A Streaming ASR Service</h3>
+        <p>
+          Build a streaming ASR service for a call-center product. It must
+          support 5,000 concurrent calls, partial transcripts under 500 ms,
+          final transcripts with word timestamps, domain vocabulary updates,
+          and strict privacy controls.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: What a senior answer should cover</summary>
+          <p>
+            Start with requirements: languages, sample rate, channels, latency,
+            concurrency, retention, compliance, and accuracy targets. Propose
+            VAD, chunking, streaming encoder or RNN-T/Transducer-style model,
+            endpointing, partial/final transcript reconciliation, custom
+            vocabulary or contextual biasing, and a WER/CER evaluation set
+            split by accent, noise, domain terms, and call type. For serving,
+            discuss autoscaling workers, GPU batching, CPU preprocessing,
+            backpressure, per-stream state, trace IDs, and a fallback path.
+            For operations, include drift checks, latency percentiles, audio
+            quality metrics, privacy-safe logging, redaction, rollout, and
+            rollback.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Design A Low-Latency Speech-To-Speech Assistant</h3>
+        <p>
+          Build a voice assistant that listens, reasons, and responds by voice.
+          It should feel conversational on a laptop, preserve user privacy, and
+          support barge-in.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Cascaded and direct architecture tradeoffs</summary>
+          <p>
+            A cascaded ASR -> LLM -> TTS design is easier to debug, easier to
+            evaluate, and easier to moderate, but it adds latency at every
+            boundary and loses some prosody. A direct speech-to-speech model can
+            preserve paralinguistic cues and reduce intermediate text
+            bottlenecks, but is harder to control, inspect, and operate. A
+            senior answer should create a latency budget for VAD, ASR partials,
+            LLM first token, TTS first audio, playback, and interruption. It
+            should also include state management, echo control, local model
+            options, privacy rules, transcript UI, failure recovery, and
+            measurements for both quality and responsiveness.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Design A Model Serving Platform For Audio Models</h3>
+        <p>
+          Multiple teams need to serve ASR, TTS, embedding, and audio
+          classification models. Some are batch jobs. Some are real-time APIs.
+          Some require GPUs. Design the platform.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Platform components</summary>
+          <p>
+            Include a model registry with weights, code, tokenizer/feature
+            config, environment, training data snapshot, eval report, and
+            owner. Separate batch and online serving paths. Use a standard
+            inference interface, request validation, model-specific
+            preprocessing, model servers for GPU workloads, and direct embedded
+            inference only for tiny low-latency models. Add canary rollout,
+            shadow traffic, traffic splitting, rollback, dashboards, cost
+            attribution, capacity planning, and incident playbooks.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="rd" class="band">
+      <div class="section-head">
+        <p class="eyebrow">R&amp;D</p>
+        <h2>Research Questions With Production Consequences</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>CTC vs Attention vs RNN-T</h3>
+          <p>Explain where each ASR objective fits, how alignment is learned, and why streaming constraints change the choice.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              CTC assumes monotonic alignment and conditional independence
+              between output labels given acoustic frames. It is simple and
+              strong for ASR but may need a language model or rescoring.
+              Attention seq2seq is flexible and powerful but usually less
+              natural for strict streaming. RNN-T/Transducer models jointly
+              model acoustic time and output tokens, making them strong for
+              streaming ASR at the cost of more complex training and decoding.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Why Conformer Helped ASR</h3>
+          <p>Explain why combining convolution and self-attention is useful for speech.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Speech has local acoustic structure and long-range linguistic
+              context. Convolution captures local patterns such as phonetic
+              transitions efficiently, while attention connects distant frames.
+              This is a better inductive bias than pure attention for many ASR
+              settings, especially when data and latency are constrained.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>When To Fine-Tune Whisper</h3>
+          <p>Decide whether to fine-tune, prompt, add vocabulary biasing, or build post-processing.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Start with error analysis. Fine-tune when the failures are stable,
+              data is available, and model adaptation is allowed. Prefer
+              prompting, decoding constraints, vocabulary biasing, or
+              post-processing when errors are narrow and can be corrected
+              without risking global regression. Always keep a held-out domain
+              eval, track WER by slice, and compare latency and memory changes.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Neural Codec Tradeoffs</h3>
+          <p>Explain why speech-to-speech systems use discrete audio tokens and what can go wrong.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Codec tokens shorten raw waveform into a sequence that generative
+              models can handle. They can preserve speaker, prosody, and
+              acoustic detail better than text-only bottlenecks. Failure modes
+              include bitrate artifacts, speaker leakage, unstable prosody,
+              alignment drift, and safety/control difficulty.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="production" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production</p>
+        <h2>MLOps, Serving, And Incident Questions</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 4: p99 Latency Spiked After A Model Update</h3>
+        <p>
+          A 500 MB transformer endpoint now has p99 latency over 2 seconds
+          during peak traffic. Accuracy is slightly better than the old model.
+          What do you do?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: First-hour response</summary>
+          <p>
+            First isolate where time is spent: request queue, preprocessing,
+            model execution, post-processing, serialization, network, cold
+            starts, or downstream calls. Compare old and new model traces. Check
+            batch size, GPU utilization, memory pressure, context length, and
+            autoscaling behavior. Mitigations include rollback, traffic
+            reduction, canary pause, dynamic batching, quantization, ONNX or
+            TensorRT-style optimization, shorter inputs, cache reuse, and
+            timeout-aware graceful degradation. Do not defend accuracy if the
+            product cannot meet latency SLOs.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 5: Validation WER Improved, Production Quality Did Not</h3>
+        <p>
+          An ASR model improved from 10.2 to 8.7 WER offline, but customer
+          support agents say the transcripts are less useful. Explain possible
+          causes and what you measure next.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Quality diagnosis</summary>
+          <p>
+            Offline WER may hide domain slices: names, product terms, accents,
+            noise, overlapping speech, punctuation, timestamps, or diarization.
+            Production utility may depend on entity accuracy, latency, partial
+            stability, readability, and downstream summarization. Check
+            train-test leakage, distribution shift, label quality, decoding
+            changes, normalization rules, and whether the eval set matches
+            current traffic. Add slice metrics and human review on real
+            privacy-safe samples.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 6: Design ML CI/CD</h3>
+        <p>
+          Move a manually trained audio classifier from notebooks to a
+          production pipeline.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: CI/CD tracks</summary>
+          <p>
+            ML CI/CD must validate code, data, and model artifacts. Include data
+            schema checks, feature extraction parity, dataset versioning,
+            reproducible environments, training jobs, baseline comparison,
+            slice metrics, bias/fairness checks if relevant, model registry
+            promotion gates, staged deployment, rollback, and monitoring. A
+            model version is not just weights; it includes code, feature config,
+            dependencies, data snapshot, hyperparameters, and eval report.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding</p>
+        <h2>Build And Debug, Not Recite</h2>
+      </div>
+      <p>
+        Senior coding rounds often test whether you can write clear ML code,
+        find silent bugs, and design guardrails. These exercises should be added
+        to the course labs as executable notebooks or scripts.
+      </p>
+      <pre><code class="language-python"># Exercise: find the bug before this ships.
+import torch
+import torch.nn.functional as F
+
+
+def training_step(model, batch):
+    x, y = batch["features"], batch["labels"]
+    logits = model(x)          # [batch, classes]
+    probs = F.softmax(logits)  # bug: dim is missing
+    loss = F.cross_entropy(probs, y)
+    return loss</code></pre>
+      <details class="qa">
+        <summary>Hidden answer: What is wrong?</summary>
+        <p>
+          Cross entropy expects raw logits, not softmax probabilities. The
+          softmax also omits the dimension argument. The correct code is usually
+          <code>loss = F.cross_entropy(logits, y)</code>. A senior answer also
+          says how to catch this: unit tests on shape and loss behavior,
+          overfit-one-batch tests, code review checklists, and metric sanity
+          checks against a known baseline.
+        </p>
+      </details>
+    </section>
+
+    <section id="audio" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Audio Domain</p>
+        <h2>Speech-Specific Interview Bank</h2>
+      </div>
+      <ul class="checklist">
+        <li>Explain WER, CER, SER, entity error rate, timestamp accuracy, and recognition speed.</li>
+        <li>Debug accent-specific ASR regression without collecting unsafe private data.</li>
+        <li>Choose between log-mel, waveform, and neural codec token representations.</li>
+        <li>Design a diarization and ASR pipeline for overlapping speakers.</li>
+        <li>Explain TTS MOS, speaker similarity, intelligibility, latency, and safety evaluation.</li>
+        <li>Compare cascaded ASR-LLM-TTS with direct speech-to-speech.</li>
+        <li>Define a privacy policy for audio retention, transcript storage, and model improvement.</li>
+      </ul>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rubric</p>
+        <h2>What Mastery Looks Like</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Strong</h3>
+          <p>Asks clarifying questions, creates an end-to-end design, picks metrics by product goal, and names failure modes.</p>
+        </article>
+        <article class="card">
+          <h3>Senior</h3>
+          <p>Adds rollout, rollback, cost, monitoring, data lineage, privacy, capacity planning, and migration strategy.</p>
+        </article>
+        <article class="card">
+          <h3>Staff-Level</h3>
+          <p>Frames tradeoffs across teams, makes reversible decisions, identifies organizational risks, and creates a path from prototype to platform.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sources Used For This Track</p>
+        <h2>Online Interview Research</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://www.kore1.com/ml-engineer-interview-questions/">KORE1 AI/ML Engineer Interview Questions 2026</a> - current senior loop themes: system design, applied fundamentals, coding, MLOps, production debugging.</li>
+        <li><a href="https://www.hellointerview.com/learn/ml-system-design">Hello Interview ML System Design</a> - applied ML design, ML infra design, research engineering categories.</li>
+        <li><a href="https://www.datainterview.com/blog/mlops-and-deployment-interview-questions">DataInterview MLOps and Deployment Questions</a> - serving, latency, CI/CD, drift, monitoring, and deployment prompts.</li>
+        <li><a href="https://www.tryexponent.com/blog/machine-learning-system-design-interview-guide">Exponent ML System Design Guide</a> - end-to-end framework from problem definition through deployment and monitoring.</li>
+        <li><a href="https://www.remoterocketship.com/advice/guide/ml-engineer/speech-recognition-interview-questions-and-answers/">Remote Rocketship Speech Recognition Questions</a> - ASR-specific evaluation topics such as WER, SER, PER, and recognition speed.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Use this page as an exam bank. Answer from memory first, then open the hidden answer and compare.</p>
+  </footer>
+</body>
+</html>

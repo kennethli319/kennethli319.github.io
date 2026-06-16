@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 05 - Transformers With Code</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#attention">Attention</a>
+      <a href="#code">Code</a>
+      <a href="#audio">Audio/Speech</a>
+      <a href="#checkpoints">Questions</a>
+    </nav>
+    <p class="eyebrow">Module 05</p>
+    <h1>Transformers With Code</h1>
+    <p class="lede">
+      Learn the transformer as a computation graph, implement attention, and
+      connect the pieces to ASR, TTS, multimodal alignment, and inference
+      hosting.
+    </p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Outcome</p>
+        <h2>What You Should Be Able To Explain</h2>
+      </div>
+      <ul class="checklist">
+        <li>Why attention is content-addressed retrieval over a sequence.</li>
+        <li>How queries, keys, and values create a token-to-token mixing matrix.</li>
+        <li>Why self-attention costs grow quadratically with sequence length.</li>
+        <li>How causal masks, padding masks, and cross-attention differ.</li>
+        <li>Why KV cache matters for inference hosting.</li>
+        <li>How encoder-style transformers power ASR and decoder-style transformers power language generation.</li>
+      </ul>
+    </section>
+
+    <section id="attention" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Core Idea</p>
+        <h2>Attention Is Soft Lookup</h2>
+      </div>
+      <p>
+        A transformer layer lets each token ask: "Which other tokens should I
+        read from, and how strongly?" The model projects each token into three
+        vectors:
+      </p>
+      <div class="grid three">
+        <article class="card">
+          <h3>Query</h3>
+          <p>What this position is looking for.</p>
+        </article>
+        <article class="card">
+          <h3>Key</h3>
+          <p>What each position offers for matching.</p>
+        </article>
+        <article class="card">
+          <h3>Value</h3>
+          <p>The information copied after matching.</p>
+        </article>
+      </div>
+      <p>
+        Scores are dot products between queries and keys. Softmax turns those
+        scores into weights. The output is a weighted sum of values.
+      </p>
+      <pre><code>scores = Q @ K.T / sqrt(d_head)
+weights = softmax(scores)
+output = weights @ V</code></pre>
+
+      <details class="qa">
+        <summary>Question: Why divide by sqrt(d_head)?</summary>
+        <p>
+          Dot products get larger as vector dimension grows. Without scaling,
+          softmax can become too sharp early in training, causing tiny gradients.
+          Dividing by sqrt(d_head) keeps score variance more stable.
+        </p>
+      </details>
+    </section>
+
+    <section id="code" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Implementation</p>
+        <h2>Single-Head Attention In PyTorch</h2>
+      </div>
+      <p>
+        This is not optimized. It is deliberately explicit so every tensor shape
+        is visible.
+      </p>
+      <pre><code class="language-python">import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class SingleHeadSelfAttention(nn.Module):
+    def __init__(self, d_model: int, d_head: int):
+        super().__init__()
+        self.q = nn.Linear(d_model, d_head, bias=False)
+        self.k = nn.Linear(d_model, d_head, bias=False)
+        self.v = nn.Linear(d_model, d_head, bias=False)
+        self.out = nn.Linear(d_head, d_model, bias=False)
+
+    def forward(self, x: torch.Tensor, causal: bool = False):
+        # x: [batch, time, d_model]
+        q = self.q(x)  # [batch, time, d_head]
+        k = self.k(x)  # [batch, time, d_head]
+        v = self.v(x)  # [batch, time, d_head]
+
+        scores = q @ k.transpose(-2, -1)
+        scores = scores / math.sqrt(k.shape[-1])
+
+        if causal:
+            time = x.shape[1]
+            mask = torch.triu(torch.ones(time, time, device=x.device), diagonal=1)
+            scores = scores.masked_fill(mask.bool(), float("-inf"))
+
+        weights = F.softmax(scores, dim=-1)
+        mixed = weights @ v
+        return self.out(mixed), weights
+
+
+x = torch.randn(2, 5, 16)
+layer = SingleHeadSelfAttention(d_model=16, d_head=8)
+y, attn = layer(x, causal=True)
+print(y.shape)     # torch.Size([2, 5, 16])
+print(attn.shape)  # torch.Size([2, 5, 5])</code></pre>
+
+      <details class="qa">
+        <summary>Question: What does attn[b, t, s] mean?</summary>
+        <p>
+          It is how much token position t in batch item b reads from source
+          position s. With a causal mask, positions s greater than t should have
+          zero probability because future tokens are hidden.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Question: What breaks if the mask uses zeros instead of -inf?</summary>
+        <p>
+          Softmax would still assign probability mass to masked positions.
+          Setting masked logits to negative infinity makes their softmax weight
+          exactly zero in the ideal math and effectively zero in floating point.
+        </p>
+      </details>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Multi-Head Attention</p>
+        <h2>Why More Than One Head?</h2>
+      </div>
+      <p>
+        A single attention head creates one similarity space. Multiple heads let
+        the layer learn several kinds of lookup at once: local syntax,
+        long-range dependencies, speaker cues, acoustic events, punctuation
+        patterns, or alignment hints.
+      </p>
+      <pre><code class="language-python"># Multi-head attention is usually implemented by projecting once:
+qkv = linear(x)  # [batch, time, 3 * n_heads * d_head]
+
+# Then reshaping:
+qkv = qkv.view(batch, time, 3, n_heads, d_head)
+q, k, v = qkv.unbind(dim=2)
+
+# Attention runs independently per head, then heads are concatenated.</code></pre>
+
+      <details class="qa">
+        <summary>Question: Why can too many heads be wasteful?</summary>
+        <p>
+          If d_model is fixed, more heads means each head is narrower. Very
+          narrow heads may have weak representational capacity, while extra
+          heads add projection and memory overhead. Modern efficient models often
+          use grouped-query or multi-query attention to reduce KV-cache cost.
+        </p>
+      </details>
+    </section>
+
+    <section id="audio" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Audio Connection</p>
+        <h2>Where Transformers Appear In Speech</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR Encoder</h3>
+          <p>
+            Audio frames or patches become a sequence. Encoder transformers mix
+            information across time so a phoneme can be recognized using its
+            context. Conformer adds convolution to better capture local acoustic
+            structure.
+          </p>
+        </article>
+        <article class="card">
+          <h3>TTS Decoder</h3>
+          <p>
+            Text tokens, phonemes, or semantic tokens condition a model that
+            predicts mel frames, durations, or discrete audio tokens. Attention
+            helps align text positions to generated speech.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Speech-To-Speech</h3>
+          <p>
+            Cascaded systems use ASR -> text LLM -> TTS. Direct systems may
+            encode speech into semantic/acoustic tokens and decode speech tokens
+            without text as the only bottleneck.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Multimodal Alignment</h3>
+          <p>
+            Audio-text systems learn shared spaces where spoken content, written
+            content, and acoustic events can retrieve or condition each other.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Efficiency</p>
+        <h2>Why Inference Hosting Cares About Attention</h2>
+      </div>
+      <p>
+        During generation, a decoder only needs to compute attention for the new
+        token against past keys and values. Keeping those past keys and values
+        in memory is the KV cache. This makes decoding much faster than
+        recomputing the whole prefix, but it also makes memory grow with:
+      </p>
+      <pre><code>batch_size * sequence_length * layers * kv_heads * head_dim</code></pre>
+      <p>
+        For local audio assistants, this means long prompts and large memory
+        windows can slow the system before TTS even starts. Efficient systems
+        manage prompt length, cache memory, batching, quantization, and streaming
+        carefully.
+      </p>
+
+      <details class="qa">
+        <summary>Question: Why did the local voice agent slow down when memory context grew?</summary>
+        <p>
+          More SQLite memory records increased prompt tokens. The model had to
+          evaluate a longer prefix before generating the spoken answer. The fix
+          was to lower the default memory window, shorten context items, and
+          keep larger windows opt-in.
+        </p>
+      </details>
+    </section>
+
+    <section id="checkpoints" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Checkpoint</p>
+        <h2>Questions With Hidden Answers</h2>
+      </div>
+
+      <details class="qa">
+        <summary>1. Explain self-attention without equations.</summary>
+        <p>
+          Each token builds a query describing what it wants to know, compares it
+          to keys from every token, turns those comparisons into weights, and
+          uses the weights to blend value vectors from the sequence.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>2. Why is attention expensive for long audio?</summary>
+        <p>
+          Full self-attention compares every time step with every other time
+          step, so the score matrix is time by time. Audio often has many more
+          frames than text has tokens, making quadratic attention expensive.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>3. What is the difference between encoder attention and decoder causal attention?</summary>
+        <p>
+          Encoder attention can usually read the whole input sequence, such as
+          all audio frames. Decoder causal attention can only read previous
+          generated tokens so it cannot cheat by seeing the future.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>4. Why does a speech assistant need both model and system optimization?</summary>
+        <p>
+          The user experiences the whole loop: microphone capture, VAD, ASR,
+          prompt construction, LLM inference, TTS, and playback. A better model
+          is not enough if prompt context is too large, ASR sends noise, or TTS
+          overlaps with an older reply.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

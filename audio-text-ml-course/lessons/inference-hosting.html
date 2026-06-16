@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inference Hosting And Serving Design</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#mental-model">Mental Model</a>
+      <a href="#capacity">Capacity</a>
+      <a href="#serving">Serving</a>
+      <a href="#debugging">Debugging</a>
+      <a href="#lab">Lab</a>
+    </nav>
+    <p class="eyebrow">Module 13</p>
+    <h1>Inference Hosting And Serving Design</h1>
+    <p class="lede">
+      Senior AI engineers need to turn model demos into services with clear
+      latency, memory, throughput, reliability, privacy, and cost behavior.
+      This lesson connects transformer serving to speech workloads.
+    </p>
+  </header>
+
+  <main>
+    <section id="mental-model" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Mental Model</p>
+        <h2>Every Request Spends Four Budgets</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Latency</h3>
+          <p>Queue time, preprocessing, first token or first audio byte, decode time, post-processing, network, and client playback all count.</p>
+          <details class="qa">
+            <summary>Question: Why is average latency a weak launch metric?</summary>
+            <p>
+              Interactive speech products are judged by tail latency and
+              jitter. A good mean can hide overloaded queues, cold starts,
+              long-context requests, batch starvation, or a few tenants causing
+              bad p95 and p99 behavior.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Memory</h3>
+          <p>Weights, activations, KV cache, audio buffers, tokenizer state, feature tensors, and batching padding all compete for memory.</p>
+          <details class="qa">
+            <summary>Question: What makes KV cache a serving problem?</summary>
+            <p>
+              The cache grows with layers, heads, head dimension, sequence
+              length, batch size, and precision. Long conversations can consume
+              more memory than the model weights, so schedulers need limits,
+              eviction, paging, truncation, or summarization.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Throughput</h3>
+          <p>Batching and streaming must be balanced. Larger batches improve accelerator utilization but can delay the first useful response.</p>
+          <details class="qa">
+            <summary>Question: When should batching be limited?</summary>
+            <p>
+              Limit batching for conversational ASR, speech-to-speech, and TTS
+              first-audio-byte paths where queue delay is visible. Use larger
+              batches for offline transcription, embeddings, evaluation jobs,
+              and analytics pipelines.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Quality</h3>
+          <p>Quantization, pruning, smaller context, decoding shortcuts, and lower vocoder quality can save cost but must be checked by slice.</p>
+          <details class="qa">
+            <summary>Question: Which slices are risky for audio?</summary>
+            <p>
+              Track accents, noisy rooms, far-field microphones, low-volume
+              speech, domain terms, code-switching, children, elderly speakers,
+              long silences, overlapping speech, and rare entity names. Global
+              WER can hide severe regressions in these groups.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="capacity" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Capacity Planning</p>
+        <h2>Back-Of-The-Envelope Interview Math</h2>
+        <p>
+          In system design interviews, show that you can estimate before
+          reaching for a benchmark. State assumptions, calculate, then explain
+          which measurements would replace the estimate.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Estimate GPU Replicas For A Streaming ASR Launch</h3>
+        <p>
+          You expect 10,000 concurrent streams at peak. Each stream sends 16 kHz
+          mono audio. The streaming model consumes 0.35 GPU-seconds per audio
+          second after batching, and one GPU should run at no more than 70
+          percent utilization. Estimate replicas.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: capacity calculation</summary>
+          <p>
+            Peak demand is 10,000 audio-seconds per wall-clock second. At 0.35
+            GPU-seconds per audio second, demand is 3,500 GPU-seconds per
+            second. At a 70 percent utilization target, each GPU contributes
+            0.7 usable GPU-seconds per second. Estimate 3,500 / 0.7 = 5,000
+            GPUs before optimizations. A senior answer should challenge the
+            assumptions, look for model or batching improvements, regional peak
+            smoothing, smaller models, CPU preprocessing, VAD savings, and
+            offline-vs-real-time separation.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Estimate KV-Cache Memory</h3>
+        <p>
+          A decoder-only model has 32 layers, 32 KV heads, head dimension 128,
+          fp16 cache, and 8,000 active tokens per request. Estimate KV cache per
+          request before batching overhead.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: memory formula</summary>
+          <p>
+            Cache bytes are layers * tokens * KV tensors * KV heads * head dim
+            * bytes. That is 32 * 8,000 * 2 * 32 * 128 * 2 bytes, about 4.2 GB
+            per request. The answer should immediately discuss grouped-query
+            attention, shorter context, cache paging, summarization, request
+            limits, and why long conversations can dominate capacity.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="serving" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Serving Patterns</p>
+        <h2>Choose The Runtime By Product Constraint</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Embedded Local</h3>
+          <p>Use for privacy, offline mode, small models, local wake words, VAD, and personal assistants where device limits are acceptable.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior tradeoff</summary>
+            <p>
+              Local serving reduces data exposure and network latency, but
+              makes hardware variability, model updates, telemetry, crash
+              debugging, and battery use harder. Keep a compatibility matrix
+              and a rollback path for each release channel.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Online GPU API</h3>
+          <p>Use for large ASR, speech-to-speech, LLM reasoning, neural codecs, and high-quality TTS that exceed device capacity.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior tradeoff</summary>
+            <p>
+              Online GPU serving gives centralized control, better utilization,
+              and faster model iteration. It also introduces privacy, network,
+              quota, regional capacity, cold-start, and tail-latency problems.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Batch Pipeline</h3>
+          <p>Use for offline transcription, dataset labeling, eval runs, embedding generation, and backfills where throughput matters most.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior tradeoff</summary>
+            <p>
+              Batch jobs should maximize accelerator occupancy, retry safely,
+              checkpoint progress, record model versions, and support idempotent
+              outputs. They should not share fragile capacity with real-time
+              conversational paths unless quotas are strict.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="debugging" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Debugging</p>
+        <h2>First-Hour Incident Exercises</h2>
+      </div>
+      <article class="prompt">
+        <h3>Incident 1: Queue Time Dominates p99</h3>
+        <p>
+          Model execution is stable, but p99 end-to-end latency doubled. Traces
+          show most of the increase before inference begins.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: diagnosis and mitigation</summary>
+          <p>
+            Check arrival rate, per-tenant spikes, autoscaler lag, batcher
+            thresholds, max queue age, priority classes, stuck workers, retries,
+            and whether shadow or canary traffic is counted twice. Mitigate by
+            reducing batch wait, adding replicas, shedding low-priority traffic,
+            splitting real-time and batch queues, or rolling back the scheduler
+            change.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Incident 2: OOMs Only Happen On Long Conversations</h3>
+        <p>
+          Short requests pass. Long speech-to-speech sessions start failing with
+          GPU out-of-memory errors after a few turns.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: diagnosis and mitigation</summary>
+          <p>
+            Inspect KV-cache growth, audio-token context, retained hidden
+            states, conversation summarization, max-token limits, request
+            cancellation cleanup, and cache fragmentation. Mitigate with hard
+            context budgets, cache paging, summarization, session eviction,
+            smaller precision, GQA/MQA models, or routing long sessions to a
+            larger pool.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Incident 3: Cost Dropped But Entity Errors Increased</h3>
+        <p>
+          A quantized ASR model cut GPU cost by 30 percent, but customers report
+          more mistakes on names and product SKUs.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Roll back or canary-limit if critical entity error exceeds the
+            launch budget. Compare by domain-term slice, accent, SNR, language,
+            and utterance length. Consider mixed precision for sensitive
+            layers, rescoring, contextual biasing, post-processing, or a
+            cascade where the cheaper model handles easy traffic and uncertain
+            requests go to the baseline.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Build An Inference Readiness Report</h2>
+        <p>
+          Create a one-page report for any ASR, TTS, embedding, or LLM model
+          you can run locally. Do not commit private audio, transcripts, tokens,
+          or credentials.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Model contract:</strong> name weights, feature config, tokenizer, expected input, output schema, and license limits.</li>
+        <li><strong>Latency:</strong> measure cold start, warm p50/p95, first partial token or first audio byte, and total response time.</li>
+        <li><strong>Memory:</strong> record idle memory, peak memory, context length, batch size, and cache behavior.</li>
+        <li><strong>Quality:</strong> run a small public or synthetic eval and report errors by slice.</li>
+        <li><strong>Operations:</strong> define dashboards, alerts, rollback, cost budget, and privacy-safe logs.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What makes this report senior-level?</summary>
+        <p>
+          It connects model quality to operational constraints. A senior report
+          explains what was measured, what was not measured, how the model can
+          fail in production, what blocks launch, and exactly how to roll back
+          or degrade gracefully.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

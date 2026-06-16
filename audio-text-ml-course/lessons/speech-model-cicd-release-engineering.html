@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Model CI/CD And Release Engineering</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#contracts">Contracts</a>
+      <a href="#rollback">Rollback</a>
+      <a href="#lab">Lab</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Module 26</p>
+    <h1>Speech Model CI/CD And Release Engineering</h1>
+    <p class="lede">
+      Senior ML engineers are judged by how safely they turn model improvements
+      into product changes. This lesson covers release pipelines, model registry
+      contracts, CI gates, canaries, rollback, and production debugging for
+      audio-text systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="pipeline" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Release Pipeline</p>
+        <h2>Every Model Change Needs A Reproducible Path</h2>
+        <p>
+          A strong release pipeline starts before deployment. It preserves the
+          training data manifest, model artifact, feature code, tokenizer or
+          codec version, decoding configuration, evaluation pack, and serving
+          image. Without those links, rollback and postmortems become guesswork.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Train:</strong> store code SHA, data manifest, labels, hyperparameters, random seeds, and base model.</li>
+        <li><strong>Evaluate:</strong> run aggregate and slice tests for WER, CER, MOS proxy, latency, safety, and cost.</li>
+        <li><strong>Package:</strong> freeze feature extraction, tokenizer, model weights, decoder settings, and serving runtime.</li>
+        <li><strong>Stage:</strong> replay sanitized fixtures and synthetic traffic through the exact production API.</li>
+        <li><strong>Canary:</strong> route a small cohort with explicit stop conditions and privacy-safe telemetry.</li>
+        <li><strong>Promote:</strong> increase traffic only when slice metrics, SLOs, and incident dashboards remain healthy.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a model artifact alone not enough for rollback?</summary>
+        <p>
+          The artifact depends on feature extraction, tokenizer or codec
+          version, decoding parameters, runtime libraries, safety filters, and
+          routing rules. Rolling back only weights can leave the system in a
+          mixed state where outputs are not reproducible.
+        </p>
+      </details>
+    </section>
+
+    <section id="contracts" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Contracts</p>
+        <h2>Protect Interfaces Between Research And Production</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Model Registry Contract</h3>
+          <p>
+            Registry entries should say what the artifact is allowed to do and
+            how it must be evaluated before serving.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: required fields</summary>
+            <p>
+              Include model ID, version, owner, intended task, base model, data
+              manifest, training code SHA, feature contract, input schema, output
+              schema, eval report, safety report, serving image, resource
+              envelope, rollback target, and expiration or review date.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Serving API Contract</h3>
+          <p>
+            Serving contracts make client behavior stable even when the model
+            changes behind the endpoint.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: speech-specific fields</summary>
+            <p>
+              Specify audio format, sample rate, chunk size, timestamps, partial
+              versus final transcript semantics, cancellation, barge-in, language
+              hints, speaker metadata policy, redaction behavior, error codes,
+              latency SLOs, and compatibility with previous client versions.
+            </p>
+          </details>
+        </article>
+      </div>
+      <article class="prompt">
+        <h3>Checklist Prompt: Feature Contract Drift</h3>
+        <p>
+          Research trained an ASR model with 16 kHz mono log-mel features. A
+          production optimization silently resamples some mobile traffic to
+          12 kHz before feature extraction. What can break?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior diagnosis</summary>
+          <p>
+            The model may see shifted frequency content and degraded phoneme
+            evidence, especially for sibilants, noise, and accents. The release
+            should fail a contract test before canary. A senior answer asks for
+            sample-rate metadata, feature checksums, slice WER, client version
+            splits, and replay fixtures that verify the exact production feature
+            path.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="rollback" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rollback</p>
+        <h2>Rollback Is A Product Feature</h2>
+        <p>
+          Rollback must be fast, rehearsed, and observable. It should restore
+          user-visible behavior, not just flip a deployment back to an old image.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR Rollback Drill</h3>
+          <p>
+            A new streaming decoder improves final WER but raises partial
+            transcript churn during noisy calls.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: rollback plan</summary>
+            <p>
+              Route affected noisy-call slices back to the previous decoder,
+              keep global canary if unaffected slices are healthy, verify client
+              committed-prefix behavior, and watch first partial latency, final
+              WER, partial churn, and command success. If routing is not trusted,
+              roll back the whole decoder release.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Rollback Drill</h3>
+          <p>
+            A new voice is more natural, but p99 first-audio-byte breaches the
+            spoken-turn SLO during peak traffic.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: rollback plan</summary>
+            <p>
+              Restore the old voice or reduce traffic to the new voice, pre-warm
+              only if capacity math supports it, and confirm user-visible turn
+              latency recovers. Track p50, p95, p99, queue age, GPU memory,
+              retry rate, and cost per successful turn.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Small Release Engineering Utilities</h2>
+        <p>
+          Use synthetic metadata and aggregate metrics only. These functions
+          mirror the checks a senior engineer should expect in CI or deployment
+          automation.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Registry Contract Validator</h3>
+        <p>
+          Given a registry entry, return missing fields and block release when
+          critical metadata is absent.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">REQUIRED_FIELDS = {
+    "model_id",
+    "version",
+    "owner",
+    "task",
+    "data_manifest",
+    "training_code_sha",
+    "feature_contract",
+    "eval_report",
+    "serving_image",
+    "rollback_target",
+}
+
+
+def validate_registry_entry(entry):
+    missing = sorted(field for field in REQUIRED_FIELDS if not entry.get(field))
+    return {
+        "release_blocked": bool(missing),
+        "missing_fields": missing,
+    }</code></pre>
+          <p>
+            The invariant is that every promoted model must be traceable and
+            reversible. The common mistake is validating only model weights and
+            ignoring feature, eval, and rollback metadata.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Canary Promotion Gate</h3>
+        <p>
+          Decide whether a canary can promote based on slice metrics. Lower WER,
+          lower latency, and lower cost are better.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def canary_promotion(metrics):
+    blockers = []
+
+    for name, values in metrics["slices"].items():
+        if values["wer_relative_delta"] &gt; 0.02:
+            blockers.append(f"{name}:wer")
+        if values["p95_latency_ms_delta"] &gt; 75:
+            blockers.append(f"{name}:latency")
+
+    if metrics["privacy_errors"] &gt; 0:
+        blockers.append("privacy")
+    if metrics["unit_cost_relative_delta"] &gt; 0.15:
+        blockers.append("unit_cost")
+
+    if blockers:
+        return {"decision": "hold", "blockers": blockers}
+    return {"decision": "promote", "blockers": []}</code></pre>
+          <p>
+            Average quality improvement is not enough. A canary should protect
+            critical slices, privacy, latency, and unit economics before
+            promotion.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Rollback Target Resolver</h3>
+        <p>
+          Given active releases and health state, choose the rollback target for
+          a model family.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def rollback_target(releases, family):
+    candidates = [
+        release for release in releases
+        if release["family"] == family and release["state"] == "stable"
+    ]
+    if not candidates:
+        raise ValueError(f"no stable rollback target for {family}")
+
+    candidates.sort(key=lambda release: release["promoted_at"], reverse=True)
+    return {
+        "model_id": candidates[0]["model_id"],
+        "version": candidates[0]["version"],
+        "serving_image": candidates[0]["serving_image"],
+    }</code></pre>
+          <p>
+            The target must be a known stable serving bundle, not merely the
+            previous commit. A senior release system records enough metadata to
+            restore behavior quickly.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Prompts</p>
+        <h2>Practice Release Judgment Out Loud</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: CI Gate Design For ASR</h3>
+        <p>
+          Design CI gates for a streaming ASR model used in dictation and voice
+          commands. Include tests, artifacts, release gates, and rollback.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Cover unit tests for feature extraction, schema compatibility,
+            sanitized replay fixtures, WER/CER slices, command intent recall,
+            partial churn, endpointing, latency, memory, privacy logging,
+            canary thresholds, model registry metadata, and a tested rollback
+            target. Dictation and commands need separate quality gates.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Failed Release Postmortem</h3>
+        <p>
+          A TTS release passed offline evaluation but caused a production outage
+          because GPU memory rose under concurrent traffic. What should change?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Add load tests with realistic concurrency, queue age, warmup, voice
+            mix, long utterances, memory fragmentation, retry behavior, and
+            autoscaling. Require serving-image benchmarks in CI, capacity
+            signoff, narrow canaries, and rollback verification before the next
+            release.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Research Velocity Versus Production Safety</h3>
+        <p>
+          Researchers want weekly model releases, but production teams worry
+          about regressions. How do you speed up safely?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Build a paved release path with registry templates, automated eval
+            packs, synthetic replay, shadow traffic, slice dashboards, progressive
+            canaries, fast rollback, and clear ownership. Speed comes from
+            removing manual ambiguity, not skipping gates.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio, transcripts, and secrets out of Git. Use sanitized fixtures and aggregate metrics for release engineering drills.</p>
+  </footer>
+</body>
+</html>

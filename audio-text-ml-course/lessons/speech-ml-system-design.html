@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech ML System Design Interviews</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#framework">Framework</a>
+      <a href="#reference">Reference</a>
+      <a href="#tradeoffs">Tradeoffs</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#lab">Lab</a>
+    </nav>
+    <p class="eyebrow">Senior System Design</p>
+    <h1>Speech ML System Design Interviews</h1>
+    <p class="lede">
+      Learn to design audio-text ML systems like a senior engineer: clarify
+      product goals, decompose services, choose model and serving paths, define
+      launch gates, and defend rollback, observability, cost, and privacy.
+    </p>
+  </header>
+
+  <main>
+    <section id="framework" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Framework</p>
+        <h2>Start With Constraints, Not Components</h2>
+        <p>
+          A strong system design answer begins by shaping the problem. Speech
+          systems are sensitive to latency, audio quality, privacy, streaming
+          behavior, domain vocabulary, device differences, and rollout risk.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Goal:</strong> define user task, success metric, latency SLO, quality bar, and failure tolerance.</li>
+        <li><strong>Traffic:</strong> estimate request rate, concurrent streams, audio duration, languages, devices, and peak shape.</li>
+        <li><strong>Data contract:</strong> name accepted formats, sample rates, metadata, retention, consent, and redaction boundaries.</li>
+        <li><strong>Model path:</strong> choose cascaded ASR-LLM-TTS, direct speech-to-speech, hybrid fallback, or batch pipeline.</li>
+        <li><strong>Serving plan:</strong> allocate CPU/GPU stages, queue limits, batching, warm pools, cache policy, and backpressure.</li>
+        <li><strong>Quality loop:</strong> define offline evals, online metrics, human review, drift checks, and release gates.</li>
+        <li><strong>Operations:</strong> specify deployment, canary, rollback, incident dashboards, cost controls, and ownership.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the most common senior-level mistake in speech ML system design interviews?</summary>
+        <p>
+          Jumping straight to model names. A senior answer first exposes the
+          product and operational constraints, then picks architecture. The
+          right model depends on whether the system needs streaming partials,
+          exact transcripts, natural turn-taking, private local inference,
+          cheap batch throughput, multilingual support, or low first-audio-byte
+          latency.
+        </p>
+      </details>
+    </section>
+
+    <section id="reference" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Reference Architecture</p>
+        <h2>Cascaded Voice Assistant Baseline</h2>
+        <p>
+          Use a cascaded design as the default baseline because it is easier to
+          evaluate, monitor, debug, and roll back than a fully direct model.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Online Path</h3>
+          <p>Client capture, echo cancellation, VAD, streaming upload, ASR partials, turn manager, LLM or tool planner, TTS streamer, playback, and telemetry.</p>
+          <details class="qa">
+            <summary>Hidden answer: state to preserve</summary>
+            <p>
+              Preserve trace ID, model versions, audio clock, chunk index,
+              endpoint decisions, partial transcript history, final transcript,
+              prompt version, retrieved document IDs, TTS voice version, and
+              client playback events. This lets you debug a bad turn without
+              storing raw private audio by default.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Offline Path</h3>
+          <p>Sanitized eval fixtures, synthetic canaries, opted-in review queues, batch scoring, model registry, release notes, and regression dashboards.</p>
+          <details class="qa">
+            <summary>Hidden answer: why offline and online both matter</summary>
+            <p>
+              Offline evals give repeatable comparisons on known slices.
+              Online metrics catch distribution shifts, UI timing failures,
+              retry storms, device regressions, and subjective experience
+              changes such as partial churn or slow first audio. Senior launch
+              decisions need both.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="tradeoffs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tradeoffs</p>
+        <h2>Defend Choices With Numbers</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Latency</h3>
+          <p>Budget capture, VAD, first partial, final transcript, LLM planning, first audio byte, chunk cadence, and playback buffer.</p>
+          <details class="qa">
+            <summary>Hidden answer: interview move</summary>
+            <p>
+              Give a budget before proposing optimization. For example: 150 ms
+              client buffering, 300 ms first partial, 800 ms finalization for
+              short turns, 500 ms planning, and 400 ms first audio byte. Then
+              explain which stages can stream and which are blocking.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Cost</h3>
+          <p>Control GPU time with model routing, quantization, batching, short utterance fast paths, warm pool sizing, and shadow traffic limits.</p>
+          <details class="qa">
+            <summary>Hidden answer: cost equation</summary>
+            <p>
+              Estimate cost from audio minutes, model real-time factor,
+              hardware hourly price, utilization, retry rate, and duplicate
+              traffic. A 1.0x real-time ASR model at 50 percent utilization
+              costs roughly twice as much per audio minute as the same model at
+              full utilization before accounting for failed requests.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Quality</h3>
+          <p>Track WER, entity error, turn success, groundedness, TTS preference, pronunciation, safety, and correction rate by slice.</p>
+          <details class="qa">
+            <summary>Hidden answer: why aggregate WER is insufficient</summary>
+            <p>
+              Aggregate WER can hide failures on names, addresses, rare domain
+              terms, accents, noisy microphones, code-switching, quiet
+              speakers, long-form dictation, and streaming partial stability.
+              Slice metrics and product metrics prevent a launch that looks
+              good only on average.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Exercises</p>
+        <h2>Design For Failure Before Launch</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Exercise 1: The Canary Looks Fast But Users Correct More Text</h3>
+        <p>
+          A quantized ASR model lowers p50 latency by 30 percent, but user text
+          corrections rise in the canary.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior diagnosis</summary>
+          <p>
+            Compare correction rate by entity-heavy turns, noise level,
+            language, device, utterance length, and confidence. Inspect WER,
+            entity error, timestamp drift, decoder beam settings, punctuation,
+            and postprocessing. Keep the latency win only if the regression is
+            within the launch budget or can be routed away from sensitive
+            cohorts. Otherwise pause or roll back.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Exercise 2: TTS Rollback Does Not Fix Barge-In</h3>
+        <p>
+          Users keep interrupting the assistant after a voice rollback. The
+          voice model is back to the old version, but interruption rate remains
+          high.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: system-level root causes</summary>
+          <p>
+            Look beyond the voice model: sentence segmentation, LLM response
+            length, first audio byte, playback buffer, client audio focus,
+            echo cancellation, barge-in detector threshold, turn manager state,
+            and cached responses. Rollback may need feature flags, cache
+            invalidation, queue draining, and client config restoration.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="prompts" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Prompts</p>
+        <h2>Practice Full Senior Answers</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Design Low-Latency Streaming Dictation</h3>
+        <p>
+          Design a dictation service for professionals who need low latency,
+          domain vocabulary, privacy controls, and reliable edits.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: answer outline</summary>
+          <p>
+            Clarify latency and accuracy SLOs, supported devices, vocabulary
+            update path, retention rules, and offline fallback. Propose client
+            capture plus VAD, streaming ASR with partial stabilization, custom
+            vocabulary or contextual biasing, punctuation restoration, edit
+            history, privacy-safe traces, model registry, eval slices for
+            domain terms, canary rollout, rollback, and dashboards for partial
+            latency, finalization, correction rate, entity error, and cost per
+            audio minute.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Design A Speech RAG Assistant</h3>
+        <p>
+          Users ask spoken questions over an internal knowledge base. Design
+          the system and evaluation plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: answer outline</summary>
+          <p>
+            Use ASR, query rewrite, retrieval, reranking, grounded generation,
+            citation policy, TTS, and feedback collection. Evaluate clean text
+            queries, ASR hypotheses, noisy ASR hypotheses, retrieval recall,
+            answer groundedness, refusal correctness, first audio byte, and
+            end-to-end task success. Monitor ASR entity substitutions because
+            one wrong name can break retrieval even when transcript WER looks
+            acceptable.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Choose Cascaded Or Direct Speech-To-Speech</h3>
+        <p>
+          A research team proposes replacing the cascaded assistant with a
+          direct speech-to-speech model. What is your review?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: answer outline</summary>
+          <p>
+            Compare latency, natural prosody, controllability, transcript
+            auditability, safety filters, retrieval integration, tool use,
+            observability, eval maturity, data requirements, rollback, and
+            cost. A good recommendation may be hybrid: use direct speech for
+            low-risk conversational responses while keeping cascaded paths for
+            tool use, regulated content, debugging, and high-precision tasks.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Latency Budget Checker</h2>
+        <p>
+          Small production utilities help in interviews because they force clear
+          definitions and edge-case handling.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab: Flag Turns That Break A Stage Budget</h3>
+        <p>
+          Given speech assistant turn records, return the trace IDs where any
+          stage exceeds its budget.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: each reported trace has at least one named stage whose
+            observed latency is greater than the allowed budget. Missing stages
+            are ignored here because a separate schema validator should catch
+            malformed records.
+          </p>
+          <pre><code class="language-python">def budget_violations(records, budgets_ms):
+    violations = []
+    for record in records:
+        stages = record.get("stages_ms", {})
+        bad = {
+            name: value
+            for name, value in stages.items()
+            if name in budgets_ms and value &gt; budgets_ms[name]
+        }
+        if bad:
+            violations.append({
+                "trace_id": record["trace_id"],
+                "violations": bad,
+            })
+    return violations</code></pre>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

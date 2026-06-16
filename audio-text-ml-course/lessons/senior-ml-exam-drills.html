@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior ML Exam Drills For Audio-Text Systems</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#format">Format</a>
+      <a href="#rounds">Rounds</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Exam Readiness</p>
+    <h1>Senior ML Exam Drills For Audio-Text Systems</h1>
+    <p class="lede">
+      Timed prompts for senior ML engineer and AI engineer interviews:
+      fundamentals, system design, serving, MLOps, debugging, evaluation, and
+      speech-specific tradeoffs.
+    </p>
+  </header>
+
+  <main>
+    <section id="format" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Practice Loop</p>
+        <h2>Answer Like An Owner</h2>
+        <p>
+          For each prompt, spend five minutes writing assumptions, ten minutes
+          designing, five minutes on failure modes, and five minutes on metrics
+          and rollout. Then open the hidden answer and compare.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>State constraints:</strong> latency, quality, privacy, data retention, cost, traffic, and failure tolerance.</li>
+        <li><strong>Name the model path:</strong> ASR, TTS, LLM, embedding, reranker, codec, or direct speech model.</li>
+        <li><strong>Define evaluation:</strong> offline slices, online SLOs, human review, and regression budgets.</li>
+        <li><strong>Plan operations:</strong> deployment, CI/CD, monitoring, alerts, rollback, and incident ownership.</li>
+        <li><strong>Explain tradeoffs:</strong> what you deliberately did not optimize and why.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should every senior answer include even when the prompt is vague?</summary>
+        <p>
+          It should include explicit assumptions, measurable launch gates,
+          privacy-safe observability, a rollback path, cost and latency
+          reasoning, and a plan for learning from production failures.
+        </p>
+      </details>
+    </section>
+
+    <section id="rounds" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Rounds</p>
+        <h2>Interview And Exam Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Round 1: Multilingual Streaming ASR Launch</h3>
+        <p>
+          You are launching streaming ASR for support calls in English,
+          Spanish, and code-switched conversations. Design the model,
+          evaluation, rollout, and monitoring plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Clarify target latency, final WER, entity error rate, language mix,
+            retention rules, and traffic peaks. Use language ID or multilingual
+            ASR with VAD, streaming partials, punctuation restoration, and
+            domain contextual biasing for product names. Evaluate by language,
+            accent, noise, code-switch, named entities, partial churn, endpoint
+            delay, and correction rate. Roll out by tenant, language, and call
+            type with feature flags and model-version rollback.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Round 2: GPU Serving Platform Capacity</h3>
+        <p>
+          A shared inference platform hosts embeddings, a small LLM, TTS, and
+          batch ASR. Interactive requests are missing p95 latency. How do you
+          redesign scheduling and capacity?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: scheduling and tradeoffs</summary>
+          <p>
+            Split interactive and batch pools, then add request deadlines,
+            admission control, priority queues, warm pools, per-model quotas,
+            and autoscaling from queue age rather than only GPU utilization.
+            Track p50/p95/p99 latency, time in queue, tokens or audio seconds
+            per second, cold starts, error budget burn, and cost per successful
+            request. Continuous batching helps LLM throughput but can hurt
+            first-token latency if queueing is uncontrolled.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Round 3: Audio RAG Quality Regression</h3>
+        <p>
+          A voice assistant's text RAG eval is stable, but spoken users receive
+          more ungrounded answers after an ASR update. Diagnose and prevent it.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: eval and debugging plan</summary>
+          <p>
+            Re-run the retrieval eval using clean text, old ASR hypotheses, new
+            ASR hypotheses, noisy partials, and final transcripts. Slice by
+            entity substitutions, punctuation loss, homophones, language mix,
+            wake-word clipping, and endpointing. Add retrieval recall at k,
+            grounded answer rate, refusal precision, citation coverage, and
+            human review for high-risk queries. Gate future ASR changes on
+            downstream RAG metrics, not WER alone.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Round 4: TTS Safety And Latency Review</h3>
+        <p>
+          Product wants a more expressive TTS voice. Legal worries about voice
+          cloning, and support worries about slower first audio byte. Design
+          the release review.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: release review checklist</summary>
+          <p>
+            Require consent and provenance for voices, watermark or disclosure
+            where appropriate, abuse monitoring, text normalization tests,
+            pronunciation evals, and refusal for unsafe synthesis requests.
+            Measure first audio byte, chunk cadence, real-time factor, failure
+            rate, MOS or preference, interruption rate, and abandonment. Use
+            short first segments, warm vocoder pools, fallback voices, and
+            canary rollback if latency or safety budgets are exceeded.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Drills</p>
+        <h2>Incident Exercises</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident 1: Partial Transcript Churn Spike</h3>
+        <p>
+          After a model release, users see words change repeatedly while they
+          speak. Final transcripts are acceptable, but the UI feels unstable.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour response</summary>
+          <p>
+            Check partial churn by language, device, network, VAD segment,
+            decoder config, beam settings, endpoint delay, and UI commit
+            policy. Mitigate by rollback, sticky old model for affected slices,
+            longer stabilization before displaying partials, or UI smoothing.
+            Add partial stability metrics to release gates because final WER
+            alone misses the user-visible failure.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: Runaway Cost Without Quality Change</h3>
+        <p>
+          Quality dashboards are flat, but GPU spend doubled overnight for the
+          speech-to-speech agent. What do you inspect?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cost-debug checklist</summary>
+          <p>
+            Inspect traffic mix, retry loops, longer conversations, ASR segment
+            count, LLM tokens per turn, TTS retries, cache hit rate, batch pool
+            spillover, warm-pool size, autoscaling thresholds, and model version
+            routing. Stabilize with quotas, request deadlines, retry caps,
+            fallback tiers, and per-stage cost alerts. Keep quality and safety
+            gates active while reducing spend.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Self-Grading</p>
+        <h2>Senior Answer Rubric</h2>
+      </div>
+      <ul class="checklist">
+        <li>Does the answer name the product SLO and the model metric?</li>
+        <li>Does it separate online serving, offline evaluation, data labeling, and rollout control paths?</li>
+        <li>Does it include CI/CD gates, canary criteria, rollback triggers, and post-release monitoring?</li>
+        <li>Does it discuss drift, privacy-safe logs, and slice metrics rather than only aggregate accuracy?</li>
+        <li>Does it make cost, latency, memory, and quality tradeoffs explicit?</li>
+      </ul>
+      <details class="qa">
+        <summary>Question: What is a red flag in a senior ML system design answer?</summary>
+        <p>
+          A red flag is treating model choice as the whole system. Senior work
+          includes data contracts, evaluation, launch gates, observability,
+          debugging, rollback, cost control, and ownership after deployment.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

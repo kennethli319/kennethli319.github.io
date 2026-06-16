@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Serving Scaling And Reliability Exam</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#system-design">System Design</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#coding">Coding</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Senior Reliability Exam</p>
+    <h1>Speech Serving Scaling And Reliability Exam</h1>
+    <p class="lede">
+      Timed senior practice for capacity planning, SLOs, rollout gates,
+      cost-aware routing, rollback judgment, and production debugging across
+      ASR, TTS, LLM, retrieval, and speech-to-speech serving.
+    </p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Setup</p>
+        <h2>Think Like The Owner Of The Serving Plane</h2>
+        <p>
+          In a senior interview or launch review, correctness is not enough.
+          You need to explain what traffic is isolated, which metrics gate a
+          release, how you recover, and how cost and latency change when the
+          system grows. Use the prompts below as a two-hour practice exam.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Scope:</strong> define request paths, user promises, hard dependencies, and failure domains.</li>
+        <li><strong>Budget:</strong> split end-to-end latency into ASR first partial, final transcript, retrieval, LLM first token, TTS first audio byte, and playback.</li>
+        <li><strong>Scale:</strong> estimate peak QPS, concurrent streams, token rate, audio seconds, GPU memory, and warm pool needs.</li>
+        <li><strong>Guard:</strong> choose CI gates, offline evals, canary metrics, SLO alerts, and automatic rollback triggers.</li>
+        <li><strong>Operate:</strong> describe dashboards, runbooks, privacy-safe logs, drift checks, and post-incident prevention.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the key difference between model accuracy readiness and serving readiness?</summary>
+        <p>
+          Accuracy readiness asks whether the model is good enough on expected
+          slices. Serving readiness asks whether the whole product can deliver
+          that quality within latency, availability, privacy, cost, rollback,
+          and operational constraints under live traffic.
+        </p>
+      </details>
+    </section>
+
+    <section id="system-design" class="band">
+      <div class="section-head">
+        <p class="eyebrow">System Design</p>
+        <h2>Timed Senior Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Scale A Real-Time Speech-To-Speech Assistant</h3>
+        <p>
+          Design the serving architecture for a bilingual speech-to-speech
+          assistant that must support 20,000 concurrent calls during peak
+          traffic. The product promise is first partial transcript under 500 ms
+          p95 and first synthesized audio under 1.8 seconds p95.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Start with a streaming gateway, per-call session state, VAD, ASR
+            stream workers, retrieval and policy services, LLM serving, TTS
+            streaming, and playback telemetry. Isolate real-time traffic from
+            batch jobs, reserve warm model pools, and use priority queues for
+            interactive turns. Track concurrent streams, audio seconds per
+            second, partial latency, finalization latency, token throughput,
+            TTS first audio byte, error budget burn, and cost per successful
+            turn. Roll out by language, region, device class, and tenant.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Choose A Routing Policy For Cost And Quality</h3>
+        <p>
+          You have a large ASR model with better noisy-call WER and a smaller
+          model with half the cost and lower latency. Design a routing policy
+          for production.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: policy, gates, and failure modes</summary>
+          <p>
+            Route by observable aggregate-safe signals such as language,
+            device, expected noise class, tenant tier, real-time requirement,
+            and confidence from early chunks. Use the large model for hard
+            slices, high-value calls, low confidence, or escalation. Gate the
+            policy on WER/CER slices, first partial latency, abandonment,
+            downstream task success, and cost per successful minute. Failure
+            modes include biased routing, stale noise classifiers, retry loops,
+            and silently routing rare accents to the wrong model.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Design CI/CD For A Multi-Model Voice Agent</h3>
+        <p>
+          ASR, retrieval, prompt templates, LLM, TTS, and safety classifiers can
+          all ship independently. Design release gates and rollback strategy.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: release engineering answer</summary>
+          <p>
+            Give every artifact a version, owner, data lineage record, eval
+            report, and rollback target. CI validates schemas, model cards,
+            safety checks, privacy constraints, and reproducible eval inputs.
+            Pre-prod gates cover noisy ASR queries, retrieval freshness,
+            grounded answers, tool-call safety, TTS latency, and end-to-end
+            spoken-task success. Canary gates compare slice metrics against the
+            previous bundle, not only global averages. Rollback can pin one
+            artifact, restore a bundle, disable a feature, or route to a safer
+            fallback.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Response</p>
+        <h2>First-Hour Debugging Drills</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Tail Latency Regression With No Error Spike</h3>
+        <p>
+          After a canary reaches 25 percent, p99 end-to-end turn latency jumps
+          from 3.8 seconds to 8.4 seconds, while error rate and average latency
+          look normal.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and rollback trigger</summary>
+          <p>
+            Split by stage latency, model version, route, language, region,
+            request length, prompt tokens, retrieval document count, TTS voice,
+            and GPU queue depth. Averages can stay flat when one slice has a
+            bad tail. Check continuous batching, KV-cache eviction, prompt
+            growth, cache misses, retry storms, and slow TTS warmup. Roll back
+            or freeze the canary if p99 burn persists for the real-time SLO
+            window, even without a 5xx spike.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Drift In Noisy Accent Slice</h3>
+        <p>
+          Weekly aggregate WER is flat, but support tickets mention worse
+          recognition for noisy accented calls after a data refresh.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: slice investigation</summary>
+          <p>
+            Compare slice-level WER, entity error rate, endpointing errors,
+            partial churn, and downstream task success before and after the
+            refresh. Audit labeling mix, augmentation, sample weights, language
+            detection, and test-set leakage. Mitigate by routing the slice to
+            the last good model or raising confidence thresholds. Add active
+            learning coverage checks, label audit gates, and drift monitors for
+            the affected slice.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Cost Spike During Normal Traffic</h3>
+        <p>
+          Daily spend rises 45 percent with no matching request growth. Task
+          success is unchanged, but GPU utilization is less efficient.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cost debugging checklist</summary>
+          <p>
+            Inspect tokens per turn, retrieved chunks, prompt template size,
+            retries, context carryover, cache hit rate, model mix, batch
+            occupancy, speculative decoding acceptance, and fallback frequency.
+            Stabilize with token caps, retrieval caps, priority classes,
+            fallback routing, and retry budgets. Prevention is a release gate
+            on cost per successful turn and a dashboard that ties spend to
+            quality, latency, and model version.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding</p>
+        <h2>Production-Flavored Algorithm Drills</h2>
+        <p>
+          These are not replacements for the Blind 75 chapters. They show how
+          the same invariants appear in serving infrastructure interviews.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Peak Concurrent Streams</h3>
+        <p>
+          Given call intervals <code>[start_ms, end_ms]</code>, compute the
+          maximum number of concurrent speech streams. Explain tests and common
+          mistakes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: a sweep-line count equals active streams after applying
+            every event at a timestamp. Process end events before start events
+            when an interval ending at <code>t</code> does not overlap an
+            interval starting at <code>t</code>. Test empty input, touching
+            intervals, nested intervals, identical starts, and one long call.
+          </p>
+          <pre><code class="language-python">def peak_concurrent_streams(intervals):
+    events = []
+    for start, end in intervals:
+        events.append((start, 1))
+        events.append((end, -1))
+
+    active = 0
+    peak = 0
+    for _, delta in sorted(events, key=lambda item: (item[0], item[1])):
+        active += delta
+        peak = max(peak, active)
+    return peak</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Canary Rollback Gate</h3>
+        <p>
+          Given old and new aggregate metrics by slice, return the slices that
+          should block promotion when latency, quality, or cost regresses.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, edge cases, and Python solution</summary>
+          <p>
+            Invariant: promotion is safe only if every protected slice stays
+            within agreed thresholds. Test missing slices, improved quality with
+            worse latency, low-volume slices, and zero old cost. A senior answer
+            describes minimum sample rules instead of trusting tiny samples.
+          </p>
+          <pre><code class="language-python">def rollback_blockers(old, new, min_calls=200):
+    blockers = []
+    for slice_name, current in new.items():
+        baseline = old.get(slice_name)
+        if baseline is None or current["calls"] &lt; min_calls:
+            continue
+
+        wer_delta = current["wer"] - baseline["wer"]
+        p95_delta = current["p95_ms"] - baseline["p95_ms"]
+        cost_ratio = current["cost_per_min"] / max(baseline["cost_per_min"], 0.01)
+
+        reasons = []
+        if wer_delta &gt; 0.015:
+            reasons.append("quality")
+        if p95_delta &gt; 250:
+            reasons.append("latency")
+        if cost_ratio &gt; 1.2:
+            reasons.append("cost")
+        if reasons:
+            blockers.append({"slice": slice_name, "reasons": reasons})
+    return blockers</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Sliding Window Error Budget Burn</h3>
+        <p>
+          Given per-minute bad-request counts and total-request counts, flag
+          windows where the error rate exceeds the SLO budget.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy and Python solution</summary>
+          <p>
+            This is the same window invariant as Blind 75 substring problems:
+            maintain exactly the aggregate state for the current window, update
+            it when the right edge enters, and remove the left edge when it
+            leaves. Test all-good traffic, all-bad traffic, zero traffic, and a
+            single bad spike.
+          </p>
+          <pre><code class="language-python">def burn_windows(points, window_size=5, budget_rate=0.01):
+    bad = 0
+    total = 0
+    alerts = []
+
+    for right, point in enumerate(points):
+        bad += point["bad"]
+        total += point["total"]
+
+        if right &gt;= window_size:
+            left = points[right - window_size]
+            bad -= left["bad"]
+            total -= left["total"]
+
+        if right + 1 &gt;= window_size and total &gt; 0:
+            rate = bad / total
+            if rate &gt; budget_rate:
+                alerts.append({
+                    "ending_minute": point["minute"],
+                    "error_rate": rate,
+                    "window_size": window_size,
+                })
+    return alerts</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rubric</p>
+        <h2>What A Senior Answer Must Include</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Strong Signals</h3>
+          <p>
+            Clear SLOs, stage-level latency budgets, capacity math, slice-aware
+            evaluation, privacy-safe observability, reversible rollouts,
+            rollback targets, and cost-per-success reasoning.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Weak Signals</h3>
+          <p>
+            Only quoting global WER, ignoring tail latency, treating all traffic
+            as one queue, omitting rollback, skipping data lineage, or proposing
+            logs that expose private audio or transcripts.
+          </p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: How should you close this exam in an interview?</summary>
+        <p>
+          Summarize the chosen architecture, name the highest-risk assumption,
+          state the first metric you would watch after launch, and describe the
+          exact rollback or degradation path if that metric fails.
+        </p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

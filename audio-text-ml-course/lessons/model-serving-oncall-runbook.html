@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Serving On-Call Runbook</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#mental-model">Mental Model</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#labs">Labs</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Senior Production Practice</p>
+    <h1>Model Serving On-Call Runbook For Speech AI</h1>
+    <p class="lede">
+      Practice the senior engineering judgment needed when ASR, TTS, LLM,
+      retrieval, or speech-to-speech serving fails under real traffic.
+    </p>
+  </header>
+
+  <main>
+    <section id="mental-model" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Operating Model</p>
+        <h2>Debug The Serving Path As A Queueing System</h2>
+        <p>
+          Speech products hide multiple queues: audio capture, VAD, ASR
+          chunking, LLM decoding, retrieval, TTS synthesis, network delivery,
+          and client playback. Senior on-call work starts by locating the queue
+          that is growing, then deciding whether the safest fix is rollback,
+          capacity, degradation, or traffic shaping.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Stabilize:</strong> protect users with rollback, traffic shed, fallback model, feature flag, or human handoff.</li>
+        <li><strong>Localize:</strong> split symptoms by model, version, tenant, region, device, language, accent, codec, and request path.</li>
+        <li><strong>Quantify:</strong> compare p50, p95, p99, error rate, queue depth, GPU utilization, cost per minute, and quality slices.</li>
+        <li><strong>Hypothesize:</strong> map each metric change to a concrete failure mode such as KV-cache pressure, VAD drift, prompt bloat, or TTS warmup.</li>
+        <li><strong>Recover:</strong> choose the smallest reversible action, record why it was safe, and add a prevention gate.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is p95 latency often more useful than average latency during a voice incident?</summary>
+        <p>
+          Averages can hide a small but severe tail that ruins interactive
+          conversations. Voice users notice delayed first partials, delayed
+          first audio byte, and long finalization. p95 or p99 by slice reveals
+          whether one model version, language, tenant, device, or route is
+          creating the experience regression.
+        </p>
+      </details>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Drills</p>
+        <h2>Four Realistic On-Call Scenarios</h2>
+        <p>
+          For each drill, write the first five dashboard queries, the immediate
+          mitigation, the rollback trigger, and the prevention item before
+          opening the hidden answer.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Streaming ASR Partial Latency Doubles</h3>
+        <p>
+          A streaming ASR release keeps final WER flat but first partial p95
+          moves from 420 ms to 930 ms for mobile users on noisy calls.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior triage outline</summary>
+          <p>
+            Slice by model version, device, codec, language, VAD state, chunk
+            size, region, and connection type. Check VAD false silence, audio
+            chunk buffering, batching policy, GPU queue depth, and client
+            upload cadence. Mitigate with canary rollback or reduced batch
+            delay on interactive traffic. Add a release gate for first partial
+            latency and partial churn by noisy/mobile slices, not only final WER.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: TTS First Audio Byte Regresses After A Voice Upgrade</h3>
+        <p>
+          A new neural voice improves preference scores but increases p95 first
+          audio byte and callers interrupt or abandon more often.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: mitigation and prevention</summary>
+          <p>
+            Compare text normalization, sentence segmentation, acoustic model
+            warmup, vocoder time, cache hit rate, region placement, and playback
+            errors. Mitigate by rolling back the voice for interactive flows,
+            using a short first segment, warming pools, or routing long-form
+            synthesis to batch capacity. Prevention: add conversational latency,
+            interruption rate, and abandonment gates alongside MOS/preference.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Shared LLM Serving Costs Spike Overnight</h3>
+        <p>
+          GPU spend rises 70 percent while request count rises only 8 percent.
+          Voice-agent task success is unchanged, but p99 latency worsens.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: likely causes and controls</summary>
+          <p>
+            Look for prompt growth, retrieval returning too many documents,
+            longer conversations, disabled caching, lower batch efficiency,
+            speculative decoding fallback, model mix changes, and retry storms.
+            Stabilize with token budgets, admission control, priority queues,
+            fallback models, and retrieval caps. Add cost-per-success and
+            tokens-per-turn gates to release reviews.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 4: Spoken RAG Gives Ungrounded Answers For One Tenant</h3>
+        <p>
+          A support voice agent starts answering from stale policy documents for
+          one enterprise tenant after an index refresh.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation path</summary>
+          <p>
+            Check index version, document ACLs, embedding model version,
+            chunking, freshness watermark, ASR entity substitutions, reranker
+            logs, and prompt grounding instructions. Mitigate by pinning the
+            tenant to the last good index or forcing human handoff for affected
+            intents. Prevention: add per-tenant retrieval freshness and grounded
+            answer evals with noisy ASR queries before index promotion.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Labs</p>
+        <h2>Small Utilities For Production Judgment</h2>
+        <p>
+          These examples use synthetic aggregate metrics. They are interview
+          useful because they force you to encode invariants instead of giving
+          vague operational advice.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Queue Saturation Detector</h3>
+        <p>
+          Given per-minute aggregate serving metrics, flag minutes where queue
+          growth and tail latency suggest overload even if error rate is low.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, test cases, and Python solution</summary>
+          <p>
+            Invariant: overload is a joint signal. High utilization alone can
+            be healthy; queue growth plus tail latency means work is waiting.
+            Test flat queues, rising queues with low latency, high latency with
+            no queue growth, and missing minutes.
+          </p>
+          <pre><code class="language-python">def detect_saturation(minutes, queue_growth_threshold=25, p95_threshold_ms=1200):
+    alerts = []
+    previous_depth = None
+
+    for point in minutes:
+        depth = point["queue_depth"]
+        p95 = point["p95_ms"]
+        if previous_depth is None:
+            previous_depth = depth
+            continue
+
+        growth = depth - previous_depth
+        if growth &gt;= queue_growth_threshold and p95 &gt;= p95_threshold_ms:
+            alerts.append({
+                "minute": point["minute"],
+                "queue_growth": growth,
+                "p95_ms": p95,
+                "action": "shed_batch_or_add_capacity",
+            })
+        previous_depth = depth
+
+    return alerts</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Cost Per Successful Voice Turn</h3>
+        <p>
+          Compute cost per successful turn by route and flag routes that are
+          expensive without a matching task-success gain.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: common mistakes and Python solution</summary>
+          <p>
+            Common mistakes are dividing by all turns instead of successful
+            turns, ignoring zero-success routes, and comparing cost without
+            quality. A senior answer treats cost as a constraint attached to
+            user value, not as an isolated infrastructure metric.
+          </p>
+          <pre><code class="language-python">def rank_cost_per_success(routes):
+    ranked = []
+    for name, metrics in routes.items():
+        successes = metrics["turns"] * metrics["task_success_rate"]
+        if successes == 0:
+            cost_per_success = float("inf")
+        else:
+            cost_per_success = metrics["total_cost_usd"] / successes
+        ranked.append((cost_per_success, name, metrics["task_success_rate"]))
+
+    return sorted(ranked, reverse=True)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Rollback Candidate Selector</h3>
+        <p>
+          Given model versions and slice regressions, choose the version that
+          should be rolled back first.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: a critical-slice regression can outweigh a larger
+            aggregate win. Weight user-harm slices such as emergency intents,
+            medical vocabulary, identity verification, or payment flows higher
+            than generic traffic.
+          </p>
+          <pre><code class="language-python">def select_rollback_candidate(version_slices, critical_weights):
+    scores = {}
+    for version, slices in version_slices.items():
+        score = 0.0
+        for slice_name, regression in slices.items():
+            weight = critical_weights.get(slice_name, 1.0)
+            score += max(0.0, regression) * weight
+        scores[version] = score
+
+    version, score = max(scores.items(), key=lambda item: item[1])
+    return None if score == 0 else version</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Prompts</p>
+        <h2>Senior Answers Should Name The Tradeoff</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Interactive Versus Batch Capacity</h3>
+        <p>
+          Why should an audio ML platform isolate interactive speech traffic
+          from batch transcription and offline evaluation traffic?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Interactive traffic has strict latency and deadline requirements,
+            while batch work values throughput and cost efficiency. Shared
+            queues let cheap batch work create tail-latency incidents for live
+            conversations. Isolation enables priority scheduling, admission
+            control, predictable SLOs, and independent scaling policies.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: When To Degrade Instead Of Roll Back</h3>
+        <p>
+          Give an example where graceful degradation is better than rolling back
+          a speech-to-speech system.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            If the LLM path is slow but ASR and account lookup are healthy, the
+            system can degrade to shorter answers, fewer retrieved documents,
+            a smaller model, or human handoff for high-risk intents. Rollback is
+            better when a known release created user harm or quality regression;
+            degradation is better when demand temporarily exceeds capacity and
+            the reduced path still satisfies the product contract.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Production Debugging Without Private Transcripts</h3>
+        <p>
+          How can you debug ASR quality regressions without storing private raw
+          audio or transcripts in incident tickets?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Use aggregate slice metrics, consented eval sets, synthetic
+            fixtures, hashed identifiers, redacted examples, confusion classes,
+            correction rates, endpointing statistics, and private review tools
+            with access controls. Incident tickets should carry enough evidence
+            to reproduce the failure class without exposing sensitive content.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

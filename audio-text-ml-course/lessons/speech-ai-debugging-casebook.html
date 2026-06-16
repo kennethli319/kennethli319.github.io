@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech AI Debugging Casebook</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#method">Method</a>
+      <a href="#cases">Cases</a>
+      <a href="#lab">Lab</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Senior Production Practice</p>
+    <h1>Speech AI Debugging Casebook</h1>
+    <p class="lede">
+      Practice debugging speech AI systems the way senior ML engineers are
+      evaluated: isolate user impact, prove or disprove hypotheses with slices,
+      choose mitigations, and leave behind stronger release gates.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Debugging Method</p>
+        <h2>Turn Incidents Into Hypothesis Tests</h2>
+        <p>
+          Production speech failures often cross model, product, client, and
+          infrastructure boundaries. A strong senior answer keeps the first
+          hour disciplined: protect users, define observable symptoms, compare
+          against a control, and avoid exposing private audio or transcripts.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Impact:</strong> quantify affected users, traffic share, SLO burn, regions, languages, clients, and model versions.</li>
+        <li><strong>Mitigation:</strong> freeze rollout, roll back, reduce concurrency, route a slice to fallback, or disable a risky feature flag.</li>
+        <li><strong>Hypotheses:</strong> list likely causes across data, model, decoder, client, serving, retrieval, and policy layers.</li>
+        <li><strong>Slices:</strong> compare canary versus control by noise, accent proxy, duration, query type, text length, tenant, and route.</li>
+        <li><strong>Prevention:</strong> add a launch gate, synthetic fixture, dashboard, alert, model-card note, or runbook step.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What separates senior debugging from metric chasing?</summary>
+        <p>
+          Senior debugging connects each metric to a user-visible failure and a
+          decision. It distinguishes correlation from causality, checks control
+          cohorts, protects privacy, and chooses the smallest mitigation that
+          stops harm while preserving evidence for root-cause analysis.
+        </p>
+      </details>
+    </section>
+
+    <section id="cases" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Case Bank</p>
+        <h2>Interview-Style Production Debugging Cases</h2>
+        <p>
+          Time-box each case to 20 minutes. Write impact, mitigation, slices,
+          likely root causes, and the release gate you would add before opening
+          the hidden answer.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Case 1: ASR Entity Recall Drops After Better WER</h3>
+        <p>
+          A new ASR model improves overall WER by 3 percent relative, but
+          support calls now miss account numbers and medicine names more often.
+          Product asks why the launch gate passed.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior diagnosis</summary>
+          <p>
+            WER hid a task-critical entity regression. Compare entity recall,
+            slot edit rate, confidence calibration, escalation rate, and
+            correction events by domain and noise slice. Check normalization,
+            hotword biasing, decoder vocabulary, punctuation, and post-ASR
+            extraction. The fix is not just another aggregate WER gate: add
+            entity-weighted evals, domain fixtures, and rollback triggers for
+            critical slots.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 2: Voice Agent Latency Is Flat But Users Interrupt More</h3>
+        <p>
+          p95 end-to-end latency is unchanged, yet barge-in events and abandoned
+          turns increased after a speech-to-speech release.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: what to inspect</summary>
+          <p>
+            Inspect first useful token, first audio byte, TTS chunk cadence,
+            silence before speech, prosody, interruption handling, client event
+            ordering, and answer verbosity. A flat p95 can hide worse perceived
+            latency if the system speaks later or says more before the useful
+            answer. Add conversational metrics: time to first useful audio,
+            token-to-audio lag, barge-in success, and turn completion.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 3: RAG Grounding Fails Only On Spoken Queries</h3>
+        <p>
+          Text RAG evals pass, but the voice assistant gives stale or unrelated
+          answers when users speak the same requests.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: likely failure chain</summary>
+          <p>
+            Spoken queries add ASR substitutions, punctuation loss, partial
+            hypotheses, language-ID errors, and shorter conversational phrasing.
+            Compare retrieval recall using clean text, final transcripts, noisy
+            transcripts, and partial transcripts. Add spoken-query evals,
+            ASR-noise augmentation, freshness filters, citation checks, and a
+            fallback when retrieval confidence is low.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 4: Quantization Saves Cost But Breaks Safety Classifiers</h3>
+        <p>
+          A quantized routing model lowers CPU cost. After rollout, more spoken
+          prompt-injection attempts reach tools that require caution.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: mitigation and prevention</summary>
+          <p>
+            Roll back or route sensitive traffic to the higher-precision model.
+            Slice by prompt-injection class, ASR-noise level, language, tool
+            type, threshold bucket, and false-negative examples from synthetic
+            fixtures. Quantization must be evaluated on safety recall and
+            calibration, not only average task accuracy or cost.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Incident Utility Functions</h2>
+        <p>
+          These small functions mirror senior interview follow-ups. They use
+          synthetic aggregate metrics and deliberately avoid private recordings,
+          transcripts, or account data.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Find The First Bad Release</h3>
+        <p>
+          Given ordered release summaries and per-metric budgets, return the
+          first release where any required metric exceeds its budget.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, mistakes, and Python solution</summary>
+          <p>
+            Invariant: all earlier releases are acceptable under the same
+            budget rules. Common mistakes are treating missing metrics as pass,
+            mixing lower-is-better and higher-is-better metrics, and reporting
+            the worst release instead of the first bad one.
+          </p>
+          <pre><code class="language-python">def first_bad_release(releases, budgets):
+    for release in releases:
+        metrics = release["metrics"]
+        for metric, rule in budgets.items():
+            if metric not in metrics:
+                return release["id"], metric, "missing"
+
+            value = metrics[metric]
+            if rule["direction"] == "max" and value &gt; rule["limit"]:
+                return release["id"], metric, value
+            if rule["direction"] == "min" and value &lt; rule["limit"]:
+                return release["id"], metric, value
+
+    return None</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Pick A Speech Rollback Target</h3>
+        <p>
+          Given candidate model versions, choose the newest version that passes
+          quality, latency, safety, and cost gates for a specific traffic slice.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: tests and Python solution</summary>
+          <p>
+            Test no passing candidate, missing slice data, exactly-on-threshold
+            metrics, and a newer model that passes aggregate metrics but fails
+            the requested slice. Rollback selection must be slice-aware.
+          </p>
+          <pre><code class="language-python">def choose_rollback_target(versions, slice_name, gates):
+    for version in reversed(versions):
+        metrics = version["slices"].get(slice_name)
+        if metrics is None:
+            continue
+
+        ok = True
+        for metric, limit in gates.items():
+            if metric not in metrics:
+                ok = False
+                break
+            if metrics[metric] &gt; limit:
+                ok = False
+                break
+
+        if ok:
+            return version["id"]
+
+    return None</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Explain A Regression Without Private Data</h3>
+        <p>
+          Build a compact incident packet from aggregate slice metrics and a
+          list of sanitized hypotheses.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: privacy-safe packet builder</summary>
+          <p>
+            The packet should contain aggregate deltas, affected slices,
+            mitigation, hypotheses, next checks, and prevention actions. It
+            should not include raw transcripts, audio clips, user identifiers,
+            voiceprints, or unredacted support tickets.
+          </p>
+          <pre><code class="language-python">def build_incident_packet(incident_id, impact, mitigation, top_slices, hypotheses):
+    return {
+        "incident_id": incident_id,
+        "impact": impact,
+        "mitigation": mitigation,
+        "top_regressed_slices": top_slices[:5],
+        "hypotheses": hypotheses[:5],
+        "privacy_note": "aggregate metrics only; no raw audio or transcripts",
+    }</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Exam Prompts</p>
+        <h2>Answer Out Loud, Then Check Yourself</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Design A Debugging Dashboard</h3>
+        <p>
+          Design the minimum dashboard for a shared ASR, LLM, retrieval, and
+          TTS voice-agent platform. Include SLOs, slices, alerts, and rollback
+          decisions.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: dashboard outline</summary>
+          <p>
+            Include traffic, error rate, queue age, first partial transcript,
+            final transcript latency, WER/entity slices, retrieval recall,
+            groundedness, first audio byte, chunk underruns, barge-in success,
+            cost per minute, GPU utilization, and canary versus control
+            comparisons. Alerts should map to actions: page, freeze rollout,
+            route fallback, or roll back.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Defend A Rollback Decision</h3>
+        <p>
+          A model improves average quality but regresses a high-value noisy
+          mobile slice. Leadership asks you to keep shipping. What do you say?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            State the user impact and business risk, show slice evidence, offer
+            constrained alternatives, and define the data needed to proceed.
+            A senior answer can propose model routing, narrower canary, extra
+            labeling, or targeted fine-tuning, but it does not hide a known
+            high-value regression behind aggregate improvement.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

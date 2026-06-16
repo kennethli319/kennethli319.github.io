@@ -1,0 +1,285 @@
+:root {
+  color-scheme: light;
+  --ink: #172026;
+  --muted: #5d6b75;
+  --line: #d8e0e7;
+  --paper: #ffffff;
+  --soft: #f3f7f8;
+  --blue: #2357a3;
+  --teal: #0f766e;
+  --amber: #9a5b00;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--soft);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: var(--blue);
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+}
+
+nav a {
+  color: #e7f3ff;
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.hero {
+  min-height: 72vh;
+  padding: 2rem clamp(1rem, 4vw, 4rem);
+  color: #fff;
+  background:
+    linear-gradient(rgba(9, 28, 43, 0.72), rgba(9, 28, 43, 0.74)),
+    url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1800&q=80");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.lesson-hero {
+  min-height: 54vh;
+  padding: 2rem clamp(1rem, 4vw, 4rem);
+  color: #fff;
+  background:
+    linear-gradient(rgba(12, 36, 48, 0.78), rgba(12, 36, 48, 0.76)),
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero h1 {
+  max-width: 980px;
+  margin: 0;
+  font-size: clamp(2.4rem, 7vw, 6.4rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.lede {
+  max-width: 760px;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--teal);
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.hero .eyebrow {
+  color: #9ee7dc;
+}
+
+.band {
+  padding: 4rem clamp(1rem, 4vw, 4rem);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.band:nth-of-type(even) {
+  background: #f9fbfc;
+}
+
+.section-head {
+  max-width: 760px;
+  margin-bottom: 2rem;
+}
+
+h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+h3 {
+  margin: 0 0 0.6rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.prompt {
+  max-width: 980px;
+  margin: 1.25rem 0;
+  border-left: 4px solid var(--teal);
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+
+.problem-list,
+.problem-group {
+  display: grid;
+  gap: 1rem;
+}
+
+.problem-group {
+  margin: 2rem 0;
+}
+
+.problem-card {
+  max-width: 980px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+}
+
+.problem-card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.steps {
+  max-width: 880px;
+  padding-left: 1.4rem;
+}
+
+.steps li {
+  margin: 0.75rem 0;
+}
+
+.timeline {
+  display: grid;
+  gap: 1rem;
+}
+
+.timeline article {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(18rem, 1fr);
+  gap: 1.25rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+
+.timeline span {
+  width: 4.25rem;
+  height: 3rem;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #e6f4f1;
+  color: var(--teal);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline p {
+  margin: 0.25rem 0;
+}
+
+.lab {
+  color: var(--amber);
+  font-weight: 650;
+}
+
+.lesson-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-weight: 700;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #111827;
+  color: #e5e7eb;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92rem;
+}
+
+.qa {
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.85rem 1rem;
+}
+
+.qa summary {
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.qa p {
+  margin-bottom: 0;
+}
+
+.checklist {
+  max-width: 900px;
+  padding-left: 1.2rem;
+}
+
+.checklist li {
+  margin: 0.55rem 0;
+}
+
+.resources {
+  max-width: 980px;
+  padding-left: 1.2rem;
+}
+
+.resources li {
+  margin: 0.7rem 0;
+}
+
+footer {
+  padding: 2rem clamp(1rem, 4vw, 4rem);
+  color: var(--muted);
+}
+
+@media (max-width: 680px) {
+  .hero {
+    min-height: 78vh;
+  }
+
+  .timeline article {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .timeline span {
+    width: fit-content;
+    min-width: 4.25rem;
+  }
+}

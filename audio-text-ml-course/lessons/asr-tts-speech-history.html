@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASR, TTS, And Speech-To-Speech History</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#asr">ASR</a>
+      <a href="#tts">TTS</a>
+      <a href="#s2s">Speech-To-Speech</a>
+      <a href="#lab">Lab</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Speech Systems</p>
+    <h1>ASR, TTS, And Speech-To-Speech History</h1>
+    <p class="lede">
+      A senior engineer should know where modern systems came from, because old
+      design constraints still explain today's failure modes, evaluation
+      choices, and production tradeoffs.
+    </p>
+  </header>
+
+  <main>
+    <section id="asr" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Recognition</p>
+        <h2>From Alignment To Foundation Models</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Template and DTW systems:</strong> compare acoustic patterns with explicit time warping.</li>
+        <li><strong>HMM/GMM systems:</strong> model hidden phonetic states, acoustic likelihoods, pronunciation lexicons, and language models.</li>
+        <li><strong>DNN-HMM hybrids:</strong> replace GMM acoustic models with neural posterior estimators while keeping decoding graphs.</li>
+        <li><strong>End-to-end ASR:</strong> CTC, attention encoder-decoder, and RNN-T reduce hand-built components but shift complexity into data and decoding.</li>
+        <li><strong>Self-supervised and weakly supervised systems:</strong> wav2vec-style pretraining and Whisper-style scale improve robustness, but production still depends on slice evaluation.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why did HMM/GMM systems use lexicons and language models?</summary>
+        <p>
+          They separated acoustic evidence from pronunciation and word sequence
+          probability. This made it possible to inject vocabulary, constrain
+          decoding, and improve domain language without retraining the acoustic
+          model. Modern systems often hide these pieces, but contextual biasing,
+          rescoring, and post-processing are descendants of the same idea.
+        </p>
+      </details>
+      <details class="qa">
+        <summary>Question: What should you evaluate beyond WER?</summary>
+        <p>
+          Track entity error rate, timestamp error, diarization error, partial
+          transcript churn, language and accent slices, noise slices, latency,
+          memory, throughput, and downstream task success. WER can improve while
+          product quality regresses.
+        </p>
+      </details>
+    </section>
+
+    <section id="tts" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Synthesis</p>
+        <h2>From Concatenation To Neural Voices</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Classic TTS</h3>
+          <p>
+            Rule-based and concatenative systems used text normalization,
+            pronunciation dictionaries, prosody rules, and recorded unit
+            selection. They could sound clear in narrow domains but were hard
+            to scale across styles.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: Why this still matters</summary>
+            <p>
+              Text normalization remains a major source of TTS bugs. Dates,
+              currency, addresses, abbreviations, code snippets, and names can
+              break naturalness before the neural model sees the input.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Neural TTS</h3>
+          <p>
+            Tacotron-style acoustic models, WaveNet-style vocoders,
+            non-autoregressive FastSpeech systems, VITS-style end-to-end
+            systems, and diffusion or flow models improved quality and speaker
+            control.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: Production tradeoff</summary>
+            <p>
+              Higher MOS can raise first-audio-byte latency, GPU cost, memory,
+              and failure risk. A senior rollout compares quality by slice,
+              conversational latency, cold starts, streaming chunk behavior,
+              safety controls, and rollback readiness.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="s2s" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Conversation</p>
+        <h2>Speech-To-Speech Architectures</h2>
+      </div>
+      <article class="prompt">
+        <h3>Cascaded ASR -> LLM -> TTS</h3>
+        <p>
+          The cascade is easy to inspect, moderate, test, and debug. It also
+          creates latency at each boundary and may discard prosody, emotion, and
+          turn-taking cues.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: When to choose the cascade</summary>
+          <p>
+            Choose it when correctness, explainability, safety review,
+            transcript UI, tool use, enterprise compliance, and incremental
+            rollout matter more than preserving every acoustic cue. It is often
+            the best senior default for a production assistant.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Direct Or Codec-Based Speech-To-Speech</h3>
+        <p>
+          Direct systems can model speech tokens or latent audio representations
+          and produce speech without a text-only bottleneck. They may preserve
+          prosody better, but are harder to evaluate and control.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: What can go wrong?</summary>
+          <p>
+            Risks include speaker leakage, unstable prosody, hallucinated
+            content, poor tool-use grounding, hard-to-audit safety behavior,
+            bitrate artifacts, and difficult regression triage. Evaluation must
+            include intelligibility, semantic faithfulness, latency, speaker
+            similarity, safety, and user task success.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Latency Budget For A Local Voice Assistant</h2>
+        <p>
+          Build a spreadsheet or small script that budgets every step in one
+          conversational turn. Use placeholders first, then replace them with
+          real measurements from local experiments.
+        </p>
+      </div>
+      <pre><code class="language-python">budget_ms = {
+    "vad_endpoint": 120,
+    "asr_first_partial": 250,
+    "asr_final": 550,
+    "llm_first_token": 300,
+    "tts_first_audio": 350,
+    "playback_buffer": 80,
+}
+
+total_to_first_audio = (
+    budget_ms["vad_endpoint"]
+    + budget_ms["asr_first_partial"]
+    + budget_ms["llm_first_token"]
+    + budget_ms["tts_first_audio"]
+    + budget_ms["playback_buffer"]
+)
+print(total_to_first_audio)</code></pre>
+      <details class="qa">
+        <summary>Question: What does this toy budget hide?</summary>
+        <p>
+          It hides overlap between stages, network jitter, queueing, cold
+          starts, text normalization, endpointing mistakes, audio device
+          buffers, cancellation, barge-in, and retries. The next version should
+          record per-stage traces for successful, slow, interrupted, and failed
+          turns.
+        </p>
+      </details>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Prompts</p>
+        <h2>Senior Questions</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt: A New ASR Model Improves Average WER But Hurts Medical Terms</h3>
+        <p>
+          Decide whether to ship, roll back, fine-tune, add contextual biasing,
+          or change post-processing.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Senior response</summary>
+          <p>
+            Do not ship broadly if critical entities regress. Quantify the
+            domain-term slice, inspect substitutions, compare decoding and
+            normalization changes, test contextual biasing or rescoring, and
+            canary only on safe traffic. Tie the decision to product risk,
+            privacy constraints, owner approval, rollback, and a follow-up data
+            plan.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt: A TTS Voice Sounds Better Offline But Users Interrupt It More</h3>
+        <p>
+          Explain what metrics and experiments you run before deciding whether
+          to keep the voice.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Senior response</summary>
+          <p>
+            Measure first-audio-byte latency, completion rate, interruption
+            rate, perceived pace, pronunciation errors, long-form fatigue,
+            sentence streaming, cold starts, and task success. Offline MOS is
+            useful, but conversational UX can fail because the voice starts too
+            late, speaks too slowly, mispronounces key terms, or prevents
+            natural turn-taking.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

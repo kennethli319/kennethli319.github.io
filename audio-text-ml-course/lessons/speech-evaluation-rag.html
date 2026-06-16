@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Evaluation, RAG, And Quality Systems</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#eval">Evaluation</a>
+      <a href="#rag">RAG</a>
+      <a href="#llm-judges">Judges</a>
+      <a href="#debugging">Debugging</a>
+      <a href="#lab">Lab</a>
+    </nav>
+    <p class="eyebrow">Senior Systems</p>
+    <h1>Speech Evaluation, RAG, And Quality Systems</h1>
+    <p class="lede">
+      Production speech products need more than WER. This lesson connects ASR,
+      TTS, speech-to-speech, RAG, human review, and online monitoring into one
+      evaluation program a senior engineer can defend.
+    </p>
+  </header>
+
+  <main>
+    <section id="eval" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Evaluation Stack</p>
+        <h2>Measure Product Quality By Layer</h2>
+        <p>
+          Audio-text systems fail across multiple boundaries. Keep separate
+          metrics for the acoustic model, text model, retrieval layer, response
+          generator, speech renderer, and end-to-end user task.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR And Transcript Quality</h3>
+          <p>Track WER, CER, entity error rate, timestamp error, diarization error, partial churn, endpointing delay, and language ID accuracy.</p>
+          <details class="qa">
+            <summary>Question: Why can lower WER hurt users?</summary>
+            <p>
+              WER weights every word equally. Users may care more about names,
+              numbers, product codes, commands, timestamps, punctuation, and
+              diarization. A model can reduce filler-word errors while making
+              more business-critical entity mistakes.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS And Speech Output</h3>
+          <p>Track intelligibility, MOS or preference win rate, first audio byte, streaming stability, speaker similarity, prosody, safety, and interruption behavior.</p>
+          <details class="qa">
+            <summary>Question: What should block a TTS release?</summary>
+            <p>
+              Block release if intelligibility drops, first-audio-byte exceeds
+              the conversational SLO, voices become unstable, unsafe text is
+              spoken, speaker identity controls regress, or a quality gain only
+              appears on clean lab prompts but fails on real product text.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>End-To-End Assistant Quality</h3>
+          <p>Track task completion, correction rate, barge-in success, turn latency, hallucination rate, refusal quality, and recovery from interrupted speech.</p>
+          <details class="qa">
+            <summary>Question: Why keep component and end-to-end metrics?</summary>
+            <p>
+              End-to-end metrics tell whether users succeed, but they are hard
+              to debug alone. Component metrics localize the failure. If task
+              completion drops, separate ASR errors, retrieval misses, reasoning
+              failures, TTS latency, and UI playback problems.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Slice Coverage</h3>
+          <p>Report metrics by accent, noise, channel, microphone, language, domain terms, speaking rate, long silence, overlap, and device class.</p>
+          <details class="qa">
+            <summary>Question: What makes a slice launch-critical?</summary>
+            <p>
+              A slice is launch-critical when it maps to a major user group,
+              safety risk, contractual requirement, revenue workflow, or known
+              model weakness. Senior engineers protect these slices with
+              explicit regression budgets and rollback criteria.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="rag" class="band">
+      <div class="section-head">
+        <p class="eyebrow">RAG For Speech Products</p>
+        <h2>Retrieval Changes The Failure Modes</h2>
+        <p>
+          Voice assistants often answer from docs, tickets, transcripts, or
+          user memory. Retrieval improves grounding, but ASR errors and spoken
+          ambiguity make retrieval evaluation different from text-only RAG.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Design RAG For A Voice Support Agent</h3>
+        <p>
+          A customer asks spoken questions about a product manual. The system
+          must answer by voice, cite the manual internally, and avoid exposing
+          private transcript text in logs.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Use streaming ASR with confidence and timing metadata, normalize
+            product terms, retrieve against chunked manual passages, rerank
+            with query and conversation context, generate a grounded answer,
+            and synthesize speech. Evaluate ASR entity accuracy, retrieval
+            recall at k, answer faithfulness, citation support, latency, and
+            redaction. Log trace IDs, versions, aggregate metrics, and
+            privacy-safe error categories rather than raw private audio by
+            default.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: ASR Errors Break Retrieval</h3>
+        <p>
+          Users ask for "XR-17 battery calibration", but ASR often returns
+          "ex are seventeen battery celebration". Retrieval misses the right
+          manual page. What do you change?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: mitigation options</summary>
+          <p>
+            Add domain vocabulary biasing, pronunciation variants, entity
+            normalization, fuzzy lexical retrieval, character n-gram features,
+            audio-confidence-aware query rewriting, and retrieval evaluation
+            with noisy ASR hypotheses. Keep a fallback clarification question
+            when confidence is low or top passages disagree.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="llm-judges" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Judges</p>
+        <h2>Use LLM Judges Carefully</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Good Uses</h3>
+          <p>Classify answer helpfulness, detect unsupported claims, summarize error reports, and prioritize human review queues after calibration.</p>
+          <details class="qa">
+            <summary>Question: How do you calibrate a judge?</summary>
+            <p>
+              Build a labeled set, compare judge decisions to human labels,
+              inspect disagreements, measure precision and recall by slice,
+              lock the judge prompt and model version, and avoid using the
+              judge as the only launch gate for high-risk behavior.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Risky Uses</h3>
+          <p>Replacing human labels for safety-critical cases, judging private content without retention controls, or using a judge that shares the same blind spots as the generator.</p>
+          <details class="qa">
+            <summary>Question: What should be logged for judge outputs?</summary>
+            <p>
+              Log judge model version, prompt version, rubric, score, reason
+              category, request trace ID, and redacted inputs when allowed.
+              Keep enough metadata to reproduce decisions without making the
+              monitoring system a private-data sink.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="debugging" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Drills</p>
+        <h2>Quality Debugging Prompts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Incident 1: RAG Grounding Scores Improved, Complaints Increased</h3>
+        <p>
+          Offline faithfulness improved after a retriever update, but users
+          report that spoken answers are less useful.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: debug path</summary>
+          <p>
+            Check whether the eval set overrepresents written queries instead
+            of ASR transcripts, whether retrieved chunks are too long for
+            spoken answers, whether citations are correct but answers omit the
+            user's actual intent, and whether TTS latency or prosody makes good
+            text feel bad. Compare query ASR, retrieval recall, generator
+            answer, TTS output, and user task completion on the same traces.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: Human Review Cost Tripled</h3>
+        <p>
+          A new monitoring rule sends too many voice-agent sessions to human
+          review. Accuracy is better, but the operations team is overloaded.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Measure alert precision, duplicate alerts per session, slice
+            concentration, confidence thresholds, and whether a cheap automatic
+            classifier can triage low-risk cases. Keep high-risk review paths,
+            but tune routing, batch similar failures, sample for trend
+            detection, and report the cost-quality tradeoff explicitly.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Build A Speech RAG Eval Sheet</h2>
+        <p>
+          Create a small, privacy-safe evaluation table for a voice RAG system.
+          Use synthetic or sanitized examples only.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Inputs:</strong> write the spoken request, expected ASR pitfalls, and allowed sanitized transcript.</li>
+        <li><strong>Retrieval:</strong> record expected document IDs, top-k results, recall, and reranker notes.</li>
+        <li><strong>Answer:</strong> score correctness, faithfulness, missing caveats, refusal behavior, and spoken clarity.</li>
+        <li><strong>Latency:</strong> measure ASR partial time, retrieval time, LLM first token, first audio byte, and final audio.</li>
+        <li><strong>Decision:</strong> write pass, fail, or needs human review with the rollback or mitigation action.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What makes this lab senior-level?</summary>
+        <p>
+          It connects offline model metrics to production decisions. A senior
+          engineer does not stop at "the model improved"; they define the user
+          task, measure each system boundary, protect private data, price the
+          review burden, and state what would block rollout.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

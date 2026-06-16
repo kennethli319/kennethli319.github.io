@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Bit Manipulation And Math</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#method">Method</a>
+      <a href="#bits">Bits</a>
+      <a href="#math">Math</a>
+      <a href="#worked">Worked</a>
+      <a href="#speech">Speech Follow-Ups</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Bit Manipulation And Math</h1>
+    <p class="lede">
+      Practice the smaller Blind 75 category that still trips up senior
+      candidates: XOR invariants, bit masks, integer boundaries, carry logic,
+      counting bits, and clean explanations under pressure.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Method</p>
+        <h2>Name The Identity Before Coding</h2>
+        <p>
+          Bit problems are short only after the invariant is clear. Before
+          coding, say which identity you are using and how Python's integer
+          behavior differs from fixed-width interview languages.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>XOR:</strong> <code>x ^ x = 0</code>, <code>x ^ 0 = x</code>, and XOR is commutative.</li>
+        <li><strong>Last bit:</strong> <code>n &amp; 1</code> checks oddness; <code>n &amp; (n - 1)</code> removes the lowest set bit.</li>
+        <li><strong>Shifts:</strong> right shift divides unsigned values by two; left shift multiplies by powers of two.</li>
+        <li><strong>Masks:</strong> use masks to simulate fixed-width integers when Python's unlimited sign bits would keep extending.</li>
+        <li><strong>Tests:</strong> include zero, one, powers of two, all bits set, negative numbers if allowed, and overflow-like boundaries.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should you ask before a bit manipulation problem?</summary>
+        <p>
+          Ask whether inputs are signed or unsigned, what integer width to
+          assume, whether overflow wraps, and whether the language is fixed
+          width. In Python, negative integers have conceptually infinite sign
+          bits, so problems like Sum of Two Integers need an explicit mask.
+        </p>
+      </details>
+    </section>
+
+    <section id="bits" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Bit Problems</p>
+        <h2>XOR, Masks, And Popcount</h2>
+      </div>
+      <article class="prompt">
+        <h3>Problem: Number Of 1 Bits</h3>
+        <p>Return the number of set bits in an unsigned integer.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use <code>n &amp; (n - 1)</code> to remove the lowest set bit until
+            <code>n</code> is zero. Invariant: after each loop, the answer
+            counts exactly the set bits removed so far. Mistake to avoid:
+            looping while shifting a negative value if the input is signed.
+            Test zero, one, a power of two, all bits set, and alternating bits.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Counting Bits</h3>
+        <p>For every value from 0 to n, return its set-bit count.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use <code>bits[i] = bits[i &gt;&gt; 1] + (i &amp; 1)</code> or
+            <code>bits[i] = bits[i &amp; (i - 1)] + 1</code>. Invariant:
+            each state depends on a smaller number already computed. Mistake
+            to avoid: recomputing popcount from scratch for every value. Test
+            n equal to 0, 1, a power of two, and one less than a power of two.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Reverse Bits</h3>
+        <p>Reverse the bits of a 32-bit unsigned integer.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Build the result one bit at a time: shift result left, add the
+            current low bit, then shift input right. Invariant: after
+            <code>k</code> iterations, the result holds the reversed order of
+            the lowest <code>k</code> input bits. Mistake to avoid: stopping
+            early; leading zero bits must be preserved for a 32-bit reverse.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Missing Number</h3>
+        <p>Given n distinct numbers from 0 to n, return the missing value.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            XOR all indices, values, and <code>n</code>, or subtract sums.
+            XOR avoids overflow in fixed-width languages. Invariant: every
+            matched index-value pair cancels, leaving only the missing number.
+            Test missing zero, missing n, one-element input, and shuffled input.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Sum Of Two Integers</h3>
+        <p>Return a + b without using the plus or minus operators.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            XOR gives the sum without carry; AND shifted left gives the carry.
+            Repeat until carry is zero. In Python, apply a 32-bit mask and
+            convert back from two's complement if the sign bit is set. Test
+            positive plus positive, positive plus negative, negative plus
+            negative, zero, and carry chains such as 7 + 1.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="math" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Math Problems</p>
+        <h2>Products, Carries, And Dynamic Counts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Problem: Climbing Stairs</h3>
+        <p>Count ways to climb n stairs taking one or two steps at a time.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            This is Fibonacci DP. Invariant: <code>prev</code> and
+            <code>cur</code> hold ways for the previous two stair counts.
+            Mistake to avoid: exponential recursion without memoization. Test
+            n equal to 1, 2, 3, and a larger value.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Multiply Strings</h3>
+        <p>Multiply two non-negative integers represented as strings.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Simulate grade-school multiplication into an array of length
+            <code>m + n</code>. Invariant: each digit product contributes to
+            exactly one base position plus carry. Mistake to avoid: converting
+            the whole input to an integer if the prompt forbids it. Test zeros,
+            single digits, carry chains, and different lengths.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Problem: Encode And Decode Strings</h3>
+        <p>Design a reversible encoding for a list of strings.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Prefix each string with its length and a delimiter, such as
+            <code>4#test</code>. Invariant: decoder reads exactly the declared
+            number of characters after each delimiter. Mistake to avoid:
+            joining with a delimiter that may appear inside the data. Test empty
+            list, empty string, delimiter characters, and Unicode if allowed.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="worked" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Worked Python</p>
+        <h2>Short Implementations With The Invariant Visible</h2>
+      </div>
+      <article class="prompt">
+        <h3>Worked: Counting Bits</h3>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def count_bits(n):
+    bits = [0] * (n + 1)
+    for i in range(1, n + 1):
+        bits[i] = bits[i &gt;&gt; 1] + (i &amp; 1)
+    return bits</code></pre>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Worked: Reverse Bits</h3>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def reverse_bits(n):
+    out = 0
+    for _ in range(32):
+        out = (out &lt;&lt; 1) | (n &amp; 1)
+        n &gt;&gt;= 1
+    return out</code></pre>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Worked: Sum Of Two Integers</h3>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def get_sum(a, b):
+    mask = 0xffffffff
+    max_int = 0x7fffffff
+    while b:
+        a, b = (a ^ b) &amp; mask, ((a &amp; b) &lt;&lt; 1) &amp; mask
+    return a if a &lt;= max_int else ~(a ^ mask)</code></pre>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Worked: Encode And Decode Strings</h3>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def encode(strings):
+    return "".join(f"{len(s)}#{s}" for s in strings)
+
+def decode(blob):
+    out = []
+    i = 0
+    while i &lt; len(blob):
+        j = blob.index("#", i)
+        size = int(blob[i:j])
+        start = j + 1
+        out.append(blob[start:start + size])
+        i = start + size
+    return out</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="speech" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Follow-Ups</p>
+        <h2>Connect Bit Thinking To Speech Systems</h2>
+      </div>
+      <article class="prompt">
+        <h3>Follow-Up: Feature Flags For Model Serving</h3>
+        <p>
+          You store serving capabilities in a bit mask: streaming ASR, batch
+          ASR, TTS, retrieval, quantized model, and safety filter. How do you
+          test routing rules?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: routing tests</summary>
+          <p>
+            Test exact capability matches, missing required bits, extra allowed
+            bits, zero mask, disabled safety bit, quantized fallback, and
+            rollout masks per tenant. The invariant is that a request may route
+            only when all required capability bits are present.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Follow-Up: Hashing And Deduplication</h3>
+        <p>
+          A labeling pipeline sees duplicate aggregate review candidates. What
+          should be deduplicated, and what should not be stored?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: privacy-safe answer</summary>
+          <p>
+            Deduplicate by approved metadata, stable fixture IDs, or privacy
+            reviewed hashes. Do not store raw audio, private transcripts, or
+            reversible identifiers unless explicitly allowed by policy. Keep
+            lineage for why a candidate was selected.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

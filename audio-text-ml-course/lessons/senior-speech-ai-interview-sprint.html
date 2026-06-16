@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior Speech AI Interview Sprint</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#rubric">Rubric</a>
+      <a href="#system-design">System Design</a>
+      <a href="#rd">R&amp;D</a>
+      <a href="#production">Production</a>
+      <a href="#coding">Coding</a>
+    </nav>
+    <p class="eyebrow">Senior Interview Capstone</p>
+    <h1>Senior Speech AI Interview Sprint</h1>
+    <p class="lede">
+      A timed capstone for senior ML engineer and AI engineer interviews:
+      speech system design, R&amp;D judgment, production debugging, model serving,
+      MLOps, evaluation, and focused coding follow-ups with hidden answers.
+    </p>
+  </header>
+
+  <main>
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">How To Use This</p>
+        <h2>Practice Like A Real Loop</h2>
+        <p>
+          Run each prompt under a timer before opening the answer. A senior
+          answer should make tradeoffs explicit, name observability and rollback
+          hooks, and separate confirmed evidence from hypotheses.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Five minutes:</strong> clarify product goal, users, traffic shape, privacy boundary, and launch target.</li>
+        <li><strong>Ten minutes:</strong> draw the serving, data, evaluation, and rollback paths.</li>
+        <li><strong>Ten minutes:</strong> quantify latency, cost, quality, and failure-mode tradeoffs.</li>
+        <li><strong>Five minutes:</strong> propose tests, dashboards, rollout gates, and the first incident response.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What separates a senior answer from a mid-level answer?</summary>
+        <p>
+          A senior answer owns the full system lifecycle. It connects model
+          choice to product constraints, data contracts, evaluation slices,
+          deployment mechanics, monitoring, rollback, privacy, cost, and future
+          iteration. It does not stop at "train a better model."
+        </p>
+      </details>
+    </section>
+
+    <section id="system-design" class="band">
+      <div class="section-head">
+        <p class="eyebrow">System Design</p>
+        <h2>Four High-Signal Design Rounds</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Real-Time Meeting Assistant</h3>
+        <p>
+          Design a meeting assistant that streams captions, produces summaries,
+          extracts action items, and answers spoken follow-up questions over the
+          meeting history. It must support enterprise privacy controls.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Split real-time captioning from async summarization. Use VAD,
+            streaming ASR, diarization, punctuation, chunk storage, redaction,
+            retrieval over sanitized meeting chunks, and an answer service with
+            citations. Track first partial latency, final WER, speaker-attributed
+            WER, summary factuality, action-item precision/recall, retrieval
+            recall, p95 answer latency, tenant isolation, retention policy, and
+            deletion propagation. Roll out by tenant and feature flag; rollback
+            ASR, summarizer, retriever, and answer prompt independently.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Low-Latency Voice Agent For Customer Support</h3>
+        <p>
+          Design a speech-to-speech support agent that handles account questions,
+          can interrupt itself when the user speaks, and falls back safely when
+          confidence is low.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Use cascaded ASR-LLM-RAG-TTS unless direct speech-to-speech is needed
+            for a narrow domain and has stronger safety gates. Budget VAD,
+            partial ASR, intent confidence, retrieval, tool calls, first token,
+            first audio byte, and playback. Add barge-in events, echo
+            cancellation, cancellation tokens, tool confirmation, handoff, and
+            transcript repair. Evaluate task success, containment, groundedness,
+            unsafe tool refusal, interruption recovery, first response latency,
+            and cost per resolved call.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Shared GPU Platform For ASR, TTS, And LLMs</h3>
+        <p>
+          Design a serving platform that hosts streaming ASR, batch transcription,
+          TTS, embeddings, and LLM inference for several teams.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Isolate real-time pools from batch pools. Use workload classes,
+            admission control, model registry, canary routing, autoscaling,
+            queue-age SLOs, accelerator utilization, KV-cache or decoder memory
+            budgets, warm pools for TTS, and backpressure. Track per-tenant cost,
+            p95/p99 latency, queue age, error budget burn, saturation, retry
+            storms, cold starts, model version, and rollback readiness. Never let
+            eval backfills starve live speech traffic.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 4: Multilingual ASR Upgrade</h3>
+        <p>
+          A new multilingual ASR model improves aggregate WER but regresses
+          code-switching and noisy far-field slices. How do you launch it?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: launch plan</summary>
+          <p>
+            Do not launch globally from aggregate WER. Define slice gates for
+            language, code-switching, SNR, microphone type, duration, region,
+            entity error rate, confidence calibration, and first partial latency.
+            Use traffic routing to keep regressed slices on the old model while
+            canarying improved slices. Add a model card, known limitations,
+            rollback trigger, shadow comparison, and post-launch drift watch.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="rd" class="band">
+      <div class="section-head">
+        <p class="eyebrow">R&amp;D Judgment</p>
+        <h2>Explain Research Tradeoffs Like An Owner</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 5: CTC, RNN-T, Encoder-Decoder, Or Whisper-Style Model?</h3>
+        <p>
+          Compare model families for streaming dictation, offline transcription,
+          and voice-command recognition.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: comparison points</summary>
+          <p>
+            CTC is simple and efficient but often needs decoding support and can
+            be weaker for long context. RNN-T is strong for streaming partials
+            and production dictation, with more complex training and decoding.
+            Encoder-decoder models can use richer context but may be harder to
+            stream tightly. Whisper-style weak supervision is robust offline and
+            multilingual but may be costly and not ideal for ultra-low-latency
+            partials. Match the family to latency, domain, data, decoding, and
+            controllability constraints.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 6: Cascaded Versus Direct Speech-To-Speech</h3>
+        <p>
+          Product asks whether a direct speech-to-speech model should replace
+          the current ASR-LLM-TTS cascade.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: decision framework</summary>
+          <p>
+            Cascades are easier to inspect, moderate, localize, retrieve over,
+            log with privacy controls, and roll back by component. Direct models
+            may reduce latency and preserve prosody but are harder to debug,
+            evaluate, and constrain. A senior answer proposes an experiment with
+            matched tasks, latency budgets, safety checks, grounding, turn-taking
+            recovery, controllability, and a fallback path before replacement.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 7: Efficient Transformer Choice</h3>
+        <p>
+          You need to cut serving cost 30 percent while protecting speech-agent
+          task success. Which optimizations do you try first?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: optimization order</summary>
+          <p>
+            Start with routing and workload isolation before model surgery:
+            smaller model for easy turns, cache retrieval and prompts, trim
+            context, tune batching, use quantization where eval passes, and
+            consider speculative decoding, GQA, FlashAttention, distillation, or
+            LoRA only with slice-level quality gates. Watch p95 latency, first
+            token latency, task success, hallucination, tool error, and cost per
+            successful task.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="production" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Debugging</p>
+        <h2>First-Hour Incident Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 8: Final WER Stable, Users Still Angry</h3>
+        <p>
+          After an ASR release, final WER is stable but live captions feel worse
+          and support tickets rise.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation plan</summary>
+          <p>
+            Inspect partial churn, first stable token latency, endpointing,
+            punctuation rewrites, timestamp jitter, client debounce behavior,
+            decoder rescoring, and noisy or long-utterance slices. Mitigate with
+            rollback, committed-prefix stabilization, or endpointing changes.
+            Add streaming UX metrics to release gates because final WER hides
+            partial instability.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 9: GPU Spend Doubled Overnight</h3>
+        <p>
+          Speech platform spend doubles without matching traffic growth. Latency
+          is slightly better and quality metrics are flat.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation plan</summary>
+          <p>
+            Check autoscaler floor, warm replicas, batch jobs on live pools,
+            shadow traffic, retry loops, longer prompts, disabled quantization,
+            cache miss rate, tenant mix, and per-model utilization. Stabilize by
+            isolating batch, restoring utilization targets, capping shadow
+            traffic, and preserving SLOs. Add cost-per-success and utilization
+            alerts, not just latency alerts.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 10: RAG Answers Cite Stale Policy</h3>
+        <p>
+          A spoken RAG assistant starts citing outdated policy pages after an
+          index refresh.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation plan</summary>
+          <p>
+            Pin the previous index or filter stale namespaces. Compare document
+            lineage, chunker version, embedding model, top-k overlap, freshness
+            metadata, ASR query variants, and answer-grounding checks. Add stale
+            document fixtures, freshness-aware ranking, citation validation, and
+            index-release rollback to CI/CD.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Follow-Up</p>
+        <h2>Rollout Risk Scoring</h2>
+        <p>
+          Interviewers often turn system design into a small implementation
+          exercise. Keep the invariant simple and test edge cases explicitly.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab: Rank Canary Risks</h3>
+        <p>
+          Given aggregate canary metrics by slice, return a sorted list of
+          failing gates. Lower is better for WER, latency, cost, and unsafe rate;
+          higher is better for task success and citation support.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: every slice is judged against its own configured budgets,
+            and severity is normalized so different metric units can be sorted
+            together. Test missing metrics, exactly-on-threshold values,
+            lower-is-better metrics, higher-is-better metrics, and multiple
+            failures in the same slice.
+          </p>
+          <pre><code class="language-python">def rank_canary_risks(slices, gates):
+    failures = []
+    for slice_name, metrics in slices.items():
+        for metric, gate in gates.items():
+            if metric not in metrics:
+                failures.append((float("inf"), slice_name, metric, "missing"))
+                continue
+
+            value = metrics[metric]
+            direction = gate["direction"]
+            threshold = gate["threshold"]
+
+            if direction == "max":
+                over = value - threshold
+                if over &gt; 0:
+                    severity = over / max(abs(threshold), 1e-9)
+                    failures.append((severity, slice_name, metric, value))
+            elif direction == "min":
+                under = threshold - value
+                if under &gt; 0:
+                    severity = under / max(abs(threshold), 1e-9)
+                    failures.append((severity, slice_name, metric, value))
+            else:
+                raise ValueError(f"unknown direction: {direction}")
+
+    failures.sort(reverse=True)
+    return [
+        {"slice": s, "metric": m, "value": v, "severity": round(sev, 4)}
+        for sev, s, m, v in failures
+    ]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Blind 75 Connection: Meeting Rooms II</h3>
+        <p>
+          Explain how the Meeting Rooms II heap pattern maps to GPU serving
+          capacity planning for speech workloads.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy and production analogy</summary>
+          <p>
+            In the coding problem, sort intervals by start time and keep a
+            min-heap of end times; the heap size is the number of rooms needed.
+            In serving, requests or streams occupy accelerator memory and decode
+            slots for an interval. The same idea estimates peak concurrent
+            sessions, but production also needs variable token rates, queueing,
+            batching, priority classes, and safety margin.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Blind 75 Connection: Word Search II</h3>
+        <p>
+          Explain how trie pruning from Word Search II relates to spoken command
+          recognition and constrained decoding.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy and speech analogy</summary>
+          <p>
+            Word Search II uses a trie to reject impossible prefixes early and
+            avoid exploring every path. Speech systems use similar prefix
+            constraints for command grammars, contact names, entity biasing, or
+            safety-sensitive tool names. The mistake is over-constraining so the
+            decoder cannot recover from ASR noise or user paraphrases.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Use synthetic aggregate metrics for practice. Keep private recordings, transcripts, voiceprints, and secrets out of Git.</p>
+  </footer>
+</body>
+</html>

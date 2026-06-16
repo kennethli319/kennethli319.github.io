@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Feature Pipelines And Data Contracts</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#contracts">Contracts</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#coding">Coding</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Senior Data And MLOps</p>
+    <h1>Speech Feature Pipelines And Data Contracts</h1>
+    <p class="lede">
+      Design privacy-safe audio feature pipelines that survive model releases,
+      labeling changes, streaming constraints, drift, replay jobs, and senior
+      interview scrutiny.
+    </p>
+  </header>
+
+  <main>
+    <section id="contracts" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Mental Model</p>
+        <h2>A Feature Pipeline Is A Release Dependency</h2>
+        <p>
+          Speech models often fail in production because the data path changes:
+          VAD thresholds shift, resampling differs, transcript normalization
+          changes, metadata drops a field, or replay jobs mix with live data.
+          Senior engineers make those assumptions explicit before training,
+          evaluation, serving, and incident response depend on them.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Raw boundary:</strong> decide what audio, transcript, consent, locale, device, and quality metadata may enter the system.</li>
+        <li><strong>Transform boundary:</strong> version resampling, VAD, chunking, normalization, augmentation, text cleanup, and feature extraction code.</li>
+        <li><strong>Label boundary:</strong> store label schema, annotator instructions, disagreement rules, quality audits, and adjudication outcomes.</li>
+        <li><strong>Serving boundary:</strong> prove online preprocessing matches offline evaluation for sample rate, channel handling, timestamps, and text normalization.</li>
+        <li><strong>Audit boundary:</strong> keep lineage from model version to data snapshot, transform version, eval suite, rollout gate, and rollback target.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is "we only changed preprocessing" a serious release risk?</summary>
+        <p>
+          Preprocessing defines the distribution the model sees. A small change
+          in VAD, sample-rate conversion, silence trimming, casing, punctuation,
+          timestamp alignment, or profanity normalization can invalidate offline
+          metrics and create slice regressions. Treat preprocessing like model
+          code: version it, test it, canary it, and make rollback possible.
+        </p>
+      </details>
+    </section>
+
+    <section id="pipeline" class="band">
+      <div class="section-head">
+        <p class="eyebrow">System Design</p>
+        <h2>Design Prompts With Hidden Senior Answers</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Build A Training Dataset Pipeline For Streaming ASR</h3>
+        <p>
+          You need a weekly ASR training snapshot from consented call audio.
+          The model must improve noisy-device and accented-speech slices
+          without storing unnecessary private content. Design the pipeline.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior design outline</summary>
+          <p>
+            Start with consent and retention policy, then define aggregate-only
+            discovery metrics before selecting clips. Store durable IDs,
+            locale, device class, channel, noise bucket, duration, label
+            status, and transform versions, not casual raw exports. Run
+            privacy filters and redaction before labeling. Stratify sampling by
+            failure slices, keep holdout users out of training, version label
+            instructions, and produce a snapshot manifest that ties every row
+            to audio lineage, transcript version, VAD version, and evaluation
+            eligibility.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Match Offline And Online Features</h3>
+        <p>
+          Offline WER improves, but online canary WER regresses for long
+          utterances. How do you debug the data contract?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: feature parity investigation</summary>
+          <p>
+            Compare online and offline sample-rate conversion, chunk overlap,
+            VAD hangover, timestamp stitching, max-duration truncation,
+            normalization, punctuation handling, and language routing. Replay
+            canary traffic through both paths with synthetic or consented
+            fixtures and diff intermediate features. Check whether the offline
+            eval used full utterances while online serving streamed partial
+            chunks. Freeze promotion until parity tests and slice metrics pass.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Add A Feature Store For Spoken RAG</h3>
+        <p>
+          A voice assistant needs searchable memories, transcript summaries,
+          safety labels, and audio-quality signals. What should be online,
+          offline, or excluded?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: storage and privacy tradeoffs</summary>
+          <p>
+            Keep online features minimal: retrieval embeddings, freshness,
+            permissions, source type, summary version, safety flags, and TTL.
+            Keep offline features for evaluation, active learning, and drift
+            analysis: aggregate quality buckets, turn outcomes, device class,
+            latency, and consent status. Exclude raw private audio unless there
+            is explicit consent and retention purpose. Every feature should
+            have an owner, schema, TTL, backfill plan, deletion path, and
+            evaluation showing that it improves task success or safety.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Debugging</p>
+        <h2>Data Contract Incident Drills</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Missing Locale Metadata</h3>
+        <p>
+          After a mobile app release, ASR fallback routing increases and WER
+          spikes for bilingual users. The model bundle did not change.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour response</summary>
+          <p>
+            Split by app version, locale field presence, language ID output,
+            model route, geography, and device class. If locale metadata
+            dropped or changed encoding, route with a conservative language ID
+            fallback and roll back the app or serving parser if possible.
+            Protect dashboards from silent null buckets, add schema validation
+            at ingestion, and add a canary gate that fails when critical
+            metadata coverage regresses.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Labeling Guideline Drift</h3>
+        <p>
+          A new label vendor starts expanding abbreviations in transcripts.
+          Offline CER improves, but downstream command accuracy falls.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: label-contract fix</summary>
+          <p>
+            The transcript label contract changed. Compare examples before and
+            after the vendor switch, inspect normalization rules, and rerun
+            command-intent evals that depend on literal wording. Version label
+            guidelines, require overlap audits, keep adjudicated gold sets, and
+            either normalize both styles consistently or block the dataset from
+            training until the downstream contract is restored.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Interview Track</p>
+        <h2>Blind 75 Patterns For Data Pipelines</h2>
+        <p>
+          These drills connect common interview patterns to feature pipelines:
+          hashing for schema diffs, intervals for chunk stitching, heaps for
+          active-learning queues, and sliding windows for drift detection.
+        </p>
+      </div>
+
+      <article class="problem-card">
+        <h3>Problem: Merge Overlapping Audio Chunks</h3>
+        <p>
+          Given chunk intervals from VAD and endpointing, merge overlaps and
+          adjacent intervals when the gap is at most <code>max_gap_ms</code>.
+          This is the production version of Merge Intervals.
+        </p>
+        <details class="qa">
+          <summary>Questions, invariants, tests, and hidden Python answer</summary>
+          <p>
+            Questions: Are intervals closed or half-open? Should touching
+            intervals merge? Are inputs sorted? Can intervals be empty?
+            Invariant: after sorting, the output is disjoint and the last
+            interval is the only candidate that can overlap the next interval.
+            Test cases: empty input, one interval, nested intervals, touching
+            intervals, small allowed gaps, and unsorted input.
+          </p>
+          <pre><code>def merge_audio_chunks(chunks, max_gap_ms=0):
+    if not chunks:
+        return []
+
+    ordered = sorted(chunks)
+    merged = [list(ordered[0])]
+
+    for start, end in ordered[1:]:
+        last = merged[-1]
+        if start <= last[1] + max_gap_ms:
+            last[1] = max(last[1], end)
+        else:
+            merged.append([start, end])
+
+    return [tuple(item) for item in merged]
+
+
+assert merge_audio_chunks([(30, 40), (0, 10), (10, 20)]) == [(0, 20), (30, 40)]
+assert merge_audio_chunks([(0, 10), (13, 20)], max_gap_ms=3) == [(0, 20)]</code></pre>
+        </details>
+      </article>
+
+      <article class="problem-card">
+        <h3>Problem: Rank Active-Learning Candidates</h3>
+        <p>
+          Select the top <code>k</code> consented aggregate examples for human
+          review using uncertainty, slice rarity, and recent regression score.
+          This maps to Top K Elements.
+        </p>
+        <details class="qa">
+          <summary>Questions, common mistakes, and hidden Python answer</summary>
+          <p>
+            Questions: Can private content be selected? Are scores stable under
+            ties? Should one user dominate the queue? Common mistakes include
+            ignoring consent, sorting the entire stream when a heap is enough,
+            using raw transcript content in logs, and optimizing uncertainty
+            while starving rare slices.
+          </p>
+          <pre><code>from heapq import heappush, heappushpop
+
+
+def rank_review_candidates(rows, k):
+    heap = []
+    for row in rows:
+        if not row.get("consented"):
+            continue
+        score = (
+            0.55 * row["uncertainty"]
+            + 0.30 * row["slice_rarity"]
+            + 0.15 * row["regression"]
+        )
+        item = (score, row["example_id"])
+        if len(heap) < k:
+            heappush(heap, item)
+        else:
+            heappushpop(heap, item)
+
+    return [example_id for score, example_id in sorted(heap, reverse=True)]
+
+
+rows = [
+    {"example_id": "a", "consented": True, "uncertainty": 0.9, "slice_rarity": 0.2, "regression": 0.3},
+    {"example_id": "b", "consented": False, "uncertainty": 1.0, "slice_rarity": 1.0, "regression": 1.0},
+    {"example_id": "c", "consented": True, "uncertainty": 0.5, "slice_rarity": 0.9, "regression": 0.8},
+]
+assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
+        </details>
+      </article>
+
+      <article class="problem-card">
+        <h3>Problem: Detect Sustained Schema Coverage Drop</h3>
+        <p>
+          Given hourly metadata coverage rates, return the first window where
+          average coverage falls below a threshold for <code>w</code> hours.
+          This is a sliding-window incident detector.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer with senior production follow-up</summary>
+          <pre><code>def first_coverage_drop(values, window, threshold):
+    if window <= 0 or len(values) < window:
+        return None
+
+    total = sum(values[:window])
+    if total / window < threshold:
+        return 0
+
+    for right in range(window, len(values)):
+        total += values[right] - values[right - window]
+        left = right - window + 1
+        if total / window < threshold:
+            return left
+
+    return None
+
+
+assert first_coverage_drop([0.99, 0.98, 0.70, 0.72, 0.74], 3, 0.85) == 1
+assert first_coverage_drop([0.99, 0.98, 0.97], 2, 0.95) is None</code></pre>
+          <p>
+            Senior follow-up: page only when the drop affects critical fields
+            or user-facing slices, deduplicate alerts by app version and
+            ingestion path, and attach rollout context so on-call can identify
+            whether the first bad hour matches a deployment.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Exam</p>
+        <h2>Senior Interview Prompts</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>R&amp;D Prompt</h3>
+          <p>
+            A self-supervised audio model improves average WER but worsens
+            short noisy commands. What experiments and release gates do you
+            require before launch?
+          </p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Require slice-specific evals, command-intent task metrics,
+              calibration by utterance length and noise bucket, online/offline
+              preprocessing parity, and canary rollback gates. Inspect whether
+              representation learning improved long-form transcription while
+              hurting endpointing or short-command acoustics.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>System Design Prompt</h3>
+          <p>
+            Design a backfill system that recomputes audio features for 100
+            million clips without impacting real-time serving.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Use isolated batch queues, explicit resource quotas, resumable
+              manifests, idempotent writes, transform-versioned output paths,
+              data quality sampling, and throttles tied to serving headroom.
+              Never let replay jobs share priority with real-time requests, and
+              require lineage plus rollback to the previous feature snapshot.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

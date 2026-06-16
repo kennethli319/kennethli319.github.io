@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Stacks And Sliding Windows</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75</a>
+      <a href="#method">Method</a>
+      <a href="#drills">Drills</a>
+      <a href="#production">Production</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Coding Interviews</p>
+    <h1>Stacks, Monotonic Structures, And Sliding Windows</h1>
+    <p class="lede">
+      A senior coding chapter for high-frequency Blind 75 patterns that show
+      up in parsers, streaming telemetry, queue monitors, and speech serving
+      incident tools.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Pattern Method</p>
+        <h2>Name The Invariant Before The Code</h2>
+        <p>
+          These problems are rarely hard because of syntax. They are hard
+          because candidates lose track of what a stack or window guarantees
+          after each update.
+        </p>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Plain Stack</h3>
+          <p>Use when the newest unresolved item must be handled first: brackets, decoders, paths, and nested state.</p>
+        </article>
+        <article class="card">
+          <h3>Monotonic Stack</h3>
+          <p>Use when each item waits for the next greater, next smaller, or boundary-breaking value.</p>
+        </article>
+        <article class="card">
+          <h3>Sliding Window</h3>
+          <p>Use when a contiguous range can be repaired incrementally by moving one boundary.</p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: What should you say before coding a monotonic-stack solution?</summary>
+        <p>
+          State what the stack stores, what order it preserves, and when an
+          element becomes resolved. For example: the stack stores indices whose
+          temperatures have not yet found a warmer future day, and temperatures
+          at those indices are decreasing from bottom to top.
+        </p>
+      </details>
+    </section>
+
+    <section id="drills" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Worked Drills</p>
+        <h2>Six Problems To Know Cold</h2>
+        <p>
+          Try each prompt first. Then open the hidden answer and compare your
+          invariant, edge cases, and complexity explanation.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Valid Parentheses</h3>
+        <p>
+          Given a string containing bracket characters, return whether every
+          opener is closed by the same bracket type in the correct order.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the stack stores the exact closing brackets required by
+            the processed prefix. Test empty string, one opener, one closer,
+            mixed nesting, and leftover openers.
+          </p>
+          <pre><code class="language-python">def is_valid_parentheses(s):
+    closing = {"(": ")", "[": "]", "{": "}"}
+    stack = []
+    for ch in s:
+        if ch in closing:
+            stack.append(closing[ch])
+        elif not stack or stack.pop() != ch:
+            return False
+    return not stack</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Daily Temperatures</h3>
+        <p>
+          Given daily temperatures, return how many days each position must
+          wait until a warmer temperature. Use zero if no warmer day exists.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: monotonic-stack solution</summary>
+          <p>
+            Invariant: stack indices are unresolved days, and their
+            temperatures are decreasing. When the current temperature is warmer
+            than the stack top, the current index resolves that older day.
+          </p>
+          <pre><code class="language-python">def daily_temperatures(temperatures):
+    answer = [0] * len(temperatures)
+    stack = []
+    for i, temp in enumerate(temperatures):
+        while stack and temperatures[stack[-1]] &lt; temp:
+            j = stack.pop()
+            answer[j] = i - j
+        stack.append(i)
+    return answer</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Largest Rectangle In Histogram</h3>
+        <p>
+          Given bar heights, return the area of the largest rectangle that can
+          be formed by contiguous bars.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, mistakes, and Python solution</summary>
+          <p>
+            Invariant: the stack stores increasing bar indices. A shorter bar
+            ends rectangles for taller bars on the stack. Common mistakes are
+            forgetting the sentinel zero and using the wrong width after pop.
+          </p>
+          <pre><code class="language-python">def largest_rectangle_area(heights):
+    stack = []
+    best = 0
+    for i, height in enumerate(heights + [0]):
+        while stack and heights[stack[-1]] &gt; height:
+            h = heights[stack.pop()]
+            left = stack[-1] if stack else -1
+            width = i - left - 1
+            best = max(best, h * width)
+        stack.append(i)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 4: Longest Repeating Character Replacement</h3>
+        <p>
+          Given a string and integer <code>k</code>, return the length of the
+          longest substring that can be made of one repeated character after at
+          most <code>k</code> replacements.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: sliding-window invariant</summary>
+          <p>
+            Invariant: if window length minus the most frequent character count
+            exceeds <code>k</code>, the window cannot be repaired and must
+            shrink. The stored max frequency may be stale; it still preserves a
+            correct best length because it only delays shrinking, never creates
+            an impossible recorded answer.
+          </p>
+          <pre><code class="language-python">from collections import defaultdict
+
+
+def character_replacement(s, k):
+    counts = defaultdict(int)
+    left = 0
+    best = 0
+    max_count = 0
+
+    for right, ch in enumerate(s):
+        counts[ch] += 1
+        max_count = max(max_count, counts[ch])
+        while right - left + 1 - max_count &gt; k:
+            counts[s[left]] -= 1
+            left += 1
+        best = max(best, right - left + 1)
+
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 5: Minimum Window Substring</h3>
+        <p>
+          Given strings <code>s</code> and <code>t</code>, return the minimum
+          window in <code>s</code> containing all characters of <code>t</code>
+          with multiplicity.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: counts, edge tests, and Python solution</summary>
+          <p>
+            Invariant: <code>formed == required</code> means every required
+            character count is satisfied. Test repeated required characters,
+            absent targets, target longer than source, and a best window at the
+            beginning or end.
+          </p>
+          <pre><code class="language-python">from collections import Counter, defaultdict
+
+
+def min_window(s, t):
+    need = Counter(t)
+    window = defaultdict(int)
+    required = len(need)
+    formed = 0
+    best = (float("inf"), 0, 0)
+    left = 0
+
+    for right, ch in enumerate(s):
+        window[ch] += 1
+        if ch in need and window[ch] == need[ch]:
+            formed += 1
+
+        while formed == required:
+            if right - left + 1 &lt; best[0]:
+                best = (right - left + 1, left, right)
+            drop = s[left]
+            window[drop] -= 1
+            if drop in need and window[drop] &lt; need[drop]:
+                formed -= 1
+            left += 1
+
+    return "" if best[0] == float("inf") else s[best[1]:best[2] + 1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 6: Decode String</h3>
+        <p>
+          Decode strings such as <code>3[a2[c]]</code>, where a number before
+          brackets repeats the bracketed substring.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: nested-state stack</summary>
+          <p>
+            Invariant: every stack frame stores the prefix before a bracket and
+            the repeat count for that bracket. On close, the completed fragment
+            is appended back to the previous prefix. Common mistakes are
+            failing multi-digit counts and losing nested prefixes.
+          </p>
+          <pre><code class="language-python">def decode_string(s):
+    stack = []
+    current = []
+    number = 0
+
+    for ch in s:
+        if ch.isdigit():
+            number = number * 10 + int(ch)
+        elif ch == "[":
+            stack.append(("".join(current), number))
+            current = []
+            number = 0
+        elif ch == "]":
+            prefix, repeat = stack.pop()
+            current = [prefix + "".join(current) * repeat]
+        else:
+            current.append(ch)
+
+    return "".join(current)</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="production" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Follow-Ups</p>
+        <h2>How These Patterns Reappear In Speech ML</h2>
+      </div>
+      <article class="prompt">
+        <h3>Follow-Up 1: Detect Queue Saturation Windows</h3>
+        <p>
+          Given per-minute queue ages, return the longest window whose average
+          age exceeds an alert threshold after allowing at most
+          <code>k</code> noisy minutes to be ignored.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: interview direction</summary>
+          <p>
+            Clarify whether ignored minutes are removed from the denominator or
+            tolerated as exceptions. If the rule is exception-based, use a
+            sliding window over minutes whose age is above threshold and shrink
+            when exceptions exceed <code>k</code>. Connect the result to ASR or
+            TTS backlog alerts and rollout freeze decisions.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Follow-Up 2: Parse Streaming Tool Calls</h3>
+        <p>
+          A voice agent emits partial JSON-like tool-call text. How would you
+          detect whether the stream is balanced enough to hand to a validator?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: stack-based reasoning</summary>
+          <p>
+            Use a stack for brackets and braces, track string and escape state,
+            and avoid executing tools from partial text. A senior answer adds a
+            timeout, maximum nesting, schema validation, confirmation for
+            sensitive actions, and logging that never stores raw private audio.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Checks</p>
+        <h2>Short Answers With Hidden Rubrics</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Explain Stale Max Frequency</h3>
+        <p>
+          In Longest Repeating Character Replacement, why can the window keep a
+          stale maximum frequency instead of recomputing it after shrinking?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            The algorithm records a maximum length only after expanding. A
+            stale max can make the window appear valid longer than it truly is,
+            but it cannot cause a too-large answer because the stale value came
+            from a real earlier window with that frequency. It is a proof about
+            preserving best length, not a claim that every intermediate window
+            is valid.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Choose A Stack Or Window</h3>
+        <p>
+          You need to diagnose partial transcript churn over a stream. When is
+          it a stack problem, and when is it a sliding-window problem?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Use a stack when nested structure or last-unresolved state matters,
+            such as parsing partial tool calls or bracketed markup. Use a
+            sliding window when the metric is over a contiguous time range,
+            such as churn rate over the last five seconds or rollback alerts
+            over the latest canary minutes.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

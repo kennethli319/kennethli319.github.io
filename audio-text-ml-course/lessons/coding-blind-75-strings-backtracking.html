@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Strings, Backtracking, And Tries</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#strings">Strings</a>
+      <a href="#backtracking">Backtracking</a>
+      <a href="#tries">Tries</a>
+      <a href="#drill">Drill</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Strings, Backtracking, And Tries</h1>
+    <p class="lede">
+      Practice the interview problems that look simple until edge cases appear:
+      substring windows, palindromes, combinatorial search, prefix trees, and
+      pruning. Each prompt includes hidden answers for strategy, invariants,
+      tests, and common mistakes.
+    </p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Method</p>
+        <h2>Define The Search Space Before Coding</h2>
+        <p>
+          String and backtracking rounds reward careful boundaries. A senior
+          solution says what the window, recursion state, or trie node means,
+          then proves why each move preserves the answer set.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>String windows:</strong> state what the active window contains and when the left boundary moves.</li>
+        <li><strong>Palindromes:</strong> say whether the state is a center, substring range, or DP table cell.</li>
+        <li><strong>Backtracking:</strong> define choices, path, used set, pruning rule, and undo step.</li>
+        <li><strong>Tries:</strong> define what each node guarantees about prefixes and terminal words.</li>
+        <li><strong>Tests:</strong> empty string, one character, duplicates, repeated prefixes, impossible target, and maximum branching.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why do these problems matter for ML and AI engineers?</summary>
+        <p>
+          Production ML code constantly handles token streams, transcript
+          windows, prompt templates, dictionaries, prefix filters, decoding
+          candidates, and search over constrained choices. The same invariants
+          used here make speech and LLM serving code easier to debug.
+        </p>
+      </details>
+    </section>
+
+    <section id="strings" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Strings</p>
+        <h2>Windows, Counts, And Palindrome State</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Valid Palindrome</h3>
+        <p>
+          Return true if a string is a palindrome after converting uppercase
+          letters to lowercase and removing non-alphanumeric characters.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use two pointers. Invariant: all cleaned characters outside the
+            active left/right range have already matched. Mistake to avoid:
+            building complicated filtered state before asking whether extra
+            memory is acceptable. Test empty after filtering, one character,
+            mixed punctuation, mixed case, and a mismatch at the end.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Valid Palindrome</h3>
+        <p>Implement the in-place two-pointer scan over the original string.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left &lt; right:
+        while left &lt; right and not s[left].isalnum():
+            left += 1
+        while left &lt; right and not s[right].isalnum():
+            right -= 1
+        if s[left].lower() != s[right].lower():
+            return False
+        left += 1
+        right -= 1
+    return True</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Longest Palindromic Substring</h3>
+        <p>Return the longest contiguous substring that reads the same forward and backward.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Expand around each possible odd and even center. Invariant: after an
+            expansion stops, the previous range was the longest palindrome for
+            that center. Mistake to avoid: checking only odd centers, which
+            misses strings like <code>"bb"</code>. Test one character, all same
+            characters, no palindrome longer than one, even length, and ties.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Longest Palindromic Substring</h3>
+        <p>Implement center expansion with explicit left/right boundaries.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def longest_palindrome(s):
+    best_left = best_right = 0
+
+    def expand(left, right):
+        while left &gt;= 0 and right &lt; len(s) and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return left + 1, right - 1
+
+    for center in range(len(s)):
+        for left, right in (expand(center, center), expand(center, center + 1)):
+            if right - left &gt; best_right - best_left:
+                best_left, best_right = left, right
+    return s[best_left:best_right + 1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Minimum Window Substring</h3>
+        <p>
+          Given strings <code>s</code> and <code>t</code>, return the smallest
+          substring of <code>s</code> containing every character in
+          <code>t</code> with multiplicity.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Maintain counts for the active window and shrink only while all
+            required counts are satisfied. Invariant: when <code>formed</code>
+            equals the number of required characters, the current window is
+            valid and can be minimized from the left. Mistake to avoid:
+            treating membership as a set and losing duplicate requirements like
+            <code>"AABC"</code>. Test impossible target, duplicate target
+            characters, target longer than source, and the whole source as the
+            only answer.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Minimum Window Substring</h3>
+        <p>Implement the count-satisfied sliding window.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">from collections import Counter, defaultdict
+
+def min_window(s, t):
+    need = Counter(t)
+    have = defaultdict(int)
+    required = len(need)
+    formed = 0
+    left = 0
+    best = (float("inf"), 0, 0)
+
+    for right, ch in enumerate(s):
+        have[ch] += 1
+        if ch in need and have[ch] == need[ch]:
+            formed += 1
+
+        while formed == required:
+            if right - left + 1 &lt; best[0]:
+                best = (right - left + 1, left, right)
+            drop = s[left]
+            have[drop] -= 1
+            if drop in need and have[drop] &lt; need[drop]:
+                formed -= 1
+            left += 1
+
+    if best[0] == float("inf"):
+        return ""
+    return s[best[1]:best[2] + 1]</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="backtracking" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Backtracking</p>
+        <h2>Make Choices, Recurse, Undo</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Combination Sum</h3>
+        <p>
+          Given unique candidate numbers and a target, return all combinations
+          where chosen numbers sum to the target. A candidate may be used
+          unlimited times.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Sort candidates, recurse with a start index, and keep the same start
+            index when reusing a number. Invariant: each path is nondecreasing,
+            so the same combination cannot appear in different orders. Mistake
+            to avoid: recursing from index zero every time and producing
+            permutations. Test target zero, no solution, exact one-candidate
+            solution, and candidates larger than target.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Combination Sum</h3>
+        <p>Implement nondecreasing backtracking with pruning.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def combination_sum(candidates, target):
+    candidates.sort()
+    out = []
+    path = []
+
+    def dfs(start, remaining):
+        if remaining == 0:
+            out.append(path.copy())
+            return
+        for i in range(start, len(candidates)):
+            value = candidates[i]
+            if value &gt; remaining:
+                break
+            path.append(value)
+            dfs(i, remaining - value)
+            path.pop()
+
+    dfs(0, target)
+    return out</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Word Search</h3>
+        <p>
+          Given a grid of characters and a word, return true if the word exists
+          by moving horizontally or vertically without reusing a cell.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Backtrack from cells matching the first character. Invariant: the
+            visited set or temporary board mark contains exactly the cells in
+            the current prefix path. Mistake to avoid: forgetting to unmark a
+            cell before returning, which corrupts sibling branches. Test repeated
+            letters, word longer than cell count, diagonal-only matches, and a
+            board where the first letter appears many times.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Word Search</h3>
+        <p>Implement DFS with temporary marking and restoration.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def exist(board, word):
+    rows, cols = len(board), len(board[0])
+
+    def dfs(r, c, i):
+        if i == len(word):
+            return True
+        if r &lt; 0 or r == rows or c &lt; 0 or c == cols:
+            return False
+        if board[r][c] != word[i]:
+            return False
+
+        saved = board[r][c]
+        board[r][c] = "#"
+        found = (
+            dfs(r + 1, c, i + 1)
+            or dfs(r - 1, c, i + 1)
+            or dfs(r, c + 1, i + 1)
+            or dfs(r, c - 1, i + 1)
+        )
+        board[r][c] = saved
+        return found
+
+    for r in range(rows):
+        for c in range(cols):
+            if dfs(r, c, 0):
+                return True
+    return False</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="tries" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tries</p>
+        <h2>Prefix State For Search And Autocomplete</h2>
+        <p>
+          Tries are worth knowing for coding rounds and for production systems:
+          keyword filters, endpoint command grammars, dictionary-based ASR
+          constraints, and fast prefix validation.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem: Implement Trie</h3>
+        <p>Support inserting a word, exact search, and prefix search.</p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Each node maps characters to child nodes and has an end marker.
+            Invariant: after inserting a word, every prefix path exists and only
+            the full word's final node is terminal. Mistake to avoid: returning
+            true for exact search when only a prefix exists. Test empty prefix,
+            duplicate insert, prefix without full word, and overlapping words.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Implement Trie</h3>
+        <p>Implement the prefix tree with nested dictionaries.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">class Trie:
+    def __init__(self):
+        self.root = {}
+        self.end = "*"
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node[self.end] = True
+
+    def _walk(self, text):
+        node = self.root
+        for ch in text:
+            if ch not in node:
+                return None
+            node = node[ch]
+        return node
+
+    def search(self, word):
+        node = self._walk(word)
+        return node is not None and self.end in node
+
+    def starts_with(self, prefix):
+        return self._walk(prefix) is not None</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem: Word Break</h3>
+        <p>
+          Given a string and a dictionary, return true if the string can be
+          segmented into dictionary words.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, invariant, mistakes, tests</summary>
+          <p>
+            Use DP over string positions or memoized DFS. Invariant:
+            <code>dp[i]</code> means the prefix ending before index
+            <code>i</code> can be segmented. Mistake to avoid: greedy longest
+            prefix matching, which fails when an early shorter word enables the
+            rest. Test repeated words, no solution with tempting prefixes, empty
+            string if allowed, and full-string dictionary match.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Python: Word Break</h3>
+        <p>Implement bottom-up segmentation DP.</p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def word_break(s, word_dict):
+    words = set(word_dict)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True
+
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if dp[j] and s[j:i] in words:
+                dp[i] = True
+                break
+    return dp[-1]</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="drill" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Drill</p>
+        <h2>Interview Prompts</h2>
+        <p>
+          Answer these out loud, then open the hidden answer. The goal is to
+          practice a crisp senior explanation before writing code.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Streaming Transcript Window</h3>
+        <p>
+          Live ASR emits partial tokens. Design a function that keeps the
+          longest recent suffix without duplicate committed tokens so a UI can
+          avoid repeating text.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: pattern and senior explanation</summary>
+          <p>
+            This maps to sliding window over tokens, not characters. State the
+            invariant as: the active suffix contains no duplicate committed token
+            IDs, and <code>left</code> never moves backward. Mention that real
+            systems need stable token IDs, timestamps, and a policy for revised
+            partials before the coding logic is meaningful.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Command Grammar Prefix Filter</h3>
+        <p>
+          A voice assistant has a dictionary of allowed commands. How would you
+          reject impossible partial hypotheses quickly during decoding?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: trie and production considerations</summary>
+          <p>
+            Use a trie keyed by normalized command tokens or characters. Exact
+            commands end at terminal nodes; partial hypotheses stay valid while
+            their prefix path exists. In production, include normalization,
+            locale, synonyms, command versioning, fallback behavior, and metrics
+            for false rejects.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 3: Backtracking Complexity</h3>
+        <p>
+          An interviewer asks why your backtracking solution can still time out.
+          What do you say?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: complexity and pruning explanation</summary>
+          <p>
+            Backtracking explores a branching tree. The worst case can remain
+            exponential even with clean code. A senior answer explains the
+            branching factor, depth, duplicate-skipping rule, pruning condition,
+            and input constraints. Then it names when memoization or DP changes
+            the state graph from repeated search into cached subproblems.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio and transcripts out of Git. Record aggregate metrics and sanitized notes only.</p>
+  </footer>
+</body>
+</html>

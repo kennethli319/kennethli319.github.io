@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Linked Lists, Binary Search, And Heaps</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#method">Method</a>
+      <a href="#linked-list">Linked Lists</a>
+      <a href="#binary-search">Binary Search</a>
+      <a href="#heaps">Heaps</a>
+      <a href="#production">Production Follow-Ups</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Linked Lists, Binary Search, And Heaps</h1>
+    <p class="lede">
+      Practice pointer invariants, monotonic predicates, priority queues, and
+      senior-style follow-ups that connect coding rounds to production ML
+      systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Method</p>
+        <h2>Name The Invariant Before The Loop</h2>
+        <p>
+          These patterns are less about memorized syntax and more about keeping
+          a precise invariant while the data structure changes. State what each
+          pointer, boundary, or heap entry means before writing code.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Linked lists:</strong> say which links have already been rewired and which node still owns the unreversed suffix.</li>
+        <li><strong>Binary search:</strong> define the search interval and whether the answer is inside, left of, or right of the midpoint.</li>
+        <li><strong>Heaps:</strong> define what priority means and how stale entries are rejected.</li>
+        <li><strong>Tests:</strong> empty input, one element, two elements, duplicates, all equal values, and boundary answers.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why do senior interviewers care about invariants?</summary>
+        <p>
+          Invariants make correctness auditable. A senior engineer can explain
+          why the loop terminates, why no data is lost during mutation, and why
+          edge cases are covered without relying on lucky sample tests.
+        </p>
+      </details>
+    </section>
+
+    <section id="linked-list" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Linked Lists</p>
+        <h2>Pointer Changes Need A Before And After Story</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Linked List 1: Reverse Linked List</h3>
+        <p>
+          Given the head of a singly linked list, reverse the list and return
+          the new head.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: <code>prev</code> is the fully reversed prefix and
+            <code>cur</code> is the first node in the unreversed suffix. The
+            common mistake is overwriting <code>cur.next</code> before saving
+            the original next node.
+          </p>
+          <pre><code class="language-python">def reverse_list(head):
+    prev = None
+    cur = head
+    while cur:
+        nxt = cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+    return prev</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Linked List 2: Merge K Sorted Lists</h3>
+        <p>
+          Given several sorted linked lists, merge them into one sorted linked
+          list.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, test cases, and Python solution</summary>
+          <p>
+            Invariant: the heap contains the smallest unmerged node from each
+            active list. Use a tie-breaker counter because Python cannot compare
+            list node objects directly. Test empty input, empty lists inside the
+            input, duplicate values, one list, and lists with negative values.
+          </p>
+          <pre><code class="language-python">from heapq import heappop, heappush
+
+def merge_k_lists(lists):
+    heap = []
+    counter = 0
+    for node in lists:
+        if node:
+            heappush(heap, (node.val, counter, node))
+            counter += 1
+
+    dummy = ListNode(0)
+    tail = dummy
+    while heap:
+        _, _, node = heappop(heap)
+        tail.next = node
+        tail = tail.next
+        if node.next:
+            heappush(heap, (node.next.val, counter, node.next))
+            counter += 1
+
+    tail.next = None
+    return dummy.next</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Blind 75 Prompt: Linked List Cycle</h3>
+        <p>
+          Determine whether a linked list contains a cycle.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy and mistakes</summary>
+          <p>
+            Use Floyd's slow and fast pointers. If the fast pointer reaches
+            null, the list terminates; if slow and fast meet, there is a cycle.
+            Common mistakes are advancing <code>fast.next.next</code> before
+            checking <code>fast</code> and <code>fast.next</code>, or returning
+            false after only one unequal step.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="binary-search" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Binary Search</p>
+        <h2>Search The Answer Space When The Predicate Is Monotonic</h2>
+        <p>
+          Binary search appears in sorted arrays, rotated arrays, capacity
+          planning, threshold tuning, and latency/cost tradeoffs. The key is to
+          prove that one side can be discarded.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Binary Search 1: Search In Rotated Sorted Array</h3>
+        <p>
+          Given a rotated sorted array with distinct values, return the index of
+          the target or <code>-1</code>.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: if the target exists, it is inside <code>[lo, hi]</code>.
+            At least one half is sorted at every step. The common mistake is
+            deciding which half is sorted but using strict comparisons that
+            accidentally discard the midpoint value.
+          </p>
+          <pre><code class="language-python">def search_rotated(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+
+        if nums[lo] &lt;= nums[mid]:
+            if nums[lo] &lt;= target &lt; nums[mid]:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        else:
+            if nums[mid] &lt; target &lt;= nums[hi]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Binary Search 2: Find Minimum In Rotated Sorted Array</h3>
+        <p>
+          Given a rotated sorted array with distinct values, return the minimum
+          value.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the minimum is always inside <code>[lo, hi]</code>. If
+            <code>nums[mid] &gt; nums[hi]</code>, the minimum is to the right;
+            otherwise it is at mid or to the left. Test not rotated, rotated by
+            one, two elements, and a single element.
+          </p>
+          <pre><code class="language-python">def find_min(nums):
+    lo, hi = 0, len(nums) - 1
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if nums[mid] &gt; nums[hi]:
+            lo = mid + 1
+        else:
+            hi = mid
+    return nums[lo]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Senior Follow-Up: Capacity Threshold</h3>
+        <p>
+          You need the smallest number of ASR replicas that keeps simulated p95
+          queue delay under 150 ms. How could binary search help?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: monotonic predicate</summary>
+          <p>
+            Define a predicate <code>ok(replicas)</code> that returns true when
+            the simulator or load test meets the p95 queue target. If adding
+            replicas never worsens queue delay under the same traffic, the
+            predicate is monotonic: false, false, true, true. Binary search
+            finds the smallest passing replica count. In practice, add repeated
+            trials and confidence bounds because load tests are noisy.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="heaps" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Heaps</p>
+        <h2>Prioritize The Next Useful Item</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Heap 1: Find Median From Data Stream</h3>
+        <p>
+          Design a data structure that supports adding numbers and returning
+          the current median.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: the max heap stores the smaller half and the min heap
+            stores the larger half; their sizes differ by at most one. Python
+            only has a min heap, so store negative values for the lower half.
+          </p>
+          <pre><code class="language-python">from heapq import heappop, heappush
+
+class MedianFinder:
+    def __init__(self):
+        self.low = []
+        self.high = []
+
+    def addNum(self, num):
+        heappush(self.low, -num)
+        heappush(self.high, -heappop(self.low))
+        if len(self.high) &gt; len(self.low):
+            heappush(self.low, -heappop(self.high))
+
+    def findMedian(self):
+        if len(self.low) &gt; len(self.high):
+            return -self.low[0]
+        return (-self.low[0] + self.high[0]) / 2</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Heap 2: Top K Frequent Elements</h3>
+        <p>
+          Given an array of integers, return the <code>k</code> most frequent
+          values.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, tests, and Python solution</summary>
+          <p>
+            Count first, then keep a min heap of size <code>k</code>. The heap
+            contains the current top candidates. Test <code>k = 1</code>,
+            <code>k</code> equal to the number of distinct values, ties, and an
+            input with one repeated value.
+          </p>
+          <pre><code class="language-python">from collections import Counter
+from heapq import heappush, heappushpop
+
+def top_k_frequent(nums, k):
+    heap = []
+    for value, count in Counter(nums).items():
+        item = (count, value)
+        if len(heap) &lt; k:
+            heappush(heap, item)
+        else:
+            heappushpop(heap, item)
+    return [value for _, value in heap]</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="production" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Follow-Ups</p>
+        <h2>Connect Coding Patterns To ML Systems</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Streaming Top-K ASR Errors</h3>
+        <p>
+          You receive aggregate ASR error events by phrase and need to maintain
+          the top 20 regressions for a live dashboard.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: data structure and caveats</summary>
+          <p>
+            Use counts keyed by phrase plus a heap for top-k candidates. For a
+            high-volume stream, handle stale heap entries by comparing the heap
+            count against the latest count map when popping. Discuss windowing,
+            tenant isolation, privacy redaction, and whether exact counts are
+            required or approximate heavy hitters are enough.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Rollback Boundary Search</h3>
+        <p>
+          A model rollout ramped from 1 percent to 50 percent. At some point,
+          TTS p99 latency crossed the SLO. How do you find the smallest unsafe
+          ramp level?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: binary-search framing</summary>
+          <p>
+            If the same traffic replay shows latency worsening monotonically as
+            exposure increases, binary search the exposure level with a
+            predicate like <code>p99_latency &lt;= slo</code>. In live systems,
+            monotonicity can be broken by traffic mix and autoscaling, so pair
+            the search with controlled replay, repeated trials, and slice-level
+            checks before making a rollback rule.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

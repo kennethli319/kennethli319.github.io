@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior Coding Interview Workbook</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#method">Method</a>
+      <a href="#drills">Drills</a>
+      <a href="#systems">Systems</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Senior Coding Interview Workbook</h1>
+    <p class="lede">
+      Practice the habits that separate senior coding rounds from memorized
+      answers: invariants, edge tests, complexity proofs, debugging moves, and
+      production follow-ups for speech and model-serving systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Method</p>
+        <h2>Say The Contract Before The Code</h2>
+        <p>
+          A senior candidate makes the problem smaller before typing. Define
+          input shape, output contract, invariant, failure cases, and the
+          simplest test that can disprove the idea.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Restate:</strong> name the data structure and clarify duplicates, order, mutability, and empty input.</li>
+        <li><strong>Choose:</strong> map the prompt to a pattern such as hash lookup, two pointers, heap, BFS, DFS, DP, or binary search.</li>
+        <li><strong>Prove:</strong> state the loop, recursion, or table invariant in one sentence.</li>
+        <li><strong>Code:</strong> keep helper functions small and avoid clever transformations that hide edge cases.</li>
+        <li><strong>Test:</strong> run the minimum set that covers empty, one item, duplicates, impossible states, and boundary values.</li>
+        <li><strong>Extend:</strong> answer the production follow-up about streaming data, memory, concurrency, privacy, or observability.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What makes a coding answer senior-level?</summary>
+        <p>
+          It is correct, readable, and testable, but it also explains why the
+          invariant is sufficient, how the solution fails under changed
+          constraints, and what telemetry or guardrails would be needed if the
+          algorithm became part of a production speech or inference service.
+        </p>
+      </details>
+    </section>
+
+    <section id="drills" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Worked Drills</p>
+        <h2>Write These Before Opening The Answers</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Top K Frequent Words</h3>
+        <p>
+          Given a list of words and an integer <code>k</code>, return the
+          <code>k</code> most frequent words. Break ties lexicographically.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: after counting, frequency is the source of truth and
+            sorting only decides rank. Test ties, <code>k = 0</code>, one word,
+            and more requested items than unique words.
+          </p>
+          <pre><code class="language-python">from collections import Counter
+
+
+def top_k_frequent_words(words, k):
+    counts = Counter(words)
+    ranked = sorted(counts, key=lambda word: (-counts[word], word))
+    return ranked[:k]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Merge Intervals With Metadata</h3>
+        <p>
+          Given time intervals <code>[start, end]</code>, merge overlaps. Then
+          explain how you would keep aggregate metadata such as total requests
+          or max error rate for each merged interval.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the output list is sorted and non-overlapping. The last
+            output interval is the only interval that can overlap the current
+            sorted input. Test touching intervals, nested intervals, unsorted
+            input, empty input, and negative timestamps.
+          </p>
+          <pre><code class="language-python">def merge_intervals(intervals):
+    if not intervals:
+        return []
+
+    intervals = sorted(intervals)
+    merged = [intervals[0][:]]
+    for start, end in intervals[1:]:
+        last = merged[-1]
+        if start &lt;= last[1]:
+            last[1] = max(last[1], end)
+        else:
+            merged.append([start, end])
+    return merged</code></pre>
+          <p>
+            For metadata, carry an accumulator beside each merged range. Sum
+            counts, take max for peak error rate, and preserve the contributing
+            release IDs for debugging.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Course Schedule</h3>
+        <p>
+          Given <code>num_courses</code> and prerequisite pairs, return whether
+          all courses can be completed.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, edge cases, and Python solution</summary>
+          <p>
+            Invariant: every node popped from the queue has no remaining
+            prerequisites. If the processed count is less than the course count,
+            the remaining graph contains a cycle. Test no prerequisites,
+            duplicate-looking chains, isolated courses, and a two-node cycle.
+          </p>
+          <pre><code class="language-python">from collections import defaultdict, deque
+
+
+def can_finish(num_courses, prerequisites):
+    graph = defaultdict(list)
+    indegree = [0] * num_courses
+
+    for course, prereq in prerequisites:
+        graph[prereq].append(course)
+        indegree[course] += 1
+
+    queue = deque(i for i, degree in enumerate(indegree) if degree == 0)
+    seen = 0
+    while queue:
+        node = queue.popleft()
+        seen += 1
+        for nxt in graph[node]:
+            indegree[nxt] -= 1
+            if indegree[nxt] == 0:
+                queue.append(nxt)
+
+    return seen == num_courses</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 4: Minimum Window Substring</h3>
+        <p>
+          Return the smallest substring of <code>s</code> containing every
+          character in <code>t</code>, including duplicate counts.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: when <code>formed == required</code>, the current window
+            satisfies all required counts. Shrink from the left until removing
+            one character would break that invariant. The common mistake is
+            checking only unique membership and ignoring duplicate counts.
+          </p>
+          <pre><code class="language-python">from collections import Counter, defaultdict
+
+
+def min_window(s, t):
+    if not t or not s:
+        return ""
+
+    need = Counter(t)
+    required = len(need)
+    have = defaultdict(int)
+    formed = 0
+    left = 0
+    best = (float("inf"), 0, 0)
+
+    for right, ch in enumerate(s):
+        have[ch] += 1
+        if ch in need and have[ch] == need[ch]:
+            formed += 1
+
+        while formed == required:
+            if right - left + 1 &lt; best[0]:
+                best = (right - left + 1, left, right)
+
+            drop = s[left]
+            have[drop] -= 1
+            if drop in need and have[drop] &lt; need[drop]:
+                formed -= 1
+            left += 1
+
+    if best[0] == float("inf"):
+        return ""
+    return s[best[1]:best[2] + 1]</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="systems" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Follow-Ups</p>
+        <h2>Connect Algorithms To Audio ML Work</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Follow-Up 1: Streaming ASR Partial Stability</h3>
+        <p>
+          You receive a stream of partial transcripts. Design a function that
+          emits only the longest stable prefix shared by the last three partials.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy and production caveats</summary>
+          <p>
+            Keep a fixed-size deque of recent partials, compute the common
+            prefix across them, and only emit newly committed text. In
+            production, split on tokens rather than raw characters, track churn
+            rate, and reset state at endpointing boundaries.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Follow-Up 2: Inference Queue Backpressure</h3>
+        <p>
+          A model server has request timestamps, deadlines, and estimated token
+          costs. Which coding patterns help decide what to admit, batch, defer,
+          or reject?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior system-design mapping</summary>
+          <p>
+            Use heaps for earliest deadline or shortest job first, sliding
+            windows for recent arrival rate, queues for fairness per tenant,
+            and binary search over batch size when latency is a monotonic
+            function of batch size. The senior answer also includes metrics:
+            queue age, drop reason, batch fill ratio, deadline miss rate, and
+            cost per successful request.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Follow-Up 3: RAG Evaluation Failure Buckets</h3>
+        <p>
+          Given evaluation rows with query type, ASR noise level, retrieved
+          document age, answer score, and latency, how would you identify the
+          worst slices?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: data-structure plan</summary>
+          <p>
+            Group by slice keys with a hash map, aggregate count, mean score,
+            p95 latency, and failure rate, then sort by business-weighted
+            regression. Require minimum sample counts so small noisy slices do
+            not dominate the release decision.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rubric</p>
+        <h2>Self-Grade Each Practice Session</h2>
+      </div>
+      <ul class="checklist">
+        <li>Could you name the pattern before coding?</li>
+        <li>Did you state an invariant that would convince another engineer?</li>
+        <li>Did your tests include the smallest failing counterexample?</li>
+        <li>Did you avoid mutating inputs unless the prompt allowed it?</li>
+        <li>Did you explain time, memory, and hidden Python costs such as slicing?</li>
+        <li>Could you adapt the solution to streaming, large data, or production observability constraints?</li>
+      </ul>
+      <details class="qa">
+        <summary>Question: How should this workbook be used with the Blind 75 bank?</summary>
+        <p>
+          Use the Blind 75 bank for breadth, then use this workbook for depth.
+          Pick one pattern, solve two bank problems, write the invariant from
+          memory, and finish by answering one production follow-up in the
+          language of audio ML systems.
+        </p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

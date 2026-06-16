@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior ML System Design Casebook</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#method">Method</a>
+      <a href="#cases">Cases</a>
+      <a href="#labs">Labs</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Senior Interview Casebook</p>
+    <h1>ML System Design For Audio-Text Products</h1>
+    <p class="lede">
+      Practice senior-level architecture answers for speech systems that must
+      be accurate, observable, privacy-aware, cost-controlled, and recoverable.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Answer Shape</p>
+        <h2>Use The Same Spine For Every Design Prompt</h2>
+        <p>
+          Interviewers are listening for structured tradeoffs, not a diagram
+          packed with fashionable components. Start with product requirements,
+          then narrow toward model, serving, evaluation, rollout, and incident
+          behavior.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Clarify:</strong> users, latency target, quality target, traffic shape, privacy limits, and failure tolerance.</li>
+        <li><strong>Separate paths:</strong> online, batch, eval, admin, data labeling, and fallback paths should not share fragile assumptions.</li>
+        <li><strong>Choose models:</strong> explain why the ASR, TTS, LLM, embedding, or codec model fits the product constraint.</li>
+        <li><strong>Define gates:</strong> offline eval, shadow, canary, SLO, cost, safety, and rollback thresholds.</li>
+        <li><strong>Operate:</strong> dashboards, alerts, runbooks, privacy-safe logs, drift checks, and postmortem learning.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What makes a system design answer senior rather than mid-level?</summary>
+        <p>
+          A senior answer names the uncertain assumptions, makes measurable
+          tradeoffs, designs for rollback before launch, connects quality to
+          SLOs and cost, and explains how the system improves after production
+          failures without collecting unnecessary private data.
+        </p>
+      </details>
+    </section>
+
+    <section id="cases" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Case Prompts</p>
+        <h2>Five Senior Design Rounds</h2>
+        <p>
+          Treat each case as a 45-minute interview. Write assumptions, draw a
+          block diagram, estimate capacity, define launch gates, then open the
+          hidden answer.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Case 1: Enterprise Streaming Dictation</h3>
+        <p>
+          Design a streaming ASR service for clinicians. The product needs low
+          partial latency, high named-entity accuracy, tenant isolation, and a
+          rollback path when a model update hurts medical terms.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strong design outline</summary>
+          <p>
+            Separate real-time streaming from offline correction jobs. Use VAD,
+            normalization, streaming ASR, domain contextual biasing, entity
+            post-processing, and privacy-safe telemetry. Gate releases by WER,
+            entity error rate, partial churn, first partial latency, finalization
+            delay, tenant-level SLOs, and correction rate. Roll back by model
+            version and feature flag, not by redeploying the whole service.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 2: Speech-To-Speech Support Agent</h3>
+        <p>
+          Design a voice support agent that listens, reasons over account
+          policy documents, speaks back naturally, supports interruption, and
+          escalates to a human when confidence is low.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: architecture and tradeoffs</summary>
+          <p>
+            A cascaded ASR-LLM/RAG-TTS system is easier to debug and control
+            than a direct speech-to-speech model. Track ASR confidence, retrieval
+            grounding, answer safety, TTS first audio byte, turn latency,
+            barge-in, and handoff rate. Use session state with explicit TTLs,
+            policy-document versioning, retrieval evals from spoken queries,
+            and human escalation when grounding, identity, or intent confidence
+            is weak.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 3: Cost-Aware Inference Platform</h3>
+        <p>
+          Your team hosts ASR, embeddings, LLM, and TTS models for many product
+          teams. Design a platform that controls GPU cost while protecting
+          interactive latency.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: platform design</summary>
+          <p>
+            Split interactive and batch capacity, enforce quotas, provide model
+            contracts, support continuous batching where it helps, and expose
+            per-model cost and latency dashboards. Use priority queues, request
+            deadlines, admission control, canary routing, model pools, warmup,
+            autoscaling, and fallback tiers. Cost savings should be gated by
+            slice quality, not only aggregate throughput.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 4: Audio Data Flywheel</h3>
+        <p>
+          Design a privacy-preserving data and evaluation loop for improving
+          ASR on noisy, accented, and domain-specific utterances.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: data operations plan</summary>
+          <p>
+            Collect opt-in examples or derived features under retention rules,
+            label with clear rubrics, measure annotator agreement, and build
+            eval slices before training changes. Store dataset lineage, model
+            version, prompt/config version, and consent state. Use synthetic
+            and public fixtures for CI, reserve private data for governed evals,
+            and monitor drift through aggregate features and correction signals.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Case 5: Regression After A TTS Voice Upgrade</h3>
+        <p>
+          A new TTS voice wins preference tests but increases call abandonment.
+          Design the investigation, mitigation, and prevention plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: production response</summary>
+          <p>
+            Compare old and new voice by first audio byte, chunk cadence,
+            text normalization, sentence segmentation, vocoder time, client
+            playback, interruption rate, abandonment, and long-tail languages.
+            Mitigate with canary rollback, fallback voice, shorter first
+            segment, warm pools, or lower-cost vocoding for noncritical turns.
+            Prevent with conversational evals, not only offline preference MOS.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Labs</p>
+        <h2>Small Interview Utilities</h2>
+        <p>
+          These are the kind of practical snippets senior candidates may write
+          during debugging or system design follow-ups.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Canary Gate Decision</h3>
+        <p>
+          Given baseline and canary metrics, return whether to continue,
+          pause, or roll back. Critical regressions should override wins.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: every metric is compared in the direction that matters
+            for the product. Test quality regression with latency win, latency
+            regression with quality win, missing metrics, and exactly-on-budget
+            changes.
+          </p>
+          <pre><code class="language-python">def canary_decision(baseline, canary, budgets):
+    actions = []
+    for name, budget in budgets.items():
+        if name not in baseline or name not in canary:
+            actions.append(("pause", name, "missing metric"))
+            continue
+
+        direction = budget["direction"]
+        allowed = budget["allowed_delta"]
+        delta = canary[name] - baseline[name]
+        if direction == "lower_is_better" and delta &gt; allowed:
+            actions.append(("rollback", name, delta))
+        elif direction == "higher_is_better" and -delta &gt; allowed:
+            actions.append(("rollback", name, delta))
+
+    if any(action[0] == "rollback" for action in actions):
+        return "rollback", actions
+    if actions:
+        return "pause", actions
+    return "continue", []</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Estimate Real-Time Audio Capacity</h3>
+        <p>
+          Estimate required replicas from concurrent streams, model cost per
+          audio second, utilization target, and VAD savings.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: real-time streams produce audio work every wall-clock
+            second, reduced only by silence skipping or routing. Test zero
+            streams, no VAD savings, invalid utilization, and very large peaks.
+          </p>
+          <pre><code class="language-python">import math
+
+
+def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
+                      target_utilization=0.7, vad_savings=0.0):
+    if not 0 &lt; target_utilization &lt;= 1:
+        raise ValueError("target_utilization must be in (0, 1]")
+    if not 0 &lt;= vad_savings &lt; 1:
+        raise ValueError("vad_savings must be in [0, 1)")
+
+    effective_audio_seconds = concurrent_streams * (1 - vad_savings)
+    gpu_seconds_needed = effective_audio_seconds * gpu_seconds_per_audio_second
+    return math.ceil(gpu_seconds_needed / target_utilization)</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Checks</p>
+        <h2>Short Prompts With Hidden Answers</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Rollback Versus Hotfix</h3>
+        <p>
+          When should a senior ML engineer roll back immediately instead of
+          debugging in place?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Roll back when user harm, privacy risk, SLO breach, critical slice
+            regression, data corruption, runaway cost, or unrecoverable queue
+            growth exceeds the launch budget. Debug after stabilizing unless
+            the rollback itself would create larger risk.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Why RAG Evaluation Is Different For Spoken Queries</h3>
+        <p>
+          Explain why a text-only RAG eval can miss voice assistant failures.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Spoken queries include ASR substitutions, punctuation loss, entity
+            errors, disfluencies, accents, language switches, endpointing
+            mistakes, and rewritten partials. Evaluate clean text, final ASR,
+            noisy ASR, and streaming partial paths separately.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

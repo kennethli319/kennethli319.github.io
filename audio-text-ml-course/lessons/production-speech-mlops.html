@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Speech MLOps And Incident Lab</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#system">System</a>
+      <a href="#gates">CI/CD</a>
+      <a href="#observability">Observability</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#interview">Interview</a>
+      <a href="#release-lab">Release Lab</a>
+      <a href="#cost">Cost</a>
+    </nav>
+    <p class="eyebrow">Production Lab</p>
+    <h1>Speech MLOps, Serving, And Incident Response</h1>
+    <p class="lede">
+      Senior audio ML work is measured after launch. This lesson trains the
+      production habits behind reliable ASR, TTS, embeddings, speech-to-speech,
+      and audio classification systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="system" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Architecture</p>
+        <h2>Reference Serving System</h2>
+        <p>
+          Use this as the baseline design in interviews and course projects.
+          Replace parts only when a constraint forces a different choice.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Ingress:</strong> authenticate requests, assign trace IDs, validate format, and reject unsafe payloads early.</li>
+        <li><strong>Preprocess:</strong> resample, normalize loudness, run VAD, chunk streams, and preserve timing metadata.</li>
+        <li><strong>Route:</strong> select CPU, GPU, local, batch, or streaming path by model type, latency SLO, and tenant policy.</li>
+        <li><strong>Infer:</strong> use bounded queues, dynamic batching, KV-cache or decoder state reuse, and timeout-aware cancellation.</li>
+        <li><strong>Postprocess:</strong> restore timestamps, punctuation, speaker labels, redaction, confidence, and downstream event schema.</li>
+        <li><strong>Observe:</strong> emit privacy-safe metrics, traces, eval samples, cost tags, model version, and data-slice labels.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why keep preprocessing versioned with the model?</summary>
+        <p>
+          Feature code is part of the model contract. A sample-rate change,
+          mel-filter configuration change, text normalization rule, tokenizer
+          update, or VAD threshold can change accuracy and latency even when
+          weights are identical. A production model artifact should include
+          weights, code commit, feature config, tokenizer, dependency lockfile,
+          eval report, training data snapshot, and owner.
+        </p>
+      </details>
+    </section>
+
+    <section id="gates" class="band">
+      <div class="section-head">
+        <p class="eyebrow">CI/CD</p>
+        <h2>Promotion Gates For Audio Models</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Code Gates</h3>
+          <p>Unit tests, type checks, HTML/site checks, lint, reproducible environment build, and no private audio or transcript artifacts in Git.</p>
+          <details class="qa">
+            <summary>Hidden answer: Minimum senior checklist</summary>
+            <p>
+              Include tests for feature shapes, normalization, decoding edge
+              cases, model wrapper schema, retry behavior, timeout behavior,
+              and one-batch overfit sanity. For this course repo, keep using
+              HTML parsing, ASCII checks, <code>git diff --check</code>, and
+              local server smoke tests.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Model Gates</h3>
+          <p>Baseline comparison, slice metrics, regression budget, latency budget, memory budget, privacy review, and rollback plan.</p>
+          <details class="qa">
+            <summary>Hidden answer: What should block promotion?</summary>
+            <p>
+              Block promotion if WER or entity error regresses on critical
+              slices, TTS quality drops below the acceptance threshold, p95 or
+              p99 latency breaks SLO, memory exceeds capacity, transcripts are
+              logged unsafely, rollback is untested, or the eval set no longer
+              represents production traffic.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="observability" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Monitoring</p>
+        <h2>Metrics That Catch Real Failures</h2>
+      </div>
+      <ul class="checklist">
+        <li>Latency: queue time, preprocessing time, first partial token, final transcript, first audio byte, and end-to-end turn time.</li>
+        <li>Quality: WER, CER, entity error rate, timestamp error, diarization error rate, MOS proxy, and task completion.</li>
+        <li>Traffic: request rate, concurrent streams, chunk sizes, audio duration, retry rate, cancellation rate, and tenant mix.</li>
+        <li>Infrastructure: GPU memory, GPU utilization, CPU load, batch size, cache hit rate, cold starts, OOMs, and throttling.</li>
+        <li>Data health: sample rate distribution, clipping, silence ratio, SNR proxy, language mix, domain-term frequency, and missing metadata.</li>
+      </ul>
+      <details class="qa">
+        <summary>Question: How can drift be monitored without storing private audio?</summary>
+        <p>
+          Prefer aggregate and derived signals: duration buckets, language
+          probabilities, acoustic quality summaries, confidence distributions,
+          error reports from opted-in samples, redacted transcripts, synthetic
+          canaries, and human review queues with explicit retention controls.
+          Store enough to diagnose trends, not raw private content by default.
+        </p>
+      </details>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Drills</p>
+        <h2>Practice First-Hour Debugging</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident 1: Streaming ASR Partials Became Unstable</h3>
+        <p>
+          Users see words appear, disappear, and reappear for several seconds.
+          Final WER is unchanged, but the product feels broken.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Debug path</summary>
+          <p>
+            Check endpointing, chunk size, partial stabilization rules,
+            decoder beam settings, language-model rescoring, VAD thresholds,
+            network jitter, and whether the UI is rendering interim hypotheses
+            as committed text. Add a metric for partial churn and compare old
+            and new traces on the same audio fixtures.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: TTS First Audio Byte Doubled After A Voice Update</h3>
+        <p>
+          The new voice has better MOS in offline tests, but conversational
+          latency crossed the product SLO.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Mitigation options</summary>
+          <p>
+            Measure text normalization, acoustic model time, vocoder time,
+            streaming chunk release, cold starts, and device placement.
+            Mitigate with rollback, canary pause, warm pools, smaller voice,
+            lower vocoder quality for long responses, sentence-level streaming,
+            cache common prompts, or split traffic by latency-sensitive use
+            case. Do not hide latency regressions behind offline MOS.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 3: GPU Cost Rose 40 Percent With No Traffic Increase</h3>
+        <p>
+          Requests per minute are flat, but the audio model serving bill
+          jumped after a deployment.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Cost diagnosis</summary>
+          <p>
+            Compare model version, average audio duration, batch fill rate,
+            padding waste, beam size, max tokens, quantization, cache reuse,
+            autoscaler target, replica count, retries, and failed requests.
+            Check whether a fallback path silently moved from CPU to GPU or
+            whether canary plus shadow traffic doubled inference.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Interview Practice</p>
+        <h2>Prompts That Test Production Judgment</h2>
+        <p>
+          Use these prompts for mock interviews and written exams. A strong
+          answer should connect model behavior, product constraints, serving
+          math, observability, rollout, and rollback.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Design A Speech-To-Speech Assistant Rollout</h3>
+        <p>
+          You are launching a new cascaded ASR-LLM-TTS assistant for internal
+          users. It must feel conversational, protect private audio, and stay
+          under a fixed monthly GPU budget. Explain the rollout plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior structure</summary>
+          <p>
+            Start with SLOs: first partial transcript, first audio byte, turn
+            completion, task success, cost per minute, and privacy retention.
+            Launch behind flags with synthetic canaries, internal dogfood,
+            small cohort canary, and rollback to the prior assistant. Monitor
+            ASR WER slices, entity error, LLM groundedness, TTS first audio
+            byte, queue time, GPU memory, retry rate, cancellation, and user
+            correction rate. Keep raw audio out of logs by default, store
+            redacted traces, and route high-risk or high-cost sessions to a
+            fallback path.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Debug A Drift Alert Without Raw Audio</h3>
+        <p>
+          After a microphone firmware update, ASR confidence drops and user
+          corrections increase. Policy prevents retaining raw customer audio.
+          What do you do in the first day?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: privacy-safe debugging plan</summary>
+          <p>
+            Compare aggregate acoustic features before and after the firmware:
+            sample rate, clipping, silence ratio, loudness, SNR proxy, channel
+            count, duration, VAD segments, language probabilities, confidence,
+            and correction categories. Reproduce with public fixtures recorded
+            through the same device path, synthetic noisy clips, and opted-in
+            samples if policy allows. Mitigate with input normalization,
+            firmware-specific routing, VAD threshold changes, or rollback of
+            the firmware path. Update eval fixtures so the failure cannot
+            return unnoticed.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Choose Between Smaller ASR And Larger ASR</h3>
+        <p>
+          A smaller ASR model is 45 percent cheaper and 30 percent faster but
+          has worse WER on noisy far-field audio and domain terms. How do you
+          decide whether to ship it?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: decision framework</summary>
+          <p>
+            Do not decide from global WER alone. Compare slice metrics,
+            entity error, downstream task success, latency, cost, user segment,
+            and recovery behavior. A likely senior answer is a cascade: route
+            clean, short, high-confidence utterances to the smaller model and
+            route noisy, long, low-confidence, or domain-heavy utterances to
+            the larger model. Canary the router, cap blast radius, monitor
+            routing mistakes, and keep a one-switch rollback to the baseline.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 4: Explain CI/CD For A Model And Feature Change</h3>
+        <p>
+          A pull request changes log-mel feature extraction and updates ASR
+          weights. What must pass before production?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: gate list</summary>
+          <p>
+            Require unit tests for feature shape, sample-rate handling,
+            normalization, streaming chunk boundaries, and model wrapper
+            schema. Require deterministic eval on public or approved fixtures,
+            slice regression checks, latency and memory benchmarks, artifact
+            versioning, dependency lockfile, model card, rollback plan, and
+            privacy review. The deployment should stage through offline eval,
+            shadow traffic, canary, and gradual rollout with automatic halt
+            criteria.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="release-lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Release Lab</p>
+        <h2>Senior Production Exercises</h2>
+        <p>
+          These drills combine interview-style reasoning with the practical
+          work of shipping, monitoring, and rolling back speech models.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Exercise 1: Build A CI Gate For ASR Slice Regressions</h3>
+        <p>
+          You receive old and new metric maps by slice. Decide whether a pull
+          request can merge when global WER improves but a protected domain
+          slice regresses.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior checklist and Python sketch</summary>
+          <p>
+            A senior gate treats protected slices as first-class release
+            criteria. Merge should be blocked or paused when a critical slice
+            exceeds its regression budget, even if the aggregate metric
+            improves. Include missing-slice handling so eval coverage cannot
+            silently disappear.
+          </p>
+          <pre><code class="language-python">def asr_slice_gate(baseline, candidate, budgets):
+    findings = []
+    for slice_name, budget in budgets.items():
+        if slice_name not in baseline or slice_name not in candidate:
+            findings.append(("pause", slice_name, "missing eval slice"))
+            continue
+        old_wer = baseline[slice_name]["wer"]
+        new_wer = candidate[slice_name]["wer"]
+        delta = new_wer - old_wer
+        if delta &gt; budget["max_wer_delta"]:
+            findings.append(("block", slice_name, round(delta, 4)))
+
+    if any(item[0] == "block" for item in findings):
+        return "block_merge", findings
+    if findings:
+        return "pause_for_eval", findings
+    return "merge_allowed", []</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Exercise 2: Design A Rollback Packet</h3>
+        <p>
+          Before launching a TTS model, write the minimum packet that lets an
+          on-call engineer roll back safely at 2 AM without the model author.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: rollback packet contents</summary>
+          <p>
+            Include model version, feature flag name, owner, launch cohort,
+            dashboard links, SLO thresholds, known risks, exact rollback
+            command or UI path, data compatibility notes, cache behavior,
+            verification query, customer-support message, and criteria for
+            re-enabling. The packet should avoid private transcripts while
+            still giving enough metrics and traces to make a decision.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Exercise 3: Capacity Plan For A Voice Agent Exam</h3>
+        <p>
+          Estimate whether a speech-to-speech agent can meet a 700 ms first
+          response target with ASR, retrieval, LLM, and TTS stages.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: answer shape</summary>
+          <p>
+            Break the budget into capture/VAD, ASR partial, retrieval, first
+            LLM tokens, TTS first audio byte, network, and client playback.
+            Use streaming overlap instead of serial totals where possible:
+            ASR partials can trigger early retrieval, the LLM can emit a short
+            first clause, and TTS can stream before the full answer exists.
+            State which stages need warm pools, which can batch, and which
+            should bypass expensive models for low-risk turns.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Exercise 4: Production Debugging Narrative</h3>
+        <p>
+          A canary improves offline WER by 2 percent, but live correction rate
+          rises for Spanish-English code-switching users. Explain the first
+          hour, the next day, and the prevention work.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: incident narrative</summary>
+          <p>
+            First hour: pause or roll back the canary for the affected slice,
+            compare request routing, language ID, contextual biasing, text
+            normalization, and entity errors against the baseline. Next day:
+            build a targeted eval slice, inspect redacted or approved examples,
+            check label quality, and test routing to the prior model for mixed
+            language turns. Prevention: add code-switching gates, dashboard
+            slices, launch alerts, and a release note requiring language-mix
+            analysis for ASR changes.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="cost" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tradeoffs</p>
+        <h2>Cost, Latency, And Quality Knobs</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Batching</h3>
+          <p>Raises throughput but can add queue delay. Good for offline ASR and embeddings, risky for conversational first-token latency.</p>
+        </article>
+        <article class="card">
+          <h3>Quantization</h3>
+          <p>Reduces memory and can improve latency, but must be checked by slice because rare words, accents, and prosody can regress.</p>
+        </article>
+        <article class="card">
+          <h3>Cascading</h3>
+          <p>Route easy requests to small models and hard requests to large models. Monitor routing mistakes and user-visible consistency.</p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: How should a senior engineer present a tradeoff?</summary>
+        <p>
+          Name the product goal, the constraint, the options, the expected
+          impact, the measurement plan, and the rollback path. Example:
+          "Quantize the ASR encoder to reduce GPU memory by 35 percent, canary
+          to 5 percent of English call-center traffic, block if entity error or
+          p95 latency regresses, and keep the old model loaded for immediate
+          rollback."
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

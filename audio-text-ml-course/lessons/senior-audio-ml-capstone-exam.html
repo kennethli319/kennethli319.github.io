@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior Audio ML Capstone Exam</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#format">Format</a>
+      <a href="#system-design">System Design</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#coding">Coding</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Capstone Exam</p>
+    <h1>Senior Audio ML Interview And Production Exam</h1>
+    <p class="lede">
+      A realistic final practice round for senior ML engineer and AI engineer
+      roles covering speech R&amp;D, model serving, MLOps, production debugging,
+      cost control, and coding follow-ups.
+    </p>
+  </header>
+
+  <main>
+    <section id="format" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Shape</p>
+        <h2>Four Hours, Four Senior Signals</h2>
+        <p>
+          Use this after completing the system-design, production MLOps,
+          inference hosting, and Blind 75 chapters. Answer each section on a
+          timer before opening the hidden senior answer.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>R&amp;D judgment:</strong> choose model families, metrics, and experiment plans under ambiguous quality goals.</li>
+        <li><strong>System design:</strong> design online, offline, eval, data, rollout, and rollback paths with explicit SLOs.</li>
+        <li><strong>Production operations:</strong> debug incidents using aggregate telemetry, privacy-safe logs, and reversible mitigation.</li>
+        <li><strong>Coding:</strong> implement small utilities with clear invariants, edge cases, and cost analysis.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should a senior candidate do before drawing architecture boxes?</summary>
+        <p>
+          Clarify product constraints, traffic shape, latency budget, privacy
+          limits, failure tolerance, quality target, cost ceiling, model update
+          frequency, and how success will be measured after launch. The diagram
+          should follow those constraints.
+        </p>
+      </details>
+    </section>
+
+    <section id="system-design" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 1</p>
+        <h2>Speech-To-Speech Enterprise Assistant</h2>
+        <p>
+          Design a voice assistant for enterprise help desks. It handles
+          spoken questions, retrieves policy documents, answers by voice, lets
+          users interrupt, and escalates to humans for risky actions.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: End-To-End Architecture</h3>
+        <p>
+          Give a senior design answer for the online serving path, offline
+          eval path, data feedback path, rollout process, and rollback plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior architecture outline</summary>
+          <p>
+            Prefer a cascaded VAD, streaming ASR, retrieval, LLM policy engine,
+            tool router, and streaming TTS design unless the product requires
+            direct speech-to-speech research. Separate interactive capacity
+            from batch evaluation. Version ASR, retrieval index, prompt, tools,
+            LLM, TTS voice, and client config. Gate launches by ASR slice WER,
+            retrieval grounding, task success, unsafe action rate, first audio
+            byte, end-to-end turn latency, interruption recovery, escalation
+            precision, cost per resolved ticket, and rollback time.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Cost And Latency Tradeoff</h3>
+        <p>
+          Traffic doubles during business hours. GPU cost is too high, but the
+          p95 spoken answer latency SLO must remain below 1800 ms. What changes
+          do you try first?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: practical tradeoff stack</summary>
+          <p>
+            Start with measurement by stage and tenant before changing models.
+            Consider VAD tuning, early partial ASR, streaming retrieval,
+            smaller rerankers, prompt trimming, KV-cache reuse where safe,
+            continuous batching with deadlines, speculative decoding only if
+            quality holds, TTS first-segment streaming, warm pools, request
+            admission for noninteractive work, quantization, and fallback model
+            tiers. Do not blend batch and interactive queues if it harms tail
+            latency. Every savings proposal needs quality, safety, and rollback
+            gates.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 2</p>
+        <h2>Production Incident Exercises</h2>
+        <p>
+          These prompts test whether you can debug real systems without asking
+          for raw private audio or transcripts.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident 1: Accent Slice Regression</h3>
+        <p>
+          A new ASR model improves aggregate WER by 5 percent but doubles
+          correction rate for accented support calls in two regions. What do
+          you do in the first hour?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour response</summary>
+          <p>
+            Freeze promotion, route affected slices back to the prior model,
+            preserve aggregate-only metrics, and compare model version, region,
+            client, device, VAD, language ID, noise level, and contextual bias
+            features. Check whether eval coverage missed those accents or
+            whether serving config differs from offline evaluation. Communicate
+            blast radius and rollback status. Prevention should add slice gates,
+            consented eval fixtures, labeling rubric updates, and canary alerts
+            on correction rate, not only WER.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: TTS First Audio Byte Spike</h3>
+        <p>
+          A TTS release keeps MOS steady but p95 first audio byte jumps from
+          320 ms to 1100 ms, increasing barge-in failures. Diagnose it.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: diagnosis plan</summary>
+          <p>
+            Split latency into request queue, text normalization, segmentation,
+            acoustic model, vocoder, streaming chunk assembly, network, and
+            client playback. Compare cold versus warm paths, voice version,
+            sentence length, language, punctuation, cache hit rate, and GPU
+            saturation. Mitigate by rolling back the voice, sending shorter
+            first segments, warming voice pools, or routing long noninteractive
+            reads to a cheaper path. Add release gates for first audio byte and
+            chunk cadence, not only MOS.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 3</p>
+        <h2>Coding Follow-Ups With Blind 75 Patterns</h2>
+        <p>
+          Senior audio ML interviews often use small coding tasks that resemble
+          production utilities. State the invariant first, then code.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Coding Prompt 1: Sliding Window Error Rate</h3>
+        <p>
+          Given timestamped request records with <code>ok</code> booleans,
+          return the maximum error rate over any fixed-size time window.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: after advancing <code>left</code>, every record in the
+            active window is within <code>window_seconds</code> of the current
+            right edge. Test empty input, all success, all failure, same
+            timestamp, and records exactly on the boundary.
+          </p>
+          <pre><code class="language-python">from collections import deque
+
+
+def max_window_error_rate(records, window_seconds):
+    window = deque()
+    failures = 0
+    best = 0.0
+
+    for ts, ok in records:
+        window.append((ts, ok))
+        if not ok:
+            failures += 1
+
+        while window and ts - window[0][0] &gt; window_seconds:
+            _, old_ok = window.popleft()
+            if not old_ok:
+                failures -= 1
+
+        best = max(best, failures / len(window))
+
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Coding Prompt 2: Top-K Regressed Slices</h3>
+        <p>
+          Given baseline and candidate metric maps by slice, return the
+          <code>k</code> slices with the largest regression for a lower-is-better
+          metric such as WER or p95 latency.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, mistakes, and Python solution</summary>
+          <p>
+            Invariant: each candidate slice is compared only if the baseline
+            exists, and positive delta means worse. Common mistakes include
+            sorting in the wrong direction, hiding missing baselines, and using
+            aggregate averages that mask slice failures.
+          </p>
+          <pre><code class="language-python">import heapq
+
+
+def top_k_regressed_slices(baseline, candidate, k):
+    heap = []
+    missing = []
+    for name, new_value in candidate.items():
+        if name not in baseline:
+            missing.append(name)
+            continue
+        delta = new_value - baseline[name]
+        if delta &gt; 0:
+            heapq.heappush(heap, (-delta, name, baseline[name], new_value))
+
+    worst = []
+    while heap and len(worst) &lt; k:
+        neg_delta, name, old, new = heapq.heappop(heap)
+        worst.append({
+            "slice": name,
+            "delta": -neg_delta,
+            "baseline": old,
+            "candidate": new,
+        })
+    return worst, missing</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Coding Prompt 3: Rollback Target Resolver</h3>
+        <p>
+          Given a list of release records sorted newest first, return the first
+          version that is healthy for a requested tenant and model family.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the first matching healthy record is the safest rollback
+            target because records are already sorted newest first. Test no
+            match, tenant-specific block, model-family mismatch, and a global
+            release that applies to all tenants.
+          </p>
+          <pre><code class="language-python">def resolve_rollback_target(releases, tenant, family):
+    for release in releases:
+        tenants = release.get("tenants", ["*"])
+        if family != release["family"]:
+            continue
+        if tenant not in tenants and "*" not in tenants:
+            continue
+        if release.get("healthy") and not release.get("blocked"):
+            return release["version"]
+    return None</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Scoring</p>
+        <h2>Senior-Level Rubric</h2>
+      </div>
+      <ul class="checklist">
+        <li>Names assumptions and turns them into measurable requirements.</li>
+        <li>Separates serving, eval, data, admin, and rollback paths.</li>
+        <li>Chooses metrics that catch slice regressions and user-visible failures.</li>
+        <li>Explains cost and latency tradeoffs without sacrificing safety or debuggability.</li>
+        <li>Uses privacy-safe telemetry and avoids raw audio or transcript exposure.</li>
+        <li>Writes coding solutions with invariants, edge cases, and complexity analysis.</li>
+      </ul>
+      <details class="qa">
+        <summary>Question: What is a failing capstone answer?</summary>
+        <p>
+          A failing answer optimizes aggregate metrics only, has no rollback
+          target, mixes batch and interactive traffic without deadlines, cannot
+          explain slice drift, requests private raw data casually, or writes
+          code without testing empty, boundary, and missing-data cases.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio and transcripts out of Git. Use synthetic fixtures and aggregate metrics for practice.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Trees And Tries</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#method">Method</a>
+      <a href="#trees">Trees</a>
+      <a href="#bst">BST</a>
+      <a href="#tries">Tries</a>
+      <a href="#speech">Speech Follow-Ups</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Trees And Tries</h1>
+    <p class="lede">
+      Practice recursive invariants, traversal state, binary search tree
+      boundaries, prefix indexes, and senior follow-ups that connect interview
+      data structures to speech and retrieval systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="method" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Method</p>
+        <h2>Say What Each Call Returns</h2>
+        <p>
+          Most tree bugs come from vague recursion. Before coding, define the
+          return value for a subtree and the condition that makes a subtree
+          complete, balanced, valid, or useful to its parent.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Return contract:</strong> state exactly what the helper returns for one subtree.</li>
+        <li><strong>Base case:</strong> decide what <code>None</code> contributes: height zero, valid range, no path, or empty list.</li>
+        <li><strong>Combine:</strong> use left and right answers without reading global state unless it simplifies the proof.</li>
+        <li><strong>Boundary:</strong> for BSTs, carry strict lower and upper bounds, not only parent comparisons.</li>
+        <li><strong>Traversal:</strong> choose preorder for construction/copy, inorder for sorted BST output, and postorder for subtree summaries.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should you test before submitting a tree solution?</summary>
+        <p>
+          Test an empty tree, one node, a left-only chain, a right-only chain,
+          a balanced tree, duplicate values when the prompt defines them, and a
+          case where the bug is not visible at the root. For path problems,
+          include negative values and a best path that does not pass through
+          the root.
+        </p>
+      </details>
+    </section>
+
+    <section id="trees" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Binary Trees</p>
+        <h2>Structure, Height, And Paths</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Tree 1: Maximum Depth Of Binary Tree</h3>
+        <p>
+          Given a binary tree, return its maximum depth.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Helper contract: <code>max_depth(node)</code> returns the number of
+            nodes on the longest downward path starting at <code>node</code>.
+            An empty subtree contributes zero. Test empty tree, one node, and a
+            skewed chain to catch off-by-one errors.
+          </p>
+          <pre><code class="language-python">def max_depth(root):
+    if root is None:
+        return 0
+    return 1 + max(max_depth(root.left), max_depth(root.right))</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Tree 2: Same Tree</h3>
+        <p>
+          Given two binary trees, return whether they have the same structure
+          and node values.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: recursion contract and common mistake</summary>
+          <p>
+            Compare both structure and value at the same time. The common
+            mistake is returning true when one side is empty and the other is
+            not. A pair of empty nodes matches; exactly one empty node does not.
+          </p>
+          <pre><code class="language-python">def is_same_tree(p, q):
+    if p is None or q is None:
+        return p is q
+    return (
+        p.val == q.val
+        and is_same_tree(p.left, q.left)
+        and is_same_tree(p.right, q.right)
+    )</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Tree 3: Invert Binary Tree</h3>
+        <p>
+          Mirror a binary tree in place and return the root.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: traversal choice and Python solution</summary>
+          <p>
+            Preorder or postorder both work because each subtree is independent.
+            Swap the children, then recursively invert the children now attached
+            to the opposite side. Test with asymmetric trees; symmetric trees
+            can hide incorrect swaps.
+          </p>
+          <pre><code class="language-python">def invert_tree(root):
+    if root is None:
+        return None
+    root.left, root.right = root.right, root.left
+    invert_tree(root.left)
+    invert_tree(root.right)
+    return root</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Tree 4: Binary Tree Maximum Path Sum</h3>
+        <p>
+          Return the maximum path sum where a path may start and end at any
+          nodes, but each node can appear at most once.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: split path vs return path</summary>
+          <p>
+            The helper returns the best one-sided gain that can extend to the
+            parent. The global answer may use both left and right gains at the
+            current node, but that split path cannot be returned upward because
+            it would branch. Clamp negative child gains to zero.
+          </p>
+          <pre><code class="language-python">def max_path_sum(root):
+    best = float("-inf")
+
+    def gain(node):
+        nonlocal best
+        if node is None:
+            return 0
+
+        left = max(gain(node.left), 0)
+        right = max(gain(node.right), 0)
+        best = max(best, node.val + left + right)
+        return node.val + max(left, right)
+
+    gain(root)
+    return best</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="bst" class="band">
+      <div class="section-head">
+        <p class="eyebrow">BSTs</p>
+        <h2>Carry Bounds, Not Just Parents</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked BST 1: Validate Binary Search Tree</h3>
+        <p>
+          Return whether a binary tree satisfies the binary search tree
+          property.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strict bounds and Python solution</summary>
+          <p>
+            Each node must be strictly inside the range inherited from all
+            ancestors. Checking only direct children misses cases where a node
+            in the right subtree is smaller than the root. Ask whether
+            duplicates are allowed; Blind 75 usually treats them as invalid.
+          </p>
+          <pre><code class="language-python">def is_valid_bst(root):
+    def valid(node, low, high):
+        if node is None:
+            return True
+        if not (low &lt; node.val &lt; high):
+            return False
+        return valid(node.left, low, node.val) and valid(node.right, node.val, high)
+
+    return valid(root, float("-inf"), float("inf"))</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked BST 2: Kth Smallest Element</h3>
+        <p>
+          Given a BST and an integer <code>k</code>, return the kth smallest
+          value.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and iterative Python solution</summary>
+          <p>
+            Inorder traversal visits BST values in sorted order. The stack
+            stores the path to the next unvisited smallest node. Common mistakes
+            are decrementing <code>k</code> before visiting a node or forgetting
+            to move to the right subtree after a visit.
+          </p>
+          <pre><code class="language-python">def kth_smallest(root, k):
+    stack = []
+    node = root
+
+    while stack or node:
+        while node:
+            stack.append(node)
+            node = node.left
+
+        node = stack.pop()
+        k -= 1
+        if k == 0:
+            return node.val
+        node = node.right
+
+    raise ValueError("k is larger than the number of nodes")</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt: Lowest Common Ancestor In A BST</h3>
+        <p>
+          Given a BST and two nodes, return their lowest common ancestor.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: decision rule</summary>
+          <p>
+            If both target values are smaller than the current value, move
+            left. If both are larger, move right. Otherwise the current node is
+            the split point and therefore the lowest common ancestor. Test when
+            one target is the ancestor of the other.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="tries" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tries</p>
+        <h2>Prefix State And Search Pruning</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Trie 1: Implement Trie</h3>
+        <p>
+          Implement <code>insert</code>, <code>search</code>, and
+          <code>startsWith</code>.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: node design and Python solution</summary>
+          <p>
+            Each node maps characters to child nodes and records whether a word
+            ends at that node. A prefix can exist without being a full word.
+            Test inserting <code>app</code> and <code>apple</code>, then search
+            both <code>app</code> and <code>ap</code>.
+          </p>
+          <pre><code class="language-python">class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            node = node.children.setdefault(ch, TrieNode())
+        node.is_word = True
+
+    def search(self, word):
+        node = self._walk(word)
+        return node is not None and node.is_word
+
+    def startsWith(self, prefix):
+        return self._walk(prefix) is not None
+
+    def _walk(self, text):
+        node = self.root
+        for ch in text:
+            if ch not in node.children:
+                return None
+            node = node.children[ch]
+        return node</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Trie 2: Word Search II</h3>
+        <p>
+          Given a character board and a list of words, return all words found
+          by walking adjacent cells without reusing a cell in one word.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: pruning, visited state, and Python solution</summary>
+          <p>
+            Build a trie so DFS can stop as soon as a prefix is impossible. The
+            visited mark belongs to the current path only, so restore the board
+            cell after recursion. Store the full word at terminal trie nodes to
+            avoid rebuilding strings and set it to <code>None</code> after
+            finding it to prevent duplicates.
+          </p>
+          <pre><code class="language-python">def find_words(board, words):
+    root = {}
+    END = "#"
+    for word in words:
+        node = root
+        for ch in word:
+            node = node.setdefault(ch, {})
+        node[END] = word
+
+    rows, cols = len(board), len(board[0])
+    found = []
+
+    def dfs(r, c, node):
+        ch = board[r][c]
+        if ch not in node:
+            return
+
+        nxt = node[ch]
+        word = nxt.pop(END, None)
+        if word is not None:
+            found.append(word)
+
+        board[r][c] = "*"
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and board[nr][nc] != "*":
+                dfs(nr, nc, nxt)
+        board[r][c] = ch
+
+        if not nxt:
+            node.pop(ch)
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, root)
+    return found</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="speech" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Follow-Ups</p>
+        <h2>Connect Coding Patterns To Audio ML</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Follow-Up 1: Prefix Search For ASR Domain Terms</h3>
+        <p>
+          A product team wants fast domain-term matching over partial ASR
+          hypotheses. Where does trie thinking help, and where does it stop?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            A trie helps match prefixes and domain terms efficiently as partial
+            transcripts arrive. It can support autocomplete, contextual biasing
+            candidates, and entity highlighting. It does not solve acoustic
+            confusion, tokenization mismatch, pronunciation variants, or
+            language-model scoring by itself. A senior answer adds evaluation:
+            entity recall, false positives, latency per partial, and slice
+            checks for accents and noisy audio.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Follow-Up 2: Tree Debugging In Production Configs</h3>
+        <p>
+          A speech platform has nested rollout rules for locale, device, model,
+          and traffic percentage. A new canary unexpectedly reaches all mobile
+          users. How do tree invariants help debug it?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Treat the rollout config as a decision tree. Each node should have
+            a clear predicate, default path, and inherited constraints. Debug by
+            tracing one affected request from root to leaf, then checking
+            whether child rules accidentally widened an ancestor's scope. Add
+            tests for mutually exclusive branches, default behavior, and
+            representative locale-device-model combinations before deploying.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep coding fixtures synthetic. Do not commit private transcripts, audio, or customer vocabulary.</p>
+  </footer>
+</body>
+</html>

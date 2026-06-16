@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio ML Production Incident Drills</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#triage">Triage</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#labs">Labs</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Production Readiness</p>
+    <h1>Audio ML Production Incident Drills</h1>
+    <p class="lede">
+      Practice the senior skill of debugging speech systems under pressure:
+      stabilize users first, isolate the regression, preserve privacy, and turn
+      the incident into stronger release gates.
+    </p>
+  </header>
+
+  <main>
+    <section id="triage" class="band">
+      <div class="section-head">
+        <p class="eyebrow">First Hour</p>
+        <h2>A Repeatable Triage Loop</h2>
+        <p>
+          Audio incidents are rarely one metric. Partial latency, final quality,
+          client buffering, VAD, punctuation, retrieval, and TTS playback can
+          all fail together. A senior response separates user impact from root
+          cause hunting.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Declare impact:</strong> affected products, tenants, languages, devices, model versions, traffic percentage, and SLO burn.</li>
+        <li><strong>Stop harm:</strong> freeze rollout, route to fallback, lower concurrency, disable risky feature flags, or roll back by model version.</li>
+        <li><strong>Slice evidence:</strong> compare baseline versus canary by language, noise, duration, endpoint, client, region, and prompt/config version.</li>
+        <li><strong>Protect data:</strong> use aggregate metrics, hashes, synthetic repros, and consented examples; do not paste private audio or transcripts into tickets.</li>
+        <li><strong>Close the loop:</strong> add a release gate, dashboard, alert, runbook step, or synthetic fixture that would have caught the failure earlier.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should you say when you do not know the root cause yet?</summary>
+        <p>
+          Say what is known about impact, what has been mitigated, what evidence
+          is being sliced next, and when the next update will arrive. Avoid
+          guessing. Senior incident communication separates confirmed facts from
+          hypotheses.
+        </p>
+      </details>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Scenario Bank</p>
+        <h2>Six High-Yield Audio Incidents</h2>
+        <p>
+          Treat each prompt as a 25-minute interview exercise. Write the first
+          mitigation, the likely slices, the owner map, and the prevention gate
+          before opening the hidden answer.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident 1: Streaming ASR Partial Churn Spike</h3>
+        <p>
+          Users complain that live captions keep rewriting earlier words. Final
+          WER is nearly unchanged, but support tickets tripled after a decoder
+          update.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Mitigate by rolling back the decoder or raising partial-stability
+            thresholds for affected routes. Slice by utterance duration, endpoint
+            VAD state, beam size, language, device, and network jitter. Look for
+            changed emission timing, punctuation instability, hotword biasing, or
+            aggressive rescoring. Add partial churn, first stable token latency,
+            and finalization delay to release gates; final WER alone is not
+            enough for streaming UX.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: TTS First Audio Byte Regression</h3>
+        <p>
+          A new expressive voice wins offline preference tests but increases
+          p95 first audio byte from 350 ms to 1.4 s during peak traffic.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Mitigate with fallback voice routing, shorter first sentence chunks,
+            warm pools, or canary rollback. Slice text length, language, voice,
+            region, vocoder path, cache hit rate, autoscaling cold starts, and
+            queue depth. Prevention needs conversational latency gates, not only
+            MOS or preference tests. Track first audio byte, chunk cadence,
+            playback underruns, cost per generated minute, and abandonment.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 3: Voice RAG Answers Become Ungrounded</h3>
+        <p>
+          A spoken support assistant starts giving confident but unsupported
+          answers after a document-ingestion pipeline change.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Mitigate by pinning the previous index, disabling affected document
+            namespaces, or forcing human handoff when retrieval confidence is
+            weak. Slice by document version, embedding model, chunker, ASR error
+            class, query language, and top-k overlap with the old index. Add
+            retrieval regression tests from spoken queries, citation coverage,
+            answer-grounding checks, and index lineage to the release gate.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 4: Cost Cut Hurts Noisy Accent Slice</h3>
+        <p>
+          A cheaper ASR model reduces GPU spend by 35 percent, but one accented
+          noisy-call slice regresses badly while aggregate WER still passes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Pause rollout or route the affected slice to the stronger model.
+            Compare WER, entity error rate, confidence calibration, correction
+            rate, and escalation rate by accent proxy, SNR bucket, duration,
+            device, and domain. A senior tradeoff may keep a tiered model router,
+            but only if slice quality and fairness gates are explicit. Add
+            cost-quality frontier reviews instead of aggregate-only cost wins.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 5: Barge-In Stops Working</h3>
+        <p>
+          A speech-to-speech agent keeps talking over users after a client SDK
+          update. ASR and TTS services appear healthy in isolation.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Mitigate by reverting the SDK, disabling full-duplex mode, or routing
+            to push-to-talk for affected clients. Slice by SDK version, device,
+            echo cancellation state, VAD endpointing, playback state, and event
+            ordering between microphone frames and TTS cancellation. Prevention
+            needs end-to-end turn-taking tests with overlapping audio, not only
+            component health checks.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 6: Silent Drift In Language Mix</h3>
+        <p>
+          Overall traffic is stable, but a regional launch quietly changes the
+          language and code-switching mix. ASR quality complaints rise slowly.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage and prevention</summary>
+          <p>
+            Mitigate with slice-specific routing, contextual language hints, or
+            rollback of the regional launch path if quality is below contract.
+            Monitor aggregate feature drift, language-id distribution, OOV rate,
+            correction rate, fallback rate, and human escalation. Use privacy-safe
+            aggregates and governed samples. Prevention needs traffic-mix drift
+            alerts tied to eval coverage, not just model metric dashboards.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Follow-Ups</p>
+        <h2>Small Utilities For Incident Rounds</h2>
+        <p>
+          These examples mirror practical interview follow-ups: compare slices,
+          recommend rollback, and identify the most suspicious regression.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Rank Slice Regressions</h3>
+        <p>
+          Given baseline and candidate metrics by slice, return slices that
+          exceed budgets, sorted by severity.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: each slice is compared only against its own baseline.
+            Test missing baseline, missing metric, exactly-on-budget deltas,
+            lower-is-better metrics like WER, and higher-is-better metrics like
+            task success.
+          </p>
+          <pre><code class="language-python">def rank_regressions(baseline, candidate, budgets):
+    findings = []
+    for slice_name, metrics in candidate.items():
+        old = baseline.get(slice_name)
+        if old is None:
+            findings.append((float("inf"), slice_name, "missing_baseline", None))
+            continue
+
+        for metric, rule in budgets.items():
+            if metric not in metrics or metric not in old:
+                findings.append((float("inf"), slice_name, metric, "missing_metric"))
+                continue
+
+            delta = metrics[metric] - old[metric]
+            allowed = rule["allowed_delta"]
+            direction = rule["direction"]
+            if direction == "lower_is_better":
+                severity = delta - allowed
+            else:
+                severity = -delta - allowed
+
+            if severity &gt; 0:
+                findings.append((severity, slice_name, metric, delta))
+
+    return sorted(findings, reverse=True)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Rollback Recommendation</h3>
+        <p>
+          Convert SLO burn, critical slice regressions, and business wins into a
+          simple recommendation: continue, pause, partial rollback, or rollback.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: user harm overrides aggregate wins. Test high SLO burn,
+            one critical slice, many noncritical warnings, and a clean canary
+            with cost or latency improvement.
+          </p>
+          <pre><code class="language-python">def recommend_rollout(slo_burn, critical_regressions, warnings, aggregate_wins):
+    if slo_burn &gt;= 2.0:
+        return "rollback", "SLO burn is too high"
+    if critical_regressions:
+        affected = sorted({item["slice"] for item in critical_regressions})
+        if len(affected) &lt;= 2:
+            return "partial rollback", "route affected slices: " + ", ".join(affected)
+        return "rollback", "critical regressions are broad"
+    if len(warnings) &gt;= 3:
+        return "pause", "too many unresolved warning signals"
+    if aggregate_wins:
+        return "continue", "wins are acceptable and guardrails are clean"
+    return "pause", "no clear win yet"</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Build A Privacy-Safe Incident Packet</h3>
+        <p>
+          Given request records with optional transcript text, produce a packet
+          with aggregate counts and no raw transcript content.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the output contains counts, versions, and metric summaries
+            only. Test that transcript, audio path, user id, and raw text fields
+            never appear in the packet.
+          </p>
+          <pre><code class="language-python">from collections import Counter, defaultdict
+
+
+def incident_packet(records):
+    counts = Counter()
+    latency = defaultdict(list)
+    versions = Counter()
+
+    for row in records:
+        key = (row.get("language", "unknown"), row.get("device", "unknown"))
+        counts[key] += 1
+        if "latency_ms" in row:
+            latency[key].append(row["latency_ms"])
+        if "model_version" in row:
+            versions[row["model_version"]] += 1
+
+    latency_summary = {}
+    for key, values in latency.items():
+        values = sorted(values)
+        p95_index = int(0.95 * (len(values) - 1))
+        latency_summary[key] = {
+            "count": len(values),
+            "p50_ms": values[len(values) // 2],
+            "p95_ms": values[p95_index],
+        }
+
+    return {
+        "slice_counts": dict(counts),
+        "latency": latency_summary,
+        "model_versions": dict(versions),
+    }</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Practice</p>
+        <h2>Senior Interview Prompts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Explain Rollback Versus Fix-Forward</h3>
+        <p>
+          In five minutes, explain when you would roll back an ASR model versus
+          fix forward with a decoder, prompt, or router change.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strong response outline</summary>
+          <p>
+            Roll back when user harm is active, SLO burn is high, privacy or
+            safety is at risk, or the blast radius is not understood. Fix
+            forward only when the failure is narrow, the mitigation is lower
+            risk than rollback, validation is fast, and fallback remains ready.
+            Mention model version flags, canary scope, eval slices, owner
+            approval, and post-incident release-gate changes.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Design The Dashboard</h3>
+        <p>
+          Name the dashboard panels you want for a production speech-to-speech
+          assistant and explain which alert should page a human.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strong response outline</summary>
+          <p>
+            Include turn latency, first partial latency, finalization delay,
+            TTS first audio byte, barge-in success, ASR confidence, retrieval
+            grounding, answer safety, fallback/handoff, cost per minute, error
+            budget burn, and slice drift. Page on customer-impacting SLO burn,
+            safety/privacy failures, broad fallback spikes, and sustained
+            groundedness collapse; ticket lower-severity drift and cost trends.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio and transcripts out of Git. Use aggregate metrics, synthetic fixtures, and consented examples for incident work.</p>
+  </footer>
+</body>
+</html>

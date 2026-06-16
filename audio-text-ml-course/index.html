@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio-Text Multimodal ML Course</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <nav>
+      <a href="#path">Path</a>
+      <a href="#modules">Modules</a>
+      <a href="#interview">Interview</a>
+      <a href="#coding">Coding</a>
+      <a href="#projects">Projects</a>
+      <a href="#resources">Sources</a>
+    </nav>
+    <p class="eyebrow">Senior Study Guide</p>
+    <h1>Audio-Text Multimodal Machine Learning</h1>
+    <p class="lede">
+      A course from ML fundamentals to ASR, TTS, speech-to-speech systems,
+      efficient transformers, and practical inference hosting.
+    </p>
+  </header>
+
+  <main>
+    <section id="path" class="band">
+      <div class="section-head">
+        <p class="eyebrow">North Star</p>
+        <h2>Build Up To A Local Speech Assistant</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Understand</h3>
+          <p>Learn the math, data representations, and model families behind modern audio/text ML.</p>
+        </article>
+        <article class="card">
+          <h3>Implement</h3>
+          <p>Write small experiments for features, training loops, ASR/TTS evaluation, and inference.</p>
+        </article>
+        <article class="card">
+          <h3>Optimize</h3>
+          <p>Measure latency, memory, context size, batching, quantization, and streaming behavior.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Study Rhythm</p>
+        <h2>Repeat This Loop</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Read:</strong> one paper, chapter, or implementation note.</li>
+        <li><strong>Rebuild:</strong> implement the smallest working version.</li>
+        <li><strong>Measure:</strong> record accuracy, latency, memory, and failure modes.</li>
+        <li><strong>Explain:</strong> write a one-page note in your own words.</li>
+        <li><strong>Connect:</strong> map the idea back to ASR, TTS, or speech-to-speech.</li>
+      </ol>
+    </section>
+
+    <section id="modules" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Curriculum</p>
+        <h2>Thirty-Nine Modules</h2>
+        <p>
+          Lesson pages include code, checkpoints, and hidden answers. Start with
+          the transformer lesson, then return here to connect it to ASR, TTS,
+          and speech-to-speech systems.
+        </p>
+      </div>
+      <div class="timeline">
+        <article>
+          <span>00</span>
+          <h3>Orientation And Tooling</h3>
+          <p>Set up Python, notebooks, PyTorch, audio tools, Git, experiment logs, and privacy boundaries.</p>
+          <p class="lab">Lab: load a WAV, plot waveform/spectrogram, save metadata only.</p>
+        </article>
+        <article>
+          <span>01</span>
+          <h3>Math For ML</h3>
+          <p>Linear algebra, probability, gradients, cross entropy, sequence likelihoods, and optimization intuition.</p>
+          <p class="lab">Lab: implement linear regression and softmax classification from scratch.</p>
+          <p><a class="lesson-link" href="lessons/ml-foundations-for-speech.html">Open lesson: ML foundations for speech engineers</a></p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Neural Network Basics</h3>
+          <p>Tensors, autograd, MLPs, initialization, normalization, regularization, train/validation loops.</p>
+          <p class="lab">Lab: train a small classifier and write a failure analysis.</p>
+          <p><a class="lesson-link" href="lessons/ml-foundations-for-speech.html#training">Open lesson: training loops, evaluation, and debugging</a></p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Audio Representations</h3>
+          <p>Sampling, quantization, STFT, mel filterbanks, MFCCs, log-mel features, framing, and augmentation.</p>
+          <p class="lab">Lab: compare waveform, spectrogram, and mel features for the same utterance.</p>
+          <p><a class="lesson-link" href="lessons/audio-representations.html">Open lesson: audio features with code and hidden answers</a></p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Text And Sequence Modeling</h3>
+          <p>Tokenization, embeddings, n-grams, RNNs, seq2seq, attention, beam search, and decoding tradeoffs.</p>
+          <p class="lab">Lab: build a tiny character language model and inspect its decoding mistakes.</p>
+        </article>
+        <article>
+          <span>05</span>
+          <h3>Transformers</h3>
+          <p>Self-attention, causal masks, encoder/decoder stacks, positional encodings, RoPE, KV cache, and scaling limits.</p>
+          <p class="lab">Lab: implement single-head attention, then measure sequence length cost.</p>
+          <p><a class="lesson-link" href="lessons/transformers.html">Open lesson: transformers with code and hidden answers</a></p>
+        </article>
+        <article>
+          <span>06</span>
+          <h3>ASR History</h3>
+          <p>Dynamic time warping, HMM/GMM systems, pronunciation lexicons, acoustic models, language models, and decoding graphs.</p>
+          <p class="lab">Lab: diagram a classic ASR pipeline and map modern replacements.</p>
+          <p><a class="lesson-link" href="lessons/asr-tts-speech-history.html">Open lesson: ASR, TTS, and speech-to-speech history</a></p>
+        </article>
+        <article>
+          <span>07</span>
+          <h3>Neural ASR</h3>
+          <p>CTC, Listen-Attend-Spell, RNN-T, Conformer, wav2vec 2.0, Whisper, WER/CER, streaming ASR, and VAD.</p>
+          <p class="lab">Lab: run two ASR models on the same clips and compare errors by category.</p>
+        </article>
+        <article>
+          <span>08</span>
+          <h3>TTS History</h3>
+          <p>Concatenative synthesis, statistical parametric speech, vocoders, Tacotron, WaveNet, FastSpeech, VITS, and voice cloning risks.</p>
+          <p class="lab">Lab: compare TTS latency and intelligibility across two local engines.</p>
+          <p><a class="lesson-link" href="lessons/asr-tts-speech-history.html#tts">Open lesson: TTS evolution and production tradeoffs</a></p>
+        </article>
+        <article>
+          <span>09</span>
+          <h3>Neural Audio Codecs</h3>
+          <p>Discrete audio tokens, residual vector quantization, codec language models, prosody, speaker information, and compression artifacts.</p>
+          <p class="lab">Lab: encode/decode audio and listen for bitrate-dependent artifacts.</p>
+        </article>
+        <article>
+          <span>10</span>
+          <h3>Audio-Text Multimodality</h3>
+          <p>Contrastive learning, cross-modal retrieval, audio captioning, speech translation, shared embedding spaces, and alignment losses.</p>
+          <p class="lab">Lab: build a tiny audio-text retrieval evaluation with hand-labeled examples.</p>
+        </article>
+        <article>
+          <span>11</span>
+          <h3>Speech-To-Speech Architectures</h3>
+          <p>Cascaded ASR-LLM-TTS, direct speech-to-speech, streaming turn-taking, barge-in, echo control, memory, and agent state.</p>
+          <p class="lab">Lab: design latency budgets for a local speech assistant turn.</p>
+          <p><a class="lesson-link" href="lessons/asr-tts-speech-history.html#s2s">Open lesson: cascaded and direct speech-to-speech</a></p>
+        </article>
+        <article>
+          <span>12</span>
+          <h3>Efficient Transformers</h3>
+          <p>FlashAttention, grouped-query attention, speculative decoding, quantization, pruning, distillation, adapters, LoRA, and prompt compression.</p>
+          <p class="lab">Lab: benchmark one model under two quantization levels and two context lengths.</p>
+          <p><a class="lesson-link" href="lessons/efficient-transformers.html">Open lesson: efficient transformers and latency tradeoffs</a></p>
+        </article>
+        <article>
+          <span>13</span>
+          <h3>Inference Hosting</h3>
+          <p>KV-cache memory, continuous batching, PagedAttention, llama.cpp, MLX, vLLM-style serving, telemetry, cold starts, and local privacy.</p>
+          <p class="lab">Lab: build a local inference readiness report with latency, memory, throughput, and quality notes.</p>
+          <p><a class="lesson-link" href="lessons/inference-hosting.html">Open lesson: inference hosting and serving design</a></p>
+        </article>
+        <article>
+          <span>14</span>
+          <h3>Evaluation, RAG, And Quality Systems</h3>
+          <p>Speech eval stacks, RAG for voice assistants, LLM judges, human review, slice metrics, and rollout gates.</p>
+          <p class="lab">Lab: build a privacy-safe speech RAG evaluation sheet with latency, retrieval, and spoken-answer scores.</p>
+          <p><a class="lesson-link" href="lessons/speech-evaluation-rag.html">Open lesson: speech evaluation, RAG, and quality systems</a></p>
+        </article>
+        <article>
+          <span>15</span>
+          <h3>Production Debugging</h3>
+          <p>First-hour incident response for ASR, TTS, speech-to-speech, audio RAG, rollback, and privacy-safe telemetry.</p>
+          <p class="lab">Lab: compute partial-churn and latency-slice signals from synthetic request records.</p>
+          <p><a class="lesson-link" href="lessons/production-debugging-speech.html">Open lesson: production debugging for speech systems</a></p>
+        </article>
+        <article>
+          <span>16</span>
+          <h3>Data And Evaluation Operations</h3>
+          <p>Dataset contracts, labeling quality, eval slice design, CI gates, drift monitoring, and model release data lineage.</p>
+          <p class="lab">Lab: compute slice regressions from old and new metric maps before a release review.</p>
+          <p><a class="lesson-link" href="lessons/speech-data-eval-ops.html">Open lesson: speech data and evaluation operations</a></p>
+        </article>
+        <article>
+          <span>17</span>
+          <h3>Senior ML System Design Casebook</h3>
+          <p>Practice senior design rounds for streaming ASR, speech-to-speech agents, inference platforms, data flywheels, and TTS incidents.</p>
+          <p class="lab">Lab: implement canary gates and real-time audio capacity estimates.</p>
+          <p><a class="lesson-link" href="lessons/ml-system-design-casebook.html">Open lesson: ML system design casebook</a></p>
+        </article>
+        <article>
+          <span>18</span>
+          <h3>Senior ML Exam Drills</h3>
+          <p>Timed prompts for ASR, TTS, audio RAG, inference platforms, incidents, rollout gates, and senior tradeoff explanations.</p>
+          <p class="lab">Lab: answer each prompt under time pressure, then compare against hidden senior outlines.</p>
+          <p><a class="lesson-link" href="lessons/senior-ml-exam-drills.html">Open lesson: senior ML exam drills</a></p>
+        </article>
+        <article>
+          <span>19</span>
+          <h3>Speech Serving Observability</h3>
+          <p>SLOs, dashboards, burn rates, drift slices, rollback decisions, cost alerts, and postmortems for production speech systems.</p>
+          <p class="lab">Lab: implement SLO burn-rate, slice-drift, and rollout-recommendation utilities.</p>
+          <p><a class="lesson-link" href="lessons/speech-serving-observability.html">Open lesson: speech serving observability and SLOs</a></p>
+        </article>
+        <article>
+          <span>20</span>
+          <h3>Speech Safety, Privacy, And Security</h3>
+          <p>Threat modeling for spoken prompt injection, voice impersonation, PII, consent, TTS abuse, and privacy-safe incident response.</p>
+          <p class="lab">Lab: implement transcript redaction, sensitive-tool confirmation, and abuse-spike detection utilities.</p>
+          <p><a class="lesson-link" href="lessons/speech-safety-privacy-security.html">Open lesson: speech safety, privacy, and security</a></p>
+        </article>
+        <article>
+          <span>21</span>
+          <h3>Speech Inference Platform Readiness</h3>
+          <p>Readiness reviews for ASR, TTS, LLM, and speech-to-speech serving: capacity, gates, SLOs, incidents, and cost-aware rollout decisions.</p>
+          <p class="lab">Lab: implement rollout gates, queue burn-rate checks, and cost-regression detectors with synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/speech-inference-platform-readiness.html">Open lesson: speech inference platform readiness</a></p>
+        </article>
+        <article>
+          <span>22</span>
+          <h3>Audio ML Production Incidents</h3>
+          <p>First-hour triage, rollback judgment, slice regression analysis, privacy-safe incident packets, drift, and speech-to-speech failure drills.</p>
+          <p class="lab">Lab: rank slice regressions, recommend rollout actions, and produce aggregate-only incident packets.</p>
+          <p><a class="lesson-link" href="lessons/audio-ml-production-incidents.html">Open lesson: audio ML production incident drills</a></p>
+        </article>
+        <article>
+          <span>23</span>
+          <h3>Coding Implementation Drills</h3>
+          <p>Linked lists, binary search, heaps, dynamic programming, monotonic predicates, pointer invariants, and senior production follow-ups.</p>
+          <p class="lab">Lab: solve Blind 75 pointer, heap, binary-search, and DP problems before opening hidden Python answers.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-linkedlists-binarysearch.html">Open lesson: Blind 75 linked lists, binary search, and heaps</a></p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-dynamic-programming.html">Open lesson: Blind 75 dynamic programming deep dive</a></p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-trees-tries.html">Open lesson: Blind 75 trees and tries</a></p>
+        </article>
+        <article>
+          <span>24</span>
+          <h3>Voice Agent Evaluation Benchmarks</h3>
+          <p>Senior evaluation plans for spoken RAG agents, speech-to-speech repair, task success, latency, safety, cost, and launch gates.</p>
+          <p class="lab">Lab: implement a voice-agent release-decision aggregator over synthetic slice metrics.</p>
+          <p><a class="lesson-link" href="lessons/voice-agent-eval-benchmarks.html">Open lesson: voice agent evaluation benchmarks</a></p>
+        </article>
+        <article>
+          <span>25</span>
+          <h3>Senior Speech AI Interview Sprint</h3>
+          <p>Timed capstone prompts for speech system design, R&amp;D judgment, production incidents, serving platforms, MLOps, and coding follow-ups.</p>
+          <p class="lab">Lab: rank canary rollout risks and connect Blind 75 patterns to speech serving capacity and constrained decoding.</p>
+          <p><a class="lesson-link" href="lessons/senior-speech-ai-interview-sprint.html">Open lesson: senior speech AI interview sprint</a></p>
+        </article>
+        <article>
+          <span>26</span>
+          <h3>Speech Model CI/CD And Release Engineering</h3>
+          <p>Model registry contracts, CI gates, canaries, rollback targets, production release drills, and research-to-serving handoff discipline.</p>
+          <p class="lab">Lab: implement registry validation, canary promotion gates, and rollback target resolution over synthetic release metadata.</p>
+          <p><a class="lesson-link" href="lessons/speech-model-cicd-release-engineering.html">Open lesson: speech model CI/CD and release engineering</a></p>
+        </article>
+        <article>
+          <span>27</span>
+          <h3>Senior Audio ML Capstone Exam</h3>
+          <p>Final senior practice for speech R&amp;D, system design, inference hosting, incidents, MLOps, cost control, and coding follow-ups.</p>
+          <p class="lab">Lab: answer timed capstone prompts, then compare against hidden senior outlines and worked Python utilities.</p>
+          <p><a class="lesson-link" href="lessons/senior-audio-ml-capstone-exam.html">Open lesson: senior audio ML capstone exam</a></p>
+        </article>
+        <article>
+          <span>28</span>
+          <h3>Speech AI Debugging Casebook</h3>
+          <p>Senior production debugging cases for ASR, TTS, speech-to-speech agents, spoken RAG, safety classifiers, and rollback decisions.</p>
+          <p class="lab">Lab: implement first-bad-release detection, slice-aware rollback selection, and privacy-safe incident packet builders.</p>
+          <p><a class="lesson-link" href="lessons/speech-ai-debugging-casebook.html">Open lesson: speech AI debugging casebook</a></p>
+        </article>
+        <article>
+          <span>29</span>
+          <h3>Model Serving On-Call Runbook</h3>
+          <p>Senior on-call practice for ASR, TTS, LLM, retrieval, and speech-to-speech serving incidents under real traffic constraints.</p>
+          <p class="lab">Lab: implement queue saturation, cost-per-success, and rollback-candidate utilities with synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/model-serving-oncall-runbook.html">Open lesson: model serving on-call runbook</a></p>
+        </article>
+        <article>
+          <span>30</span>
+          <h3>Senior Coding Interview Workbook</h3>
+          <p>Invariant-first coding practice for Blind 75 patterns, test design, debugging, and production speech ML follow-ups.</p>
+          <p class="lab">Lab: solve worked Python drills, then connect each pattern to ASR, RAG, queueing, or model-serving scenarios.</p>
+          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: senior coding interview workbook</a></p>
+        </article>
+        <article>
+          <span>31</span>
+          <h3>Stacks And Sliding Windows</h3>
+          <p>Blind 75 stack, monotonic-stack, parser, and sliding-window drills with worked Python, hidden answers, edge tests, and speech-serving follow-ups.</p>
+          <p class="lab">Lab: solve Daily Temperatures, Minimum Window Substring, Decode String, and production queue-window prompts by invariant.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-stacks-windows.html">Open lesson: Blind 75 stacks and sliding windows</a></p>
+        </article>
+        <article>
+          <span>32</span>
+          <h3>Evaluation And Incident Exam</h3>
+          <p>Senior practice for speech evaluation stacks, rollout gates, production incidents, privacy-safe debugging, drift, cost spikes, and rollback ranking.</p>
+          <p class="lab">Lab: implement promotion gates, sustained-drift detection, and rollback-target ranking over synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/senior-audio-ml-evaluation-incident-exam.html">Open lesson: senior audio ML evaluation and incident exam</a></p>
+        </article>
+        <article>
+          <span>33</span>
+          <h3>Real-Time Speech System Design Lab</h3>
+          <p>Practice complete spoken-turn design, latency budgets, canary rollback, partial transcript churn, and production debugging for real-time speech products.</p>
+          <p class="lab">Lab: implement latency budget reports, prefix churn measurement, and canary rollback triggers over synthetic aggregate telemetry.</p>
+          <p><a class="lesson-link" href="lessons/realtime-speech-system-design-lab.html">Open lesson: real-time speech system design lab</a></p>
+        </article>
+        <article>
+          <span>34</span>
+          <h3>Speech Data Flywheels And Active Learning</h3>
+          <p>Practice privacy-safe data loops, active-learning sampling, labeling operations, release gates, and first-hour data incident debugging for speech systems.</p>
+          <p class="lab">Lab: rank aggregate review candidates with consent filtering, slice coverage, regression signals, and privacy-safe metadata.</p>
+          <p><a class="lesson-link" href="lessons/speech-data-flywheel-active-learning.html">Open lesson: speech data flywheels and active learning</a></p>
+        </article>
+        <article>
+          <span>35</span>
+          <h3>Speech Serving Scaling And Reliability Exam</h3>
+          <p>Practice capacity planning, SLOs, rollout gates, cost-aware routing, rollback judgment, and production debugging for speech serving systems.</p>
+          <p class="lab">Lab: implement peak concurrency, canary rollback, and sliding-window error-budget utilities over synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/speech-serving-scaling-reliability-exam.html">Open lesson: speech serving scaling and reliability exam</a></p>
+        </article>
+        <article>
+          <span>36</span>
+          <h3>Speech GPU Serving Capacity Planning</h3>
+          <p>Practice GPU memory math, batching, autoscaling, load shedding, warm pools, cost controls, and rollback for speech serving systems.</p>
+          <p class="lab">Lab: implement sliding-window queue alerts, priority admission, and retry-storm detectors over synthetic aggregate serving metrics.</p>
+          <p><a class="lesson-link" href="lessons/speech-gpu-serving-capacity-planning.html">Open lesson: speech GPU serving capacity planning</a></p>
+        </article>
+        <article>
+          <span>37</span>
+          <h3>Speech Feature Pipelines And Data Contracts</h3>
+          <p>Design privacy-safe audio feature pipelines, schema contracts, label drift checks, online/offline parity tests, and feature-store boundaries.</p>
+          <p class="lab">Lab: implement audio chunk merging, active-learning ranking, and schema coverage drift detectors with hidden Python answers.</p>
+          <p><a class="lesson-link" href="lessons/speech-feature-pipelines-data-contracts.html">Open lesson: speech feature pipelines and data contracts</a></p>
+        </article>
+        <article>
+          <span>38</span>
+          <h3>Speech AI Load Testing And Chaos Readiness</h3>
+          <p>Practice launch readiness for ASR, TTS, spoken RAG, and speech-to-speech systems under load, dependency failures, cost pressure, and rollback constraints.</p>
+          <p class="lab">Lab: implement load-test gates, retry-storm detection, and capacity step-load summaries over synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/speech-ai-load-testing-chaos.html">Open lesson: speech AI load testing and chaos readiness</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Readiness</p>
+        <h2>Interview And Exam Track</h2>
+        <p>
+          This course now includes a dedicated senior ML/AI engineer exam track
+          based on current online interview patterns: ML system design, R&amp;D
+          discussion, coding/debugging, MLOps, model serving, monitoring,
+          rollback, and audio/speech domain depth.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Senior ML Interview Track</h3>
+          <p>Practice realistic prompts for streaming ASR, speech-to-speech assistants, audio model serving platforms, production incidents, and research tradeoffs.</p>
+          <p><a class="lesson-link" href="lessons/senior-ml-interview-track.html">Open lesson: senior interview and exam readiness</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech ML System Design</h3>
+          <p>Practice end-to-end architecture for ASR, TTS, speech-to-speech, evaluation, deployment, rollback, and cost-aware serving.</p>
+          <p><a class="lesson-link" href="lessons/speech-ml-system-design.html">Open lesson: speech ML system design interviews</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior Casebook</h3>
+          <p>Practice full ML system design cases with hidden senior answers, rollout gates, production tradeoffs, and coding follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/ml-system-design-casebook.html">Open lesson: ML system design casebook</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior ML Exam Drills</h3>
+          <p>Run timed interview and exam prompts for ASR, TTS, audio RAG, GPU serving, MLOps incidents, rollback, and cost control.</p>
+          <p><a class="lesson-link" href="lessons/senior-ml-exam-drills.html">Open lesson: senior ML exam drills</a></p>
+        </article>
+        <article class="card">
+          <h3>Production Speech MLOps</h3>
+          <p>Work through serving architecture, CI/CD gates, observability, drift, rollback, cost controls, and realistic incident drills for audio systems.</p>
+          <p><a class="lesson-link" href="lessons/production-speech-mlops.html">Open lesson: production MLOps and incident lab</a></p>
+        </article>
+        <article class="card">
+          <h3>Production Debugging</h3>
+          <p>Practice first-hour triage, rollback judgment, telemetry slicing, and privacy-safe debugging for speech production incidents.</p>
+          <p><a class="lesson-link" href="lessons/production-debugging-speech.html">Open lesson: production debugging for speech systems</a></p>
+        </article>
+        <article class="card">
+          <h3>Model Release Playbook</h3>
+          <p>Practice senior release reviews for ASR, TTS, embeddings, and speech-to-speech systems, including gates, canaries, debugging, and rollback.</p>
+          <p><a class="lesson-link" href="lessons/model-release-playbook.html">Open lesson: speech model release and rollback</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech Serving Observability</h3>
+          <p>Practice SLO definition, dashboard design, burn-rate alerts, drift checks, rollback recommendations, and speech incident postmortems.</p>
+          <p><a class="lesson-link" href="lessons/speech-serving-observability.html">Open lesson: speech serving observability and SLOs</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech Safety And Privacy</h3>
+          <p>Practice spoken prompt injection defense, voice impersonation controls, PII handling, consent, abuse monitoring, and privacy-safe debugging.</p>
+          <p><a class="lesson-link" href="lessons/speech-safety-privacy-security.html">Open lesson: speech safety, privacy, and security</a></p>
+        </article>
+        <article class="card">
+          <h3>Inference Hosting</h3>
+          <p>Practice GPU/CPU placement, batching, KV-cache memory, cost controls, rollback, and debugging for ASR, TTS, LLM, and speech-to-speech serving.</p>
+          <p><a class="lesson-link" href="lessons/inference-hosting.html">Open lesson: inference hosting and serving design</a></p>
+        </article>
+        <article class="card">
+          <h3>Inference Platform Readiness</h3>
+          <p>Practice release gates, real-time versus batch isolation, cost regressions, queue SLO burn rates, and first-hour speech platform incident response.</p>
+          <p><a class="lesson-link" href="lessons/speech-inference-platform-readiness.html">Open lesson: speech inference platform readiness</a></p>
+        </article>
+        <article class="card">
+          <h3>Audio ML Production Incidents</h3>
+          <p>Practice senior incident response for partial churn, TTS latency, voice RAG grounding, noisy accent regressions, barge-in, drift, and rollback.</p>
+          <p><a class="lesson-link" href="lessons/audio-ml-production-incidents.html">Open lesson: audio ML production incident drills</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech Evaluation And RAG</h3>
+          <p>Practice end-to-end quality systems for voice assistants: ASR slices, retrieval failures, LLM judges, human review, and rollout decisions.</p>
+          <p><a class="lesson-link" href="lessons/speech-evaluation-rag.html">Open lesson: speech evaluation, RAG, and quality systems</a></p>
+        </article>
+        <article class="card">
+          <h3>Voice Agent Eval Benchmarks</h3>
+          <p>Practice benchmark design for spoken RAG agents, multi-turn account help, speech-to-speech repair, launch gates, and cost-quality decisions.</p>
+          <p><a class="lesson-link" href="lessons/voice-agent-eval-benchmarks.html">Open lesson: voice agent evaluation benchmarks</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior Speech AI Interview Sprint</h3>
+          <p>Practice timed senior rounds that combine speech system design, R&amp;D tradeoffs, serving infrastructure, incidents, and coding follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/senior-speech-ai-interview-sprint.html">Open lesson: senior speech AI interview sprint</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech Model CI/CD</h3>
+          <p>Practice registry contracts, CI gates, canary promotion, rollback, and production release engineering for ASR, TTS, and speech-to-speech systems.</p>
+          <p><a class="lesson-link" href="lessons/speech-model-cicd-release-engineering.html">Open lesson: speech model CI/CD and release engineering</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior Capstone Exam</h3>
+          <p>Practice a four-hour senior round covering speech R&amp;D, architecture, incidents, cost and latency tradeoffs, MLOps, and coding utilities.</p>
+          <p><a class="lesson-link" href="lessons/senior-audio-ml-capstone-exam.html">Open lesson: senior audio ML capstone exam</a></p>
+        </article>
+        <article class="card">
+          <h3>Evaluation And Incident Exam</h3>
+          <p>Practice speech eval design, ASR/TTS/RAG release gates, production incident response, drift checks, cost controls, and rollback ranking.</p>
+          <p><a class="lesson-link" href="lessons/senior-audio-ml-evaluation-incident-exam.html">Open lesson: senior audio ML evaluation and incident exam</a></p>
+        </article>
+        <article class="card">
+          <h3>Real-Time Speech Design Lab</h3>
+          <p>Practice full spoken-turn architecture, end-to-end latency traces, partial churn debugging, canary gates, and senior handoff checklists.</p>
+          <p><a class="lesson-link" href="lessons/realtime-speech-system-design-lab.html">Open lesson: real-time speech system design lab</a></p>
+        </article>
+        <article class="card">
+          <h3>Speech AI Debugging Casebook</h3>
+          <p>Practice first-hour incident method, hypothesis-driven slice analysis, rollback judgment, spoken RAG failures, and safety/cost tradeoffs.</p>
+          <p><a class="lesson-link" href="lessons/speech-ai-debugging-casebook.html">Open lesson: speech AI debugging casebook</a></p>
+        </article>
+        <article class="card">
+          <h3>Model Serving On-Call</h3>
+          <p>Practice queue triage, tail-latency diagnosis, cost-per-success analysis, graceful degradation, and rollback selection for speech AI serving.</p>
+          <p><a class="lesson-link" href="lessons/model-serving-oncall-runbook.html">Open lesson: model serving on-call runbook</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior Coding Workbook</h3>
+          <p>Practice invariant-first Blind 75 coding, edge tests, worked Python, and senior production follow-ups for speech ML systems.</p>
+          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: senior coding interview workbook</a></p>
+        </article>
+        <article class="card">
+          <h3>Data And Evaluation Ops</h3>
+          <p>Practice dataset contracts, labeling rubrics, CI release gates, drift monitoring, and senior data flywheel tradeoffs for speech products.</p>
+          <p><a class="lesson-link" href="lessons/speech-data-eval-ops.html">Open lesson: speech data and evaluation operations</a></p>
+        </article>
+        <article class="card">
+          <h3>Data Flywheels</h3>
+          <p>Practice active learning, consent-aware sampling, label audits, data release diffs, and production data incident response for speech AI.</p>
+          <p><a class="lesson-link" href="lessons/speech-data-flywheel-active-learning.html">Open lesson: speech data flywheels and active learning</a></p>
+        </article>
+        <article class="card">
+          <h3>Scaling And Reliability Exam</h3>
+          <p>Practice senior serving-plane design, capacity math, SLOs, CI/CD gates, rollback, cost controls, and production incident drills.</p>
+          <p><a class="lesson-link" href="lessons/speech-serving-scaling-reliability-exam.html">Open lesson: speech serving scaling and reliability exam</a></p>
+        </article>
+        <article class="card">
+          <h3>GPU Capacity Planning</h3>
+          <p>Practice GPU serving capacity, autoscaling signals, load shedding, warm TTS voice pools, cost controls, and real-time queue incidents.</p>
+          <p><a class="lesson-link" href="lessons/speech-gpu-serving-capacity-planning.html">Open lesson: speech GPU serving capacity planning</a></p>
+        </article>
+        <article class="card">
+          <h3>Load Testing And Chaos</h3>
+          <p>Practice end-to-end load tests, chaos drills, retry-storm detection, capacity gates, dependency timeouts, and rollback triggers for speech AI systems.</p>
+          <p><a class="lesson-link" href="lessons/speech-ai-load-testing-chaos.html">Open lesson: speech AI load testing and chaos readiness</a></p>
+        </article>
+        <article class="card">
+          <h3>What This Adds</h3>
+          <p>The target bar is not definitions. It is being able to design, build, ship, monitor, debug, and improve audio-text ML systems under real constraints.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Interviews</p>
+        <h2>Blind 75 Chapter</h2>
+        <p>
+          Senior ML engineers still need reliable general coding. This chapter
+          covers the full Blind 75 problem bank with pattern strategies, hidden
+          answer notes, and common mistakes.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Blind 75 Coding Track</h3>
+          <p>Practice arrays, hashing, binary search, dynamic programming, graphs, intervals, linked lists, matrix traversal, strings, trees, tries, and heaps.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75.html">Open lesson: Blind 75 coding interview chapter</a></p>
+        </article>
+        <article class="card">
+          <h3>Graphs, Trees, And DP Deep Dive</h3>
+          <p>Practice state search, recursive invariants, memoization, DP transitions, cycle handling, and worked Python solutions for high-yield Blind 75 items.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-graphs-dp.html">Open lesson: Blind 75 graphs, trees, and DP</a></p>
+        </article>
+        <article class="card">
+          <h3>Arrays, Intervals, Heaps, And Matrices</h3>
+          <p>Practice high-frequency Blind 75 implementation rounds with hidden strategies, invariants, edge cases, and worked Python for production-shaped data structures.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-arrays-intervals.html">Open lesson: Blind 75 arrays and intervals</a></p>
+        </article>
+        <article class="card">
+          <h3>Strings, Backtracking, And Tries</h3>
+          <p>Practice substring windows, palindromes, combinatorial search, prefix trees, pruning, edge cases, and senior-style production follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-strings-backtracking.html">Open lesson: Blind 75 strings and backtracking</a></p>
+        </article>
+        <article class="card">
+          <h3>Linked Lists, Binary Search, And Heaps</h3>
+          <p>Practice pointer rewiring, monotonic predicates, priority queues, top-k streams, and worked Python solutions for common Blind 75 rounds.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-linkedlists-binarysearch.html">Open lesson: Blind 75 linked lists, binary search, and heaps</a></p>
+        </article>
+        <article class="card">
+          <h3>Dynamic Programming Deep Dive</h3>
+          <p>Practice 1D and 2D DP state definitions, recurrences, hidden-answer drills, worked Python, and production ML follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-dynamic-programming.html">Open lesson: Blind 75 dynamic programming</a></p>
+        </article>
+        <article class="card">
+          <h3>Trees And Tries</h3>
+          <p>Practice recursive tree contracts, BST boundaries, trie prefix search, Word Search II pruning, and speech production follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-trees-tries.html">Open lesson: Blind 75 trees and tries</a></p>
+        </article>
+        <article class="card">
+          <h3>Senior Coding Workbook</h3>
+          <p>Practice interview contracts, invariants, edge-case tests, worked Python drills, and production follow-ups for audio ML work.</p>
+          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: senior coding interview workbook</a></p>
+        </article>
+        <article class="card">
+          <h3>Stacks And Sliding Windows</h3>
+          <p>Practice Valid Parentheses, Daily Temperatures, Histogram, Character Replacement, Minimum Window, Decode String, and speech-serving follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-stacks-windows.html">Open lesson: Blind 75 stacks and sliding windows</a></p>
+        </article>
+        <article class="card">
+          <h3>Bit Manipulation And Math</h3>
+          <p>Practice XOR invariants, masks, popcount, reverse bits, integer boundaries, encode/decode strings, and production feature-flag follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/coding-blind-75-bits-math.html">Open lesson: Blind 75 bit manipulation and math</a></p>
+        </article>
+        <article class="card">
+          <h3>Pipeline Coding Drills</h3>
+          <p>Practice Merge Intervals, Top K Elements, and sliding windows as speech feature-pipeline utilities with privacy and schema-contract follow-ups.</p>
+          <p><a class="lesson-link" href="lessons/speech-feature-pipelines-data-contracts.html#coding">Open lesson: speech pipeline coding drills</a></p>
+        </article>
+        <article class="card">
+          <h3>How To Use It</h3>
+          <p>Solve from the prompt first, classify the pattern, state invariants, then open the hidden strategy and compare against your code.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="projects" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Projects</p>
+        <h2>Milestones To Build</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Project A: Audio Feature Lab</h3>
+          <p>Feature extraction notebook with waveform, STFT, mel, augmentation, and metadata-only privacy rules.</p>
+        </article>
+        <article class="card">
+          <h3>Project B: ASR Error Analyzer</h3>
+          <p>Run ASR, compute WER/CER, classify substitutions/deletions/insertions, and produce a readable report.</p>
+        </article>
+        <article class="card">
+          <h3>Project C: TTS Latency Bench</h3>
+          <p>Compare local TTS paths by warmup time, generation time, perceived quality, and playback stability.</p>
+        </article>
+        <article class="card">
+          <h3>Project D: Speech Agent Loop</h3>
+          <p>Combine VAD, ASR, LLM, TTS, shared state, and transcript UI into a local privacy-preserving assistant.</p>
+        </article>
+        <article class="card">
+          <h3>Project E: Efficient Serving Report</h3>
+          <p>Benchmark prompt length, context memory, quantization, batching, and model choice for local hosting.</p>
+        </article>
+        <article class="card">
+          <h3>Project F: Speech-To-Speech Design Review</h3>
+          <p>Compare cascaded and direct architectures for latency, controllability, alignment, safety, and quality.</p>
+        </article>
+        <article class="card">
+          <h3>Project G: Speech RAG Eval Harness</h3>
+          <p>Build a small synthetic eval for spoken queries, noisy ASR hypotheses, document retrieval, grounded answers, and TTS latency.</p>
+        </article>
+        <article class="card">
+          <h3>Project H: Release Readiness Review</h3>
+          <p>Write a model card, eval summary, rollout plan, rollback checklist, and first-hour incident runbook for one ASR or TTS release.</p>
+        </article>
+        <article class="card">
+          <h3>Project I: Speech Data Flywheel Review</h3>
+          <p>Design a privacy-safe data collection, labeling, eval, CI, and drift-monitoring plan for one production speech model improvement.</p>
+        </article>
+        <article class="card">
+          <h3>Project J: Speech Safety Red-Team Pack</h3>
+          <p>Create sanitized spoken prompt-injection, voice replay, PII leakage, and TTS abuse fixtures with release gates and rollback actions.</p>
+        </article>
+        <article class="card">
+          <h3>Project K: Inference Platform Readiness Review</h3>
+          <p>Write a launch review for shared ASR, TTS, and speech-to-speech serving with capacity math, SLOs, canaries, rollback, and cost guardrails.</p>
+        </article>
+        <article class="card">
+          <h3>Project L: Audio Incident Runbook Pack</h3>
+          <p>Create privacy-safe runbooks, dashboards, synthetic repros, rollout gates, and rollback criteria for three realistic speech production incidents.</p>
+        </article>
+        <article class="card">
+          <h3>Project M: Voice Agent Eval Benchmark Pack</h3>
+          <p>Create synthetic spoken RAG, account-help, interruption, safety, latency, and rollback fixtures with slice-level launch thresholds.</p>
+        </article>
+        <article class="card">
+          <h3>Project N: Speech Model Release Pipeline</h3>
+          <p>Build a sanitized model registry entry, CI gate report, canary promotion decision, rollback target, and post-release dashboard checklist.</p>
+        </article>
+        <article class="card">
+          <h3>Project O: Senior Audio ML Mock Exam</h3>
+          <p>Run a timed capstone with architecture, incident, eval, cost, MLOps, and coding sections using only synthetic fixtures and aggregate metrics.</p>
+        </article>
+        <article class="card">
+          <h3>Project P: Speech AI Debugging Casebook</h3>
+          <p>Create a reusable pack of synthetic incidents, slice dashboards, rollback decisions, and privacy-safe incident packets for senior interview practice.</p>
+        </article>
+        <article class="card">
+          <h3>Project Q: Model Serving On-Call Pack</h3>
+          <p>Create synthetic dashboards, rollback gates, cost-per-success reports, and graceful-degradation runbooks for ASR, TTS, LLM, and spoken RAG serving.</p>
+        </article>
+        <article class="card">
+          <h3>Project R: Streaming Coding Pattern Pack</h3>
+          <p>Build stack and sliding-window utilities for queue alerts, partial transcript churn, parser readiness, and canary rollback exercises.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="resources" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Canonical Sources</p>
+        <h2>Starting Reading List</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a> - transformer foundation.</li>
+        <li><a href="https://arxiv.org/abs/1904.08779">SpecAugment</a> - simple augmentation for ASR features.</li>
+        <li><a href="https://arxiv.org/abs/2006.11477">wav2vec 2.0</a> - self-supervised speech representations.</li>
+        <li><a href="https://arxiv.org/abs/2005.08100">Conformer</a> - convolution-augmented Transformer for ASR.</li>
+        <li><a href="https://arxiv.org/abs/2212.04356">Whisper paper</a> - robust speech recognition via weak supervision.</li>
+        <li><a href="https://arxiv.org/abs/1905.09263">FastSpeech</a> - fast non-autoregressive TTS.</li>
+        <li><a href="https://arxiv.org/abs/2106.06103">VITS</a> - end-to-end TTS with variational and adversarial learning.</li>
+        <li><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a> - IO-aware exact attention.</li>
+        <li><a href="https://arxiv.org/abs/2309.06180">PagedAttention / vLLM</a> - efficient KV-cache management for serving.</li>
+        <li><a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a> - retrieval plus generation evaluation baseline.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio and transcripts out of Git. Record aggregate metrics and sanitized notes only.</p>
+  </footer>
+</body>
+</html>

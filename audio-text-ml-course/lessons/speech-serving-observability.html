@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Serving Observability And SLOs</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#slo">SLOs</a>
+      <a href="#dashboards">Dashboards</a>
+      <a href="#labs">Labs</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Production ML Track</p>
+    <h1>Speech Serving Observability And SLOs</h1>
+    <p class="lede">
+      Turn ASR, TTS, speech-to-speech, and audio RAG systems into services you
+      can launch, monitor, debug, and roll back with senior-level discipline.
+    </p>
+  </header>
+
+  <main>
+    <section id="slo" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Service Level Thinking</p>
+        <h2>Define User-Visible Reliability Before Metrics</h2>
+        <p>
+          A speech system can look healthy on average while the conversation
+          feels broken. Senior engineers translate user pain into measurable
+          quality, latency, availability, privacy, and cost budgets.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Streaming ASR SLO</h3>
+          <p>Track first partial latency, partial churn, finalization delay, WER slices, entity errors, timeout rate, and cost per audio minute.</p>
+          <details class="qa">
+            <summary>Hidden answer: minimum release gate</summary>
+            <p>
+              Require no critical slice WER regression, bounded entity error,
+              p95 first partial under the product target, p99 finalization
+              under the SLO, no increase in privacy-sensitive logging, and a
+              versioned rollback switch. Aggregate WER alone is not enough.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Conversational TTS SLO</h3>
+          <p>Track first audio byte, chunk cadence, underruns, MOS or preference score, interruption rate, abandonment, and cost per generated second.</p>
+          <details class="qa">
+            <summary>Hidden answer: quality versus latency tradeoff</summary>
+            <p>
+              A better voice can still be a worse product if it delays the
+              first audible response. Use a two-tier gate: conversational
+              latency and playback stability must pass before preference wins
+              can justify a rollout.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="dashboards" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Dashboards</p>
+        <h2>Build Views Around Decisions</h2>
+        <p>
+          Dashboards should answer whether to continue, pause, roll back,
+          route around a dependency, or start a data investigation.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Executive view:</strong> SLO burn, error budget, active incidents, rollout stage, and user-visible impact.</li>
+        <li><strong>Model view:</strong> model version, language, acoustic condition, WER/CER, entity error, confidence, drift, and correction signals.</li>
+        <li><strong>Serving view:</strong> queue age, batch size, model time, preprocessing time, GPU memory, autoscaler lag, retries, and fallbacks.</li>
+        <li><strong>Privacy view:</strong> raw audio access, retention, redaction status, opt-in review counts, and synthetic fixture coverage.</li>
+        <li><strong>Cost view:</strong> cost per audio minute, cost per generated second, GPU utilization, cache hit rate, and waste from retries.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why separate model dashboards from serving dashboards?</summary>
+        <p>
+          Model metrics explain quality regressions; serving metrics explain
+          resource and latency behavior. Mixing them hides root cause. For
+          example, worse p99 latency with stable model time points at queues,
+          batching, routing, autoscaling, dependencies, or retries.
+        </p>
+      </details>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Labs</p>
+        <h2>Small Utilities For Production Decisions</h2>
+        <p>
+          These snippets are intentionally interview-sized. Each one trains the
+          habit of turning vague operational symptoms into testable signals.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: SLO Burn Rate</h3>
+        <p>
+          Given request counts and bad request counts in a window, compute
+          error-budget burn rate relative to an allowed bad-request fraction.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: burn rate compares observed bad fraction to the allowed
+            bad fraction. Test zero requests, no errors, exactly-on-budget
+            errors, and a window that burns several times faster than budget.
+          </p>
+          <pre><code class="language-python">def burn_rate(total_requests, bad_requests, allowed_bad_fraction):
+    if total_requests == 0:
+        return 0.0
+    if allowed_bad_fraction &lt;= 0:
+        raise ValueError("allowed_bad_fraction must be positive")
+
+    observed = bad_requests / total_requests
+    return observed / allowed_bad_fraction</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Detect Slice Drift</h3>
+        <p>
+          Given baseline and current aggregate feature summaries for audio
+          slices, return slices whose relative change exceeds a threshold.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: compare each slice only when both baseline and current
+            values exist. Treat a zero baseline as a special case so the code
+            does not hide a new population. Test missing slices, zero baseline,
+            small changes, and large increases in silence or clipping.
+          </p>
+          <pre><code class="language-python">def drifted_slices(baseline, current, threshold):
+    drifted = []
+    for name, now in current.items():
+        if name not in baseline:
+            drifted.append((name, "new_slice", now))
+            continue
+
+        before = baseline[name]
+        if before == 0:
+            if now != 0:
+                drifted.append((name, "zero_baseline", now))
+            continue
+
+        relative = abs(now - before) / abs(before)
+        if relative &gt; threshold:
+            drifted.append((name, "relative_change", relative))
+    return drifted</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Rollback Recommendation</h3>
+        <p>
+          Given canary metrics and budgets, return whether a speech model
+          rollout should continue, pause, or roll back.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: critical metrics override noncritical wins. Test a
+            latency win with entity error regression, missing critical metrics,
+            exactly-on-budget deltas, and a noncritical cost regression that
+            should pause instead of roll back.
+          </p>
+          <pre><code class="language-python">def rollout_recommendation(metrics, budgets):
+    findings = []
+    for name, budget in budgets.items():
+        if name not in metrics:
+            findings.append(("pause", name, "missing"))
+            continue
+
+        value = metrics[name]
+        limit = budget["limit"]
+        direction = budget["direction"]
+        critical = budget.get("critical", False)
+        failed = (
+            direction == "lower_is_better" and value &gt; limit
+        ) or (
+            direction == "higher_is_better" and value &lt; limit
+        )
+        if failed:
+            action = "rollback" if critical else "pause"
+            findings.append((action, name, value))
+
+    if any(item[0] == "rollback" for item in findings):
+        return "rollback", findings
+    if findings:
+        return "pause", findings
+    return "continue", []</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Prompts</p>
+        <h2>Senior Production Questions</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: A Canary Improves Average WER But Hurts One Region</h3>
+        <p>
+          The new ASR model improves aggregate WER by 4 percent, but a noisy
+          mobile cohort in one region regresses by 11 percent. What do you do?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Do not hide behind the aggregate win. Pause or exclude the affected
+            cohort, verify sample size and label quality, inspect audio feature
+            drift, compare entity error and correction rate, and define a slice
+            gate before resuming. A senior answer protects harmed cohorts while
+            preserving the ability to ship where the model is truly better.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: GPU Cost Doubles Without A Quality Change</h3>
+        <p>
+          ASR quality and latency are stable, but GPU cost per audio minute
+          doubles after a release. How do you investigate?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: root-cause map</summary>
+          <p>
+            Check model artifact size, precision, batch shape, request mix,
+            VAD savings, retries, shadow traffic, autoscaler target, warm pool
+            size, GPU utilization, cache behavior, and route weights. Mitigate
+            with quota, route rollback, batch tuning, disabling shadow traffic,
+            or reverting precision/config changes while preserving quality.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: What Belongs In A Speech Postmortem?</h3>
+        <p>
+          An endpointing bug clipped the first word for quiet speakers for
+          three hours. What should the postmortem contain?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: postmortem outline</summary>
+          <p>
+            Include timeline, detection gap, user impact by slice, root cause,
+            why tests missed quiet speakers, rollback timeline, privacy-safe
+            evidence, immediate remediation, new synthetic fixtures, release
+            gate updates, owners, deadlines, and a follow-up check that proves
+            the prevention work actually shipped.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

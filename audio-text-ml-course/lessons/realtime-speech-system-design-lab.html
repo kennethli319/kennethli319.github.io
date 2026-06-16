@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Real-Time Speech System Design Lab</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#debugging">Debugging</a>
+      <a href="#coding">Coding</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Module 33</p>
+    <h1>Real-Time Speech System Design Lab</h1>
+    <p class="lede">
+      Practice the senior interview loop for low-latency ASR, speech-to-speech,
+      spoken RAG, and TTS systems: draw the serving path, budget latency,
+      define rollback gates, debug production symptoms, and write small
+      deterministic utilities over aggregate telemetry.
+    </p>
+  </header>
+
+  <main>
+    <section id="architecture" class="band">
+      <div class="section-head">
+        <p class="eyebrow">System Design</p>
+        <h2>Start With The Spoken Turn Contract</h2>
+        <p>
+          A real-time speech product is not only a model. It is a timed contract
+          across capture, VAD, ASR, policy, retrieval, LLM reasoning, TTS,
+          playback, observability, and rollback. The best senior answers make
+          the contract explicit before debating model choices.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Interactive Path</h3>
+          <p>
+            Wake word, VAD, streaming ASR, endpointing, intent detection,
+            retrieval, LLM/tool call, TTS first chunk, playback, and barge-in.
+          </p>
+          <details class="qa">
+            <summary>Question: Which metrics belong on the interactive path?</summary>
+            <p>
+              Time to first partial, partial rewrite rate, endpointing delay,
+              first audio byte, complete spoken turn latency, cancellation
+              success, barge-in recovery, task success, correction rate, and
+              cost per successful turn. Final WER alone is too narrow.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Control Plane</h3>
+          <p>
+            Model registry, prompt registry, dataset manifests, eval reports,
+            canary routing, tenant quotas, rollback targets, and incident state.
+          </p>
+          <details class="qa">
+            <summary>Question: What makes the control plane interview-worthy?</summary>
+            <p>
+              It shows how research changes become reversible production
+              changes. A strong design records model hashes, feature contracts,
+              prompt versions, eval slices, privacy policy, canary cohorts,
+              SLOs, cost gates, and known-good rollback targets.
+            </p>
+          </details>
+        </article>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt: Design A Real-Time Meeting Assistant</h3>
+        <p>
+          Build a meeting assistant that streams captions, answers questions
+          about the meeting, and produces a summary. It must support noisy rooms,
+          private enterprise data, and rollback during business hours.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior architecture outline</summary>
+          <p>
+            Separate the live caption path from slower summarization and
+            retrieval jobs. Use client audio capture, VAD, streaming ASR,
+            stable-prefix rendering, speaker diarization if required, a
+            consent-aware transcript store, retrieval over authorized meeting
+            context, and background summarization. Gate releases by partial
+            latency, final WER by noise and accent slice, speaker attribution,
+            retrieval grounding, privacy checks, and cost per meeting hour.
+            Keep previous ASR, diarization, prompt, and index versions available
+            for rollback.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="debugging" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Debugging</p>
+        <h2>Debug The Whole Turn, Not Just The Model</h2>
+        <p>
+          Many real-time regressions hide in orchestration, queueing, endpointing,
+          caches, and client rendering. Practice asking for the smallest trace
+          that separates model quality from system behavior.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Symptom: Good Final WER, Bad UX</h3>
+          <p>
+            Users say captions feel unstable. Offline final WER is unchanged.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: first checks</summary>
+            <p>
+              Check partial rewrite rate, stable-prefix policy, endpointing,
+              VAD thresholds, chunk size, decoder beam settings, timestamp
+              alignment, client debounce, network jitter, and slices by noise,
+              accent, language, and device. Mitigate with a stable prefix,
+              endpointing rollback, or affected-slice routing.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Symptom: TTS Starts Late</h3>
+          <p>
+            First audio byte regressed, but total synthesis time is flat.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: first checks</summary>
+            <p>
+              Inspect request queue time, model warm pool, prompt preprocessing,
+              text normalization, voice cache hits, network handoff, chunk
+              streaming, and admission control. A flat synthesis metric can hide
+              queueing or orchestration delay before synthesis begins.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Symptom: Spoken RAG Hallucinates</h3>
+          <p>
+            ASR and retrieval dashboards look healthy, but spoken answers cite
+            documents that do not support the answer.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: first checks</summary>
+            <p>
+              Audit ASR entity substitutions, query rewrite prompts, index
+              freshness, ACL filtering, reranker version, top-k size, stale
+              cache entries, answer grounding, citation selection, and TTS
+              pronunciation of entities. Add evals that inject realistic ASR
+              errors into retrieval queries.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Symptom: Cost Spike Under Flat Traffic</h3>
+          <p>
+            Traffic is stable, task success is flat, and GPU spend is up.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: first checks</summary>
+            <p>
+              Check average context tokens, retrieved chunks, retries, shadow
+              traffic, fallback model routes, cache hit rate, batch efficiency,
+              autoscaler floor, warm replicas, eval jobs on live pools, and
+              tenant mix. Report cost per successful spoken turn, not only
+              aggregate spend.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Utilities That Encode Operational Judgment</h2>
+        <p>
+          These are interview-sized functions. Before opening the answers,
+          state the invariant, edge cases, and tests.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: End-To-End Latency Budget</h3>
+        <p>
+          Given component p95 latencies and a product SLO, return whether the
+          path has budget left and name the largest contributors.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the sum of component p95 estimates is an approximate
+            upper-bound planning budget, not a replacement for trace percentiles.
+            Test exact budget, empty components, one dominant component, and a
+            negative or missing value rejected by input validation in real code.
+          </p>
+          <pre><code class="language-python">def latency_budget_report(components_ms, slo_ms, top_k=3):
+    total = sum(components_ms.values())
+    contributors = sorted(
+        components_ms.items(),
+        key=lambda item: item[1],
+        reverse=True,
+    )[:top_k]
+    return {
+        "total_ms": total,
+        "slo_ms": slo_ms,
+        "within_budget": total &lt;= slo_ms,
+        "remaining_ms": slo_ms - total,
+        "top_contributors": contributors,
+    }</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Stable Prefix Churn</h3>
+        <p>
+          Given successive partial transcripts, compute how often already-shown
+          words changed. Use this as a rough caption stability signal.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistakes, and Python solution</summary>
+          <p>
+            Invariant: only compare the shared prefix length between adjacent
+            partials. Common mistakes include comparing full strings, counting
+            appended words as churn, and ignoring empty partials.
+          </p>
+          <pre><code class="language-python">def prefix_churn_rate(partials):
+    comparisons = 0
+    churns = 0
+
+    for prev, curr in zip(partials, partials[1:]):
+        prev_words = prev.split()
+        curr_words = curr.split()
+        shared = min(len(prev_words), len(curr_words))
+        if shared == 0:
+            continue
+        comparisons += shared
+        for i in range(shared):
+            if prev_words[i] != curr_words[i]:
+                churns += 1
+
+    return 0.0 if comparisons == 0 else churns / comparisons</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Canary Rollback Trigger</h3>
+        <p>
+          Decide whether to rollback a canary from aggregate slice metrics.
+          Critical metrics should dominate average wins.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior reasoning and Python solution</summary>
+          <p>
+            A senior gate protects critical slices and privacy first. Average
+            quality improvements cannot excuse a privacy error, protected-slice
+            regression, or tail-latency breach.
+          </p>
+          <pre><code class="language-python">def should_rollback_canary(metrics):
+    reasons = []
+    if metrics.get("privacy_errors", 0) &gt; 0:
+        reasons.append("privacy_errors")
+    if metrics.get("p99_turn_latency_delta_ms", 0) &gt; 250:
+        reasons.append("tail_latency")
+    if metrics.get("noisy_room_task_success_delta", 0) &lt; -0.03:
+        reasons.append("noisy_room_regression")
+    if metrics.get("entity_recall_delta", 0) &lt; -0.02:
+        reasons.append("entity_recall_regression")
+
+    return {
+        "rollback": bool(reasons),
+        "reasons": reasons,
+    }</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Exam</p>
+        <h2>Senior Interview Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Local Versus Cloud Speech-To-Speech</h3>
+        <p>
+          A privacy-sensitive assistant needs wake word, dictation, RAG over
+          user documents, and natural TTS. Decide what runs on device, what runs
+          on a private server, and what can use managed cloud services.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior decision outline</summary>
+          <p>
+            Keep wake word, VAD, privacy filters, and simple commands local
+            when feasible. Use private server inference for heavy ASR, embeddings,
+            retrieval, and LLM reasoning when user documents are involved. Use
+            managed cloud only behind explicit consent, clear data boundaries,
+            encryption, retention controls, and fallback behavior. Discuss
+            latency, cost, model quality, offline mode, telemetry minimization,
+            and rollback for each tier.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Debug A Full-Turn Latency Regression</h3>
+        <p>
+          The product SLO is p95 complete spoken turn under 1.8 seconds. After
+          a release, p95 is 2.4 seconds. ASR, LLM, and TTS team dashboards each
+          say their component is healthy.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior incident outline</summary>
+          <p>
+            Build an end-to-end trace waterfall and compare old versus new by
+            queue time, orchestration gaps, retries, retrieval, context length,
+            tool calls, TTS first byte, playback buffering, cancellation, client
+            version, region, tenant, and model route. Mitigate by rolling back
+            the release, disabling expensive features, using smaller model tiers,
+            reducing retrieval top-k, or routing noninteractive work away from
+            live pools. Add a release gate for full-turn latency, not only
+            component metrics.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Explain The Research-To-Production Handoff</h3>
+        <p>
+          A research team delivers a better ASR checkpoint. What artifacts do
+          you require before production can safely canary it?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: handoff checklist</summary>
+          <p>
+            Require model hash, training data manifest, eval report by slice,
+            decoding settings, feature extraction contract, tokenizer or
+            vocabulary version, latency and memory profile, privacy review,
+            known failure modes, compatible serving image, rollout plan,
+            rollback target, dashboards, alerts, and owner contacts. The handoff
+            should make the model reproducible, observable, and reversible.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Use synthetic aggregate telemetry for practice. Keep private recordings, transcripts, and secrets out of Git.</p>
+  </footer>
+</body>
+</html>

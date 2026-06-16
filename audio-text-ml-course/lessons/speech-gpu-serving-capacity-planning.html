@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech GPU Serving Capacity Planning</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#mental-model">Mental Model</a>
+      <a href="#capacity">Capacity</a>
+      <a href="#autoscaling">Autoscaling</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#coding">Coding</a>
+    </nav>
+    <p class="eyebrow">Senior Serving Infrastructure</p>
+    <h1>Speech GPU Serving Capacity Planning</h1>
+    <p class="lede">
+      Practice the senior engineering layer between model quality and product
+      reliability: GPU memory math, batching, streaming concurrency,
+      autoscaling, load shedding, cost controls, and incident response for
+      ASR, TTS, LLM, and speech-to-speech systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="mental-model" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Mental Model</p>
+        <h2>Capacity Is A Product Contract</h2>
+        <p>
+          Senior interviewers expect you to connect traffic, latency, quality,
+          memory, and cost. A capacity plan is not a GPU count. It is an
+          argument that the system can keep its product promise when traffic,
+          inputs, and dependencies become uneven.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Segment traffic:</strong> real-time streams, async batch jobs, eval jobs, admin tools, and replay pipelines need separate queues.</li>
+        <li><strong>Budget stages:</strong> VAD, ASR partial, ASR final, retrieval, LLM first token, LLM decode, TTS first audio byte, and playback all consume SLO.</li>
+        <li><strong>Track scarce resources:</strong> GPU memory, KV cache, audio encoder occupancy, batch slots, CPU preprocessing, network egress, and warm voices.</li>
+        <li><strong>Reserve headroom:</strong> protect p95 and p99 with burst buffers, priority classes, and warm replicas for hot language and voice slices.</li>
+        <li><strong>Make rollback cheap:</strong> keep previous model bundles routable, preserve compatible schemas, and rehearse partial rollback by component.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can average GPU utilization be high while user latency is still bad?</summary>
+        <p>
+          Utilization can hide queueing and tail behavior. A GPU may be busy
+          with long prompts, oversized batches, low-priority replays, or cold
+          TTS voices while real-time requests wait. Senior diagnosis splits
+          utilization by traffic class, queue age, batch composition, model
+          version, context length, and stage latency.
+        </p>
+      </details>
+    </section>
+
+    <section id="capacity" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Capacity Planning</p>
+        <h2>Interview Prompts With Hidden Senior Answers</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Size A Streaming ASR Fleet</h3>
+        <p>
+          A contact-center ASR service receives 12,000 concurrent calls at
+          peak. Each call sends 16 kHz mono audio, needs first partial under
+          450 ms p95, and must tolerate one zone loss. Describe your capacity
+          model and rollout checks.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior sizing outline</summary>
+          <p>
+            Start from concurrent streams and audio seconds per second, then
+            split by language, model, region, and real-time priority. Measure
+            max streams per replica at p95 first-partial latency with realistic
+            noise and endpointing. Reserve zone-loss headroom, isolate eval and
+            replay traffic, and autoscale on queue age plus active streams
+            rather than GPU utilization alone. Rollout gates should compare
+            WER/CER slices, partial churn, first partial p95/p99, finalization
+            latency, endpointing errors, and cost per successful audio minute.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Estimate LLM KV Cache For Spoken RAG</h3>
+        <p>
+          A speech assistant sends ASR transcripts into an LLM with retrieval.
+          p95 prompt length grows from 2,000 to 6,000 tokens after a prompt
+          change, and first audio latency regresses. What do you inspect?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: memory, batching, and rollback</summary>
+          <p>
+            Inspect tokens per turn, retrieved chunk count, chat-history
+            carryover, cache hit rate, batch occupancy, KV-cache eviction,
+            decode throughput, and route mix. Longer prompts reduce effective
+            batch size and raise prefill latency before TTS can start. Mitigate
+            with retrieval caps, prompt compaction, session summarization,
+            context budgets by tier, speculative decoding checks, and rollback
+            to the previous prompt bundle if first-audio SLO burn continues.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Plan A TTS Voice Launch</h3>
+        <p>
+          Product wants to launch ten new expressive voices. The model is high
+          quality but each cold voice adds startup latency and memory pressure.
+          Design the serving plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: warm pools and guardrails</summary>
+          <p>
+            Launch by voice, language, tenant, and region. Keep warm pools for
+            top voices and lazy-load low-volume voices behind a clear latency
+            budget. Track first audio byte, streaming underruns, voice cache hit
+            rate, memory fragmentation, fallback voice usage, MOS proxies, and
+            abuse signals. Protect real-time traffic with priority queues and
+            fall back to a smaller or neutral voice if cold-start queues exceed
+            the SLO window.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="autoscaling" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Autoscaling</p>
+        <h2>Scale On User Pain, Not Only Hardware Counters</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt: Design Autoscaling Signals For Speech-To-Speech</h3>
+        <p>
+          Choose autoscaling and load-shedding signals for a cascaded
+          speech-to-speech product that mixes ASR, retrieval, LLM, and TTS.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: autoscaling policy</summary>
+          <p>
+            Scale ASR on active streams, chunk queue age, first partial p95,
+            and CPU feature extraction saturation. Scale LLM serving on prefill
+            queue age, active tokens, KV-cache pressure, decode tokens per
+            second, and time to first token. Scale TTS on first audio byte,
+            active synthesis streams, warm voice cache misses, and underruns.
+            Load shedding should degrade in order: reduce retrieval depth,
+            shorten context, route to smaller models, delay non-real-time jobs,
+            disable premium effects, and finally reject low-priority traffic
+            with clear retry behavior.
+          </p>
+        </details>
+      </article>
+      <details class="qa">
+        <summary>Question: What is the common autoscaling mistake in real-time ML systems?</summary>
+        <p>
+          Scaling only on GPU utilization. Real-time systems fail through queue
+          age, cold starts, memory fragmentation, context growth, noisy slices,
+          retry storms, and dependency latency before utilization alone tells a
+          complete story.
+        </p>
+      </details>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Incidents</p>
+        <h2>First-Hour Drills</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Real-Time Queue Saturation</h3>
+        <p>
+          Users report delayed assistant replies. Error rate is flat, but ASR
+          partials and TTS first audio byte are both slower in one region.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: triage path</summary>
+          <p>
+            Split by stage, traffic class, region, language, voice, model
+            bundle, queue age, and retry count. Check whether batch or replay
+            jobs leaked into the real-time pool, whether one dependency is
+            causing backpressure, and whether autoscaling is waiting on cold
+            starts. Freeze rollouts, drain non-real-time jobs, route affected
+            slices to warm fallback pools, and roll back the latest bundle if a
+            version-linked tail regression persists.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Cost Spike With Better Latency</h3>
+        <p>
+          Latency improved after a serving change, but daily GPU spend rose 38
+          percent and task success did not move. What is the senior response?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cost-quality investigation</summary>
+          <p>
+            Compare cost per successful turn, model mix, batch occupancy,
+            speculative acceptance rate, prompt tokens, cache reuse, fallback
+            rate, and overprovisioned warm pools. Better latency may come from
+            wasteful headroom or smaller batches. Decide whether the product
+            needs that latency gain, then set tier-specific SLOs, tighter warm
+            pool targets, context budgets, and a release gate on cost per
+            successful task rather than raw latency alone.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Drill</p>
+        <h2>Blind 75 Patterns In Serving Infrastructure</h2>
+        <p>
+          These drills use familiar interview patterns while staying close to
+          speech serving work. Open answers only after writing tests and a
+          first implementation.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Problem 1: Sliding Window Capacity Alert</h3>
+        <p>
+          Given per-minute queue-age measurements, return the first minute
+          where any window of <code>k</code> minutes has average queue age above
+          a threshold. Include edge cases and common mistakes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: the running sum always equals the current window. Common
+            mistakes are off-by-one return times, integer division, and
+            forgetting that alerting usually triggers at the end of the window.
+            Test empty input, k larger than input, threshold exactly equal,
+            first window breach, later breach, and no breach.
+          </p>
+          <pre><code class="language-python">def first_capacity_alert(queue_age_ms, k, threshold_ms):
+    if k &lt;= 0:
+        raise ValueError("k must be positive")
+    if len(queue_age_ms) &lt; k:
+        return None
+
+    window = sum(queue_age_ms[:k])
+    if window / k &gt; threshold_ms:
+        return k - 1
+
+    for right in range(k, len(queue_age_ms)):
+        window += queue_age_ms[right] - queue_age_ms[right - k]
+        if window / k &gt; threshold_ms:
+            return right
+    return None</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem 2: Allocate Requests To Model Pools</h3>
+        <p>
+          Given requests with priority and estimated cost, choose which requests
+          to admit under a fixed capacity budget. Higher priority wins; within
+          the same priority, cheaper requests should be admitted first.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strategy, tests, and Python solution</summary>
+          <p>
+            This is a sorting and greedy policy question, not optimal knapsack
+            unless the interviewer asks for value maximization. State the
+            product policy first. Test zero capacity, ties, requests larger
+            than capacity, equal priorities with different costs, and stable
+            identifiers for admitted requests.
+          </p>
+          <pre><code class="language-python">def admit_requests(requests, capacity):
+    ordered = sorted(
+        requests,
+        key=lambda r: (-r["priority"], r["estimated_cost"], r["id"]),
+    )
+    admitted = []
+    used = 0
+    for request in ordered:
+        cost = request["estimated_cost"]
+        if used + cost &lt;= capacity:
+            admitted.append(request["id"])
+            used += cost
+    return admitted</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Problem 3: Detect A Retry Storm</h3>
+        <p>
+          Given aggregate records with <code>minute</code>, <code>requests</code>,
+          and <code>retries</code>, flag sustained windows where retry rate is
+          above a threshold and request volume is also high enough to matter.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, mistakes, and Python solution</summary>
+          <p>
+            Maintain rolling requests and retries. The invariant is that both
+            sums represent exactly the current window. Avoid dividing by zero,
+            alerting on tiny samples, or looking only at retry count without
+            traffic volume.
+          </p>
+          <pre><code class="language-python">def retry_storm_windows(records, k, retry_threshold, min_requests):
+    if k &lt;= 0:
+        raise ValueError("k must be positive")
+    alerts = []
+    req_sum = 0
+    retry_sum = 0
+
+    for i, row in enumerate(records):
+        req_sum += row["requests"]
+        retry_sum += row["retries"]
+        if i &gt;= k:
+            old = records[i - k]
+            req_sum -= old["requests"]
+            retry_sum -= old["retries"]
+        if i &gt;= k - 1 and req_sum &gt;= min_requests:
+            if req_sum and retry_sum / req_sum &gt; retry_threshold:
+                alerts.append(row["minute"])
+    return alerts</code></pre>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

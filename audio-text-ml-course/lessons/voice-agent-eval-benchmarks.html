@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice Agent Evaluation Benchmarks</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#scorecard">Scorecard</a>
+      <a href="#benchmarks">Benchmarks</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#lab">Lab</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Senior Evaluation</p>
+    <h1>Voice Agent Evaluation Benchmarks</h1>
+    <p class="lede">
+      Build senior-level evaluation plans for spoken RAG agents, support bots,
+      and speech-to-speech systems where ASR, retrieval, reasoning, TTS, safety,
+      latency, and cost all interact.
+    </p>
+  </header>
+
+  <main>
+    <section id="scorecard" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Scorecard</p>
+        <h2>Evaluate The Conversation, Not Just The Model</h2>
+        <p>
+          A voice agent is a chain of probabilistic components plus product
+          behavior. Senior evaluation keeps component metrics, end-to-end task
+          metrics, and operational metrics visible at the same time.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Task Success</h3>
+          <p>Completion rate, correct action rate, clarification quality, escalation precision, and recovery after wrong turns.</p>
+          <details class="qa">
+            <summary>Question: Why is task success stronger than transcript accuracy?</summary>
+            <p>
+              Transcript accuracy is only one dependency. The product succeeds
+              when the user intent is understood, the right knowledge is found,
+              the answer is grounded, the spoken output is usable, and risky
+              actions are handled correctly.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Grounding And RAG</h3>
+          <p>Retrieval recall, reranker precision, citation support, unsupported claim rate, stale-document rate, and refusal quality.</p>
+          <details class="qa">
+            <summary>Question: What RAG metric can hide a bad voice experience?</summary>
+            <p>
+              High retrieval recall can hide poor query understanding, overly
+              long chunks, slow first audio, awkward summaries, missing caveats,
+              or answers that are faithful to a document but not to the user's
+              spoken intent.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Conversation Timing</h3>
+          <p>First partial, endpointing delay, retrieval latency, first token, first audio byte, interruption handling, and full-turn latency.</p>
+          <details class="qa">
+            <summary>Question: Which latency metrics deserve separate SLOs?</summary>
+            <p>
+              Separate first partial, endpointing, first audio byte, and full
+              turn latency. Users perceive waiting, interruption, and silence
+              differently, and each metric points to a different subsystem.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Safety And Operations</h3>
+          <p>PII exposure, spoken prompt injection, tool confirmation, abuse rate, cost per resolved task, fallback rate, and review burden.</p>
+          <details class="qa">
+            <summary>Question: What should never be the only safety signal?</summary>
+            <p>
+              Aggregate pass rate should not be the only safety signal. Track
+              high-risk slices, tool calls, replay or impersonation attempts,
+              sensitive entities, consent boundaries, and human-review escapes.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="benchmarks" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Benchmark Design</p>
+        <h2>Create Benchmarks That Survive Production Reality</h2>
+        <p>
+          A useful benchmark has clear scenarios, synthetic or sanitized audio
+          fixtures, expected outcomes, slice labels, versioned rubrics, and
+          rollout thresholds. Do not benchmark only clean text queries.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Benchmark 1: Spoken Manual Lookup</h3>
+        <p>
+          Users ask product-support questions that include model numbers,
+          abbreviations, background noise, and follow-up corrections.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: benchmark fields and gates</summary>
+          <p>
+            Store a sanitized spoken query, ASR hypothesis, expected entity,
+            expected document IDs, allowed answer facts, disallowed claims,
+            latency budgets, and slice tags such as noise, accent, device, and
+            domain term. Gate on entity accuracy, retrieval recall at k,
+            grounded answer score, clarification behavior, and first audio byte.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Benchmark 2: Multi-Turn Account Help</h3>
+        <p>
+          The agent must ask for clarification, remember safe context, avoid
+          speaking private details, and escalate when identity is uncertain.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: what to measure</summary>
+          <p>
+            Measure state carryover, privacy-safe redaction, identity checks,
+            escalation precision, tool-call confirmation, refusal wording, and
+            transcript retention. Add adversarial cases where the user changes
+            account, interrupts mid-confirmation, or asks the agent to ignore
+            policy.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Benchmark 3: Speech-To-Speech Repair</h3>
+        <p>
+          The user interrupts the agent, corrects a misheard entity, and expects
+          the next answer to reflect the correction.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior evaluation angle</summary>
+          <p>
+            Score barge-in detection, cancellation of stale TTS, state update,
+            correction acknowledgement, retrieval refresh, and new answer
+            grounding. A system can have good ASR and TTS while failing this
+            benchmark because orchestration state is stale.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Production Drills</p>
+        <h2>Debug Evaluation Failures Like Incidents</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident Drill 1: Offline Score Improved, Escalations Spiked</h3>
+        <p>
+          A new retriever improves offline grounding by 6%, but live human
+          escalations rise 18% for support calls with serial numbers.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour triage</summary>
+          <p>
+            Slice by serial-number presence, ASR confidence, retrieval query
+            rewrite, top-k disagreement, latency, clarification rate, and agent
+            policy version. Compare old and new traces using redacted entities.
+            Mitigate by rolling back the retriever for affected slices, adding
+            lexical/entity fallback, or asking targeted clarification before
+            escalation.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident Drill 2: TTS Upgrade Lowers Cost, Users Interrupt More</h3>
+        <p>
+          A cheaper voice lowers serving cost by 25%, but barge-in and repeat
+          request rates increase.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cost and quality tradeoff</summary>
+          <p>
+            Inspect first audio byte, chunk cadence, intelligibility, prosody,
+            speech rate, text segmentation, and whether users interrupt because
+            the answer starts late or sounds uncertain. A senior answer prices
+            the savings against completion loss and review cost, then proposes
+            a slice-specific fallback or rollback gate.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Implement A Tiny Voice-Agent Eval Aggregator</h2>
+        <p>
+          Use synthetic aggregate records only. The function below illustrates
+          how a release review can combine product, quality, latency, safety,
+          and cost signals.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Coding Lab: Release Decision From Eval Records</h3>
+        <p>
+          Given slice-level metrics for a baseline and candidate, return
+          continue, pause, or rollback with reasons.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariants, tests, and Python solution</summary>
+          <p>
+            Invariants: critical safety regressions override cost wins, every
+            slice is checked independently, lower-is-better and higher-is-better
+            metrics use opposite delta signs, and missing launch-critical
+            metrics pause the rollout. Test clean wins, cost-only wins, safety
+            regressions, latency regressions, and missing slice metrics.
+          </p>
+          <pre><code class="language-python">def decide_voice_agent_release(baseline, candidate, budgets):
+    reasons = []
+
+    for slice_name, metric_budgets in budgets.items():
+        old = baseline.get(slice_name)
+        new = candidate.get(slice_name)
+        if old is None or new is None:
+            reasons.append(("pause", slice_name, "missing slice"))
+            continue
+
+        for metric, rule in metric_budgets.items():
+            if metric not in old or metric not in new:
+                reasons.append(("pause", slice_name, f"missing {metric}"))
+                continue
+
+            delta = new[metric] - old[metric]
+            direction = rule["direction"]
+            allowed = rule["allowed_delta"]
+            severity = rule.get("severity", "normal")
+
+            regressed = (
+                direction == "lower_is_better" and delta &gt; allowed
+            ) or (
+                direction == "higher_is_better" and -delta &gt; allowed
+            )
+            if regressed:
+                action = "rollback" if severity == "critical" else "pause"
+                reasons.append((action, slice_name, metric, round(delta, 4)))
+
+    if any(reason[0] == "rollback" for reason in reasons):
+        return "rollback", reasons
+    if reasons:
+        return "pause", reasons
+    return "continue", []</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview And Exam</p>
+        <h2>Timed Prompts</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Design An Eval Plan For A Voice Banking Agent</h3>
+        <p>
+          The agent answers policy questions, verifies identity, and can start
+          sensitive account workflows. What do you evaluate before launch?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Cover ASR entity accuracy, identity verification flow, spoken prompt
+            injection, retrieval grounding, answer correctness, tool-call
+            confirmation, escalation, consent, redaction, latency, cost, audit
+            logs, rollback, and human-review burden. Include adversarial audio,
+            interrupted confirmations, low-confidence ASR, and stale policy
+            documents.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Explain A Launch Gate To A Product Manager</h3>
+        <p>
+          The candidate model is cheaper and sounds better, but noisy-device
+          task completion drops by 3%. What do you say?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: communication pattern</summary>
+          <p>
+            State the user impact, affected slice, confidence, business tradeoff,
+            and recommended action. A strong answer does not hide behind a
+            single aggregate score. It proposes a targeted rollback, extra eval
+            data, or slice-specific fallback while preserving the cost win where
+            quality stays inside budget.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Inference Platform Readiness</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#gates">Gates</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#lab">Lab</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Module 21</p>
+    <h1>Speech Inference Platform Readiness</h1>
+    <p class="lede">
+      Senior ML engineers are expected to turn ASR, TTS, LLM, and speech-to-speech
+      models into reliable products. This lesson practices readiness reviews:
+      capacity, rollout gates, monitoring, incident response, and cost-aware
+      serving decisions.
+    </p>
+  </header>
+
+  <main>
+    <section id="architecture" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Architecture Review</p>
+        <h2>Separate Real-Time Paths From Batch Paths</h2>
+        <p>
+          A production speech platform usually serves several workloads at once:
+          wake word, VAD, streaming ASR, turn classification, LLM reasoning,
+          retrieval, TTS, evaluation jobs, and offline transcription. Senior
+          design starts by separating user-visible latency paths from throughput
+          paths.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Real-Time Path</h3>
+          <p>
+            Optimize first partial transcript, first spoken response, queue age,
+            jitter, cancellation, barge-in, and fallback behavior.
+          </p>
+          <details class="qa">
+            <summary>Question: What should be isolated from real-time capacity?</summary>
+            <p>
+              Offline transcription, eval backfills, embedding generation, batch
+              redaction, shadow experiments, and heavy model sweeps. These jobs
+              can consume GPU memory and scheduler attention without improving
+              live user experience.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Batch Path</h3>
+          <p>
+            Optimize accelerator utilization, idempotent writes, checkpointing,
+            retry safety, lineage, and reproducible model or prompt versions.
+          </p>
+          <details class="qa">
+            <summary>Question: What makes a batch speech job production-ready?</summary>
+            <p>
+              It records input manifest versions, model hashes, decoding
+              settings, prompt versions, redaction policy, output schema,
+              checkpoint cursor, retry count, and aggregate quality metrics.
+              It should never require committing private audio or transcripts.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="gates" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Launch Gates</p>
+        <h2>Readiness Means Explicit Stop Conditions</h2>
+      </div>
+      <article class="prompt">
+        <h3>Gate 1: Streaming ASR Canary</h3>
+        <p>
+          A new ASR model improves average WER by 4 percent relative, but noisy
+          far-field traffic regresses by 8 percent relative. p95 first partial
+          transcript latency is unchanged. Should you launch?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior launch decision</summary>
+          <p>
+            Do not launch broadly. A senior answer protects the regressed slice,
+            checks whether far-field traffic is strategically important, audits
+            sample size and label quality, and proposes a constrained canary or
+            model routing rule only if the affected slice can be excluded. The
+            launch gate should include slice-level WER, entity recall, latency,
+            privacy logging checks, and rollback triggers.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Gate 2: TTS Voice Update</h3>
+        <p>
+          A new TTS voice has better MOS in human review, but first-audio-byte
+          p99 is 700 ms slower and GPU cost per minute is 35 percent higher.
+          Product wants to ship before a demo.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cost and latency tradeoff</summary>
+          <p>
+            Ship only behind an explicit product decision and a narrow audience
+            if the demo value justifies it. Keep the old voice as fallback,
+            enforce p99 and cost alerts, pre-warm where needed, and define a
+            rollback threshold. A strong senior answer separates subjective
+            quality wins from reliability and unit-economics risks.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Gate 3: Speech RAG Policy Change</h3>
+        <p>
+          Retrieval recall improved, but spoken answers now cite stale documents
+          more often because the top-k includes older policy pages.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: quality-system fix</summary>
+          <p>
+            Add freshness-aware ranking, metadata filters, stale-source
+            evaluation slices, and answer-level citation checks. Launch gates
+            should measure retrieval recall, source freshness, groundedness,
+            refusal behavior, ASR-noise robustness, and user-visible latency.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Practice</p>
+        <h2>First-Hour Debugging Drills</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Partial Transcript Churn</h3>
+          <p>
+            Users complain that live captions keep changing. Final WER is stable,
+            but partial text feels unusable.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: what to inspect</summary>
+            <p>
+              Inspect partial rewrite rate, endpointing thresholds, VAD
+              sensitivity, beam stability, token timestamps, noise slices,
+              client debounce behavior, and recent decoder changes. Mitigate by
+              stabilizing committed prefixes, tuning endpointing, or rolling back
+              the streaming decoder.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>GPU Cost Spike</h3>
+          <p>
+            Daily spend doubled with no obvious traffic growth. Quality metrics
+            are flat and user-visible latency is slightly better.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: what to inspect</summary>
+            <p>
+              Check batch size, utilization, autoscaler floor, shadow traffic,
+              eval jobs running on live pools, retry loops, longer contexts,
+              disabled quantization, over-warm replicas, and tenant mix. The
+              fix should preserve SLOs while restoring utilization and routing
+              batch work away from live capacity.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Regional ASR Regression</h3>
+          <p>
+            One region reports worse command recognition after a deployment.
+            Global dashboards look normal.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: what to inspect</summary>
+            <p>
+              Slice by region, language, accent, microphone path, network jitter,
+              client version, model version, feature extraction version, and
+              routing policy. Compare canary and control cohorts. A senior
+              responder does not rely on global WER during a regional complaint.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Abuse Alert</h3>
+          <p>
+            Abuse monitoring detects a burst of synthetic voice requests that
+            resemble impersonation attempts.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: what to inspect</summary>
+            <p>
+              Rate-limit suspicious tenants, preserve privacy-safe aggregate
+              evidence, disable risky voices if policy allows, inspect prompt
+              and account patterns, escalate to trust and safety, and confirm
+              that logs do not expose private voiceprints or raw recordings.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Release Gate Utilities</h2>
+        <p>
+          Implement small utilities that mirror production review work. Use
+          synthetic aggregate metrics only.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Lab 1: Rollout Gate Evaluator</h3>
+        <p>
+          Given metric deltas for a model canary, decide whether to continue,
+          pause, or rollback. Negative WER and latency deltas are improvements.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def rollout_decision(metrics):
+    hard_failures = []
+    if metrics["p95_latency_ms_delta"] &gt; 100:
+        hard_failures.append("latency")
+    if metrics["far_field_wer_relative_delta"] &gt; 0.03:
+        hard_failures.append("far_field_wer")
+    if metrics["privacy_error_count"] &gt; 0:
+        hard_failures.append("privacy")
+
+    if hard_failures:
+        return {"decision": "rollback", "reasons": hard_failures}
+
+    if metrics["overall_wer_relative_delta"] &lt;= -0.02:
+        return {"decision": "continue", "reasons": ["quality_gain"]}
+
+    return {"decision": "pause", "reasons": ["insufficient_gain"]}</code></pre>
+          <p>
+            The invariant is that privacy errors and protected-slice regressions
+            dominate average quality wins. A common mistake is launching because
+            aggregate WER improved.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Lab 2: Queue SLO Burn Rate</h3>
+        <p>
+          Compute the burn rate for a queue latency SLO. The error budget is the
+          allowed fraction of requests above threshold.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def queue_burn_rate(latencies_ms, threshold_ms=250, allowed_bad_fraction=0.01):
+    if not latencies_ms:
+        return 0.0
+    bad = sum(x &gt; threshold_ms for x in latencies_ms)
+    observed_bad_fraction = bad / len(latencies_ms)
+    return observed_bad_fraction / allowed_bad_fraction</code></pre>
+          <p>
+            A burn rate above 1 means the service is consuming error budget
+            faster than planned for that window. Alerting should combine short
+            and long windows to catch both spikes and slow burns.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Lab 3: Cost Regression Detector</h3>
+        <p>
+          Compare old and new cost per successful speech turn. Return the top
+          drivers that need investigation.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def cost_regression(old, new, tolerance=0.10):
+    old_unit = old["gpu_dollars"] / max(old["successful_turns"], 1)
+    new_unit = new["gpu_dollars"] / max(new["successful_turns"], 1)
+    relative = (new_unit - old_unit) / old_unit
+
+    drivers = []
+    for key in ("avg_context_tokens", "retry_rate", "shadow_traffic_fraction"):
+        if new[key] &gt; old[key]:
+            drivers.append(key)
+
+    return {
+        "old_unit_cost": old_unit,
+        "new_unit_cost": new_unit,
+        "relative_delta": relative,
+        "regressed": relative &gt; tolerance,
+        "drivers": drivers,
+    }</code></pre>
+          <p>
+            The useful metric is cost per successful user outcome, not total
+            spend alone. Rising traffic may be acceptable; rising unit cost
+            requires a capacity or product explanation.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Senior Interview Prompts</p>
+        <h2>Answer Out Loud Before Opening</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Design A Shared Speech Serving Platform</h3>
+        <p>
+          Design a platform that hosts streaming ASR, TTS, and speech-to-speech
+          for multiple product teams. Cover APIs, tenancy, scheduling,
+          observability, release gates, privacy, and cost controls.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Discuss separate real-time and batch pools, tenant quotas, model
+            registry, feature extraction contracts, streaming APIs, cancellation,
+            canary routing, slice metrics, privacy-safe telemetry, incident
+            runbooks, model rollback, autoscaling, GPU utilization, and chargeback
+            or showback. Call out that ASR, TTS, and LLM serving have different
+            bottlenecks.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Debug A Speech-To-Speech Latency Regression</h3>
+        <p>
+          p95 turn latency increased by 35 percent after a release. ASR, LLM,
+          and TTS each claim their local metrics are healthy.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Build an end-to-end trace waterfall and inspect queue time, network,
+            client buffering, orchestration gaps, retries, retrieval latency,
+            context growth, TTS first-audio-byte, playback start, and cancellation.
+            Local component health is not enough when the product SLO is a full
+            spoken turn.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 3: Choose Local, Cloud, Or Hybrid Inference</h3>
+        <p>
+          A privacy-sensitive assistant needs wake word, short commands, long
+          dictation, and high-quality TTS. Decide what runs locally versus in
+          the cloud.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Run wake word, VAD, privacy filters, and simple commands locally
+            when possible. Use cloud or dedicated servers for long dictation,
+            large LLM reasoning, heavy retrieval, and high-quality TTS if
+            consent and policy allow. Add offline fallback, explicit upload
+            boundaries, telemetry minimization, and model/version compatibility
+            checks.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Use only aggregate metrics and sanitized examples. Keep private recordings, transcripts, and secrets out of Git.</p>
+  </footer>
+</body>
+</html>

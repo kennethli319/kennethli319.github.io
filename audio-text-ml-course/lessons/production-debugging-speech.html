@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Debugging For Speech Systems</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#loop">Debug Loop</a>
+      <a href="#signals">Signals</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#code">Code</a>
+      <a href="#exam">Exam</a>
+    </nav>
+    <p class="eyebrow">Senior Production Track</p>
+    <h1>Production Debugging For Speech Systems</h1>
+    <p class="lede">
+      Practice the first hour of debugging for ASR, TTS, speech-to-speech, and
+      audio retrieval systems. The goal is to connect model behavior, serving
+      systems, telemetry, privacy, and rollback judgment.
+    </p>
+  </header>
+
+  <main>
+    <section id="loop" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Operating Loop</p>
+        <h2>Debug From Symptom To Decision</h2>
+        <p>
+          Senior engineers are judged by how quickly they separate product
+          impact, model quality, data drift, serving behavior, and release
+          safety. Use this loop for incident interviews and real launches.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Frame impact:</strong> affected product path, users, regions, tenants, model versions, and SLO breach.</li>
+        <li><strong>Freeze blast radius:</strong> pause rollout, cap canary, shed low-priority work, or switch to fallback.</li>
+        <li><strong>Compare cohorts:</strong> old versus new model, clean versus noisy audio, short versus long sessions, streaming versus batch.</li>
+        <li><strong>Trace the path:</strong> ingress, audio preprocessing, model execution, decoder, postprocess, client playback, and logs.</li>
+        <li><strong>Decide:</strong> rollback, hotfix, route around the issue, or continue rollout with a measured guardrail.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What makes speech production debugging different from text-only model debugging?</summary>
+        <p>
+          Speech systems can fail before the model sees useful features:
+          microphone path, sample rate, channel layout, clipping, VAD,
+          endpointing, codec artifacts, packet jitter, echo, playback timing,
+          and partial-result UI can all create user-visible failures. A strong
+          answer debugs the full audio path, not only model weights.
+        </p>
+      </details>
+    </section>
+
+    <section id="signals" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Telemetry</p>
+        <h2>Signals To Pull In The First Hour</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Serving Signals</h3>
+          <p>Queue age, batch size, timeout count, retry count, GPU memory, CPU preprocess time, cold starts, autoscaler lag, and fallback rate.</p>
+          <details class="qa">
+            <summary>Hidden answer: first comparison</summary>
+            <p>
+              Compare the same signals by model version and traffic cohort.
+              A p99 spike with unchanged model time points at queues, routing,
+              autoscaling, batching, retries, or dependency calls. A model-time
+              spike points at longer inputs, larger beams, precision changes,
+              cache misses, device placement, or a new model artifact.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Audio Signals</h3>
+          <p>Duration, sample rate, channel count, clipping ratio, silence ratio, VAD segment count, language probability, SNR proxy, and confidence.</p>
+          <details class="qa">
+            <summary>Hidden answer: privacy-safe handling</summary>
+            <p>
+              Prefer aggregate feature summaries, redacted transcripts,
+              synthetic canaries, public fixtures, and explicit opt-in review.
+              Raw private audio should not be the default debugging artifact.
+              Capture enough derived evidence to isolate drift without
+              creating a new privacy problem.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Incident Practice</p>
+        <h2>Four Senior Drills</h2>
+        <p>
+          Treat these as interview prompts. State assumptions, name the likely
+          failure planes, and finish with mitigation and prevention.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: WER Is Stable But Users Complain</h3>
+        <p>
+          Offline WER has not regressed, but users say the live dictation
+          experience became less trustworthy after a streaming decoder update.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: strong diagnosis</summary>
+          <p>
+            WER can miss partial churn, endpoint delay, punctuation flicker,
+            timestamp jumps, capitalization edits, UI commit behavior, and
+            domain entity instability. Compare partial-hypothesis churn,
+            first partial latency, finalization delay, edit distance over time,
+            and user correction rate. Roll back if live trust metrics regressed
+            even when final WER looks acceptable.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: TTS Sounds Better But The Agent Feels Slower</h3>
+        <p>
+          A new voice improves offline preference tests, but conversation turns
+          feel laggy and users interrupt more often.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Break down text normalization, sentence segmentation, acoustic
+            model latency, vocoder latency, first audio byte, streaming chunk
+            cadence, playback buffer, and client scheduling. Preference score
+            is not enough for conversational quality. Mitigate with sentence
+            streaming, warm pools, shorter first chunks, voice fallback,
+            lower-cost vocoding for long tails, or rollback.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Retrieval Quality Drops For Spoken Queries</h3>
+        <p>
+          Text queries still retrieve the right documents, but spoken questions
+          now produce weaker answers in the voice assistant.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: root-cause map</summary>
+          <p>
+            Inspect ASR substitutions on named entities, punctuation and casing
+            changes, query rewrite prompts, embedding model version, chunking,
+            top-k, filters, language detection, and answer-grounding policy.
+            Build paired evals from clean text, ASR hypotheses, and noisy ASR
+            hypotheses so retrieval regressions are caught before launch.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 4: Rollback Does Not Restore Latency</h3>
+        <p>
+          You rolled back the model version, but p99 latency remains high.
+          What do you investigate next?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: system-level investigation</summary>
+          <p>
+            Check queues left behind by the bad release, autoscaler state,
+            warmed model pools, cache fragmentation, client retry storms,
+            shadow traffic, changed feature flags, dependency rate limits,
+            schema migrations, and stuck workers. A rollback plan should
+            include draining queues, clearing bad caches, disabling shadow
+            traffic, and verifying recovery with synthetic probes.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="code" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Small Utilities For Incident Analysis</h2>
+        <p>
+          These examples are intentionally simple. They train interview-ready
+          thinking: define the signal, compute it reliably, and know the edge
+          cases.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Detect Partial Transcript Churn</h3>
+        <p>
+          Given a stream of interim ASR hypotheses, compute how often the text
+          changes after the previous hypothesis.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: each step compares one hypothesis with the immediately
+            preceding hypothesis. Empty streams have zero churn, and repeated
+            identical partials should not inflate the metric.
+          </p>
+          <pre><code class="language-python">def partial_churn_rate(partials):
+    if len(partials) &lt; 2:
+        return 0.0
+
+    changes = 0
+    for prev, current in zip(partials, partials[1:]):
+        if prev != current:
+            changes += 1
+    return changes / (len(partials) - 1)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Bucket Latency By Audio Duration</h3>
+        <p>
+          Given request records with audio duration and latency, compute average
+          latency for short, medium, and long audio.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: every record is assigned to exactly one duration bucket.
+            Missing buckets return <code>None</code> rather than pretending the
+            average is zero.
+          </p>
+          <pre><code class="language-python">def latency_by_duration(records):
+    buckets = {
+        "short": [],
+        "medium": [],
+        "long": [],
+    }
+    for item in records:
+        duration = item["audio_seconds"]
+        latency = item["latency_ms"]
+        if duration &lt; 5:
+            buckets["short"].append(latency)
+        elif duration &lt; 30:
+            buckets["medium"].append(latency)
+        else:
+            buckets["long"].append(latency)
+
+    return {
+        name: (sum(values) / len(values) if values else None)
+        for name, values in buckets.items()
+    }</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="exam" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Prompts</p>
+        <h2>Answer Like A Senior Engineer</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Define A Launch Gate For Streaming ASR</h3>
+        <p>
+          The team wants to ship a faster streaming ASR model. What launch gate
+          would you require?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: launch-gate outline</summary>
+          <p>
+            Include global WER plus slice WER, entity error, partial churn,
+            first partial latency, finalization delay, p95 and p99 server
+            latency, GPU cost per audio minute, privacy review, canary plan,
+            rollback switch, and owner. The gate should define explicit
+            regression budgets, not only "looks good" review.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Explain A Safe Hotfix</h3>
+        <p>
+          A VAD threshold change caused dropped first words for quiet speakers.
+          How do you hotfix without creating a second outage?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: hotfix plan</summary>
+          <p>
+            Restore the prior threshold for affected cohorts or roll back the
+            feature flag first. Reproduce with quiet-speaker fixtures, add a
+            regression test for leading-word deletion, canary the corrected
+            threshold, monitor first-token deletion, latency, false starts, and
+            VAD segment count, then update the release checklist.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep incident examples synthetic or sanitized. Do not commit raw private audio, transcripts, credentials, or customer identifiers.</p>
+  </footer>
+</body>
+</html>

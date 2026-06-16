@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Safety, Privacy, And Security</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#threats">Threats</a>
+      <a href="#controls">Controls</a>
+      <a href="#labs">Labs</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Production ML Track</p>
+    <h1>Speech Safety, Privacy, And Security</h1>
+    <p class="lede">
+      Senior speech engineers must protect users from prompt injection,
+      impersonation, unsafe voice cloning, PII leakage, retention mistakes, and
+      abuse while still shipping useful ASR, TTS, and speech-to-speech systems.
+    </p>
+  </header>
+
+  <main>
+    <section id="threats" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Threat Model</p>
+        <h2>Speech Systems Expand The Attack Surface</h2>
+        <p>
+          Audio systems inherit normal ML risks, then add speaker identity,
+          acoustic context, transcription uncertainty, replay attacks, consent,
+          and the emotional impact of generated voices.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Spoken Prompt Injection</h3>
+          <p>A user or background speaker says instructions that try to override policy, reveal private context, or change tool behavior.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior mitigation</summary>
+            <p>
+              Treat ASR output as untrusted user input. Keep system and tool
+              policy outside the transcript, classify tool intent separately,
+              require explicit confirmations for sensitive actions, evaluate
+              retrieval grounding, and log sanitized decision traces rather than
+              raw audio by default.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Voice Impersonation</h3>
+          <p>A generated or replayed voice attempts to pass as a trusted person, approve a transaction, or access private data.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior mitigation</summary>
+            <p>
+              Do not treat voice likeness as authentication. Use separate
+              factors, liveness and replay checks where appropriate, risk-based
+              step-up confirmation, consented enrollment, anti-spoof evals, and
+              clear product boundaries around what a cloned voice may do.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>PII In Audio And Transcripts</h3>
+          <p>Raw audio, transcripts, embeddings, traces, and labels may contain private names, addresses, health data, or account facts.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior mitigation</summary>
+            <p>
+              Design retention before collection. Prefer derived metrics,
+              explicit opt-in review pools, scoped access, redaction, encryption,
+              dataset lineage, deletion workflows, and synthetic fixtures for CI.
+              A debugging need is not a blanket reason to store raw audio.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Abuse And Harmful Output</h3>
+          <p>TTS can produce deceptive calls, harassment, unsafe instructions, or brand-damaging speech if generation is under-controlled.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior mitigation</summary>
+            <p>
+              Gate text before synthesis, restrict high-risk voices, watermark
+              or disclose where suitable, rate-limit abuse patterns, maintain
+              voice owner consent, and create rapid takedown and rollback paths.
+              Measure abuse response latency as an operational metric.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="controls" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Control Plane</p>
+        <h2>Build Safety Into Release Gates</h2>
+        <p>
+          Safety should not be a final checklist after model quality passes. It
+          should be part of dataset contracts, eval design, CI/CD, monitoring,
+          incident response, and cost-aware serving.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Data contract:</strong> define consent, retention, redaction, allowed features, labeling access, and deletion behavior.</li>
+        <li><strong>Model contract:</strong> document input modalities, output risks, unsupported use cases, safety filters, and fallback modes.</li>
+        <li><strong>Eval contract:</strong> include prompt injection, replay, PII leakage, toxic synthesis, language slices, and noisy-background cases.</li>
+        <li><strong>Serving contract:</strong> isolate tenants, version policies, record sanitized traces, enforce rate limits, and keep rollback fast.</li>
+        <li><strong>Incident contract:</strong> define severity, owner, mitigation lever, user communication path, and evidence preservation rules.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the difference between model safety and system safety?</summary>
+        <p>
+          Model safety asks whether the model behaves acceptably for tested
+          inputs. System safety asks whether the full product remains safe when
+          transcription is wrong, retrieval is stale, policies change, tools are
+          available, attackers adapt, latency spikes, and operators need to
+          debug without exposing private data.
+        </p>
+      </details>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Labs</p>
+        <h2>Small Safety Utilities</h2>
+        <p>
+          These exercises are deliberately compact. They train the habit of
+          turning abstract safety concerns into inspectable controls and tests.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Transcript Redaction Gate</h3>
+        <p>
+          Given a transcript and a list of sensitive patterns, return a redacted
+          transcript and a flag saying whether storage requires restricted
+          handling.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: each sensitive detector is applied before persistence,
+            and any match upgrades handling. Test no matches, repeated matches,
+            overlapping categories, and transcripts that should be discarded
+            rather than stored.
+          </p>
+          <pre><code class="language-python">import re
+
+
+def redact_transcript(text, detectors):
+    restricted = False
+    redacted = text
+    for label, pattern in detectors:
+        redacted, count = re.subn(pattern, f"[REDACTED_{label}]", redacted)
+        if count:
+            restricted = True
+    return redacted, restricted
+
+
+detectors = [
+    ("EMAIL", r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),
+    ("PHONE", r"\b\d{3}[-.]\d{3}[-.]\d{4}\b"),
+]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Sensitive Tool Confirmation</h3>
+        <p>
+          Given a parsed voice intent, decide whether the assistant may execute
+          it, needs confirmation, or must refuse.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: high-risk action classes require explicit confirmation
+            from the active user context, and disallowed actions are refused
+            even when the transcript sounds confident. Test background speaker
+            commands, money movement, account deletion, and harmless queries.
+          </p>
+          <pre><code class="language-python">def tool_decision(intent, policy):
+    action = intent["action"]
+    if action in policy["blocked"]:
+        return "refuse"
+    if action in policy["requires_confirmation"]:
+        if intent.get("confirmed") and intent.get("speaker") == "active_user":
+            return "execute"
+        return "confirm"
+    return "execute"
+
+
+policy = {
+    "blocked": {"share_secret", "impersonate_person"},
+    "requires_confirmation": {"send_message", "delete_file", "place_order"},
+}</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Abuse Spike Detector</h3>
+        <p>
+          Given per-window counts for blocked TTS requests, detect a possible
+          abuse spike while ignoring tiny sample sizes.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: alert only when volume is large enough and the blocked
+            fraction meaningfully exceeds baseline. Test zero traffic, low
+            volume, high volume with normal rate, and high volume with a sharp
+            blocked-rate increase.
+          </p>
+          <pre><code class="language-python">def abuse_spike(window, baseline_rate, min_requests, multiplier):
+    total = window["total"]
+    blocked = window["blocked"]
+    if total &lt; min_requests:
+        return False
+    if baseline_rate &lt;= 0:
+        return blocked &gt; 0
+    return (blocked / total) &gt;= baseline_rate * multiplier</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Prompts</p>
+        <h2>Senior Safety And Privacy Questions</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: A Voice Agent Executes Background Instructions</h3>
+        <p>
+          A user reports that a support agent followed instructions spoken by a
+          TV in the background. How do you triage and prevent recurrence?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Mitigate first by disabling or confirming sensitive tools, then
+            inspect sanitized traces for ASR segments, speaker labels, intent
+            confidence, tool policy version, and confirmation state. Prevent
+            recurrence with active-speaker checks, tool-risk tiers, confirmation
+            prompts, injection evals, and a canary gate that includes noisy
+            background audio.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: A Customer Requests Deletion Of Their Voice Data</h3>
+        <p>
+          What should a production speech platform delete, and what metadata
+          may be kept?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Delete raw audio, transcripts, labels, embeddings, derived examples,
+            and model-training references linked to the user according to the
+            retention contract. Keep only permitted aggregate metrics and audit
+            records that do not reconstruct the user's content. The answer
+            should mention lineage, backups, downstream datasets, and proof of
+            deletion.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: A TTS Voice Is Used For Fraudulent Calls</h3>
+        <p>
+          Your platform detects a spike in generated calls impersonating a
+          public-facing employee. What actions do you take?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Rate-limit or disable the abusive route, preserve evidence, notify
+            safety/legal owners, revoke the voice if consent or policy is
+            violated, add detection rules, and review gaps in voice enrollment,
+            output filtering, and abuse monitoring. Measure time to mitigation
+            and ship regression tests before re-enabling risky paths.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Keep private audio and transcripts out of Git. Record aggregate metrics and sanitized notes only.</p>
+  </footer>
+</body>
+</html>

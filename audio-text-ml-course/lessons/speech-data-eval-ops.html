@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech Data And Evaluation Operations</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#loop">Loop</a>
+      <a href="#datasets">Datasets</a>
+      <a href="#labeling">Labeling</a>
+      <a href="#evals">Evals</a>
+      <a href="#drills">Drills</a>
+      <a href="#code">Code</a>
+    </nav>
+    <p class="eyebrow">Senior Production Track</p>
+    <h1>Speech Data And Evaluation Operations</h1>
+    <p class="lede">
+      Build the operating discipline behind strong ASR, TTS, speech-to-speech,
+      and speech RAG systems: dataset contracts, labeling quality, eval slices,
+      privacy boundaries, CI gates, drift monitoring, and release decisions.
+    </p>
+  </header>
+
+  <main>
+    <section id="loop" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Data Flywheel</p>
+        <h2>Turn Production Signals Into Safer Model Improvements</h2>
+        <p>
+          Senior ML engineers are expected to connect model training with
+          product telemetry, human review, release gates, and rollback. The
+          data loop must improve quality without turning private audio into an
+          unmanaged asset.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Observe:</strong> collect aggregate latency, confidence, slice, correction, and failure signals.</li>
+        <li><strong>Sample:</strong> select privacy-approved examples or synthetic fixtures that represent failure modes.</li>
+        <li><strong>Label:</strong> define rubrics, annotator checks, disagreement rules, and audit trails.</li>
+        <li><strong>Evaluate:</strong> run stable offline suites plus shadow or canary metrics before rollout.</li>
+        <li><strong>Ship:</strong> use CI gates, model registry metadata, rollout flags, and rollback drills.</li>
+        <li><strong>Monitor:</strong> track drift, cost, latency, quality, and user harm signals after launch.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What separates a senior answer from a junior answer here?</summary>
+        <p>
+          A junior answer often says "collect more data." A senior answer says
+          which data is allowed, which slice is missing, how labels are audited,
+          how offline evals map to online metrics, what regression budget is
+          acceptable, and how the team rolls back if the improvement fails in
+          production.
+        </p>
+      </details>
+    </section>
+
+    <section id="datasets" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Dataset Contracts</p>
+        <h2>Every Dataset Needs A Release Contract</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Required Metadata</h3>
+          <p>Purpose, owner, consent scope, source, retention policy, allowed uses, language, domain, acoustic conditions, device class, and known gaps.</p>
+          <details class="qa">
+            <summary>Hidden answer: why metadata changes model risk</summary>
+            <p>
+              Metadata tells you whether an eval result can be trusted for the
+              launch target. A dataset dominated by clean English headset audio
+              does not validate noisy mobile dictation, multilingual support,
+              rare names, far-field assistants, or low-bandwidth calls.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Versioned Artifacts</h3>
+          <p>Keep immutable manifests, checksums, schema versions, split definitions, label rubric versions, and model-to-data lineage.</p>
+          <details class="qa">
+            <summary>Hidden answer: release-review invariant</summary>
+            <p>
+              A model release must be reproducible enough to answer: which
+              data trained it, which data evaluated it, which labels changed,
+              which slices regressed, and which users could be affected. If
+              the team cannot answer those questions, rollback and debugging
+              become guesswork.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="labeling" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Label Quality</p>
+        <h2>Design The Labeling System Before Scaling It</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>ASR Labels</h3>
+          <p>Normalize punctuation, casing, numerals, hesitations, diarization, timestamp rules, and entity spelling before measuring WER.</p>
+          <details class="qa">
+            <summary>Hidden answer: common failure</summary>
+            <p>
+              Teams often mix label conventions and then blame the model for
+              noisy metrics. Decide whether "twenty one" and "21" are
+              equivalent, whether filler words count, and how domain terms are
+              canonicalized.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Labels</h3>
+          <p>Separate intelligibility, naturalness, pronunciation, speaker consistency, latency, clipping, prosody, and safety preference.</p>
+          <details class="qa">
+            <summary>Hidden answer: senior rubric</summary>
+            <p>
+              Do not reduce TTS to a single preference score. A voice can sound
+              pleasant but fail on names, numbers, long-form stability,
+              streaming first audio, or emotionally sensitive content.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Speech RAG Labels</h3>
+          <p>Judge ASR hypothesis quality, retrieval recall, groundedness, citation correctness, answer usefulness, and spoken delivery separately.</p>
+          <details class="qa">
+            <summary>Hidden answer: why separate stages</summary>
+            <p>
+              End-to-end scores are useful, but stage labels show where to fix
+              the system. A bad spoken answer may come from ASR entity
+              substitution, retrieval miss, prompt behavior, stale documents,
+              or TTS delivery.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="evals" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Evaluation Design</p>
+        <h2>Build Gates That Catch Real Regressions</h2>
+      </div>
+      <article class="prompt">
+        <h3>Gate 1: Streaming ASR Release</h3>
+        <p>
+          Define the minimum offline and online signals required before a new
+          streaming decoder reaches 25 percent of users.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: release gate</summary>
+          <p>
+            Require aggregate and slice WER, entity error, partial churn,
+            first partial latency, finalization delay, correction rate, timeout
+            rate, retry rate, cost per audio minute, privacy review, rollback
+            flag, and owner sign-off. Set explicit budgets for accented speech,
+            noisy mobile audio, rare names, code-switching, and long dictation.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Gate 2: TTS Voice Upgrade</h3>
+        <p>
+          The new voice wins preference tests but increases first audio byte by
+          300 ms. What should the release decision include?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: decision framework</summary>
+          <p>
+            Compare preference lift against latency, interruption rate,
+            completion rate, device buffer behavior, warm-pool cost, and
+            fallback quality. Consider routing short conversational answers to
+            the faster path while using the preferred voice for longer or less
+            latency-sensitive responses.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Gate 3: Speech RAG Knowledge Refresh</h3>
+        <p>
+          A new document index improves text-query retrieval but hurts spoken
+          query answers. What should the eval reveal?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: eval slices</summary>
+          <p>
+            Pair clean text queries with ASR hypotheses and noisy hypotheses.
+            Measure retrieval recall, entity miss rate, answer groundedness,
+            refusal correctness, citation quality, latency, and spoken
+            response usefulness. Spoken-query regressions often come from ASR
+            substitutions interacting with chunking or filters.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="drills" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Drills</p>
+        <h2>Practice Production Judgment</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Label Drift After A Product Redesign</h3>
+        <p>
+          A redesigned dictation UI changes how users correct text. Correction
+          rate drops, but complaints rise. How do you debug the metric?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior response</summary>
+          <p>
+            Treat correction rate as product-coupled, not pure model quality.
+            Compare edit affordances, abandoned sessions, manual retyping,
+            thumbs-down feedback, support tickets, final transcript error
+            audits, and cohort-level usage. Add a stable offline eval and a
+            UI-independent human review sample before trusting the metric.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Vendor Model Beats Internal Model Offline</h3>
+        <p>
+          A vendor ASR model has lower WER on your benchmark. What questions
+          must be answered before replacing the internal model?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: review checklist</summary>
+          <p>
+            Ask about data rights, retention, latency, streaming partials,
+            domain vocabulary, custom biasing, outages, observability,
+            rollback, cost at peak, privacy review, security boundaries,
+            support SLAs, and slice regressions. Offline WER is only one input
+            to a production replacement decision.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="code" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Lab</p>
+        <h2>Compute Slice Regressions</h2>
+        <p>
+          Many senior interview questions become easier when you can write the
+          small analysis utilities cleanly.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Lab: Flag Slices That Exceed A Regression Budget</h3>
+        <p>
+          Given old and new metric values by slice, return the slices where
+          the new value regresses more than the allowed amount.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: each output row has a slice present in both metric
+            maps, and <code>new - old</code> is greater than the regression
+            budget. Missing slices should be reported by a schema check, not
+            silently treated as zero.
+          </p>
+          <pre><code class="language-python">def slices_over_budget(old_metrics, new_metrics, budget):
+    flagged = []
+    for name, old_value in old_metrics.items():
+        if name not in new_metrics:
+            continue
+        delta = new_metrics[name] - old_value
+        if delta &gt; budget:
+            flagged.append({
+                "slice": name,
+                "old": old_value,
+                "new": new_metrics[name],
+                "delta": delta,
+            })
+    return flagged</code></pre>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

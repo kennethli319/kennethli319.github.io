@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Speech AI Load Testing And Chaos Readiness</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#model">Mental Model</a>
+      <a href="#load">Load Tests</a>
+      <a href="#chaos">Chaos Drills</a>
+      <a href="#labs">Labs</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Senior Production Practice</p>
+    <h1>Speech AI Load Testing And Chaos Readiness</h1>
+    <p class="lede">
+      Learn how senior ML engineers prove that ASR, TTS, retrieval, LLM, and
+      speech-to-speech systems will keep working when traffic, latency,
+      dependency failures, and cost pressure arrive at the same time.
+    </p>
+  </header>
+
+  <main>
+    <section id="model" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Operating Model</p>
+        <h2>Test The Whole Spoken Turn, Not Just One Model</h2>
+        <p>
+          A speech product can pass unit tests and offline evals while failing
+          live because the real bottleneck is queueing, turn-taking, GPU memory,
+          cache misses, retrieval fanout, TTS warmup, client playback, or a bad
+          retry policy. A senior load test validates quality, latency, cost, and
+          graceful degradation together.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Define the user promise:</strong> first partial, final transcript, first audio byte, barge-in, and task success targets.</li>
+        <li><strong>Model traffic:</strong> concurrency, utterance duration, silence, language mix, noisy devices, tenant skew, and burst shape.</li>
+        <li><strong>Protect privacy:</strong> use synthetic or approved aggregate fixtures, never private recordings or raw transcripts.</li>
+        <li><strong>Measure end to end:</strong> include client, network, VAD, ASR, retrieval, LLM, TTS, and playback timestamps.</li>
+        <li><strong>Force failure:</strong> inject slow dependencies, unavailable regions, cold starts, model rollback, quota pressure, and retry storms.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is offline WER insufficient for launch readiness?</summary>
+        <p>
+          WER only measures transcript text quality on a fixed set. It misses
+          tail latency, partial transcript churn, endpointing errors, GPU queue
+          saturation, retry storms, cost spikes, stale retrieval, TTS first
+          audio byte, and user-visible recovery behavior. Launch readiness needs
+          offline quality plus live-system stress signals.
+        </p>
+      </details>
+    </section>
+
+    <section id="load" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Load Testing</p>
+        <h2>Design Tests Around Invariants</h2>
+        <p>
+          Good load tests are not random traffic floods. They encode the system
+          invariants that must stay true while traffic changes.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Streaming ASR Invariant</h3>
+          <p>Interactive traffic must not wait behind batch transcription, and first partial p95 must stay below the product target.</p>
+          <details class="qa">
+            <summary>Hidden answer: useful test shape</summary>
+            <p>
+              Run mixed traffic with short live calls, long batch files, noisy
+              mobile audio, and tenant-specific vocabulary updates. Verify
+              priority queues, per-stream state limits, GPU queue depth,
+              endpointing stability, and fallback to a smaller model when the
+              interactive queue burns error budget.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>TTS Invariant</h3>
+          <p>First audio byte must stay low even when a new voice, long prompt, or cold region enters the serving path.</p>
+          <details class="qa">
+            <summary>Hidden answer: useful test shape</summary>
+            <p>
+              Test short confirmations, long policy explanations, multilingual
+              text normalization, warm-pool depletion, cache misses, and vocoder
+              placement. Separate first audio byte, full synthesis time, and
+              playback underruns so mitigation is precise.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Spoken RAG Invariant</h3>
+          <p>Retrieval freshness, ACLs, and grounded answers must hold under index refresh and ASR entity errors.</p>
+          <details class="qa">
+            <summary>Hidden answer: useful test shape</summary>
+            <p>
+              Replay synthetic noisy queries across tenants while rotating index
+              versions. Track retrieval recall, stale-document rate, forbidden
+              document exposure, answer grounding, LLM token cost, and handoff
+              rate. Fail closed when ACL or freshness checks are uncertain.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Cost Invariant</h3>
+          <p>Cost per successful turn must not exceed the launch budget without a measured quality gain.</p>
+          <details class="qa">
+            <summary>Hidden answer: useful test shape</summary>
+            <p>
+              Stress long conversations, retrieval fanout, disabled cache,
+              retries, high-temperature regeneration, and fallback chains.
+              Watch tokens per turn, GPU seconds, cache hit rate, successful
+              task completion, and the point where a cheaper route should take
+              over.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="chaos" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Chaos Readiness</p>
+        <h2>Failure Drills For Speech Systems</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: GPU Region Loses Half Its Capacity</h3>
+        <p>
+          During peak call volume, one serving region loses half of its GPU
+          workers. Batch ASR and interactive voice-agent calls share the same
+          cluster.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior recovery plan</summary>
+          <p>
+            Preserve interactive traffic first. Shed or defer batch work, lower
+            max batch delay for live calls, route overflow to a warm fallback
+            region, and downgrade noncritical paths to smaller models. Watch
+            p95 first partial, queue depth, retry rate, GPU memory headroom,
+            tenant error budgets, and cost. The prevention item is hard
+            isolation or strict priority plus a load test proving it.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: TTS Cache Is Accidentally Bypassed</h3>
+        <p>
+          A release changes text normalization. Cache hit rate falls from 62
+          percent to 7 percent, first audio byte doubles, and cost rises.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: diagnosis and rollback trigger</summary>
+          <p>
+            Compare normalized text keys, voice IDs, locale, punctuation,
+            segmentation, and cache namespaces between old and new releases.
+            Roll back if first audio byte or cost-per-success crosses the gate.
+            Prevention: add a CI fixture that snapshots normalization keys for
+            common utterances and a canary gate for cache hit rate.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Retrieval Dependency Adds 800 ms</h3>
+        <p>
+          A vector database upgrade increases p95 retrieval latency. ASR and
+          TTS are healthy, but voice-agent turns feel slow.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: graceful degradation</summary>
+          <p>
+            Use retrieval timeouts, smaller top-k, cached tenant policy
+            snippets, answer templates for safe intents, or human handoff for
+            high-risk intents. Do not silently answer from stale documents
+            unless the product explicitly allows it. Add dependency-latency
+            chaos tests and grounded-answer checks under timeout behavior.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="labs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Coding Labs</p>
+        <h2>Encode Readiness Gates In Python</h2>
+        <p>
+          These labs use synthetic aggregate metrics. They are safe to commit
+          and useful in interviews because they turn operational judgment into
+          clear, testable rules.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Lab 1: Load-Test Gate</h3>
+        <p>
+          Given aggregate load-test metrics by route, decide whether the release
+          can ship. Each route has p95 latency, error rate, cost per successful
+          turn, and task success delta versus baseline.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: a route can only pass if user experience, reliability,
+            and cost are all inside budget. Test a clean pass, a latency fail, a
+            cost fail with quality gain, and missing route metrics.
+          </p>
+          <pre><code class="language-python">def evaluate_load_gate(routes, budgets):
+    failures = []
+    for name, metrics in routes.items():
+        budget = budgets[name]
+        if metrics["p95_ms"] &gt; budget["p95_ms"]:
+            failures.append((name, "latency", metrics["p95_ms"]))
+        if metrics["error_rate"] &gt; budget["error_rate"]:
+            failures.append((name, "errors", metrics["error_rate"]))
+
+        cost_over = metrics["cost_per_success"] &gt; budget["cost_per_success"]
+        quality_gain = metrics["task_success_delta"] &gt;= budget.get("min_gain_for_cost_overrun", 0.02)
+        if cost_over and not quality_gain:
+            failures.append((name, "cost_without_quality_gain", metrics["cost_per_success"]))
+
+    return {"ship": not failures, "failures": failures}</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 2: Retry Storm Detector</h3>
+        <p>
+          Detect when client or service retries are amplifying a dependency
+          failure during a voice-agent incident.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: common mistakes and Python solution</summary>
+          <p>
+            Common mistakes are alerting on request count alone, ignoring the
+            baseline, and missing the dependency error signal. Retry storms show
+            more attempts per original user turn plus rising dependency errors.
+          </p>
+          <pre><code class="language-python">def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_threshold=0.05):
+    alerts = []
+    for point in points:
+        user_turns = max(point["user_turns"], 1)
+        attempt_ratio = point["service_attempts"] / user_turns
+        if attempt_ratio &gt;= attempt_ratio_threshold and point["dependency_error_rate"] &gt;= dependency_error_threshold:
+            alerts.append({
+                "minute": point["minute"],
+                "attempt_ratio": round(attempt_ratio, 2),
+                "dependency_error_rate": point["dependency_error_rate"],
+                "action": "cap_retries_and_enable_fallback",
+            })
+    return alerts</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Lab 3: Capacity Step-Load Summary</h3>
+        <p>
+          Summarize a step-load test and find the first concurrency level where
+          the system violates its latency or error budget.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant and Python solution</summary>
+          <p>
+            Invariant: the supported capacity is the last passing step before
+            the first sustained violation. This avoids claiming capacity from a
+            single lucky point after overload has started.
+          </p>
+          <pre><code class="language-python">def first_capacity_break(steps, p95_budget_ms, error_budget):
+    last_passing = None
+    for step in steps:
+        passes = step["p95_ms"] &lt;= p95_budget_ms and step["error_rate"] &lt;= error_budget
+        if passes:
+            last_passing = step["concurrency"]
+            continue
+        return {
+            "max_supported_concurrency": last_passing,
+            "first_failing_concurrency": step["concurrency"],
+            "p95_ms": step["p95_ms"],
+            "error_rate": step["error_rate"],
+        }
+    return {"max_supported_concurrency": last_passing, "first_failing_concurrency": None}</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview And Exam Prompts</p>
+        <h2>Practice Senior Answers Under Constraint</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Load-Test A Speech-To-Speech Agent Before Launch</h3>
+        <p>
+          You have two weeks before launch. Design the load test, quality gates,
+          rollback triggers, and dashboards for a speech-to-speech support
+          agent serving enterprise tenants.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior outline</summary>
+          <p>
+            Cover traffic modeling, tenant skew, approved synthetic fixtures,
+            ASR partial latency, LLM first token, retrieval latency, TTS first
+            audio byte, barge-in, task success, groundedness, safety, cost per
+            success, and rollback. Include real-time versus batch isolation,
+            priority queues, fallback model routes, per-tenant dashboards, and
+            a go/no-go meeting with explicit launch gates.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Explain The Difference Between Load Testing And Chaos Testing</h3>
+        <p>
+          Give a concise senior answer, then map both to ASR, TTS, and spoken
+          RAG.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: concise distinction</summary>
+          <p>
+            Load testing asks whether the system meets promises under expected
+            and peak traffic. Chaos testing asks whether it degrades safely when
+            parts fail. For ASR, load tests stress concurrency and chunking;
+            chaos tests remove GPU capacity or slow VAD. For TTS, load tests
+            stress voice pools and cache; chaos tests bypass cache or cold-start
+            regions. For spoken RAG, load tests stress retrieval fanout; chaos
+            tests add stale indexes, slow dependencies, and ACL uncertainty.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

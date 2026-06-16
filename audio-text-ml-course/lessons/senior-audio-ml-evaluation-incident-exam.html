@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Senior Audio ML Evaluation And Incident Exam</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#format">Format</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#incidents">Incidents</a>
+      <a href="#coding">Coding</a>
+      <a href="#rubric">Rubric</a>
+    </nav>
+    <p class="eyebrow">Senior Exam Track</p>
+    <h1>Audio ML Evaluation And Incident Exam</h1>
+    <p class="lede">
+      A senior-level practice set for designing speech evaluation systems,
+      defending rollout gates, debugging production regressions, and writing
+      small utilities that encode operational judgment.
+    </p>
+  </header>
+
+  <main>
+    <section id="format" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Exam Method</p>
+        <h2>Answer With Evidence, Not Vibes</h2>
+        <p>
+          Each prompt asks for a decision under uncertainty. Before opening the
+          hidden answer, write the metric contract, the slice plan, the
+          rollback trigger, and the smallest useful implementation.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Define quality:</strong> specify user-visible outcomes, proxy metrics, and failure modes.</li>
+        <li><strong>Slice first:</strong> segment by language, accent, noise, device, tenant, region, model version, and traffic path.</li>
+        <li><strong>Gate releases:</strong> combine offline evals, shadow traffic, canaries, SLOs, and rollback criteria.</li>
+        <li><strong>Debug safely:</strong> use aggregate telemetry and consented fixtures instead of private raw audio or transcripts.</li>
+        <li><strong>Encode judgment:</strong> write small deterministic utilities for promotion, rollback, drift, and cost decisions.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can aggregate WER be a dangerous launch metric?</summary>
+        <p>
+          Aggregate WER can improve while a critical slice regresses. A senior
+          launch gate checks user-impacting slices such as noisy mobile calls,
+          accented speech, domain terms, entity-heavy utterances, and regions
+          with different network conditions. It also connects WER to downstream
+          task success, correction rate, latency, safety, and cost.
+        </p>
+      </details>
+    </section>
+
+    <section id="evaluation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 1</p>
+        <h2>Design The Evaluation Stack</h2>
+        <p>
+          These prompts test whether you can build evaluation systems that
+          serve research, release engineering, and production operations.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Streaming ASR Release Gate</h3>
+        <p>
+          A candidate streaming ASR model improves offline WER by 4 percent
+          but changes partial hypothesis behavior. Design the promotion gate.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior gate outline</summary>
+          <p>
+            Gate on final WER and CER by slice, entity recall, punctuation if
+            user-visible, first partial latency, finalization latency, partial
+            churn, endpointing false cuts, correction rate, and downstream task
+            success. Run offline fixtures, shadow traffic, and a small canary.
+            Promote only if no protected or high-value slice crosses a defined
+            regression threshold. Roll back on tail-latency SLO breach,
+            correction-rate spike, or severe entity recall regression.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Spoken RAG Evaluation</h3>
+        <p>
+          A voice assistant answers enterprise policy questions. Users speak
+          through ASR, retrieval fetches private documents, and the answer is
+          spoken back with TTS. What evals do you need before launch?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: eval plan</summary>
+          <p>
+            Evaluate ASR robustness on noisy and entity-heavy queries,
+            retrieval recall with ASR variants, ACL correctness, freshness,
+            grounded answer rate, refusal behavior, citation traceability,
+            tool-use safety, TTS intelligibility, first audio byte, complete
+            turn latency, escalation precision, and cost per successful answer.
+            Include human review for high-risk intents and synthetic tests for
+            stale documents, ambiguous policies, and prompt-injection attempts.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: TTS Quality Versus Latency</h3>
+        <p>
+          A new TTS voice wins preference tests but increases first audio byte.
+          Explain how you would decide whether to ship it.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: decision framework</summary>
+          <p>
+            Split product surfaces into interactive and noninteractive use.
+            For interactive voice agents, require first audio byte, chunk
+            cadence, barge-in recovery, pronunciation, safety, and abandonment
+            to stay within gates. For long-form generation, slower synthesis
+            may be acceptable if quality improves and cost is controlled.
+            Consider segmented first responses, voice warm pools, cache
+            policies, or model-tier routing before rejecting the release.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="incidents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 2</p>
+        <h2>Production Incident Exercises</h2>
+        <p>
+          For each incident, write the first five checks, the safe mitigation,
+          and the prevention item before opening the answer.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Incident 1: Partial Churn Spike</h3>
+        <p>
+          Users see the transcript rewrite itself several times before the
+          final ASR result. Final WER is unchanged, but trust and completion
+          rate drop.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: first-hour response</summary>
+          <p>
+            Slice by model, decoder config, VAD, chunk size, endpointing,
+            client version, language, noise, and network path. Compare partial
+            churn, first partial latency, finalization delay, and downstream
+            correction rate. Mitigate with decoder rollback, more conservative
+            partial display, endpointing rollback, or affected-slice routing.
+            Add canary gates for partial stability and UI-visible rewrite rate.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 2: Retrieval Freshness Regression</h3>
+        <p>
+          One tenant reports that the spoken assistant cites old policy after
+          an overnight index refresh. Other tenants look healthy.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: investigation and mitigation</summary>
+          <p>
+            Check tenant index version, document ingestion watermark, ACLs,
+            embedding version, chunking config, reranker version, cache TTL,
+            and whether ASR entity substitutions changed retrieval queries.
+            Pin the tenant to the last good index or force human handoff for
+            affected intents. Add per-tenant freshness gates and ASR-noisy
+            retrieval evals before index promotion.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Incident 3: Cost Spike With Flat Traffic</h3>
+        <p>
+          GPU spend rises 55 percent while request count and task success stay
+          nearly flat. p99 latency also worsens.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: likely causes and controls</summary>
+          <p>
+            Check prompt length, retrieved document count, conversation length,
+            retry storms, speculative decoding fallback, model mix, cache hit
+            rate, batch efficiency, and tenant-specific routes. Stabilize with
+            token budgets, retrieval caps, priority queues, fallback model
+            tiers, admission control for noninteractive work, and release
+            rollback if a config change caused the spike. Add cost per
+            successful turn to launch gates.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="coding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Round 3</p>
+        <h2>Implementation Drills</h2>
+        <p>
+          These are intentionally small. They mirror interview utilities and
+          production checks that a senior engineer should implement cleanly.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Drill 1: Promotion Gate</h3>
+        <p>
+          Given baseline and candidate metrics by slice, return whether the
+          candidate can promote. Lower-is-better metrics cannot regress beyond
+          their allowed threshold.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, edge cases, and Python solution</summary>
+          <p>
+            Invariant: every required slice and metric must pass. Missing
+            candidate metrics are failures because a release gate cannot assume
+            safety. Test missing slices, missing metrics, exact threshold,
+            improvements, and one critical slice regression.
+          </p>
+          <pre><code class="language-python">def can_promote(baseline, candidate, thresholds):
+    failures = []
+
+    for slice_name, base_metrics in baseline.items():
+        cand_metrics = candidate.get(slice_name)
+        if cand_metrics is None:
+            failures.append((slice_name, "missing_slice", None))
+            continue
+
+        for metric, base_value in base_metrics.items():
+            if metric not in thresholds:
+                continue
+            cand_value = cand_metrics.get(metric)
+            if cand_value is None:
+                failures.append((slice_name, metric, "missing_metric"))
+                continue
+
+            allowed = thresholds[metric]
+            if cand_value - base_value &gt; allowed:
+                failures.append((slice_name, metric, cand_value - base_value))
+
+    return {
+        "promote": not failures,
+        "failures": failures,
+    }</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 2: Consecutive Drift Detector</h3>
+        <p>
+          Given daily aggregate metrics for one slice, flag the first day where
+          a metric has exceeded a threshold for <code>n</code> consecutive days.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistakes, and Python solution</summary>
+          <p>
+            Invariant: <code>streak</code> is the number of consecutive days up
+            to the current point that violate the threshold. Reset it on a
+            healthy day. Common mistakes include flagging one-day noise and
+            forgetting to return the first sustained breach.
+          </p>
+          <pre><code class="language-python">def first_sustained_drift(points, metric, threshold, consecutive_days):
+    streak = 0
+    for point in points:
+        if point[metric] &gt; threshold:
+            streak += 1
+            if streak &gt;= consecutive_days:
+                return point["day"]
+        else:
+            streak = 0
+    return None</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Drill 3: Rollback Candidate Ranking</h3>
+        <p>
+          Given release candidates with blast radius, regression score, and
+          rollback time, rank the safest rollback target.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior reasoning and Python solution</summary>
+          <p>
+            A rollback target should reduce user impact quickly without hiding
+            safety or privacy issues. Prefer a known-good version with lower
+            regression score and short rollback time. If two options are close,
+            choose the one with better observability and smaller config
+            difference from the current serving path.
+          </p>
+          <pre><code class="language-python">def rank_rollback_targets(candidates):
+    def score(candidate):
+        return (
+            candidate["regression_score"],
+            candidate["blast_radius_percent"],
+            candidate["rollback_minutes"],
+            -candidate.get("observability_score", 0),
+        )
+
+    return sorted(candidates, key=score)</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="rubric" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rubric</p>
+        <h2>What A Strong Senior Answer Includes</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Evaluation Depth</h3>
+          <p>Defines metrics, slices, fixtures, human review, rollout gates, and known blind spots.</p>
+        </article>
+        <article class="card">
+          <h3>Production Judgment</h3>
+          <p>Chooses reversible mitigations, protects privacy, explains blast radius, and adds prevention gates.</p>
+        </article>
+        <article class="card">
+          <h3>Systems Tradeoffs</h3>
+          <p>Connects model quality to latency, cost, queueing, cache behavior, deployment shape, and user experience.</p>
+        </article>
+        <article class="card">
+          <h3>Coding Discipline</h3>
+          <p>States invariants, handles missing data, writes simple tests mentally, and returns actionable output.</p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: What is the fastest way to weaken an otherwise good senior answer?</summary>
+        <p>
+          Treating evaluation, serving, and incidents as separate worlds. A
+          strong answer shows how offline metrics predict production behavior,
+          how production telemetry exposes eval blind spots, and how every
+          launch gate maps to a rollback or prevention decision.
+        </p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blind 75 Graphs, Trees, And DP</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="coding-blind-75.html">Blind 75 Bank</a>
+      <a href="#graph">Graph</a>
+      <a href="#tree">Tree</a>
+      <a href="#dp">DP</a>
+      <a href="#drill">Drill</a>
+    </nav>
+    <p class="eyebrow">Coding Track</p>
+    <h1>Blind 75 Graphs, Trees, And DP Deep Dive</h1>
+    <p class="lede">
+      Practice the patterns that most often decide senior engineering coding
+      rounds: state search, cycle detection, recursive invariants, memoization,
+      and dynamic programming transitions.
+    </p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Method</p>
+        <h2>Say The State Before The Code</h2>
+        <p>
+          For graph, tree, and DP questions, a senior answer starts by naming
+          the state, invariant, transition, termination condition, and tests.
+          Code becomes much easier once those five pieces are explicit.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>State:</strong> what node, index, amount, or subtree does this call or table entry represent?</li>
+        <li><strong>Invariant:</strong> what is true after every pop, visit, return, or table update?</li>
+        <li><strong>Transition:</strong> how does the solution move to smaller or adjacent states?</li>
+        <li><strong>Termination:</strong> what base case, visited set, or queue exhaustion ends the search?</li>
+        <li><strong>Tests:</strong> empty input, one node, cycle, disconnected graph, duplicate values, and impossible state.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the fastest way to recover when stuck?</summary>
+        <p>
+          Write the recursive or iterative state in English, then trace a tiny
+          input. For DP, draw three cells or calls and decide which earlier
+          answers they need. For graphs, mark exactly when a node becomes
+          visited so duplicates and cycles cannot explode the search.
+        </p>
+      </details>
+    </section>
+
+    <section id="graph" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Graph Patterns</p>
+        <h2>Reachability, Cycles, And Shortest Paths</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Graph 1: Clone Graph</h3>
+        <p>
+          Given a connected undirected graph node, return a deep copy of the
+          graph. Each node has a value and a list of neighbors.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: once an original node is in <code>copies</code>, every
+            future edge that reaches that original should reuse the same clone.
+            The common mistake is cloning neighbors before memoizing the current
+            node, which recurses forever on cycles.
+          </p>
+          <pre><code class="language-python">def clone_graph(node):
+    if node is None:
+        return None
+
+    copies = {}
+
+    def dfs(original):
+        if original in copies:
+            return copies[original]
+
+        clone = Node(original.val)
+        copies[original] = clone
+        clone.neighbors = [dfs(neighbor) for neighbor in original.neighbors]
+        return clone
+
+    return dfs(node)</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Graph 2: Pacific Atlantic Water Flow</h3>
+        <p>
+          Given heights, return cells where water can flow to both the Pacific
+          and Atlantic borders. Water can flow from a cell to a neighbor of
+          lower or equal height.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, test cases, and Python solution</summary>
+          <p>
+            Reverse the flow. Invariant: a cell reached from an ocean border by
+            moving only to equal-or-higher neighbors can drain back to that
+            ocean in the original direction. Test one row, one column, flat
+            terrain, and a high ridge surrounded by lower cells.
+          </p>
+          <pre><code class="language-python">def pacific_atlantic(heights):
+    if not heights or not heights[0]:
+        return []
+
+    rows, cols = len(heights), len(heights[0])
+
+    def flood(starts):
+        seen = set(starts)
+        stack = list(starts)
+        while stack:
+            r, c = stack.pop()
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if (
+                    0 &lt;= nr &lt; rows
+                    and 0 &lt;= nc &lt; cols
+                    and (nr, nc) not in seen
+                    and heights[nr][nc] &gt;= heights[r][c]
+                ):
+                    seen.add((nr, nc))
+                    stack.append((nr, nc))
+        return seen
+
+    pacific = flood([(0, c) for c in range(cols)] + [(r, 0) for r in range(rows)])
+    atlantic = flood([(rows - 1, c) for c in range(cols)] + [(r, cols - 1) for r in range(rows)])
+    return [[r, c] for r, c in sorted(pacific &amp; atlantic)]</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="tree" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tree Patterns</p>
+        <h2>Return One Thing, Update Another</h2>
+        <p>
+          Many tree questions return a local value to the parent while updating
+          a best answer outside the recursion. Be explicit about which is which.
+        </p>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked Tree 1: Binary Tree Maximum Path Sum</h3>
+        <p>
+          Return the maximum path sum in a binary tree. A path can start and end
+          at any nodes, but it must follow parent-child links.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: the recursive return value is the best one-sided path
+            that can extend to the parent. The global best can use both children
+            through the current node. The common mistake is returning a forked
+            path upward, which is not a valid path for the parent to extend.
+          </p>
+          <pre><code class="language-python">def max_path_sum(root):
+    best = -10**18
+
+    def one_sided(node):
+        nonlocal best
+        if node is None:
+            return 0
+
+        left = max(0, one_sided(node.left))
+        right = max(0, one_sided(node.right))
+        best = max(best, node.val + left + right)
+        return node.val + max(left, right)
+
+    one_sided(root)
+    return best</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked Tree 2: Serialize And Deserialize Binary Tree</h3>
+        <p>
+          Design functions to serialize a binary tree to a string and
+          deserialize the string back to the same tree structure.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Preorder with null markers is enough because each token stream can
+            be consumed from left to right. Test an empty tree, a one-node tree,
+            a left-only chain, and duplicate values. Values alone are not enough
+            without null structure markers.
+          </p>
+          <pre><code class="language-python">class Codec:
+    def serialize(self, root):
+        tokens = []
+
+        def walk(node):
+            if node is None:
+                tokens.append("#")
+                return
+            tokens.append(str(node.val))
+            walk(node.left)
+            walk(node.right)
+
+        walk(root)
+        return ",".join(tokens)
+
+    def deserialize(self, data):
+        tokens = iter(data.split(","))
+
+        def build():
+            token = next(tokens)
+            if token == "#":
+                return None
+            node = TreeNode(int(token))
+            node.left = build()
+            node.right = build()
+            return node
+
+        return build()</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="dp" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Dynamic Programming</p>
+        <h2>Choose The Table Meaning First</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Worked DP 1: Decode Ways</h3>
+        <p>
+          Given a digit string, return how many ways it can be decoded where
+          "1" maps to "A" and "26" maps to "Z".
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
+          <p>
+            Invariant: <code>dp[i]</code> is the number of decodings for the
+            prefix ending before index <code>i</code>. A zero is valid only as
+            part of 10 or 20. The common mistake is treating every two-digit
+            number ending in zero as valid.
+          </p>
+          <pre><code class="language-python">def num_decodings(s):
+    if not s:
+        return 0
+
+    dp = [0] * (len(s) + 1)
+    dp[0] = 1
+    dp[1] = 0 if s[0] == "0" else 1
+
+    for i in range(2, len(s) + 1):
+        one = int(s[i - 1:i])
+        two = int(s[i - 2:i])
+        if 1 &lt;= one &lt;= 9:
+            dp[i] += dp[i - 1]
+        if 10 &lt;= two &lt;= 26:
+            dp[i] += dp[i - 2]
+    return dp[-1]</code></pre>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Worked DP 2: House Robber</h3>
+        <p>
+          Given non-negative house values in a line, return the maximum amount
+          that can be robbed without robbing adjacent houses.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: invariant, tests, and Python solution</summary>
+          <p>
+            Invariant: after each house, <code>prev1</code> is the best value
+            through the current house and <code>prev2</code> is the best value
+            through the previous previous house. Test empty input, one house,
+            two houses, all zeros, and a large value surrounded by small values.
+          </p>
+          <pre><code class="language-python">def rob(nums):
+    prev2 = 0
+    prev1 = 0
+    for value in nums:
+        prev2, prev1 = prev1, max(prev1, prev2 + value)
+    return prev1</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="drill" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Timed Drill</p>
+        <h2>Prompts To Practice Out Loud</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Course Schedule Follow-Up</h3>
+        <p>
+          After solving Course Schedule, the interviewer asks for one valid
+          course order and then asks how your answer changes if prerequisites
+          arrive as a stream.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            Return the Kahn traversal order when all nodes are processed. For
+            streaming prerequisites, clarify whether queries must be answered
+            online. A simple batch answer rebuilds indegrees; an online answer
+            needs incremental cycle detection or versioned graph snapshots,
+            depending on latency and update frequency.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: DP Debugging</h3>
+        <p>
+          Your Word Break solution passes short examples but times out on a
+          long string with many repeated prefixes. How do you debug and improve
+          it?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer</summary>
+          <p>
+            First confirm the state and count repeated substring checks. Use a
+            word set, cap candidate lengths by the longest dictionary word, and
+            avoid unnecessary slicing where possible. If using recursion, add
+            memoization by start index and test with repeated characters plus a
+            dictionary that nearly matches but fails at the end.
+          </p>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Efficient Transformers For Audio And Text</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#map">Map</a>
+      <a href="#attention">Attention</a>
+      <a href="#decoding">Decoding</a>
+      <a href="#compression">Compression</a>
+      <a href="#lab">Lab</a>
+      <a href="#interview">Interview</a>
+    </nav>
+    <p class="eyebrow">Module 12</p>
+    <h1>Efficient Transformers</h1>
+    <p class="lede">
+      Learn how modern audio and text models become fast enough to serve:
+      IO-aware attention, KV-cache memory, grouped-query attention,
+      quantization, speculative decoding, distillation, adapters, and
+      production latency tradeoffs.
+    </p>
+  </header>
+
+  <main>
+    <section id="map" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Mental Model</p>
+        <h2>Efficiency Is A Stack, Not One Trick</h2>
+        <p>
+          Senior engineers reason across algorithms, kernels, memory layout,
+          serving queues, hardware, and quality gates. A faster model that
+          misses domain terms, breaks timestamps, or cannot roll back is not
+          production-ready.
+        </p>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Model Architecture</h3>
+          <p>Attention variants, MQA/GQA, Conformer blocks, distillation, adapters, pruning, and smaller specialist models.</p>
+        </article>
+        <article class="card">
+          <h3>Runtime Kernels</h3>
+          <p>FlashAttention, fused operations, quantized matmuls, prefill/decode split, and memory-aware batch scheduling.</p>
+        </article>
+        <article class="card">
+          <h3>Serving System</h3>
+          <p>Continuous batching, KV-cache paging, admission control, fallbacks, autoscaling, observability, and rollback.</p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: What is the first efficiency question to ask?</summary>
+        <p>
+          Ask what dominates the user-visible SLO: prefill, decode, audio
+          feature extraction, network, queueing, TTS first audio, or downstream
+          calls. Optimize the measured bottleneck, not the component that is
+          easiest to benchmark in isolation.
+        </p>
+      </details>
+    </section>
+
+    <section id="attention" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Attention Cost</p>
+        <h2>From Quadratic Attention To Hardware-Aware Kernels</h2>
+      </div>
+      <p>
+        Standard self-attention builds an <code>n x n</code> score matrix per
+        head, so memory and compute grow quickly with sequence length. Audio
+        models often face long frame sequences before subsampling. Text models
+        face long context windows and expensive KV-cache memory during
+        autoregressive decoding.
+      </p>
+      <div class="grid two">
+        <article class="card">
+          <h3>FlashAttention</h3>
+          <p>
+            Computes exact attention while reducing high-bandwidth memory
+            traffic. It tiles query/key/value blocks, keeps partial softmax
+            statistics, and avoids materializing the full attention matrix.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: Why does it help?</summary>
+            <p>
+              Attention is often memory-bandwidth bound. FlashAttention saves
+              time by changing how data moves through memory, not by changing
+              the mathematical result. A senior answer mentions exactness,
+              tiling, SRAM/HBM traffic, sequence length, and kernel support.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>MQA And GQA</h3>
+          <p>
+            Multi-query attention shares key/value heads across query heads.
+            Grouped-query attention is the middle ground: several query heads
+            share one key/value group.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: What tradeoff changes?</summary>
+            <p>
+              MQA/GQA reduce KV-cache memory and memory bandwidth during
+              decoding. Quality can drop if sharing is too aggressive,
+              especially for tasks that need fine-grained conditioning. They
+              are most helpful when decode latency and cache size dominate.
+            </p>
+          </details>
+        </article>
+      </div>
+      <article class="prompt">
+        <h3>Checkpoint: Long Audio Context</h3>
+        <p>
+          You need to run an encoder over 30 seconds of audio represented as
+          100 frames per second. What efficiency choices do you consider before
+          reaching for a bigger GPU?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Senior checklist</summary>
+          <p>
+            Check frame rate, windowing, subsampling, streaming chunks,
+            convolutional front-end, local attention, FlashAttention support,
+            mixed precision, batch shape padding, and whether the model can
+            emit partial states. Also ask whether the product needs all 30
+            seconds at once or can process incrementally with stable boundaries.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="decoding" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Generation</p>
+        <h2>Decode Latency Is Usually Memory And Scheduling</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>KV Cache</h3>
+          <p>
+            Autoregressive transformers reuse previous keys and values so each
+            new token attends to cached history instead of recomputing every
+            prefix. The cache can become the main memory cost.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: What should you monitor?</summary>
+            <p>
+              Track prompt length, generated tokens, active sequences, cache
+              bytes per request, eviction behavior, GPU memory fragmentation,
+              batch size, time to first token, tokens per second, and p95/p99
+              latency by route and model version.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Speculative Decoding</h3>
+          <p>
+            A small draft model proposes several tokens, and the larger target
+            model verifies them. Accepted draft tokens reduce target-model
+            forward passes.
+          </p>
+          <details class="qa">
+            <summary>Hidden answer: When does it fail to help?</summary>
+            <p>
+              It helps when the draft model is cheap and has a high acceptance
+              rate. It may disappoint when the draft model is too inaccurate,
+              verification overhead is high, batches are already saturated, or
+              the task distribution differs from the draft model's strengths.
+            </p>
+          </details>
+        </article>
+      </div>
+      <article class="prompt">
+        <h3>Production Prompt: Speech Assistant First Audio Is Too Slow</h3>
+        <p>
+          A local speech assistant takes 2.8 seconds before the user hears a
+          reply. ASR partials arrive in 300 ms, but the LLM and TTS handoff feel
+          sluggish. Diagnose the system.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: First-pass diagnosis</summary>
+          <p>
+            Split latency into endpointing, transcript stabilization, prompt
+            assembly, LLM prefill, time to first token, token rate, TTS
+            chunking, vocoder first audio, playback buffer, and UI/event-loop
+            delay. Mitigations include earlier turn prediction, streaming
+            partial prompts, shorter context, prompt caching, smaller or
+            quantized model, speculative decoding, streaming TTS, response
+            templates for common intents, and a rollback if a recent model
+            change moved p99 beyond the SLO.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section id="compression" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Compression</p>
+        <h2>Smaller Models Need Quality Guardrails</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Quantization</h3>
+          <p>Lower precision weights and activations reduce memory and can improve throughput, but require evals by task slice.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Measure WER, entity error rate, punctuation, timestamp quality,
+              toxicity/safety if relevant, p50/p95/p99 latency, memory, and
+              cost. Quantization errors often show up unevenly across accents,
+              noisy audio, rare words, and long contexts.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Distillation</h3>
+          <p>Train a smaller model to match a larger teacher's outputs, logits, representations, or behavior on curated examples.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Distillation is useful when serving cost matters and the target
+              domain is narrower than the teacher's full capability. Watch for
+              inherited teacher mistakes, reduced uncertainty, and poor
+              behavior outside the distilled distribution.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Adapters And LoRA</h3>
+          <p>Train a small number of parameters for domain adaptation while keeping most base weights frozen.</p>
+          <details class="qa">
+            <summary>Hidden answer</summary>
+            <p>
+              Adapters can be easier to store, swap, and roll back than full
+              fine-tunes. In production, treat adapter identity as part of the
+              model version and test interactions with quantization and cache
+              layout.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Estimate KV-Cache Memory Before You Serve</h2>
+        <p>
+          This small script estimates KV-cache memory. It is not a replacement
+          for profiling, but it helps you reason about why long contexts,
+          concurrency, and attention-head choices matter.
+        </p>
+      </div>
+      <pre><code class="language-python">def kv_cache_gib(
+    layers,
+    kv_heads,
+    head_dim,
+    tokens,
+    batch_size=1,
+    bytes_per_value=2,
+):
+    # keys and values are both cached
+    total_bytes = layers * 2 * kv_heads * head_dim * tokens * batch_size * bytes_per_value
+    return total_bytes / (1024 ** 3)
+
+
+if __name__ == "__main__":
+    cases = [
+        ("short chat", 32, 8, 128, 2048, 8, 2),
+        ("long context", 32, 8, 128, 16384, 8, 2),
+        ("larger batch", 32, 8, 128, 4096, 64, 2),
+    ]
+    for name, layers, kv_heads, head_dim, tokens, batch, bytes_per_value in cases:
+        gib = kv_cache_gib(layers, kv_heads, head_dim, tokens, batch, bytes_per_value)
+        print(f"{name}: {gib:.2f} GiB")</code></pre>
+      <details class="qa">
+        <summary>Question: How do MQA and GQA appear in this estimate?</summary>
+        <p>
+          They reduce <code>kv_heads</code>. If a model has many query heads but
+          only a few key/value heads, the cache is smaller than full
+          multi-head attention. This directly affects concurrency and whether
+          long-context serving fits on the target hardware.
+        </p>
+      </details>
+      <details class="qa">
+        <summary>Question: What test cases should you add around this estimate?</summary>
+        <p>
+          Test zero tokens, batch size one, large batch, fp16 versus int8 cache
+          assumptions, MHA versus GQA head counts, and an expected hand-computed
+          case. Also test that bad inputs such as negative tokens are rejected
+          if this becomes a real utility.
+        </p>
+      </details>
+    </section>
+
+    <section id="interview" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Interview Practice</p>
+        <h2>Senior-Level Prompts</h2>
+      </div>
+      <article class="prompt">
+        <h3>Prompt 1: Quantize An ASR Model For Edge Deployment</h3>
+        <p>
+          You need to ship an ASR model on laptops. The fp16 model is accurate
+          but too slow and memory-heavy. Design the quantization evaluation and
+          rollout plan.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: What a strong plan includes</summary>
+          <p>
+            Define target hardware, latency, memory, battery, and accuracy
+            requirements. Compare int8/int4 weight-only or activation-aware
+            options. Evaluate WER/CER, entity error rate, timestamp accuracy,
+            noisy speech, accents, long utterances, and silence/VAD behavior.
+            Roll out behind a flag, keep fp16 fallback, collect privacy-safe
+            aggregate metrics, and include rollback thresholds.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 2: Reduce GPU Cost For A TTS API</h3>
+        <p>
+          A neural TTS service has good MOS but the monthly GPU bill is too
+          high. What do you change without breaking quality?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Cost-quality tradeoffs</summary>
+          <p>
+            Profile text normalization, acoustic model, vocoder, batching, and
+            request mix. Consider caching repeated prompts, streaming first
+            audio, smaller vocoder, distillation, quantization, CPU fallback for
+            short/simple voices, autoscaling, and route-specific models. Keep
+            MOS/intelligibility/speaker similarity tests, latency SLOs, and
+            regression gates by voice and language.
+          </p>
+        </details>
+      </article>
+      <article class="prompt">
+        <h3>Prompt 3: FlashAttention Did Not Improve Production Latency</h3>
+        <p>
+          Offline benchmarks improved, but the production endpoint shows no p95
+          improvement after enabling a faster attention kernel. Explain why.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Likely causes</summary>
+          <p>
+            The bottleneck may be queueing, pre/post-processing, network,
+            decoding memory bandwidth, small sequence lengths, padding waste,
+            batch scheduler behavior, CPU audio features, or downstream TTS.
+            Verify that the kernel is actually active for the deployed shapes
+            and dtype. Compare traces before and after, not only isolated model
+            benchmarks.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sources</p>
+        <h2>Reading List</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a> - IO-aware exact attention.</li>
+        <li><a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a> - faster attention with better work partitioning.</li>
+        <li><a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a> - KV-cache paging and high-throughput LLM serving.</li>
+        <li><a href="https://arxiv.org/abs/1911.02150">Multi-Query Attention</a> - one write-head is all you need for fast decoding.</li>
+        <li><a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a> - quality and speed tradeoffs between MHA and MQA.</li>
+        <li><a href="https://arxiv.org/abs/2211.17192">Speculative Decoding</a> - draft-and-verify generation for faster inference.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

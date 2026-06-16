@@ -200,6 +200,10 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+.timeline article > :not(span) {
+  grid-column: 2;
+}
+
 .timeline p {
   margin: 0.25rem 0;
 }
@@ -276,6 +280,10 @@ footer {
   .timeline article {
     grid-template-columns: 1fr;
     gap: 0.65rem;
+  }
+
+  .timeline article > :not(span) {
+    grid-column: 1;
   }
 
   .timeline span {

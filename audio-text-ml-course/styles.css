@@ -176,21 +176,29 @@ h3 {
 
 .timeline {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
+  align-items: stretch;
 }
 
 .timeline article {
-  display: grid;
-  grid-template-columns: 5.5rem minmax(18rem, 1fr);
-  gap: 1.25rem;
-  padding: 1.2rem 0;
-  border-top: 1px solid var(--line);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 15rem;
+  padding: 1.15rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--teal);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(23, 32, 38, 0.06);
 }
 
 .timeline span {
-  width: 4.25rem;
-  height: 3rem;
+  width: fit-content;
+  min-width: 3.25rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
   border-radius: 8px;
   display: grid;
   place-items: center;
@@ -200,12 +208,14 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
-.timeline article > :not(span) {
-  grid-column: 2;
+.timeline p {
+  margin: 0;
 }
 
-.timeline p {
-  margin: 0.25rem 0;
+.timeline .lab {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
 }
 
 .lab {
@@ -277,17 +287,7 @@ footer {
     min-height: 78vh;
   }
 
-  .timeline article {
+  .timeline {
     grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
-  .timeline article > :not(span) {
-    grid-column: 1;
-  }
-
-  .timeline span {
-    width: fit-content;
-    min-width: 4.25rem;
   }
 }

@@ -19,7 +19,8 @@ Open `index.html` in a browser to read the website locally.
   full-duplex constraints, direct speech models.
 - Full-duplex speech-to-speech: native listen-while-speaking SpeechLMs,
   VAD-free micro-turn cascades, role-conditioned duplex agents, action streams,
-  interruption handling, backchannel metrics, and benchmark gaps.
+  asynchronous retrieval, interactivity alignment, interruption handling,
+  backchannel metrics, privacy checks, and benchmark gaps.
 - System design: service decomposition, launch gates, latency budgets,
   privacy-safe telemetry, rollback, cost controls, and production incidents.
 - Evaluation and RAG: WER/CER/entity metrics, retrieval recall, grounded answer

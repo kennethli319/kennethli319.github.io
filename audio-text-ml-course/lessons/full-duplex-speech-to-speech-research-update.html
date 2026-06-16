@@ -13,6 +13,7 @@
       <a href="#snapshot">Snapshot</a>
       <a href="#models">Models</a>
       <a href="#serving">Serving</a>
+      <a href="#benchmarks">Benchmarks</a>
       <a href="#drills">Drills</a>
       <a href="#sources">Sources</a>
     </nav>
@@ -44,7 +45,8 @@
         <li><strong>Micro-turn cascade:</strong> ASR, LLM, and TTS remain modular but exchange short streaming chunks instead of full turns.</li>
         <li><strong>Role-conditioned duplex:</strong> the agent must keep persona, task, and voice constraints while reacting in real time.</li>
         <li><strong>Action-aware duplex:</strong> planning and tool calls are emitted alongside speech on a shared timeline.</li>
-        <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, and multi-round tool-use benchmarks are becoming mandatory.</li>
+        <li><strong>Retrieval-aware duplex:</strong> factuality must improve without breaking real-time conversational flow.</li>
+        <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, privacy, and multi-round tool-use benchmarks are becoming mandatory.</li>
       </ol>
     </section>
 
@@ -127,6 +129,25 @@
             model is not yet fully native duplex.
           </p>
         </article>
+        <article class="card">
+          <h3>Interactivity Alignment Becomes Post-Training</h3>
+          <p>
+            Kyutai's June 2026 work treats timing behavior as an alignment
+            problem, not only a pretraining artifact. It uses RL rewards for
+            pause handling, turn-taking, backchanneling, and user interruption,
+            plus a response-quality reward to avoid making the model more
+            interactive but less useful.
+          </p>
+        </article>
+        <article class="card">
+          <h3>MoshiRAG Adds Knowledge Without Losing The Floor</h3>
+          <p>
+            MoshiRAG keeps a compact full-duplex interface and performs
+            selective retrieval asynchronously. The key product lesson is that
+            retrieval can run during the natural delay before the core answer,
+            preserving conversational timing while improving factuality.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -179,6 +200,79 @@
             high-risk action.
           </p>
         </article>
+        <article class="card">
+          <h3>Privacy Gates</h3>
+          <p>
+            Always-on full-duplex models expose more than transcripts. Recent
+            privacy work reports speaker-identity leakage from hidden states in
+            end-to-end models, so launch reviews should include voiceprint
+            leakage tests, anonymization options, and retention limits for
+            embeddings, codec tokens, and internal activations.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Retrieval Gates</h3>
+          <p>
+            Retrieval-augmented duplex models need event-level tracing: when the
+            model detects a knowledge-seeking query, when retrieval starts,
+            whether speech fillers or acknowledgements cover the wait, whether
+            the final answer cites grounded state, and whether stale retrieval
+            is cancelled after interruption.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="benchmarks" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Evaluation Update</p>
+        <h2>Benchmarks Are Moving Toward Real Tasks</h2>
+        <p>
+          The most useful recent benchmarks combine natural audio behavior with
+          verifiable outcomes. A system can sound smooth and still fail the job
+          if it mishandles correction, tool state, accents, noise, or the timing
+          of a user interruption.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <h3>FDB-v3 Adds Human Disfluency And Tool Use</h3>
+          <p>
+            Full-Duplex-Bench-v3 evaluates spoken language models on real human
+            audio with annotated disfluencies and chained API-call scenarios.
+            The reported pattern is interview-relevant: high responsiveness is
+            not the same as reliable multi-step task completion.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Tau2-Voice Exposes The Voice/Text Gap</h3>
+          <p>
+            Task-grounded voice-agent evaluations show that clean text-agent
+            success does not transfer automatically to full-duplex audio. Noise,
+            accents, interruptions, and speech repair can cut completion rates
+            even when latency and responsiveness look strong.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Synchronization Work Gives Debugging Signals</h3>
+          <p>
+            Moshi synchronization studies probe whether two dialogue models'
+            hidden states coordinate under noise and decoding changes. For
+            production, this suggests diagnostics beyond surface transcripts:
+            timing representations, anticipatory turn cues, and degradation
+            under channel noise.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Multi-Round Benchmarks Matter</h3>
+          <p>
+            FDB-v2, MTR-DuplexBench, and newer task-grounded suites push beyond
+            single interruption clips. Senior launch gates should cover context
+            consistency, entity tracking, correction handling, safety compliance,
+            and tool-state repair across the whole call.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -224,6 +318,46 @@
             Score task success, interruption success, false interruption,
             backchannel precision, answer groundedness, tool safety, p95 event
             latency, and cost per successful conversation.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 3: Duplex RAG Under Interruption</h3>
+        <p>
+          A full-duplex agent starts retrieving account-policy context while it
+          is already speaking. The user interrupts with a correction that changes
+          the entity being discussed. What should the serving system do?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: cancellation and grounding plan</summary>
+          <p>
+            Treat retrieval as cancelable session state. Stop stale assistant
+            audio within the barge-in SLO, invalidate retrieval tied to the old
+            entity, preserve only safe context, re-run retrieval after the new
+            intent is stable, and require the answer generator to reference the
+            current entity and source timestamp. Log the event as interruption,
+            retrieval cancellation, and state repair.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 4: Privacy Review For Native Duplex</h3>
+        <p>
+          The model team wants to log codec tokens and hidden states for every
+          call to debug turn-taking regressions. What do you approve, reject,
+          and measure?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: privacy-safe debugging</summary>
+          <p>
+            Reject broad raw logging by default. Approve short, consented,
+            access-controlled fixtures or aggregate metrics first. If internal
+            states are needed, run speaker-linkability tests, minimize retention,
+            hash or anonymize identifiers, separate debugging from user identity,
+            and document deletion paths. Measure whether anonymization preserves
+            task success and turn-taking metrics.
           </p>
         </details>
       </article>
@@ -279,7 +413,15 @@
         <li><a href="https://arxiv.org/abs/2606.14528">BayLing-Duplex: Native Full-Duplex Speech Dialogue with a Single Autoregressive LLM</a></li>
         <li><a href="https://arxiv.org/abs/2605.20755">DuplexSLA: A Full-Duplex Spoken Language Model with Synchronized Speech, Language, and Action</a></li>
         <li><a href="https://arxiv.org/abs/2604.19221">UAF: A Unified Audio Front-end LLM for Full-Duplex Speech Interaction</a></li>
+        <li><a href="https://arxiv.org/abs/2606.11167">Multi-Faceted Interactivity Alignment in Full-Duplex Speech Models</a></li>
+        <li><a href="https://arxiv.org/abs/2604.12928">MoshiRAG: Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models</a></li>
+        <li><a href="https://arxiv.org/abs/2603.08179">Privacy-Preserving End-to-End Full-Duplex Speech Dialogue Models</a></li>
+        <li><a href="https://arxiv.org/abs/2604.04847">Full-Duplex-Bench-v3: Benchmarking Tool Use for Full-Duplex Voice Agents Under Real-World Disfluency</a></li>
+        <li><a href="https://arxiv.org/abs/2603.13686">Tau2-Voice: Benchmarking Full-Duplex Voice Agents on Real-World Domains</a></li>
+        <li><a href="https://arxiv.org/abs/2605.20356">Synchronization and Turn-Taking in Full-Duplex Speech Dialogue Models</a></li>
         <li><a href="https://arxiv.org/abs/2503.04721">Full-Duplex-Bench: Evaluating Turn-Taking Capabilities</a></li>
+        <li><a href="https://arxiv.org/abs/2510.07838">Full-Duplex-Bench-v2: Multi-Turn Evaluation Framework</a></li>
+        <li><a href="https://arxiv.org/abs/2511.10262">MTR-DuplexBench: Multi-Round Conversations for Full-Duplex Speech Language Models</a></li>
         <li><a href="https://arxiv.org/abs/2509.14515">From Turn-Taking to Synchronous Dialogue: A Survey of Full-Duplex Spoken Language Models</a></li>
       </ul>
     </section>

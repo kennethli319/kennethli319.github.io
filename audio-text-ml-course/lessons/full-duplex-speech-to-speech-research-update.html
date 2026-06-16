@@ -123,6 +123,17 @@
           </p>
         </article>
         <article class="card">
+          <h3>Qwen3.5-Omni Raises The Omni Baseline</h3>
+          <p>
+            Qwen3.5-Omni is not primarily a duplex paper, but its large-scale
+            speech, video, text, long-context, and speech-generation coverage
+            raises the baseline for what full-duplex systems will be compared
+            against. Treat it as an adjacent production trend: native duplex
+            needs natural timing, but it also has to compete with stronger
+            multilingual and multimodal perception stacks.
+          </p>
+        </article>
+        <article class="card">
           <h3>Nemotron 3 VoiceChat Makes Deployment Concrete</h3>
           <p>
             NVIDIA positions Nemotron 3 VoiceChat as a 12B end-to-end,
@@ -148,6 +159,26 @@
             recognition, ASR, and state control as a single streaming sequence
             prediction problem. This is a practical route when the back-end
             model is not yet fully native duplex.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Turn Detection Is Becoming Its Own Layer</h3>
+          <p>
+            FastTurn and JAL-Turn show a parallel path to usable duplex:
+            improve low-latency hold, shift, backchannel, and interruption
+            decisions without replacing the whole model. They fuse acoustic and
+            streaming semantic cues so a cascaded system can behave more like a
+            synchronous one while keeping ASR, policy, and TTS separable.
+          </p>
+        </article>
+        <article class="card">
+          <h3>TurnGuide Reopens Text Guidance</h3>
+          <p>
+            TurnGuide argues that end-to-end full-duplex models still benefit
+            from turn-level text guidance if the guidance is aligned carefully
+            with speech timing. This is a useful counterweight to purely audio
+            token designs: text can improve coherence, but only if it does not
+            break the clock.
           </p>
         </article>
         <article class="card">
@@ -260,6 +291,17 @@
             telemetry minimization, and rollback to a known cascaded stack.
           </p>
         </article>
+        <article class="card">
+          <h3>Turn-Control Gates</h3>
+          <p>
+            If the product uses a separate turn detector, measure its false
+            hold, false shift, backchannel, interruption, and non-primary
+            speaker behavior independently from ASR word error rate. A strong
+            ASR transcript can still produce bad duplex UX if turn control
+            waits too long, interrupts a thinking pause, or treats noise as the
+            primary user.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -311,6 +353,16 @@
             single interruption clips. Senior launch gates should cover context
             consistency, entity tracking, correction handling, safety compliance,
             and tool-state repair across the whole call.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Turn-Detector Tests Need Real Audio</h3>
+          <p>
+            FastTurn and JAL-Turn both emphasize realistic overlap, pauses,
+            noise, multilingual data, and partial observations. For interview
+            and launch reviews, do not evaluate turn-taking only from clean
+            transcripts. Include raw streaming audio, partial ASR states,
+            speaker changes, and timing windows.
           </p>
         </article>
       </div>
@@ -452,9 +504,13 @@
         <li><a href="https://seed.bytedance.com/en/blog/introducing-seed-full-duplex-speech-llm-attentive-listening-robust-interference-suppression-enabling-more-natural-interaction">ByteDance Seed: Introducing Seed Full-Duplex Speech LLM</a></li>
         <li><a href="https://arxiv.org/abs/2606.14528">BayLing-Duplex: Native Full-Duplex Speech Dialogue with a Single Autoregressive LLM</a></li>
         <li><a href="https://arxiv.org/abs/2606.09186">DuplexOmni: Real-Time Listening, Seeing, Thinking, and Speaking for Full-Duplex Interaction</a></li>
+        <li><a href="https://arxiv.org/abs/2604.15804">Qwen3.5-Omni Technical Report</a></li>
         <li><a href="https://build.nvidia.com/nvidia/nemotron-voicechat/modelcard">NVIDIA Nemotron 3 VoiceChat Model Card</a></li>
         <li><a href="https://arxiv.org/abs/2605.20755">DuplexSLA: A Full-Duplex Spoken Language Model with Synchronized Speech, Language, and Action</a></li>
         <li><a href="https://arxiv.org/abs/2604.19221">UAF: A Unified Audio Front-end LLM for Full-Duplex Speech Interaction</a></li>
+        <li><a href="https://arxiv.org/abs/2604.01897">FastTurn: Unifying Acoustic and Streaming Semantic Cues for Low-Latency and Robust Turn Detection</a></li>
+        <li><a href="https://arxiv.org/abs/2603.26515">JAL-Turn: Joint Acoustic-Linguistic Modeling for Real-Time and Robust Turn-Taking Detection</a></li>
+        <li><a href="https://arxiv.org/abs/2508.07375">TurnGuide: Enhancing Meaningful Full Duplex Spoken Interactions via Dynamic Turn-Level Text-Speech Interleaving</a></li>
         <li><a href="https://arxiv.org/abs/2606.11167">Multi-Faceted Interactivity Alignment in Full-Duplex Speech Models</a></li>
         <li><a href="https://arxiv.org/abs/2604.12928">MoshiRAG: Asynchronous Knowledge Retrieval for Full-Duplex Speech Language Models</a></li>
         <li><a href="https://arxiv.org/abs/2603.08179">Privacy-Preserving End-to-End Full-Duplex Speech Dialogue Models</a></li>

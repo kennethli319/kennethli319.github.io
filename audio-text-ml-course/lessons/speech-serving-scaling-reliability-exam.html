@@ -10,6 +10,7 @@
   <header class="lesson-hero">
     <nav>
       <a href="../index.html">Course Home</a>
+      <a href="#duplex-update">Duplex Update</a>
       <a href="#system-design">System Design</a>
       <a href="#incidents">Incidents</a>
       <a href="#coding">Coding</a>
@@ -50,6 +51,83 @@
           slices. Serving readiness asks whether the whole product can deliver
           that quality within latency, availability, privacy, cost, rollback,
           and operational constraints under live traffic.
+        </p>
+      </details>
+    </section>
+
+    <section id="duplex-update" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Research Update</p>
+        <h2>Full-Duplex Serving Changes The Reliability Problem</h2>
+        <p>
+          Full-duplex speech-to-speech systems are moving beyond simple
+          listen-then-speak voice agents. The serving plane now has to support
+          continuous user audio ingestion while assistant audio, control
+          tokens, tool actions, and safety decisions may be emitted on the same
+          clock.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <h3>Native Duplex SpeechLM</h3>
+          <p>
+            Moshi modeled user and assistant speech streams in parallel.
+            BayLing-Duplex extends this direction by converting a turn-based
+            GLM-4-Voice style backbone into a native full-duplex model using a
+            small set of dialogue-state tokens, so listen, speak, and stop
+            decisions become next-token prediction.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Micro-Turn Cascades</h3>
+          <p>
+            DuplexCascade shows that ASR-LLM-TTS stacks can still compete if
+            they remove brittle VAD segmentation and stream chunk-wise
+            micro-turns with conversational control tokens. This preserves
+            strong text LLM reasoning while improving interruption and
+            backchannel behavior.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Role And Voice Control</h3>
+          <p>
+            PersonaPlex adds role conditioning and voice control to duplex
+            speech models. This matters for serving because product traffic may
+            require different role prompts, cloned or selected voices, and
+            persona-specific safety gates without losing low-latency behavior.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Action Streams</h3>
+          <p>
+            DuplexSLA points toward speech-language-action models where
+            listening, speaking, planning, and tool calls share a synchronized
+            timeline. Serving reliability must therefore gate tool actions and
+            speech output together, not as separate post-turn steps.
+          </p>
+        </article>
+      </div>
+
+      <details class="qa">
+        <summary>Question: What new SLOs appear in full-duplex serving?</summary>
+        <p>
+          Add interruption success, false interruption rate, backchannel timing,
+          assistant stop latency, overlap recovery, user barge-in latency,
+          micro-turn freshness, action-stream safety latency, and speech/audio
+          continuity. Keep classic p95/p99 stage latency, error budget burn,
+          and cost-per-success, but slice them by duplex event type.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Question: When would you choose native duplex over a micro-turn cascade?</summary>
+        <p>
+          Choose native duplex when overlapping speech, natural backchannels,
+          emotion/prosody preservation, and sub-second responsiveness dominate.
+          Choose a micro-turn cascade when reasoning quality, debuggability,
+          model replacement, tool integration, and controllable production
+          behavior are more important than fully learned conversational timing.
         </p>
       </details>
     </section>

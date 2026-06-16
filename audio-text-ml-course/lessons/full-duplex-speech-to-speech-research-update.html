@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Full-Duplex Speech-To-Speech Research Update</title>
+  <link rel="stylesheet" href="../styles.css?v=20260616b">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#snapshot">Snapshot</a>
+      <a href="#models">Models</a>
+      <a href="#serving">Serving</a>
+      <a href="#drills">Drills</a>
+      <a href="#sources">Sources</a>
+    </nav>
+    <p class="eyebrow">Research Watch</p>
+    <h1>Full-Duplex Speech-To-Speech Research Update</h1>
+    <p class="lede">
+      A senior-level study report on the latest full-duplex speech-to-speech
+      direction: models that listen while speaking, handle barge-in and
+      backchannels, and force new serving and evaluation contracts.
+    </p>
+  </header>
+
+  <main>
+    <section id="snapshot" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Updated June 16, 2026</p>
+        <h2>The Field Is Moving From Turn-Based Voice To Synchronous Dialogue</h2>
+        <p>
+          The current research trend is clear: spoken agents are moving away
+          from VAD-bounded listen-then-speak loops toward systems that maintain
+          a live user stream and a live assistant stream at the same time.
+          The hard problems are no longer only ASR quality or TTS quality; they
+          are timing, interruption, backchanneling, semantic coherence under
+          overlap, action safety, and serving reliability.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Native duplex:</strong> one model jointly tracks user audio, assistant audio, and dialogue state.</li>
+        <li><strong>Micro-turn cascade:</strong> ASR, LLM, and TTS remain modular but exchange short streaming chunks instead of full turns.</li>
+        <li><strong>Role-conditioned duplex:</strong> the agent must keep persona, task, and voice constraints while reacting in real time.</li>
+        <li><strong>Action-aware duplex:</strong> planning and tool calls are emitted alongside speech on a shared timeline.</li>
+        <li><strong>Benchmark pressure:</strong> interruption, overlap, backchannel, and multi-round tool-use benchmarks are becoming mandatory.</li>
+      </ol>
+    </section>
+
+    <section id="models" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Model Landscape</p>
+        <h2>What Changed Recently</h2>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <h3>Moshi Established The Open Baseline</h3>
+          <p>
+            Moshi framed spoken dialogue as speech-to-speech generation with
+            parallel user and assistant streams. Its inner-monologue design
+            predicts time-aligned text before audio tokens, helping preserve
+            linguistic quality while keeping real-time full-duplex behavior.
+          </p>
+        </article>
+        <article class="card">
+          <h3>SyncLLM Formalized Clock-Synchronous LLMs</h3>
+          <p>
+            SyncLLM treats full-duplex dialogue as a timing problem: the model
+            must generate the next chunk before the current chunk ends. This
+            makes latency part of the model contract, not only an inference
+            optimization after training.
+          </p>
+        </article>
+        <article class="card">
+          <h3>PersonaPlex Adds Role And Voice Control</h3>
+          <p>
+            PersonaPlex targets natural full-duplex behavior while allowing
+            text role prompts and voice conditioning. This moves duplex systems
+            closer to deployable customer-service, tutor, and companion agents
+            where role adherence is part of product quality.
+          </p>
+        </article>
+        <article class="card">
+          <h3>DuplexCascade Keeps The LLM-Centered Stack</h3>
+          <p>
+            DuplexCascade argues that cascaded ASR-LLM-TTS systems can still be
+            strong if they abandon brittle VAD endpoints and operate through
+            chunk-wise micro-turns with conversational control tokens.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Seeduplex Signals Production Native Duplex</h3>
+          <p>
+            ByteDance describes Seeduplex as a native full-duplex Speech LLM
+            focused on interference suppression and adaptive endpoint behavior.
+            For study purposes, treat it as evidence that large-scale products
+            are moving past half-duplex voice UX.
+          </p>
+        </article>
+        <article class="card">
+          <h3>BayLing-Duplex Is The Newest Conversion Recipe</h3>
+          <p>
+            BayLing-Duplex starts from a public GLM-4-Voice checkpoint and adds
+            only a few dialogue-state tokens, turning listen, speak, and stop
+            decisions into ordinary autoregressive prediction. The reported
+            result is strong interruption and turn-taking without a separate
+            turn-taking module.
+          </p>
+        </article>
+        <article class="card">
+          <h3>DuplexSLA Adds Actions To The Clock</h3>
+          <p>
+            DuplexSLA introduces a speech-language-action formulation where
+            assistant audio and structured action tokens share a 160 ms chunk
+            timeline. This points toward real-time voice agents that can plan
+            and use tools without waiting for a clean end-of-turn boundary.
+          </p>
+        </article>
+        <article class="card">
+          <h3>UAF Moves Some Difficulty To The Front End</h3>
+          <p>
+            Unified audio front-end work reframes VAD, turn detection, speaker
+            recognition, ASR, and state control as a single streaming sequence
+            prediction problem. This is a practical route when the back-end
+            model is not yet fully native duplex.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="serving" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Serving Implications</p>
+        <h2>Full Duplex Changes The Launch Review</h2>
+        <p>
+          A senior serving review must treat full duplex as a concurrent
+          streaming product, not as ASR plus LLM plus TTS glued together. Every
+          live session has at least two audio timelines, a dialogue state, and
+          possibly an action stream that can trigger external effects.
+        </p>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <h3>Latency Budget</h3>
+          <p>
+            Track user audio chunk ingest, semantic update, assistant decision,
+            first assistant audio, barge-in response, assistant stop, and
+            overlap recovery. Report p50/p95/p99 by event type, not only by
+            whole turn.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Concurrency Budget</h3>
+          <p>
+            Duplex sessions occupy read and write streams simultaneously. Model
+            GPU memory, codec state, session state, audio buffers, and action
+            queues as active resources for the whole call, not only during
+            response generation.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Evaluation Gates</h3>
+          <p>
+            Add interruption success, false interruption rate, backchannel
+            appropriateness, overlap handling, assistant stop latency, semantic
+            coherence after interruption, and voice continuity to ordinary ASR,
+            TTS, and task-success gates.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Safety Gates</h3>
+          <p>
+            Tool calls and spoken output can overlap. Gate sensitive actions on
+            confirmed intent, stable user state, and explicit confirmation
+            where needed. A partial or interrupted utterance must not trigger a
+            high-risk action.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="drills" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Practice</p>
+        <h2>Senior Prompts And Coding Drills</h2>
+      </div>
+
+      <article class="prompt">
+        <h3>Prompt 1: Native Duplex Versus Micro-Turn Cascade</h3>
+        <p>
+          A team wants to replace its ASR-LLM-TTS voice agent with a native
+          full-duplex SpeechLM. What questions do you ask before approving the
+          migration?
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: senior review checklist</summary>
+          <p>
+            Compare interruption quality, backchannel timing, task success,
+            safety controllability, debuggability, cost, data requirements,
+            observability, rollback path, and tool integration. Native duplex
+            may win on natural timing and paralinguistics. A micro-turn cascade
+            may win on reasoning quality, policy control, and operational
+            isolation. Require a canary plan with per-event SLOs.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Prompt 2: Design A Duplex Benchmark Pack</h3>
+        <p>
+          Build a benchmark for a full-duplex customer-support voice agent.
+          Include multi-turn repair, interruption, backchannel, and tool-use
+          scenarios.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: benchmark shape</summary>
+          <p>
+            Create scripted audio fixtures with time-aligned user speech,
+            expected assistant timing windows, allowed backchannels, prohibited
+            interruptions, tool-call preconditions, and recovery requirements.
+            Score task success, interruption success, false interruption,
+            backchannel precision, answer groundedness, tool safety, p95 event
+            latency, and cost per successful conversation.
+          </p>
+        </details>
+      </article>
+
+      <article class="prompt">
+        <h3>Coding Drill: Interruption Gate</h3>
+        <p>
+          Given streaming events with <code>time_ms</code>, <code>speaker</code>,
+          and <code>event</code>, flag assistant speech segments that continue
+          more than <code>max_stop_ms</code> after a user barge-in event.
+        </p>
+        <details class="qa">
+          <summary>Hidden answer: Python solution</summary>
+          <pre><code class="language-python">def late_stop_segments(events, max_stop_ms):
+    barge_in_at = None
+    assistant_speaking = False
+    late = []
+
+    for event in sorted(events, key=lambda item: item["time_ms"]):
+        t = event["time_ms"]
+        speaker = event["speaker"]
+        kind = event["event"]
+
+        if speaker == "assistant" and kind == "speech_start":
+            assistant_speaking = True
+        elif speaker == "assistant" and kind == "speech_end":
+            if assistant_speaking and barge_in_at is not None:
+                delay = t - barge_in_at
+                if delay &gt; max_stop_ms:
+                    late.append({"barge_in_at": barge_in_at, "stopped_at": t, "delay_ms": delay})
+            assistant_speaking = False
+            barge_in_at = None
+        elif speaker == "user" and kind == "barge_in" and assistant_speaking:
+            barge_in_at = t
+
+    return late
+</code></pre>
+        </details>
+      </article>
+    </section>
+
+    <section id="sources" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sources</p>
+        <h2>Primary Reading</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://arxiv.org/abs/2410.00037">Moshi: a speech-text foundation model for real-time dialogue</a></li>
+        <li><a href="https://syncllm.cs.washington.edu/">SyncLLM: Synchronous LLMs as Full-Duplex Dialogue Agents</a></li>
+        <li><a href="https://arxiv.org/abs/2602.06053">PersonaPlex: Voice and Role Control for Full Duplex Conversational Speech Models</a></li>
+        <li><a href="https://arxiv.org/abs/2603.09180">DuplexCascade: VAD-Free Cascaded ASR-LLM-TTS Pipeline and Micro-Turn Optimization</a></li>
+        <li><a href="https://seed.bytedance.com/en/blog/introducing-seed-full-duplex-speech-llm-attentive-listening-robust-interference-suppression-enabling-more-natural-interaction">ByteDance Seed: Introducing Seed Full-Duplex Speech LLM</a></li>
+        <li><a href="https://arxiv.org/abs/2606.14528">BayLing-Duplex: Native Full-Duplex Speech Dialogue with a Single Autoregressive LLM</a></li>
+        <li><a href="https://arxiv.org/abs/2605.20755">DuplexSLA: A Full-Duplex Spoken Language Model with Synchronized Speech, Language, and Action</a></li>
+        <li><a href="https://arxiv.org/abs/2604.19221">UAF: A Unified Audio Front-end LLM for Full-Duplex Speech Interaction</a></li>
+        <li><a href="https://arxiv.org/abs/2503.04721">Full-Duplex-Bench: Evaluating Turn-Taking Capabilities</a></li>
+        <li><a href="https://arxiv.org/abs/2509.14515">From Turn-Taking to Synchronous Dialogue: A Survey of Full-Duplex Spoken Language Models</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Use synthetic or consented audio only. Keep private recordings, transcripts, voiceprints, and secrets out of Git.</p>
+  </footer>
+</body>
+</html>

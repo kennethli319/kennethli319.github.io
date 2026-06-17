@@ -16,11 +16,11 @@
       <a href="#coding">Coding</a>
       <a href="#exam">Exam</a>
     </nav>
-    <p class="eyebrow">Senior Data And MLOps</p>
+    <p class="eyebrow">Advanced Data And MLOps</p>
     <h1>Speech Feature Pipelines And Data Contracts</h1>
     <p class="lede">
       Design privacy-safe audio feature pipelines that survive model releases,
-      labeling changes, streaming constraints, drift, replay jobs, and senior
+      labeling changes, streaming constraints, drift, replay jobs, and production
       interview scrutiny.
     </p>
   </header>
@@ -34,7 +34,7 @@
           Speech models often fail in production because the data path changes:
           VAD thresholds shift, resampling differs, transcript normalization
           changes, metadata drops a field, or replay jobs mix with live data.
-          Senior engineers make those assumptions explicit before training,
+          Experienced engineers make those assumptions explicit before training,
           evaluation, serving, and incident response depend on them.
         </p>
       </div>
@@ -60,7 +60,7 @@
     <section id="pipeline" class="band">
       <div class="section-head">
         <p class="eyebrow">System Design</p>
-        <h2>Design Prompts With Hidden Senior Answers</h2>
+        <h2>Design Prompts With Hidden Advanced Answers</h2>
       </div>
 
       <article class="prompt">
@@ -71,7 +71,7 @@
           without storing unnecessary private content. Design the pipeline.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior design outline</summary>
+          <summary>Hidden answer: advanced design outline</summary>
           <p>
             Start with consent and retention policy, then define aggregate-only
             discovery metrics before selecting clips. Store durable IDs,
@@ -280,7 +280,7 @@ assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
           This is a sliding-window incident detector.
         </p>
         <details class="qa">
-          <summary>Hidden answer with senior production follow-up</summary>
+          <summary>Hidden answer with production follow-up</summary>
           <pre><code>def first_coverage_drop(values, window, threshold):
     if window <= 0 or len(values) < window:
         return None
@@ -301,7 +301,7 @@ assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
 assert first_coverage_drop([0.99, 0.98, 0.70, 0.72, 0.74], 3, 0.85) == 1
 assert first_coverage_drop([0.99, 0.98, 0.97], 2, 0.95) is None</code></pre>
           <p>
-            Senior follow-up: page only when the drop affects critical fields
+            Production follow-up: page only when the drop affects critical fields
             or user-facing slices, deduplicate alerts by app version and
             ingestion path, and attach rollout context so on-call can identify
             whether the first bad hour matches a deployment.
@@ -313,7 +313,7 @@ assert first_coverage_drop([0.99, 0.98, 0.97], 2, 0.95) is None</code></pre>
     <section id="exam" class="band">
       <div class="section-head">
         <p class="eyebrow">Timed Exam</p>
-        <h2>Senior Interview Prompts</h2>
+        <h2>Advanced Practice Prompts</h2>
       </div>
       <div class="grid two">
         <article class="card">

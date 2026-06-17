@@ -19,7 +19,7 @@
     <p class="eyebrow">Speech Systems</p>
     <h1>ASR, TTS, And Speech-To-Speech History</h1>
     <p class="lede">
-      A senior engineer should know where modern systems came from, because old
+      An experienced engineer should know where modern systems came from, because old
       design constraints still explain today's failure modes, evaluation
       choices, and production tradeoffs.
     </p>
@@ -94,7 +94,7 @@
             <summary>Hidden answer: Production tradeoff</summary>
             <p>
               Higher MOS can raise first-audio-byte latency, GPU cost, memory,
-              and failure risk. A senior rollout compares quality by slice,
+              and failure risk. A strong rollout compares quality by slice,
               conversational latency, cold starts, streaming chunk behavior,
               safety controls, and rollback readiness.
             </p>
@@ -121,7 +121,7 @@
             Choose it when correctness, explainability, safety review,
             transcript UI, tool use, enterprise compliance, and incremental
             rollout matter more than preserving every acoustic cue. It is often
-            the best senior default for a production assistant.
+            the best production default for a production assistant.
           </p>
         </details>
       </article>
@@ -187,7 +187,7 @@ print(total_to_first_audio)</code></pre>
     <section id="interview" class="band">
       <div class="section-head">
         <p class="eyebrow">Interview Prompts</p>
-        <h2>Senior Questions</h2>
+        <h2>Advanced Questions</h2>
       </div>
       <article class="prompt">
         <h3>Prompt: A New ASR Model Improves Average WER But Hurts Medical Terms</h3>
@@ -196,7 +196,7 @@ print(total_to_first_audio)</code></pre>
           or change post-processing.
         </p>
         <details class="qa">
-          <summary>Hidden answer: Senior response</summary>
+          <summary>Hidden answer: Strong response</summary>
           <p>
             Do not ship broadly if critical entities regress. Quantify the
             domain-term slice, inspect substitutions, compare decoding and
@@ -214,7 +214,7 @@ print(total_to_first_audio)</code></pre>
           to keep the voice.
         </p>
         <details class="qa">
-          <summary>Hidden answer: Senior response</summary>
+          <summary>Hidden answer: Strong response</summary>
           <p>
             Measure first-audio-byte latency, completion rate, interruption
             rate, perceived pace, pronunciation errors, long-form fatigue,

@@ -30,9 +30,9 @@ Open `index.html` in a browser to read the website locally.
 - Voice-agent benchmarks: task success, spoken RAG, multi-turn safety, speech
   repair, launch gates, slice regressions, cost-quality tradeoffs, and rollback
   decisions.
-- Senior interview sprint: timed speech AI system design, R&D tradeoff,
+- Advanced practice sprint: timed speech AI system design, R&D tradeoff,
   production debugging, MLOps, serving platform, and coding follow-up prompts.
-- Evaluation and incident exams: senior prompts for ASR/TTS/RAG release gates,
+- Evaluation and incident exams: advanced prompts for ASR/TTS/RAG release gates,
   slice-aware launch decisions, privacy-safe debugging, drift, cost spikes, and
   rollback ranking utilities.
 - Data and evaluation operations: dataset contracts, labeling rubrics, lineage,

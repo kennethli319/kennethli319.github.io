@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Senior Speech AI Interview Sprint</title>
+  <title>Speech AI Interview Sprint</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -16,10 +16,10 @@
       <a href="#production">Production</a>
       <a href="#coding">Coding</a>
     </nav>
-    <p class="eyebrow">Senior Interview Capstone</p>
-    <h1>Senior Speech AI Interview Sprint</h1>
+    <p class="eyebrow">Advanced Practice Capstone</p>
+    <h1>Speech AI Interview Sprint</h1>
     <p class="lede">
-      A timed capstone for senior ML engineer and AI engineer interviews:
+      A timed capstone for ML engineer and AI engineer interviews:
       speech system design, R&amp;D judgment, production debugging, model serving,
       MLOps, evaluation, and focused coding follow-ups with hidden answers.
     </p>
@@ -31,7 +31,7 @@
         <p class="eyebrow">How To Use This</p>
         <h2>Practice Like A Real Loop</h2>
         <p>
-          Run each prompt under a timer before opening the answer. A senior
+          Run each prompt under a timer before opening the answer. An experienced
           answer should make tradeoffs explicit, name observability and rollback
           hooks, and separate confirmed evidence from hypotheses.
         </p>
@@ -43,9 +43,9 @@
         <li><strong>Five minutes:</strong> propose tests, dashboards, rollout gates, and the first incident response.</li>
       </ol>
       <details class="qa">
-        <summary>Question: What separates a senior answer from a mid-level answer?</summary>
+        <summary>Question: What separates a strong answer from a mid-level answer?</summary>
         <p>
-          A senior answer owns the full system lifecycle. It connects model
+          A strong answer owns the full system lifecycle. It connects model
           choice to product constraints, data contracts, evaluation slices,
           deployment mechanics, monitoring, rollback, privacy, cost, and future
           iteration. It does not stop at "train a better model."
@@ -67,7 +67,7 @@
           meeting history. It must support enterprise privacy controls.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior design outline</summary>
+          <summary>Hidden answer: advanced design outline</summary>
           <p>
             Split real-time captioning from async summarization. Use VAD,
             streaming ASR, diarization, punctuation, chunk storage, redaction,
@@ -89,7 +89,7 @@
           confidence is low.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior design outline</summary>
+          <summary>Hidden answer: advanced design outline</summary>
           <p>
             Use cascaded ASR-LLM-RAG-TTS unless direct speech-to-speech is needed
             for a narrow domain and has stronger safety gates. Budget VAD,
@@ -110,7 +110,7 @@
           TTS, embeddings, and LLM inference for several teams.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior design outline</summary>
+          <summary>Hidden answer: advanced design outline</summary>
           <p>
             Isolate real-time pools from batch pools. Use workload classes,
             admission control, model registry, canary routing, autoscaling,
@@ -182,7 +182,7 @@
             Cascades are easier to inspect, moderate, localize, retrieve over,
             log with privacy controls, and roll back by component. Direct models
             may reduce latency and preserve prosody but are harder to debug,
-            evaluate, and constrain. A senior answer proposes an experiment with
+            evaluate, and constrain. A strong answer proposes an experiment with
             matched tasks, latency budgets, safety checks, grounding, turn-taking
             recovery, controllability, and a fallback path before replacement.
           </p>

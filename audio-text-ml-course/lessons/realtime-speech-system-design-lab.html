@@ -18,7 +18,7 @@
     <p class="eyebrow">Module 33</p>
     <h1>Real-Time Speech System Design Lab</h1>
     <p class="lede">
-      Practice the senior interview loop for low-latency ASR, speech-to-speech,
+      Practice the advanced practice loop for low-latency ASR, speech-to-speech,
       spoken RAG, and TTS systems: draw the serving path, budget latency,
       define rollback gates, debug production symptoms, and write small
       deterministic utilities over aggregate telemetry.
@@ -33,7 +33,7 @@
         <p>
           A real-time speech product is not only a model. It is a timed contract
           across capture, VAD, ASR, policy, retrieval, LLM reasoning, TTS,
-          playback, observability, and rollback. The best senior answers make
+          playback, observability, and rollback. The best strong answers make
           the contract explicit before debating model choices.
         </p>
       </div>
@@ -80,7 +80,7 @@
           private enterprise data, and rollback during business hours.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior architecture outline</summary>
+          <summary>Hidden answer: strong architecture outline</summary>
           <p>
             Separate the live caption path from slower summarization and
             retrieval jobs. Use client audio capture, VAD, streaming ASR,
@@ -254,9 +254,9 @@
           Critical metrics should dominate average wins.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior reasoning and Python solution</summary>
+          <summary>Hidden answer: strong reasoning and Python solution</summary>
           <p>
-            A senior gate protects critical slices and privacy first. Average
+            A strong gate protects critical slices and privacy first. Average
             quality improvements cannot excuse a privacy error, protected-slice
             regression, or tail-latency breach.
           </p>
@@ -282,7 +282,7 @@
     <section id="exam" class="band">
       <div class="section-head">
         <p class="eyebrow">Timed Exam</p>
-        <h2>Senior Interview Prompts</h2>
+        <h2>Advanced Practice Prompts</h2>
       </div>
 
       <article class="prompt">
@@ -293,7 +293,7 @@
           on a private server, and what can use managed cloud services.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior decision outline</summary>
+          <summary>Hidden answer: strong decision outline</summary>
           <p>
             Keep wake word, VAD, privacy filters, and simple commands local
             when feasible. Use private server inference for heavy ASR, embeddings,
@@ -314,7 +314,7 @@
           say their component is healthy.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior incident outline</summary>
+          <summary>Hidden answer: strong incident outline</summary>
           <p>
             Build an end-to-end trace waterfall and compare old versus new by
             queue time, orchestration gaps, retries, retrieval, context length,

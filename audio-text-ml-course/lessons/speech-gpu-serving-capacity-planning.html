@@ -16,10 +16,10 @@
       <a href="#incidents">Incidents</a>
       <a href="#coding">Coding</a>
     </nav>
-    <p class="eyebrow">Senior Serving Infrastructure</p>
+    <p class="eyebrow">Serving Infrastructure</p>
     <h1>Speech GPU Serving Capacity Planning</h1>
     <p class="lede">
-      Practice the senior engineering layer between model quality and product
+      Practice the advanced engineering layer between model quality and product
       reliability: GPU memory math, batching, streaming concurrency,
       autoscaling, load shedding, cost controls, and incident response for
       ASR, TTS, LLM, and speech-to-speech systems.
@@ -32,7 +32,7 @@
         <p class="eyebrow">Mental Model</p>
         <h2>Capacity Is A Product Contract</h2>
         <p>
-          Senior interviewers expect you to connect traffic, latency, quality,
+          Advanced interviewers expect you to connect traffic, latency, quality,
           memory, and cost. A capacity plan is not a GPU count. It is an
           argument that the system can keep its product promise when traffic,
           inputs, and dependencies become uneven.
@@ -50,7 +50,7 @@
         <p>
           Utilization can hide queueing and tail behavior. A GPU may be busy
           with long prompts, oversized batches, low-priority replays, or cold
-          TTS voices while real-time requests wait. Senior diagnosis splits
+          TTS voices while real-time requests wait. Strong diagnosis splits
           utilization by traffic class, queue age, batch composition, model
           version, context length, and stage latency.
         </p>
@@ -60,7 +60,7 @@
     <section id="capacity" class="band">
       <div class="section-head">
         <p class="eyebrow">Capacity Planning</p>
-        <h2>Interview Prompts With Hidden Senior Answers</h2>
+        <h2>Interview Prompts With Hidden Advanced Answers</h2>
       </div>
 
       <article class="prompt">
@@ -72,7 +72,7 @@
           model and rollout checks.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior sizing outline</summary>
+          <summary>Hidden answer: strong sizing outline</summary>
           <p>
             Start from concurrent streams and audio seconds per second, then
             split by language, model, region, and real-time priority. Measure
@@ -196,7 +196,7 @@
         <h3>Drill 2: Cost Spike With Better Latency</h3>
         <p>
           Latency improved after a serving change, but daily GPU spend rose 38
-          percent and task success did not move. What is the senior response?
+          percent and task success did not move. What is the strong response?
         </p>
         <details class="qa">
           <summary>Hidden answer: cost-quality investigation</summary>

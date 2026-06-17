@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Senior ML System Design Casebook</title>
+  <title>ML System Design Casebook</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -15,10 +15,10 @@
       <a href="#labs">Labs</a>
       <a href="#exam">Exam</a>
     </nav>
-    <p class="eyebrow">Senior Interview Casebook</p>
+    <p class="eyebrow">Advanced Practice Casebook</p>
     <h1>ML System Design For Audio-Text Products</h1>
     <p class="lede">
-      Practice senior-level architecture answers for speech systems that must
+      Practice advanced architecture answers for speech systems that must
       be accurate, observable, privacy-aware, cost-controlled, and recoverable.
     </p>
   </header>
@@ -43,9 +43,9 @@
         <li><strong>Operate:</strong> dashboards, alerts, runbooks, privacy-safe logs, drift checks, and postmortem learning.</li>
       </ol>
       <details class="qa">
-        <summary>Question: What makes a system design answer senior rather than mid-level?</summary>
+        <summary>Question: What makes a system design answer staff-level rather than mid-level?</summary>
         <p>
-          A senior answer names the uncertain assumptions, makes measurable
+          A strong answer names the uncertain assumptions, makes measurable
           tradeoffs, designs for rollback before launch, connects quality to
           SLOs and cost, and explains how the system improves after production
           failures without collecting unnecessary private data.
@@ -56,7 +56,7 @@
     <section id="cases" class="band">
       <div class="section-head">
         <p class="eyebrow">Case Prompts</p>
-        <h2>Five Senior Design Rounds</h2>
+        <h2>Five Advanced Design Rounds</h2>
         <p>
           Treat each case as a 45-minute interview. Write assumptions, draw a
           block diagram, estimate capacity, define launch gates, then open the
@@ -169,7 +169,7 @@
         <p class="eyebrow">Coding Labs</p>
         <h2>Small Interview Utilities</h2>
         <p>
-          These are the kind of practical snippets senior candidates may write
+          These are the kind of practical snippets advanced candidates may write
           during debugging or system design follow-ups.
         </p>
       </div>
@@ -249,7 +249,7 @@ def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
       <article class="prompt">
         <h3>Prompt 1: Rollback Versus Hotfix</h3>
         <p>
-          When should a senior ML engineer roll back immediately instead of
+          When should a ML engineer roll back immediately instead of
           debugging in place?
         </p>
         <details class="qa">

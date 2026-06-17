@@ -18,7 +18,7 @@
     <p class="eyebrow">Production ML Track</p>
     <h1>Speech Safety, Privacy, And Security</h1>
     <p class="lede">
-      Senior speech engineers must protect users from prompt injection,
+      Speech engineers must protect users from prompt injection,
       impersonation, unsafe voice cloning, PII leakage, retention mistakes, and
       abuse while still shipping useful ASR, TTS, and speech-to-speech systems.
     </p>
@@ -40,7 +40,7 @@
           <h3>Spoken Prompt Injection</h3>
           <p>A user or background speaker says instructions that try to override policy, reveal private context, or change tool behavior.</p>
           <details class="qa">
-            <summary>Hidden answer: senior mitigation</summary>
+            <summary>Hidden answer: strong mitigation</summary>
             <p>
               Treat ASR output as untrusted user input. Keep system and tool
               policy outside the transcript, classify tool intent separately,
@@ -54,7 +54,7 @@
           <h3>Voice Impersonation</h3>
           <p>A generated or replayed voice attempts to pass as a trusted person, approve a transaction, or access private data.</p>
           <details class="qa">
-            <summary>Hidden answer: senior mitigation</summary>
+            <summary>Hidden answer: strong mitigation</summary>
             <p>
               Do not treat voice likeness as authentication. Use separate
               factors, liveness and replay checks where appropriate, risk-based
@@ -67,7 +67,7 @@
           <h3>PII In Audio And Transcripts</h3>
           <p>Raw audio, transcripts, embeddings, traces, and labels may contain private names, addresses, health data, or account facts.</p>
           <details class="qa">
-            <summary>Hidden answer: senior mitigation</summary>
+            <summary>Hidden answer: strong mitigation</summary>
             <p>
               Design retention before collection. Prefer derived metrics,
               explicit opt-in review pools, scoped access, redaction, encryption,
@@ -80,7 +80,7 @@
           <h3>TTS Abuse And Harmful Output</h3>
           <p>TTS can produce deceptive calls, harassment, unsafe instructions, or brand-damaging speech if generation is under-controlled.</p>
           <details class="qa">
-            <summary>Hidden answer: senior mitigation</summary>
+            <summary>Hidden answer: strong mitigation</summary>
             <p>
               Gate text before synthesis, restrict high-risk voices, watermark
               or disclose where suitable, rate-limit abuse patterns, maintain
@@ -227,7 +227,7 @@ policy = {
     <section id="interview" class="band">
       <div class="section-head">
         <p class="eyebrow">Interview Prompts</p>
-        <h2>Senior Safety And Privacy Questions</h2>
+        <h2>Advanced Safety And Privacy Questions</h2>
       </div>
 
       <article class="prompt">
@@ -237,7 +237,7 @@ policy = {
           TV in the background. How do you triage and prevent recurrence?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior response</summary>
+          <summary>Hidden answer: strong response</summary>
           <p>
             Mitigate first by disabling or confirming sensitive tools, then
             inspect sanitized traces for ASR segments, speaker labels, intent
@@ -256,7 +256,7 @@ policy = {
           may be kept?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior response</summary>
+          <summary>Hidden answer: strong response</summary>
           <p>
             Delete raw audio, transcripts, labels, embeddings, derived examples,
             and model-training references linked to the user according to the
@@ -275,7 +275,7 @@ policy = {
           public-facing employee. What actions do you take?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior response</summary>
+          <summary>Hidden answer: strong response</summary>
           <p>
             Rate-limit or disable the abusive route, preserve evidence, notify
             safety/legal owners, revoke the voice if consent or policy is

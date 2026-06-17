@@ -21,7 +21,7 @@
     <p class="eyebrow">Production Lab</p>
     <h1>Speech MLOps, Serving, And Incident Response</h1>
     <p class="lede">
-      Senior audio ML work is measured after launch. This lesson trains the
+      Audio ML work is measured after launch. This lesson trains the
       production habits behind reliable ASR, TTS, embeddings, speech-to-speech,
       and audio classification systems.
     </p>
@@ -68,7 +68,7 @@
           <h3>Code Gates</h3>
           <p>Unit tests, type checks, HTML/site checks, lint, reproducible environment build, and no private audio or transcript artifacts in Git.</p>
           <details class="qa">
-            <summary>Hidden answer: Minimum senior checklist</summary>
+            <summary>Hidden answer: Minimum strong checklist</summary>
             <p>
               Include tests for feature shapes, normalization, decoding edge
               cases, model wrapper schema, retry behavior, timeout behavior,
@@ -183,7 +183,7 @@
 
     <section id="interview" class="band">
       <div class="section-head">
-        <p class="eyebrow">Senior Interview Practice</p>
+        <p class="eyebrow">Advanced Practice Practice</p>
         <h2>Prompts That Test Production Judgment</h2>
         <p>
           Use these prompts for mock interviews and written exams. A strong
@@ -200,7 +200,7 @@
           under a fixed monthly GPU budget. Explain the rollout plan.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior structure</summary>
+          <summary>Hidden answer: strong structure</summary>
           <p>
             Start with SLOs: first partial transcript, first audio byte, turn
             completion, task success, cost per minute, and privacy retention.
@@ -250,7 +250,7 @@
           <p>
             Do not decide from global WER alone. Compare slice metrics,
             entity error, downstream task success, latency, cost, user segment,
-            and recovery behavior. A likely senior answer is a cascade: route
+            and recovery behavior. A likely strong answer is a cascade: route
             clean, short, high-confidence utterances to the smaller model and
             route noisy, long, low-confidence, or domain-heavy utterances to
             the larger model. Canary the router, cap blast radius, monitor
@@ -284,7 +284,7 @@
     <section id="release-lab" class="band">
       <div class="section-head">
         <p class="eyebrow">Release Lab</p>
-        <h2>Senior Production Exercises</h2>
+        <h2>Production Exercises</h2>
         <p>
           These drills combine interview-style reasoning with the practical
           work of shipping, monitoring, and rolling back speech models.
@@ -299,9 +299,9 @@
           slice regresses.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior checklist and Python sketch</summary>
+          <summary>Hidden answer: strong checklist and Python sketch</summary>
           <p>
-            A senior gate treats protected slices as first-class release
+            A strong gate treats protected slices as first-class release
             criteria. Merge should be blocked or paused when a critical slice
             exceeds its regression budget, even if the aggregate metric
             improves. Include missing-slice handling so eval coverage cannot
@@ -409,7 +409,7 @@
         </article>
       </div>
       <details class="qa">
-        <summary>Question: How should a senior engineer present a tradeoff?</summary>
+        <summary>Question: How should an experienced engineer present a tradeoff?</summary>
         <p>
           Name the product goal, the constraint, the options, the expected
           impact, the measurement plan, and the rollback path. Example:

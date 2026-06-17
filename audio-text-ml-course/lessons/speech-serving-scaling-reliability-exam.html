@@ -16,10 +16,10 @@
       <a href="#coding">Coding</a>
       <a href="#rubric">Rubric</a>
     </nav>
-    <p class="eyebrow">Senior Reliability Exam</p>
+    <p class="eyebrow">Serving Reliability Exam</p>
     <h1>Speech Serving Scaling And Reliability Exam</h1>
     <p class="lede">
-      Timed senior practice for capacity planning, SLOs, rollout gates,
+      Timed advanced practice for capacity planning, SLOs, rollout gates,
       cost-aware routing, rollback judgment, and production debugging across
       ASR, TTS, LLM, retrieval, and speech-to-speech serving.
     </p>
@@ -31,7 +31,7 @@
         <p class="eyebrow">Exam Setup</p>
         <h2>Think Like The Owner Of The Serving Plane</h2>
         <p>
-          In a senior interview or launch review, correctness is not enough.
+          In a advanced practice or launch review, correctness is not enough.
           You need to explain what traffic is isolated, which metrics gate a
           release, how you recover, and how cost and latency change when the
           system grows. Use the prompts below as a two-hour practice exam.
@@ -135,7 +135,7 @@
     <section id="system-design" class="band">
       <div class="section-head">
         <p class="eyebrow">System Design</p>
-        <h2>Timed Senior Prompts</h2>
+        <h2>Timed Advanced Prompts</h2>
       </div>
 
       <article class="prompt">
@@ -147,7 +147,7 @@
           p95 and first synthesized audio under 1.8 seconds p95.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior design outline</summary>
+          <summary>Hidden answer: advanced design outline</summary>
           <p>
             Start with a streaming gateway, per-call session state, VAD, ASR
             stream workers, retrieval and policy services, LLM serving, TTS
@@ -326,7 +326,7 @@
           <p>
             Invariant: promotion is safe only if every protected slice stays
             within agreed thresholds. Test missing slices, improved quality with
-            worse latency, low-volume slices, and zero old cost. A senior answer
+            worse latency, low-volume slices, and zero old cost. A strong answer
             describes minimum sample rules instead of trusting tiny samples.
           </p>
           <pre><code class="language-python">def rollback_blockers(old, new, min_calls=200):
@@ -398,7 +398,7 @@
     <section id="rubric" class="band">
       <div class="section-head">
         <p class="eyebrow">Rubric</p>
-        <h2>What A Senior Answer Must Include</h2>
+        <h2>What A Strong Answer Must Include</h2>
       </div>
       <div class="grid two">
         <article class="card">

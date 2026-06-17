@@ -19,7 +19,7 @@
     <p class="eyebrow">Modules 01-02</p>
     <h1>ML Foundations For Speech Engineers</h1>
     <p class="lede">
-      Senior audio ML work depends on fundamentals: tensor shapes, losses,
+      Audio ML work depends on fundamentals: tensor shapes, losses,
       gradients, optimization, train/validation discipline, and debugging
       instincts that transfer from toy models to ASR, TTS, and speech agents.
     </p>
@@ -44,7 +44,7 @@
             <summary>Question: Why do shape mistakes survive code review?</summary>
             <p>
               Many tensor libraries broadcast silently. A wrong axis can produce
-              plausible numbers while training the wrong objective. Senior
+              plausible numbers while training the wrong objective. Experienced
               engineers write shape comments, assertions, and tests for feature
               extraction, masking, padding, and batch collation.
             </p>
@@ -96,7 +96,7 @@
     <section id="training" class="band">
       <div class="section-head">
         <p class="eyebrow">Training Loop</p>
-        <h2>A Minimal Classifier With Senior Habits</h2>
+        <h2>A Minimal Classifier With Advanced Habits</h2>
         <p>
           This tiny example is not an ASR system. It is a clean template for
           habits that matter later: explicit shapes, split metrics, deterministic
@@ -247,7 +247,7 @@ def train_step(model, batch, optimizer):
 
     <section id="interview" class="band">
       <div class="section-head">
-        <p class="eyebrow">Senior Interview</p>
+        <p class="eyebrow">Advanced Practice</p>
         <h2>Foundations Prompts</h2>
       </div>
       <article class="prompt">
@@ -257,7 +257,7 @@ def train_step(model, batch, optimizer):
           speech. Explain what you would change and how you would measure it.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior response shape</summary>
+          <summary>Hidden answer: strong response shape</summary>
           <p>
             Separate capacity from data mismatch. Underfitting clean speech
             suggests optimization, architecture, feature, or capacity issues.

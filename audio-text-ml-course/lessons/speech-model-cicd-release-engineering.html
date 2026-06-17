@@ -19,7 +19,7 @@
     <p class="eyebrow">Module 26</p>
     <h1>Speech Model CI/CD And Release Engineering</h1>
     <p class="lede">
-      Senior ML engineers are judged by how safely they turn model improvements
+      ML engineers are judged by how safely they turn model improvements
       into product changes. This lesson covers release pipelines, model registry
       contracts, CI gates, canaries, rollback, and production debugging for
       audio-text systems.
@@ -104,11 +104,11 @@
           12 kHz before feature extraction. What can break?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior diagnosis</summary>
+          <summary>Hidden answer: strong diagnosis</summary>
           <p>
             The model may see shifted frequency content and degraded phoneme
             evidence, especially for sibilants, noise, and accents. The release
-            should fail a contract test before canary. A senior answer asks for
+            should fail a contract test before canary. A strong answer asks for
             sample-rate metadata, feature checksums, slice WER, client version
             splits, and replay fixtures that verify the exact production feature
             path.
@@ -169,7 +169,7 @@
         <h2>Small Release Engineering Utilities</h2>
         <p>
           Use synthetic metadata and aggregate metrics only. These functions
-          mirror the checks a senior engineer should expect in CI or deployment
+          mirror the checks an experienced engineer should expect in CI or deployment
           automation.
         </p>
       </div>
@@ -267,7 +267,7 @@ def validate_registry_entry(entry):
     }</code></pre>
           <p>
             The target must be a known stable serving bundle, not merely the
-            previous commit. A senior release system records enough metadata to
+            previous commit. A release system records enough metadata to
             restore behavior quickly.
           </p>
         </details>
@@ -276,7 +276,7 @@ def validate_registry_entry(entry):
 
     <section id="interview" class="band">
       <div class="section-head">
-        <p class="eyebrow">Senior Prompts</p>
+        <p class="eyebrow">Advanced Prompts</p>
         <h2>Practice Release Judgment Out Loud</h2>
       </div>
       <article class="prompt">
@@ -286,7 +286,7 @@ def validate_registry_entry(entry):
           commands. Include tests, artifacts, release gates, and rollback.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Cover unit tests for feature extraction, schema compatibility,
             sanitized replay fixtures, WER/CER slices, command intent recall,
@@ -304,7 +304,7 @@ def validate_registry_entry(entry):
           because GPU memory rose under concurrent traffic. What should change?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Add load tests with realistic concurrency, queue age, warmup, voice
             mix, long utterances, memory fragmentation, retry behavior, and
@@ -322,7 +322,7 @@ def validate_registry_entry(entry):
           about regressions. How do you speed up safely?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Build a paved release path with registry templates, automated eval
             packs, synthetic replay, shadow traffic, slice dashboards, progressive

@@ -19,7 +19,7 @@
     <p class="eyebrow">Module 21</p>
     <h1>Speech Inference Platform Readiness</h1>
     <p class="lede">
-      Senior ML engineers are expected to turn ASR, TTS, LLM, and speech-to-speech
+      ML engineers are expected to turn ASR, TTS, LLM, and speech-to-speech
       models into reliable products. This lesson practices readiness reviews:
       capacity, rollout gates, monitoring, incident response, and cost-aware
       serving decisions.
@@ -34,7 +34,7 @@
         <p>
           A production speech platform usually serves several workloads at once:
           wake word, VAD, streaming ASR, turn classification, LLM reasoning,
-          retrieval, TTS, evaluation jobs, and offline transcription. Senior
+          retrieval, TTS, evaluation jobs, and offline transcription. Strong
           design starts by separating user-visible latency paths from throughput
           paths.
         </p>
@@ -88,9 +88,9 @@
           transcript latency is unchanged. Should you launch?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior launch decision</summary>
+          <summary>Hidden answer: strong launch decision</summary>
           <p>
-            Do not launch broadly. A senior answer protects the regressed slice,
+            Do not launch broadly. A strong answer protects the regressed slice,
             checks whether far-field traffic is strategically important, audits
             sample size and label quality, and proposes a constrained canary or
             model routing rule only if the affected slice can be excluded. The
@@ -112,7 +112,7 @@
             Ship only behind an explicit product decision and a narrow audience
             if the demo value justifies it. Keep the old voice as fallback,
             enforce p99 and cost alerts, pre-warm where needed, and define a
-            rollback threshold. A strong senior answer separates subjective
+            rollback threshold. A strong strong answer separates subjective
             quality wins from reliability and unit-economics risks.
           </p>
         </details>
@@ -186,7 +186,7 @@
             <p>
               Slice by region, language, accent, microphone path, network jitter,
               client version, model version, feature extraction version, and
-              routing policy. Compare canary and control cohorts. A senior
+              routing policy. Compare canary and control cohorts. An experienced
               responder does not rely on global WER during a regional complaint.
             </p>
           </details>
@@ -307,7 +307,7 @@
 
     <section id="interview" class="band">
       <div class="section-head">
-        <p class="eyebrow">Senior Interview Prompts</p>
+        <p class="eyebrow">Advanced Practice Prompts</p>
         <h2>Answer Out Loud Before Opening</h2>
       </div>
       <article class="prompt">
@@ -318,7 +318,7 @@
           observability, release gates, privacy, and cost controls.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Discuss separate real-time and batch pools, tenant quotas, model
             registry, feature extraction contracts, streaming APIs, cancellation,
@@ -336,7 +336,7 @@
           and TTS each claim their local metrics are healthy.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Build an end-to-end trace waterfall and inspect queue time, network,
             client buffering, orchestration gaps, retries, retrieval latency,
@@ -354,7 +354,7 @@
           the cloud.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior outline</summary>
+          <summary>Hidden answer: strong outline</summary>
           <p>
             Run wake word, VAD, privacy filters, and simple commands locally
             when possible. Use cloud or dedicated servers for long dictation,

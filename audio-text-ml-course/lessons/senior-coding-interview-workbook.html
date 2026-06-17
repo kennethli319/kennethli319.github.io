@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Senior Coding Interview Workbook</title>
+  <title>Coding Interview Workbook</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -17,9 +17,9 @@
       <a href="#rubric">Rubric</a>
     </nav>
     <p class="eyebrow">Coding Track</p>
-    <h1>Senior Coding Interview Workbook</h1>
+    <h1>Coding Interview Workbook</h1>
     <p class="lede">
-      Practice the habits that separate senior coding rounds from memorized
+      Practice the habits that separate advanced coding rounds from memorized
       answers: invariants, edge tests, complexity proofs, debugging moves, and
       production follow-ups for speech and model-serving systems.
     </p>
@@ -31,7 +31,7 @@
         <p class="eyebrow">Interview Method</p>
         <h2>Say The Contract Before The Code</h2>
         <p>
-          A senior candidate makes the problem smaller before typing. Define
+          An experienced candidate makes the problem smaller before typing. Define
           input shape, output contract, invariant, failure cases, and the
           simplest test that can disprove the idea.
         </p>
@@ -45,7 +45,7 @@
         <li><strong>Extend:</strong> answer the production follow-up about streaming data, memory, concurrency, privacy, or observability.</li>
       </ol>
       <details class="qa">
-        <summary>Question: What makes a coding answer senior-level?</summary>
+        <summary>Question: What makes a coding answer advanced?</summary>
         <p>
           It is correct, readable, and testable, but it also explains why the
           invariant is sufficient, how the solution fails under changed
@@ -240,12 +240,12 @@ def min_window(s, t):
           or reject?
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior system-design mapping</summary>
+          <summary>Hidden answer: strong system-design mapping</summary>
           <p>
             Use heaps for earliest deadline or shortest job first, sliding
             windows for recent arrival rate, queues for fairness per tenant,
             and binary search over batch size when latency is a monotonic
-            function of batch size. The senior answer also includes metrics:
+            function of batch size. The strong answer also includes metrics:
             queue age, drop reason, batch fill ratio, deadline miss rate, and
             cost per successful request.
           </p>

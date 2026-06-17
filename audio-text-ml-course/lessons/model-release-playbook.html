@@ -19,7 +19,7 @@
     <p class="eyebrow">Production Playbook</p>
     <h1>Speech Model Release And Rollback</h1>
     <p class="lede">
-      A senior-level release checklist for ASR, TTS, speech embeddings, and
+      A advanced release checklist for ASR, TTS, speech embeddings, and
       speech-to-speech systems. Use it for interviews, design reviews, and
       real production readiness.
     </p>
@@ -49,7 +49,7 @@
           Speech models are sensitive to preprocessing. A mel-bin count,
           normalization rule, VAD threshold, codec setting, or tokenizer update
           can change accuracy, latency, and failure modes without changing
-          weights. Senior release reviews treat preprocessing as part of the
+          weights. Release reviews treat preprocessing as part of the
           model contract.
         </p>
       </details>
@@ -129,7 +129,7 @@
           production rollout.
         </p>
         <details class="qa">
-          <summary>Hidden answer: Senior rollout plan</summary>
+          <summary>Hidden answer: Advanced rollout plan</summary>
           <p>
             Start with shadow traffic to compare transcripts, latency, and
             partial churn without user exposure. Then canary low-risk tenants,
@@ -173,7 +173,7 @@
         <li><strong>Learn:</strong> add the missing metric, test, fixture, or release gate that would have caught the issue earlier.</li>
       </ol>
       <details class="qa">
-        <summary>Question: What is the common senior mistake during incidents?</summary>
+        <summary>Question: What is the common advanced mistake during incidents?</summary>
         <p>
           Optimizing before scoping. A strong response first protects users and
           narrows the blast radius. Only then does it chase root cause. The

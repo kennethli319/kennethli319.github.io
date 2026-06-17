@@ -15,10 +15,10 @@
       <a href="#labs">Labs</a>
       <a href="#interview">Interview</a>
     </nav>
-    <p class="eyebrow">Senior Production Practice</p>
+    <p class="eyebrow">Production Practice</p>
     <h1>Model Serving On-Call Runbook For Speech AI</h1>
     <p class="lede">
-      Practice the senior engineering judgment needed when ASR, TTS, LLM,
+      Practice production engineering judgment needed when ASR, TTS, LLM,
       retrieval, or speech-to-speech serving fails under real traffic.
     </p>
   </header>
@@ -31,7 +31,7 @@
         <p>
           Speech products hide multiple queues: audio capture, VAD, ASR
           chunking, LLM decoding, retrieval, TTS synthesis, network delivery,
-          and client playback. Senior on-call work starts by locating the queue
+          and client playback. Production on-call work starts by locating the queue
           that is growing, then deciding whether the safest fix is rollback,
           capacity, degradation, or traffic shaping.
         </p>
@@ -73,7 +73,7 @@
           moves from 420 ms to 930 ms for mobile users on noisy calls.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior triage outline</summary>
+          <summary>Hidden answer: strong triage outline</summary>
           <p>
             Slice by model version, device, codec, language, VAD state, chunk
             size, region, and connection type. Check VAD false silence, audio
@@ -204,7 +204,7 @@
           <p>
             Common mistakes are dividing by all turns instead of successful
             turns, ignoring zero-success routes, and comparing cost without
-            quality. A senior answer treats cost as a constraint attached to
+            quality. A strong answer treats cost as a constraint attached to
             user value, not as an isolated infrastructure metric.
           </p>
           <pre><code class="language-python">def rank_cost_per_success(routes):
@@ -253,7 +253,7 @@
     <section id="interview" class="band">
       <div class="section-head">
         <p class="eyebrow">Interview Prompts</p>
-        <h2>Senior Answers Should Name The Tradeoff</h2>
+        <h2>Advanced Answers Should Name The Tradeoff</h2>
       </div>
 
       <article class="prompt">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Senior Audio ML Evaluation And Incident Exam</title>
+  <title>Advanced Audio ML Evaluation And Incident Exam</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -16,10 +16,10 @@
       <a href="#coding">Coding</a>
       <a href="#rubric">Rubric</a>
     </nav>
-    <p class="eyebrow">Senior Exam Track</p>
+    <p class="eyebrow">Advanced Practice Track</p>
     <h1>Audio ML Evaluation And Incident Exam</h1>
     <p class="lede">
-      A senior-level practice set for designing speech evaluation systems,
+      A advanced practice set for designing speech evaluation systems,
       defending rollout gates, debugging production regressions, and writing
       small utilities that encode operational judgment.
     </p>
@@ -46,7 +46,7 @@
       <details class="qa">
         <summary>Question: Why can aggregate WER be a dangerous launch metric?</summary>
         <p>
-          Aggregate WER can improve while a critical slice regresses. A senior
+          Aggregate WER can improve while a critical slice regresses. An experienced
           launch gate checks user-impacting slices such as noisy mobile calls,
           accented speech, domain terms, entity-heavy utterances, and regions
           with different network conditions. It also connects WER to downstream
@@ -72,7 +72,7 @@
           but changes partial hypothesis behavior. Design the promotion gate.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior gate outline</summary>
+          <summary>Hidden answer: strong gate outline</summary>
           <p>
             Gate on final WER and CER by slice, entity recall, punctuation if
             user-visible, first partial latency, finalization latency, partial
@@ -203,7 +203,7 @@
         <h2>Implementation Drills</h2>
         <p>
           These are intentionally small. They mirror interview utilities and
-          production checks that a senior engineer should implement cleanly.
+          production checks that an experienced engineer should implement cleanly.
         </p>
       </div>
 
@@ -284,7 +284,7 @@
           rollback time, rank the safest rollback target.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior reasoning and Python solution</summary>
+          <summary>Hidden answer: strong reasoning and Python solution</summary>
           <p>
             A rollback target should reduce user impact quickly without hiding
             safety or privacy issues. Prefer a known-good version with lower
@@ -309,7 +309,7 @@
     <section id="rubric" class="band">
       <div class="section-head">
         <p class="eyebrow">Rubric</p>
-        <h2>What A Strong Senior Answer Includes</h2>
+        <h2>What A Strong Answer Includes</h2>
       </div>
       <div class="grid two">
         <article class="card">
@@ -330,7 +330,7 @@
         </article>
       </div>
       <details class="qa">
-        <summary>Question: What is the fastest way to weaken an otherwise good senior answer?</summary>
+        <summary>Question: What is the fastest way to weaken an otherwise good strong answer?</summary>
         <p>
           Treating evaluation, serving, and incidents as separate worlds. A
           strong answer shows how offline metrics predict production behavior,

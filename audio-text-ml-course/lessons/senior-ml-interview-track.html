@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Senior ML Interview And Exam Track</title>
+  <title>Advanced ML Interview And Exam Track</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
   <header class="lesson-hero">
     <nav>
       <a href="../index.html">Course Home</a>
-      <a href="#bar">Senior Bar</a>
+      <a href="#bar">Advanced Bar</a>
       <a href="#systems">System Design</a>
       <a href="#rd">R&amp;D</a>
       <a href="#production">Production</a>
@@ -18,9 +18,9 @@
       <a href="#rubric">Rubric</a>
     </nav>
     <p class="eyebrow">Interview Track</p>
-    <h1>Senior ML Engineer Readiness</h1>
+    <h1>Advanced ML Engineer Readiness</h1>
     <p class="lede">
-      A practical exam track for senior machine learning and AI engineering
+      A practical exam track for advanced machine learning and AI engineering
       roles. The goal is not memorized answers. The goal is to reason through
       ambiguous research and production problems with enough detail to earn
       trust on a real audio and speech ML team.
@@ -31,11 +31,11 @@
     <section id="bar" class="band">
       <div class="section-head">
         <p class="eyebrow">Current Hiring Signal</p>
-        <h2>What Senior Interviews Actually Test</h2>
+        <h2>What Advanced Practices Actually Test</h2>
         <p>
           A current online pass across ML system design, MLOps/deployment, AI
           engineering, and speech-recognition interview material shows a common
-          pattern: senior loops test judgment under constraints. Strong
+          pattern: advanced loops test judgment under constraints. Strong
           candidates can move from problem framing to data, modeling,
           evaluation, serving, monitoring, rollback, and cost.
         </p>
@@ -71,7 +71,7 @@
       <details class="qa">
         <summary>Question: Why is system design the largest block?</summary>
         <p>
-          Senior ML work is mostly choosing and operating the right system under
+          Production ML work is mostly choosing and operating the right system under
           imperfect constraints. Model architecture is only one part. The
           candidate must also handle data quality, evaluation, serving latency,
           monitoring, stakeholder metrics, privacy, cost, and rollback.
@@ -94,7 +94,7 @@
           and strict privacy controls.
         </p>
         <details class="qa">
-          <summary>Hidden answer: What a senior answer should cover</summary>
+          <summary>Hidden answer: What a strong answer should cover</summary>
           <p>
             Start with requirements: languages, sample rate, channels, latency,
             concurrency, retention, compliance, and accuracy targets. Propose
@@ -126,7 +126,7 @@
             boundary and loses some prosody. A direct speech-to-speech model can
             preserve paralinguistic cues and reduce intermediate text
             bottlenecks, but is harder to control, inspect, and operate. A
-            senior answer should create a latency budget for VAD, ASR partials,
+            strong answer should create a latency budget for VAD, ASR partials,
             LLM first token, TTS first audio, playback, and interruption. It
             should also include state management, echo control, local model
             options, privacy rules, transcript UI, failure recovery, and
@@ -304,7 +304,7 @@
         <h2>Build And Debug, Not Recite</h2>
       </div>
       <p>
-        Senior coding rounds often test whether you can write clear ML code,
+        Coding rounds often test whether you can write clear ML code,
         find silent bugs, and design guardrails. These exercises should be added
         to the course labs as executable notebooks or scripts.
       </p>
@@ -324,7 +324,7 @@ def training_step(model, batch):
         <p>
           Cross entropy expects raw logits, not softmax probabilities. The
           softmax also omits the dimension argument. The correct code is usually
-          <code>loss = F.cross_entropy(logits, y)</code>. A senior answer also
+          <code>loss = F.cross_entropy(logits, y)</code>. A strong answer also
           says how to catch this: unit tests on shape and loss behavior,
           overfit-one-batch tests, code review checklists, and metric sanity
           checks against a known baseline.
@@ -359,7 +359,7 @@ def training_step(model, batch):
           <p>Asks clarifying questions, creates an end-to-end design, picks metrics by product goal, and names failure modes.</p>
         </article>
         <article class="card">
-          <h3>Senior</h3>
+          <h3>Advanced</h3>
           <p>Adds rollout, rollback, cost, monitoring, data lineage, privacy, capacity planning, and migration strategy.</p>
         </article>
         <article class="card">
@@ -375,7 +375,7 @@ def training_step(model, batch):
         <h2>Online Interview Research</h2>
       </div>
       <ul class="resources">
-        <li><a href="https://www.kore1.com/ml-engineer-interview-questions/">KORE1 AI/ML Engineer Interview Questions 2026</a> - current senior loop themes: system design, applied fundamentals, coding, MLOps, production debugging.</li>
+        <li><a href="https://www.kore1.com/ml-engineer-interview-questions/">KORE1 AI/ML Engineer Interview Questions 2026</a> - current advanced loop themes: system design, applied fundamentals, coding, MLOps, production debugging.</li>
         <li><a href="https://www.hellointerview.com/learn/ml-system-design">Hello Interview ML System Design</a> - applied ML design, ML infra design, research engineering categories.</li>
         <li><a href="https://www.datainterview.com/blog/mlops-and-deployment-interview-questions">DataInterview MLOps and Deployment Questions</a> - serving, latency, CI/CD, drift, monitoring, and deployment prompts.</li>
         <li><a href="https://www.tryexponent.com/blog/machine-learning-system-design-interview-guide">Exponent ML System Design Guide</a> - end-to-end framework from problem definition through deployment and monitoring.</li>

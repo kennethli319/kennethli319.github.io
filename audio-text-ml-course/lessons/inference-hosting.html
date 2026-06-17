@@ -19,7 +19,7 @@
     <p class="eyebrow">Module 13</p>
     <h1>Inference Hosting And Serving Design</h1>
     <p class="lede">
-      Senior AI engineers need to turn model demos into services with clear
+      AI engineers need to turn model demos into services with clear
       latency, memory, throughput, reliability, privacy, and cost behavior.
       This lesson connects transformer serving to speech workloads.
     </p>
@@ -112,7 +112,7 @@
             GPU-seconds per audio second, demand is 3,500 GPU-seconds per
             second. At a 70 percent utilization target, each GPU contributes
             0.7 usable GPU-seconds per second. Estimate 3,500 / 0.7 = 5,000
-            GPUs before optimizations. A senior answer should challenge the
+            GPUs before optimizations. A strong answer should challenge the
             assumptions, look for model or batching improvements, regional peak
             smoothing, smaller models, CPU preprocessing, VAD savings, and
             offline-vs-real-time separation.
@@ -149,7 +149,7 @@
           <h3>Embedded Local</h3>
           <p>Use for privacy, offline mode, small models, local wake words, VAD, and personal assistants where device limits are acceptable.</p>
           <details class="qa">
-            <summary>Hidden answer: senior tradeoff</summary>
+            <summary>Hidden answer: staff-level tradeoff</summary>
             <p>
               Local serving reduces data exposure and network latency, but
               makes hardware variability, model updates, telemetry, crash
@@ -162,7 +162,7 @@
           <h3>Online GPU API</h3>
           <p>Use for large ASR, speech-to-speech, LLM reasoning, neural codecs, and high-quality TTS that exceed device capacity.</p>
           <details class="qa">
-            <summary>Hidden answer: senior tradeoff</summary>
+            <summary>Hidden answer: staff-level tradeoff</summary>
             <p>
               Online GPU serving gives centralized control, better utilization,
               and faster model iteration. It also introduces privacy, network,
@@ -174,7 +174,7 @@
           <h3>Batch Pipeline</h3>
           <p>Use for offline transcription, dataset labeling, eval runs, embedding generation, and backfills where throughput matters most.</p>
           <details class="qa">
-            <summary>Hidden answer: senior tradeoff</summary>
+            <summary>Hidden answer: staff-level tradeoff</summary>
             <p>
               Batch jobs should maximize accelerator occupancy, retry safely,
               checkpoint progress, record model versions, and support idempotent
@@ -234,7 +234,7 @@
           more mistakes on names and product SKUs.
         </p>
         <details class="qa">
-          <summary>Hidden answer: senior response</summary>
+          <summary>Hidden answer: strong response</summary>
           <p>
             Roll back or canary-limit if critical entity error exceeds the
             launch budget. Compare by domain-term slice, accent, SNR, language,
@@ -265,9 +265,9 @@
         <li><strong>Operations:</strong> define dashboards, alerts, rollback, cost budget, and privacy-safe logs.</li>
       </ol>
       <details class="qa">
-        <summary>Question: What makes this report senior-level?</summary>
+        <summary>Question: What makes this report advanced?</summary>
         <p>
-          It connects model quality to operational constraints. A senior report
+          It connects model quality to operational constraints. A strong report
           explains what was measured, what was not measured, how the model can
           fail in production, what blocks launch, and exactly how to roll back
           or degrade gracefully.

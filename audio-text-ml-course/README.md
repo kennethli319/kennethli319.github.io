@@ -1,8 +1,9 @@
-# Audio-Text Multimodal ML Course
+# Speech ML/AI Domain Study Guide
 
 A self-paced study guide for learning machine learning from the
 fundamentals through audio/text multimodality, ASR, TTS, speech-to-speech
-systems, efficient transformers, and efficient inference hosting.
+systems, efficient transformers, and practical inference hosting across the
+speech ML/AI domain.
 
 Open `index.html` in a browser to read the website locally.
 

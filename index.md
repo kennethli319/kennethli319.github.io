@@ -2,9 +2,7 @@
 layout: default
 ---
 
-[Toolbox: [[TTS]](https://huggingface.co/spaces/kennethli319/TTS-toolbox) [[TTS-VC]](https://huggingface.co/spaces/kennethli319/xtts) [[ASR]](https://huggingface.co/spaces/kennethli319/ASR-toolbox) [[LLM]](https://huggingface.co/spaces/kennethli319/mpt-7b-instruct-rust) [[RAG]](https://huggingface.co/spaces/kennethli319/RAGArchcd) [[Multimodal-LLM]](https://huggingface.co/spaces/kennethli319/LLaVA-1.6)]
-
-[Notes: [[TTS]](./notes_tts.md) [[ASR]](./notes_asr.md) [[ML]](./notes_ml.md) [[Audio ML Course]](./audio-text-ml-course/) [[Others]](./notes.md)]
+[Notes: [[Audio ML Course]](./audio-text-ml-course/) [[Others]](./notes.md)]
 
 # About
 

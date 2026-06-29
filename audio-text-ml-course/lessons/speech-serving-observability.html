@@ -112,13 +112,18 @@
           <p>
             Invariant: burn rate compares observed bad fraction to the allowed
             bad fraction. Test zero requests, no errors, exactly-on-budget
-            errors, and a window that burns several times faster than budget.
+            errors, invalid negative counts, bad counts above total, and a
+            window that burns several times faster than budget.
           </p>
           <pre><code class="language-python">def burn_rate(total_requests, bad_requests, allowed_bad_fraction):
-    if total_requests == 0:
-        return 0.0
+    if total_requests &lt; 0 or bad_requests &lt; 0:
+        raise ValueError("request counts must be non-negative")
+    if bad_requests &gt; total_requests:
+        raise ValueError("bad_requests cannot exceed total_requests")
     if allowed_bad_fraction &lt;= 0:
         raise ValueError("allowed_bad_fraction must be positive")
+    if total_requests == 0:
+        return 0.0
 
     observed = bad_requests / total_requests
     return observed / allowed_bad_fraction</code></pre>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Speech Serving Scaling And Reliability Exam</title>
+  <title>Speech Serving Scaling and Reliability Exam</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -17,7 +17,7 @@
       <a href="#rubric">Rubric</a>
     </nav>
     <p class="eyebrow">Serving Reliability Exam</p>
-    <h1>Speech Serving Scaling And Reliability Exam</h1>
+    <h1>Speech Serving Scaling and Reliability Exam</h1>
     <p class="lede">
       Timed advanced practice for capacity planning, SLOs, rollout gates,
       cost-aware routing, rollback judgment, and production debugging across
@@ -31,7 +31,7 @@
         <p class="eyebrow">Exam Setup</p>
         <h2>Think Like The Owner Of The Serving Plane</h2>
         <p>
-          In a advanced practice or launch review, correctness is not enough.
+          In an advanced practice or launch review, correctness is not enough.
           You need to explain what traffic is isolated, which metrics gate a
           release, how you recover, and how cost and latency change when the
           system grows. Use the prompts below as a two-hour practice exam.
@@ -279,8 +279,9 @@
         <p class="eyebrow">Coding</p>
         <h2>Production-Flavored Algorithm Drills</h2>
         <p>
-          These are not replacements for the Blind 75 chapters. They show how
-          the same invariants appear in serving infrastructure interviews.
+          These drills keep the coding practice inside speech serving
+          reliability: capacity, rollout gates, and SLO windows all depend on
+          careful handling of telemetry edges.
         </p>
       </div>
 
@@ -295,14 +296,18 @@
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
             Invariant: a sweep-line count equals active streams after applying
-            every event at a timestamp. Process end events before start events
-            when an interval ending at <code>t</code> does not overlap an
-            interval starting at <code>t</code>. Test empty input, touching
-            intervals, nested intervals, identical starts, and one long call.
+            every event at a timestamp. Validate that every call interval has
+            <code>end_ms &gt;= start_ms</code> before the sweep. Process end
+            events before start events when an interval ending at
+            <code>t</code> does not overlap an interval starting at
+            <code>t</code>. Test empty input, touching intervals, nested
+            intervals, identical starts, inverted intervals, and one long call.
           </p>
           <pre><code class="language-python">def peak_concurrent_streams(intervals):
     events = []
     for start, end in intervals:
+        if end &lt; start:
+            raise ValueError("end_ms must be greater than or equal to start_ms")
         events.append((start, 1))
         events.append((end, -1))
 
@@ -362,18 +367,29 @@
         <details class="qa">
           <summary>Hidden answer: strategy and Python solution</summary>
           <p>
-            This is the same window invariant as Blind 75 substring problems:
-            maintain exactly the aggregate state for the current window, update
-            it when the right edge enters, and remove the left edge when it
-            leaves. Test all-good traffic, all-bad traffic, zero traffic, and a
-            single bad spike.
+            Maintain exactly the aggregate state for the current SLO window,
+            update it when the right edge enters, and remove the left edge when
+            it leaves. Reject non-positive window sizes, negative request
+            counts, and bad counts above total counts before computing burn.
+            Test all-good traffic, all-bad traffic, zero traffic, invalid
+            telemetry, and a single bad spike.
           </p>
           <pre><code class="language-python">def burn_windows(points, window_size=5, budget_rate=0.01):
+    if window_size &lt;= 0:
+        raise ValueError("window_size must be positive")
+    if budget_rate &lt; 0:
+        raise ValueError("budget_rate must be non-negative")
+
     bad = 0
     total = 0
     alerts = []
 
     for right, point in enumerate(points):
+        if point["bad"] &lt; 0 or point["total"] &lt; 0:
+            raise ValueError("request counts must be non-negative")
+        if point["bad"] &gt; point["total"]:
+            raise ValueError("bad requests cannot exceed total requests")
+
         bad += point["bad"]
         total += point["total"]
 

@@ -284,12 +284,20 @@
             Invariant: each reported trace has at least one named stage whose
             observed latency is greater than the allowed budget. Missing stages
             are ignored here because a separate schema validator should catch
-            malformed records.
+            malformed records. Reject negative latencies and non-positive
+            budgets before making SLO decisions.
           </p>
           <pre><code class="language-python">def budget_violations(records, budgets_ms):
+    for name, limit in budgets_ms.items():
+        if limit &lt;= 0:
+            raise ValueError(f"budget for {name} must be positive")
+
     violations = []
     for record in records:
         stages = record.get("stages_ms", {})
+        for name, value in stages.items():
+            if value &lt; 0:
+                raise ValueError(f"latency for {name} must be non-negative")
         bad = {
             name: value
             for name, value in stages.items()

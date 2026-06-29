@@ -89,14 +89,16 @@
         </article>
         <article class="card">
           <h3>Privacy Gate</h3>
-          <p>Verify raw audio, transcripts, voiceprints, and API tokens are not logged or committed.</p>
+          <p>Verify raw audio, transcripts, voiceprints, and API tokens are not logged or committed without explicit approval.</p>
           <details class="qa">
             <summary>Hidden answer: Privacy-safe observability</summary>
             <p>
               Prefer trace IDs, durations, language probabilities, confidence
               distributions, redacted text, aggregate acoustic quality signals,
-              and explicitly opted-in debug samples. Do not store private audio
-              by default just because it makes debugging easier.
+              and explicitly opted-in debug samples. Treat voiceprints as
+              sensitive identifiers: require consent, purpose limits, retention
+              limits, and access controls. Do not store private audio by default
+              just because it makes debugging easier.
             </p>
           </details>
         </article>

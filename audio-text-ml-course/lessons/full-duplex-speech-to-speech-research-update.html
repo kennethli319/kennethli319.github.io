@@ -531,7 +531,7 @@
                     late.append({"barge_in_at": barge_in_at, "stopped_at": t, "delay_ms": delay})
             assistant_speaking = False
             barge_in_at = None
-        elif speaker == "user" and kind == "barge_in" and assistant_speaking:
+        elif speaker == "user" and kind == "barge_in" and assistant_speaking and barge_in_at is None:
             barge_in_at = t
 
     return late

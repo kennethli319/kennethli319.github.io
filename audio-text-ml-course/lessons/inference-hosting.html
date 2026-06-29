@@ -131,7 +131,8 @@
           <p>
             Cache bytes are layers * tokens * KV tensors * KV heads * head dim
             * bytes. That is 32 * 8,000 * 2 * 32 * 128 * 2 bytes, about 4.2 GB
-            per request. The answer should immediately discuss grouped-query
+            decimal, or about 3.9 GiB, per request before allocator and batching
+            overhead. The answer should immediately discuss grouped-query
             attention, shorter context, cache paging, summarization, request
             limits, and why long conversations can dominate capacity.
           </p>

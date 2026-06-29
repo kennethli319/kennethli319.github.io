@@ -207,14 +207,19 @@ policy = {
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
-            Invariant: alert only when volume is large enough and the blocked
-            fraction meaningfully exceeds baseline. Test zero traffic, low
-            volume, high volume with normal rate, and high volume with a sharp
-            blocked-rate increase.
+            Invariant: validate aggregate telemetry first, then alert only when
+            volume is large enough and the blocked fraction meaningfully exceeds
+            baseline. Test impossible counters, zero traffic, low volume, high
+            volume with normal rate, and high volume with a sharp blocked-rate
+            increase.
           </p>
           <pre><code class="language-python">def abuse_spike(window, baseline_rate, min_requests, multiplier):
     total = window["total"]
     blocked = window["blocked"]
+    if total &lt; 0 or blocked &lt; 0 or blocked &gt; total:
+        raise ValueError("blocked and total must be valid aggregate counts")
+    if baseline_rate &lt; 0 or multiplier &lt;= 0 or min_requests &lt; 0:
+        raise ValueError("baseline, multiplier, and threshold must be valid")
     if total &lt; min_requests:
         return False
     if baseline_rate &lt;= 0:

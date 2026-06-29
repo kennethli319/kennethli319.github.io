@@ -171,15 +171,23 @@ total_to_first_audio = (
     + budget_ms["tts_first_audio"]
     + budget_ms["playback_buffer"]
 )
-print(total_to_first_audio)</code></pre>
+conservative_to_first_audio = (
+    budget_ms["vad_endpoint"]
+    + budget_ms["asr_final"]
+    + budget_ms["llm_first_token"]
+    + budget_ms["tts_first_audio"]
+    + budget_ms["playback_buffer"]
+)
+print(total_to_first_audio, conservative_to_first_audio)</code></pre>
       <details class="qa">
         <summary>Question: What does this toy budget hide?</summary>
         <p>
           It hides overlap between stages, network jitter, queueing, cold
           starts, text normalization, endpointing mistakes, audio device
-          buffers, cancellation, barge-in, and retries. The next version should
-          record per-stage traces for successful, slow, interrupted, and failed
-          turns.
+          buffers, cancellation, barge-in, retries, and whether the assistant
+          can safely act on an ASR partial or must wait for a final transcript.
+          The next version should record per-stage traces for successful, slow,
+          interrupted, and failed turns.
         </p>
       </details>
     </section>

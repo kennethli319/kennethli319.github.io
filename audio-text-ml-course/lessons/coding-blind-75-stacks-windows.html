@@ -197,13 +197,16 @@ def character_replacement(s, k):
           <p>
             Invariant: <code>formed == required</code> means every required
             character count is satisfied. Test repeated required characters,
-            absent targets, target longer than source, and a best window at the
-            beginning or end.
+            absent targets, an empty target, target longer than source, and a
+            best window at the beginning or end.
           </p>
           <pre><code class="language-python">from collections import Counter, defaultdict
 
 
 def min_window(s, t):
+    if not t:
+        return ""
+
     need = Counter(t)
     window = defaultdict(int)
     required = len(need)

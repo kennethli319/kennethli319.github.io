@@ -37,7 +37,7 @@
         </p>
       </div>
       <ol class="steps">
-        <li><strong>Identity:</strong> model name, semantic version, owner, training code commit, serving code commit, and release date.</li>
+        <li><strong>Identity:</strong> model name, artifact version, owner, training code commit, serving code commit, data/eval snapshot IDs, and release date.</li>
         <li><strong>Inputs:</strong> sample rate, channels, codec, max duration, language assumptions, text normalization, tokenizer, and feature config.</li>
         <li><strong>Outputs:</strong> transcript schema, timestamps, confidence, speaker labels, audio format, or embedding dimension.</li>
         <li><strong>Eval:</strong> baseline comparison, slice metrics, latency percentiles, memory footprint, cost estimate, and known regressions.</li>
@@ -67,10 +67,12 @@
           <details class="qa">
             <summary>Hidden answer: ASR gate example</summary>
             <p>
-              Require no global WER regression, no critical entity error
-              regression, and no material loss on accents, noise buckets,
+              Require no unapproved global WER regression, no critical entity
+              error regression, and no material loss on accents, noise buckets,
               domain vocabulary, short utterances, long calls, and code-switched
-              speech. Add manual review for any slice with high business risk.
+              speech. If a product tradeoff intentionally accepts a global
+              metric loss, document the owner, user benefit, rollback threshold,
+              and manual review for every high-risk slice.
             </p>
           </details>
         </article>

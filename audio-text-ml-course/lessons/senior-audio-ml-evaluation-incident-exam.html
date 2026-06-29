@@ -262,11 +262,19 @@
             Invariant: <code>streak</code> is the number of consecutive days up
             to the current point that violate the threshold. Reset it on a
             healthy day. Common mistakes include flagging one-day noise and
-            forgetting to return the first sustained breach.
+            forgetting to return the first sustained breach. In production,
+            reject invalid windows and missing telemetry instead of treating
+            unknown days as healthy.
           </p>
           <pre><code class="language-python">def first_sustained_drift(points, metric, threshold, consecutive_days):
+    if consecutive_days &lt;= 0:
+        raise ValueError("consecutive_days must be positive")
+
     streak = 0
     for point in points:
+        if metric not in point:
+            raise ValueError(f"missing {metric} for day {point.get('day')}")
+
         if point[metric] &gt; threshold:
             streak += 1
             if streak &gt;= consecutive_days:

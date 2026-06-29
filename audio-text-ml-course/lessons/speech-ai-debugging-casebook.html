@@ -190,13 +190,15 @@
         <p>
           Given candidate model versions, choose the newest version that passes
           quality, latency, safety, and cost gates for a specific traffic slice.
+          Each gate declares whether higher or lower values are better.
         </p>
         <details class="qa">
           <summary>Hidden answer: tests and Python solution</summary>
           <p>
             Test no passing candidate, missing slice data, exactly-on-threshold
             metrics, and a newer model that passes aggregate metrics but fails
-            the requested slice. Rollback selection must be slice-aware.
+            the requested slice. Rollback selection must be slice-aware and must
+            not treat quality, recall, or safety-recall gates as lower-is-better.
           </p>
           <pre><code class="language-python">def choose_rollback_target(versions, slice_name, gates):
     for version in reversed(versions):
@@ -205,13 +207,22 @@
             continue
 
         ok = True
-        for metric, limit in gates.items():
+        for metric, rule in gates.items():
             if metric not in metrics:
                 ok = False
                 break
-            if metrics[metric] &gt; limit:
+
+            direction = rule["direction"]
+            limit = rule["limit"]
+            value = metrics[metric]
+            if direction == "max" and value &gt; limit:
                 ok = False
                 break
+            if direction == "min" and value &lt; limit:
+                ok = False
+                break
+            if direction not in {"max", "min"}:
+                raise ValueError(f"unknown gate direction: {direction}")
 
         if ok:
             return version["id"]

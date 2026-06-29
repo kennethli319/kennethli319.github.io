@@ -219,17 +219,25 @@
             quality. A strong answer treats cost as a constraint attached to
             user value, not as an isolated infrastructure metric.
           </p>
-          <pre><code class="language-python">def rank_cost_per_success(routes):
-    ranked = []
+          <pre><code class="language-python">def flag_cost_regressions(routes, baseline_cost_per_success, min_success_gain=0.02):
+    flagged = []
     for name, metrics in routes.items():
         successes = metrics["turns"] * metrics["task_success_rate"]
         if successes == 0:
             cost_per_success = float("inf")
         else:
             cost_per_success = metrics["total_cost_usd"] / successes
-        ranked.append((cost_per_success, name, metrics["task_success_rate"]))
 
-    return sorted(ranked, reverse=True)</code></pre>
+        success_gain = metrics["task_success_rate"] - metrics["baseline_task_success_rate"]
+        if cost_per_success &gt; baseline_cost_per_success and success_gain &lt; min_success_gain:
+            flagged.append({
+                "route": name,
+                "cost_per_success": cost_per_success,
+                "success_gain": success_gain,
+                "action": "cap_tokens_or_route_to_cheaper_model",
+            })
+
+    return sorted(flagged, key=lambda item: item["cost_per_success"], reverse=True)</code></pre>
         </details>
       </article>
 

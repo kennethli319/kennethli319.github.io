@@ -262,6 +262,18 @@
     batch_size=1,
     bytes_per_value=2,
 ):
+    for name, value in {
+        "layers": layers,
+        "kv_heads": kv_heads,
+        "head_dim": head_dim,
+        "batch_size": batch_size,
+        "bytes_per_value": bytes_per_value,
+    }.items():
+        if value &lt;= 0:
+            raise ValueError(f"{name} must be positive")
+    if tokens &lt; 0:
+        raise ValueError("tokens must be non-negative")
+
     # keys and values are both cached
     total_bytes = layers * 2 * kv_heads * head_dim * tokens * batch_size * bytes_per_value
     return total_bytes / (1024 ** 3)

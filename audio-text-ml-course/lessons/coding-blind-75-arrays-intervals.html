@@ -124,8 +124,10 @@
             a negative value can swap them. Invariant: after processing
             <code>x</code>, <code>hi</code> and <code>lo</code> are the largest
             and smallest products of subarrays ending at <code>x</code>. Mistake
-            to avoid: only tracking the max, which fails on two negatives. Test
-            zeros, all negatives, one element, and alternating signs.
+            to avoid: only tracking the max, which fails on two negatives. Ask
+            whether the input array is guaranteed non-empty; otherwise define an
+            explicit error or sentinel result. Test zeros, all negatives, one
+            element, empty input if allowed, and alternating signs.
           </p>
         </details>
       </article>
@@ -136,6 +138,9 @@
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
           <pre><code class="language-python">def max_product(nums):
+    if not nums:
+        raise ValueError("nums must be non-empty")
+
     best = hi = lo = nums[0]
     for x in nums[1:]:
         if x &lt; 0:

@@ -216,11 +216,11 @@
     <section id="coding" class="band">
       <div class="section-head">
         <p class="eyebrow">Coding Drill</p>
-        <h2>Blind 75 Patterns In Serving Infrastructure</h2>
+        <h2>Serving Infrastructure Coding Drills</h2>
         <p>
-          These drills use familiar interview patterns while staying close to
-          speech serving work. Open answers only after writing tests and a
-          first implementation.
+          These drills use small production-style algorithms from speech
+          serving work. Open answers only after writing tests and a first
+          implementation.
         </p>
       </div>
 
@@ -271,10 +271,16 @@
             This is a sorting and greedy policy question, not optimal knapsack
             unless the interviewer asks for value maximization. State the
             product policy first. Test zero capacity, ties, requests larger
-            than capacity, equal priorities with different costs, and stable
-            identifiers for admitted requests.
+            than capacity, equal priorities with different costs, invalid
+            negative costs, and stable identifiers for admitted requests.
           </p>
           <pre><code class="language-python">def admit_requests(requests, capacity):
+    if capacity &lt; 0:
+        raise ValueError("capacity must be non-negative")
+    for request in requests:
+        if request["estimated_cost"] &lt; 0:
+            raise ValueError("estimated_cost must be non-negative")
+
     ordered = sorted(
         requests,
         key=lambda r: (-r["priority"], r["estimated_cost"], r["id"]),

@@ -253,21 +253,26 @@
         <h3>Lab: Flag Slices That Exceed A Regression Budget</h3>
         <p>
           Given old and new metric values by slice, return the slices where
-          the new value regresses more than the allowed amount.
+          a lower-is-better metric regresses more than the allowed amount, and
+          report slice mismatches before making a release decision.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant and Python solution</summary>
           <p>
-            Invariant: each output row has a slice present in both metric
-            maps, and <code>new - old</code> is greater than the regression
-            budget. Missing slices should be reported by a schema check, not
-            silently treated as zero.
+            Invariant: each flagged row has a slice present in both metric
+            maps, <code>new - old</code> is greater than the non-negative
+            regression budget, and missing or newly added slices are reported
+            separately instead of being silently treated as zero.
           </p>
           <pre><code class="language-python">def slices_over_budget(old_metrics, new_metrics, budget):
+    if budget &lt; 0:
+        raise ValueError("budget must be non-negative for lower-is-better metrics")
+
+    missing_in_new = sorted(set(old_metrics) - set(new_metrics))
+    new_only = sorted(set(new_metrics) - set(old_metrics))
     flagged = []
-    for name, old_value in old_metrics.items():
-        if name not in new_metrics:
-            continue
+    for name in sorted(set(old_metrics) &amp; set(new_metrics)):
+        old_value = old_metrics[name]
         delta = new_metrics[name] - old_value
         if delta &gt; budget:
             flagged.append({
@@ -276,7 +281,11 @@
                 "new": new_metrics[name],
                 "delta": delta,
             })
-    return flagged</code></pre>
+    return {
+        "flagged": flagged,
+        "missing_in_new": missing_in_new,
+        "new_only": new_only,
+    }</code></pre>
         </details>
       </article>
     </section>

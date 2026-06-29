@@ -199,6 +199,14 @@
             negative or missing value rejected by input validation in real code.
           </p>
           <pre><code class="language-python">def latency_budget_report(components_ms, slo_ms, top_k=3):
+    if slo_ms &lt; 0:
+        raise ValueError("slo_ms must be non-negative")
+    if top_k &lt; 1:
+        raise ValueError("top_k must be at least 1")
+    for name, value in components_ms.items():
+        if value is None or value &lt; 0:
+            raise ValueError(f"{name} latency must be non-negative")
+
     total = sum(components_ms.values())
     contributors = sorted(
         components_ms.items(),

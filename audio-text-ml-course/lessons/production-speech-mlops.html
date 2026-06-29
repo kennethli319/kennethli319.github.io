@@ -304,19 +304,26 @@
             A strong gate treats protected slices as first-class release
             criteria. Merge should be blocked or paused when a critical slice
             exceeds its regression budget, even if the aggregate metric
-            improves. Include missing-slice handling so eval coverage cannot
-            silently disappear.
+            improves. Include invalid-budget, missing-slice, and missing-metric
+            handling so eval coverage cannot silently disappear.
           </p>
           <pre><code class="language-python">def asr_slice_gate(baseline, candidate, budgets):
     findings = []
     for slice_name, budget in budgets.items():
+        max_delta = budget.get("max_wer_delta")
+        if max_delta is None or max_delta &lt; 0:
+            findings.append(("pause", slice_name, "invalid regression budget"))
+            continue
         if slice_name not in baseline or slice_name not in candidate:
             findings.append(("pause", slice_name, "missing eval slice"))
+            continue
+        if "wer" not in baseline[slice_name] or "wer" not in candidate[slice_name]:
+            findings.append(("pause", slice_name, "missing WER metric"))
             continue
         old_wer = baseline[slice_name]["wer"]
         new_wer = candidate[slice_name]["wer"]
         delta = new_wer - old_wer
-        if delta &gt; budget["max_wer_delta"]:
+        if delta &gt; max_delta:
             findings.append(("block", slice_name, round(delta, 4)))
 
     if any(item[0] == "block" for item in findings):

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Advanced ML Interview And Exam Track</title>
+  <title>Advanced ML Interview and Exam Track</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -305,17 +305,18 @@
       </div>
       <p>
         Coding rounds often test whether you can write clear ML code,
-        find silent bugs, and design guardrails. These exercises should be added
-        to the course labs as executable notebooks or scripts.
+        find silent bugs, and design guardrails for audio systems. Use small,
+        executable drills around feature tensors, labels, loss functions, and
+        telemetry before moving to larger notebooks.
       </p>
-      <pre><code class="language-python"># Exercise: find the bug before this ships.
+      <pre><code class="language-python"># Exercise: find the bug before this audio classifier ships.
 import torch
 import torch.nn.functional as F
 
 
 def training_step(model, batch):
-    x, y = batch["features"], batch["labels"]
-    logits = model(x)          # [batch, classes]
+    log_mel, y = batch["log_mel"], batch["labels"]
+    logits = model(log_mel)    # [batch, classes]
     probs = F.softmax(logits)  # bug: dim is missing
     loss = F.cross_entropy(probs, y)
     return loss</code></pre>

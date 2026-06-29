@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Speech Feature Pipelines And Data Contracts</title>
+  <title>Speech Feature Pipelines and Data Contracts</title>
   <link rel="stylesheet" href="../styles.css?v=20260616c">
 </head>
 <body>
@@ -16,8 +16,8 @@
       <a href="#coding">Coding</a>
       <a href="#exam">Exam</a>
     </nav>
-    <p class="eyebrow">Advanced Data And MLOps</p>
-    <h1>Speech Feature Pipelines And Data Contracts</h1>
+    <p class="eyebrow">Advanced Data and MLOps</p>
+    <h1>Speech Feature Pipelines and Data Contracts</h1>
     <p class="lede">
       Design privacy-safe audio feature pipelines that survive model releases,
       labeling changes, streaming constraints, drift, replay jobs, and production
@@ -29,7 +29,7 @@
     <section id="contracts" class="band">
       <div class="section-head">
         <p class="eyebrow">Mental Model</p>
-        <h2>A Feature Pipeline Is A Release Dependency</h2>
+        <h2>A Feature Pipeline Is a Release Dependency</h2>
         <p>
           Speech models often fail in production because the data path changes:
           VAD thresholds shift, resampling differs, transcript normalization
@@ -178,10 +178,10 @@
     <section id="coding" class="band">
       <div class="section-head">
         <p class="eyebrow">Coding Interview Track</p>
-        <h2>Blind 75 Patterns For Data Pipelines</h2>
+        <h2>Speech Pipeline Coding Drills</h2>
         <p>
-          These drills connect common interview patterns to feature pipelines:
-          hashing for schema diffs, intervals for chunk stitching, heaps for
+          These drills connect production speech data contracts to concrete
+          implementation tasks: intervals for chunk stitching, heaps for
           active-learning queues, and sliding windows for drift detection.
         </p>
       </div>
@@ -191,7 +191,8 @@
         <p>
           Given chunk intervals from VAD and endpointing, merge overlaps and
           adjacent intervals when the gap is at most <code>max_gap_ms</code>.
-          This is the production version of Merge Intervals.
+          Reject negative gaps or inverted intervals before they can corrupt
+          timestamp lineage.
         </p>
         <details class="qa">
           <summary>Questions, invariants, tests, and hidden Python answer</summary>
@@ -204,10 +205,16 @@
             intervals, small allowed gaps, and unsorted input.
           </p>
           <pre><code>def merge_audio_chunks(chunks, max_gap_ms=0):
+    if max_gap_ms < 0:
+        raise ValueError("max_gap_ms must be non-negative")
     if not chunks:
         return []
 
     ordered = sorted(chunks)
+    for start, end in ordered:
+        if start > end:
+            raise ValueError("chunk start must be <= end")
+
     merged = [list(ordered[0])]
 
     for start, end in ordered[1:]:
@@ -221,7 +228,12 @@
 
 
 assert merge_audio_chunks([(30, 40), (0, 10), (10, 20)]) == [(0, 20), (30, 40)]
-assert merge_audio_chunks([(0, 10), (13, 20)], max_gap_ms=3) == [(0, 20)]</code></pre>
+assert merge_audio_chunks([(0, 10), (13, 20)], max_gap_ms=3) == [(0, 20)]
+try:
+    merge_audio_chunks([(20, 10)])
+    raise AssertionError("expected validation failure")
+except ValueError:
+    pass</code></pre>
         </details>
       </article>
 
@@ -230,7 +242,8 @@ assert merge_audio_chunks([(0, 10), (13, 20)], max_gap_ms=3) == [(0, 20)]</code>
         <p>
           Select the top <code>k</code> consented aggregate examples for human
           review using uncertainty, slice rarity, and recent regression score.
-          This maps to Top K Elements.
+          The queue must fail closed on invalid limits or missing scoring
+          signals.
         </p>
         <details class="qa">
           <summary>Questions, common mistakes, and hidden Python answer</summary>
@@ -245,10 +258,18 @@ assert merge_audio_chunks([(0, 10), (13, 20)], max_gap_ms=3) == [(0, 20)]</code>
 
 
 def rank_review_candidates(rows, k):
+    if k < 0:
+        raise ValueError("k must be non-negative")
+    if k == 0:
+        return []
+    required = ("uncertainty", "slice_rarity", "regression", "example_id")
     heap = []
     for row in rows:
         if not row.get("consented"):
             continue
+        missing = [name for name in required if name not in row]
+        if missing:
+            raise ValueError(f"missing candidate fields: {missing}")
         score = (
             0.55 * row["uncertainty"]
             + 0.30 * row["slice_rarity"]

@@ -152,8 +152,8 @@
             valid and can be minimized from the left. Mistake to avoid:
             treating membership as a set and losing duplicate requirements like
             <code>"AABC"</code>. Test impossible target, duplicate target
-            characters, target longer than source, and the whole source as the
-            only answer.
+            characters, empty target if your API allows it, target longer than
+            source, and the whole source as the only answer.
           </p>
         </details>
       </article>
@@ -166,6 +166,9 @@
           <pre><code class="language-python">from collections import Counter, defaultdict
 
 def min_window(s, t):
+    if not t:
+        return ""
+
     need = Counter(t)
     have = defaultdict(int)
     required = len(need)

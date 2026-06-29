@@ -210,11 +210,19 @@
           <p>
             Invariant: a route can only pass if user experience, reliability,
             and cost are all inside budget. Test a clean pass, a latency fail, a
-            cost fail with quality gain, and missing route metrics.
+            cost fail with quality gain, a missing required route, and an
+            unexpected route without a launch budget.
           </p>
           <pre><code class="language-python">def evaluate_load_gate(routes, budgets):
     failures = []
+    for name in budgets:
+        if name not in routes:
+            failures.append((name, "missing_metrics", None))
+
     for name, metrics in routes.items():
+        if name not in budgets:
+            failures.append((name, "missing_budget", None))
+            continue
         budget = budgets[name]
         if metrics["p95_ms"] &gt; budget["p95_ms"]:
             failures.append((name, "latency", metrics["p95_ms"]))

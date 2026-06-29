@@ -213,15 +213,29 @@ def validate_registry_entry(entry):
       <article class="prompt">
         <h3>Lab 2: Canary Promotion Gate</h3>
         <p>
-          Decide whether a canary can promote based on slice metrics. Lower WER,
-          lower latency, and lower cost are better.
+          Decide whether a canary can promote based on slice metrics and exposure
+          quality. Lower WER, lower latency, and lower cost are better, but an
+          incomplete or tiny canary should not auto-promote.
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def canary_promotion(metrics):
+          <pre><code class="language-python">REQUIRED_SLICE_FIELDS = {
+    "wer_relative_delta",
+    "p95_latency_ms_delta",
+    "requests",
+}
+
+
+def canary_promotion(metrics, min_requests_per_slice=100):
     blockers = []
 
     for name, values in metrics["slices"].items():
+        missing = REQUIRED_SLICE_FIELDS - values.keys()
+        if missing:
+            blockers.append(f"{name}:missing_{sorted(missing)[0]}")
+            continue
+        if values["requests"] &lt; min_requests_per_slice:
+            blockers.append(f"{name}:low_exposure")
         if values["wer_relative_delta"] &gt; 0.02:
             blockers.append(f"{name}:wer")
         if values["p95_latency_ms_delta"] &gt; 75:
@@ -237,8 +251,8 @@ def validate_registry_entry(entry):
     return {"decision": "promote", "blockers": []}</code></pre>
           <p>
             Average quality improvement is not enough. A canary should protect
-            critical slices, privacy, latency, and unit economics before
-            promotion.
+            critical slices, privacy, latency, unit economics, and telemetry
+            completeness before promotion.
           </p>
         </details>
       </article>

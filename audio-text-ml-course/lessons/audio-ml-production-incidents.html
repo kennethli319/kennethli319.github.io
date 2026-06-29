@@ -274,9 +274,11 @@
           <p>
             Invariant: the output contains counts, versions, and metric summaries
             only. Test that transcript, audio path, user id, and raw text fields
-            never appear in the packet.
+            never appear in the packet, and that slice keys are stable strings
+            suitable for JSON incident reports.
           </p>
           <pre><code class="language-python">from collections import Counter, defaultdict
+from math import ceil
 
 
 def incident_packet(records):
@@ -285,7 +287,9 @@ def incident_packet(records):
     versions = Counter()
 
     for row in records:
-        key = (row.get("language", "unknown"), row.get("device", "unknown"))
+        language = row.get("language", "unknown")
+        device = row.get("device", "unknown")
+        key = f"language={language}|device={device}"
         counts[key] += 1
         if "latency_ms" in row:
             latency[key].append(row["latency_ms"])
@@ -295,7 +299,7 @@ def incident_packet(records):
     latency_summary = {}
     for key, values in latency.items():
         values = sorted(values)
-        p95_index = int(0.95 * (len(values) - 1))
+        p95_index = ceil(0.95 * len(values)) - 1
         latency_summary[key] = {
             "count": len(values),
             "p50_ms": values[len(values) // 2],

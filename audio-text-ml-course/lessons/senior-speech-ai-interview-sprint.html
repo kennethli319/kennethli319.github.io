@@ -295,34 +295,38 @@
           <p>
             Invariant: every slice is judged against its own configured budgets,
             and severity is normalized so different metric units can be sorted
-            together. Test missing metrics, exactly-on-threshold values,
-            lower-is-better metrics, higher-is-better metrics, and multiple
-            failures in the same slice.
+            together. Validate gate definitions before scoring. Test missing
+            metrics, exactly-on-threshold values, lower-is-better metrics,
+            higher-is-better metrics, invalid gates, and multiple failures in
+            the same slice.
           </p>
           <pre><code class="language-python">def rank_canary_risks(slices, gates):
     failures = []
     for slice_name, metrics in slices.items():
         for metric, gate in gates.items():
+            direction = gate.get("direction")
+            threshold = gate.get("threshold")
+            if direction not in {"max", "min"}:
+                raise ValueError(f"unknown direction for {metric}: {direction}")
+            if not isinstance(threshold, (int, float)) or threshold == 0:
+                raise ValueError(f"threshold for {metric} must be a non-zero number")
+
             if metric not in metrics:
                 failures.append((float("inf"), slice_name, metric, "missing"))
                 continue
 
             value = metrics[metric]
-            direction = gate["direction"]
-            threshold = gate["threshold"]
 
             if direction == "max":
                 over = value - threshold
                 if over &gt; 0:
                     severity = over / max(abs(threshold), 1e-9)
                     failures.append((severity, slice_name, metric, value))
-            elif direction == "min":
+            else:
                 under = threshold - value
                 if under &gt; 0:
                     severity = under / max(abs(threshold), 1e-9)
                     failures.append((severity, slice_name, metric, value))
-            else:
-                raise ValueError(f"unknown direction: {direction}")
 
     failures.sort(reverse=True)
     return [
@@ -333,38 +337,41 @@
       </article>
 
       <article class="prompt">
-        <h3>Blind 75 Connection: Meeting Rooms II</h3>
+        <h3>Speech Serving Follow-Up: Concurrent Stream Capacity</h3>
         <p>
-          Explain how the Meeting Rooms II heap pattern maps to GPU serving
-          capacity planning for speech workloads.
+          Given synthetic stream start and end times, explain how you would
+          estimate peak concurrent sessions for GPU serving capacity planning.
         </p>
         <details class="qa">
-          <summary>Hidden answer: strategy and production analogy</summary>
+          <summary>Hidden answer: strategy and production caveats</summary>
           <p>
-            In the coding problem, sort intervals by start time and keep a
-            min-heap of end times; the heap size is the number of rooms needed.
-            In serving, requests or streams occupy accelerator memory and decode
-            slots for an interval. The same idea estimates peak concurrent
-            sessions, but production also needs variable token rates, queueing,
-            batching, priority classes, and safety margin.
+            Sort stream intervals by start time and keep the active end times in
+            a min-heap; the largest heap size estimates peak concurrency. In
+            serving, streams also occupy accelerator memory, decoder slots,
+            network buffers, and sometimes per-tenant quotas. A production plan
+            must add variable token rates, queueing, batching, priority classes,
+            warm capacity, and safety margin before turning the estimate into
+            replica count.
           </p>
         </details>
       </article>
 
       <article class="prompt">
-        <h3>Blind 75 Connection: Word Search II</h3>
+        <h3>Speech Decoding Follow-Up: Prefix Constraints</h3>
         <p>
-          Explain how trie pruning from Word Search II relates to spoken command
-          recognition and constrained decoding.
+          Explain how prefix constraints can help spoken command recognition and
+          where they can hurt ASR or speech-agent behavior.
         </p>
         <details class="qa">
-          <summary>Hidden answer: strategy and speech analogy</summary>
+          <summary>Hidden answer: strategy and speech caveats</summary>
           <p>
-            Word Search II uses a trie to reject impossible prefixes early and
-            avoid exploring every path. Speech systems use similar prefix
-            constraints for command grammars, contact names, entity biasing, or
-            safety-sensitive tool names. The mistake is over-constraining so the
-            decoder cannot recover from ASR noise or user paraphrases.
+            Prefix constraints can reject impossible command paths early and
+            bias decoding toward valid tool names, contact names, product SKUs,
+            or safety-sensitive actions. They are useful when the allowed action
+            space is small and explicit. The failure mode is over-constraining:
+            the decoder may not recover from ASR noise, accents, code-switching,
+            or user paraphrases, so launches need fallback paths and slice-level
+            evaluation.
           </p>
         </details>
       </article>

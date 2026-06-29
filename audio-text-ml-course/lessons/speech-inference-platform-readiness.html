@@ -259,6 +259,10 @@
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
           <pre><code class="language-python">def queue_burn_rate(latencies_ms, threshold_ms=250, allowed_bad_fraction=0.01):
+    if threshold_ms &lt;= 0:
+        raise ValueError("threshold_ms must be positive")
+    if allowed_bad_fraction &lt;= 0:
+        raise ValueError("allowed_bad_fraction must be positive")
     if not latencies_ms:
         return 0.0
     bad = sum(x &gt; threshold_ms for x in latencies_ms)
@@ -280,8 +284,12 @@
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
           <pre><code class="language-python">def cost_regression(old, new, tolerance=0.10):
-    old_unit = old["gpu_dollars"] / max(old["successful_turns"], 1)
-    new_unit = new["gpu_dollars"] / max(new["successful_turns"], 1)
+    if old["successful_turns"] &lt;= 0 or new["successful_turns"] &lt;= 0:
+        raise ValueError("successful_turns must be positive")
+    old_unit = old["gpu_dollars"] / old["successful_turns"]
+    new_unit = new["gpu_dollars"] / new["successful_turns"]
+    if old_unit &lt;= 0:
+        raise ValueError("old unit cost must be positive")
     relative = (new_unit - old_unit) / old_unit
 
     drivers = []
@@ -299,7 +307,9 @@
           <p>
             The useful metric is cost per successful user outcome, not total
             spend alone. Rising traffic may be acceptable; rising unit cost
-            requires a capacity or product explanation.
+            requires a capacity or product explanation. Do not hide zero-turn
+            windows with a fallback denominator; mark them as invalid telemetry
+            and investigate the pipeline before making a rollout decision.
           </p>
         </details>
       </article>

@@ -225,7 +225,8 @@
           <p>
             Invariant: every record is assigned to exactly one duration bucket.
             Missing buckets return <code>None</code> rather than pretending the
-            average is zero.
+            average is zero. Durations and latencies must be non-negative so a
+            bad telemetry row does not quietly distort incident analysis.
           </p>
           <pre><code class="language-python">def latency_by_duration(records):
     buckets = {
@@ -236,6 +237,8 @@
     for item in records:
         duration = item["audio_seconds"]
         latency = item["latency_ms"]
+        if duration &lt; 0 or latency &lt; 0:
+            raise ValueError("duration and latency must be non-negative")
         if duration &lt; 5:
             buckets["short"].append(latency)
         elif duration &lt; 30:

@@ -157,8 +157,9 @@
       <article class="prompt">
         <h3>Lab 1: Queue Saturation Detector</h3>
         <p>
-          Given per-minute aggregate serving metrics, flag minutes where queue
-          growth and tail latency suggest overload even if error rate is low.
+          Given per-minute aggregate serving metrics with numeric minute
+          indexes, flag minutes where queue growth and tail latency suggest
+          overload even if error rate is low.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant, test cases, and Python solution</summary>
@@ -170,23 +171,34 @@
           </p>
           <pre><code class="language-python">def detect_saturation(minutes, queue_growth_threshold=25, p95_threshold_ms=1200):
     alerts = []
+    previous_minute = None
     previous_depth = None
 
     for point in minutes:
+        minute = point["minute"]
         depth = point["queue_depth"]
         p95 = point["p95_ms"]
         if previous_depth is None:
+            previous_minute = minute
             previous_depth = depth
             continue
+
+        if minute - previous_minute &gt; 1:
+            alerts.append({
+                "minute": minute,
+                "missing_minutes": minute - previous_minute - 1,
+                "action": "check_telemetry_gap_before_scaling_decision",
+            })
 
         growth = depth - previous_depth
         if growth &gt;= queue_growth_threshold and p95 &gt;= p95_threshold_ms:
             alerts.append({
-                "minute": point["minute"],
+                "minute": minute,
                 "queue_growth": growth,
                 "p95_ms": p95,
                 "action": "shed_batch_or_add_capacity",
             })
+        previous_minute = minute
         previous_depth = depth
 
     return alerts</code></pre>

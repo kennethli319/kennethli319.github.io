@@ -305,7 +305,8 @@
             criteria. Merge should be blocked or paused when a critical slice
             exceeds its regression budget, even if the aggregate metric
             improves. Include invalid-budget, missing-slice, and missing-metric
-            handling so eval coverage cannot silently disappear.
+            handling, plus range checks for WER values, so eval coverage and
+            metric quality cannot silently disappear.
           </p>
           <pre><code class="language-python">def asr_slice_gate(baseline, candidate, budgets):
     findings = []
@@ -322,6 +323,9 @@
             continue
         old_wer = baseline[slice_name]["wer"]
         new_wer = candidate[slice_name]["wer"]
+        if old_wer &lt; 0 or old_wer &gt; 1 or new_wer &lt; 0 or new_wer &gt; 1:
+            findings.append(("pause", slice_name, "WER outside 0..1 range"))
+            continue
         delta = new_wer - old_wer
         if delta &gt; max_delta:
             findings.append(("block", slice_name, round(delta, 4)))

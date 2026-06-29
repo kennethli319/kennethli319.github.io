@@ -198,11 +198,17 @@ FLAG_WEIGHT = {
 }
 
 def top_audio_issues(results, limit=5):
+    if limit < 1:
+        return []
     groups = {}
     for row in results:
-        issue = row["diagnostics"]["primary_issue"]
-        severity = row["diagnostics"].get("severity", "medium")
-        flag = row["metadata"].get("flag_reason", "sampled")
+        diagnostics = row.get("diagnostics", {})
+        metadata = row.get("metadata", {})
+        issue = diagnostics.get("primary_issue")
+        severity = diagnostics.get("severity", "medium")
+        flag = metadata.get("flag_reason", "sampled")
+        if not issue or severity not in SEVERITY_WEIGHT or flag not in FLAG_WEIGHT:
+            continue
         weight = SEVERITY_WEIGHT[severity] * FLAG_WEIGHT[flag]
         bucket = groups.setdefault(issue, {
             "issue": issue,

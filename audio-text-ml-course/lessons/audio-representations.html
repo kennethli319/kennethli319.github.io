@@ -111,9 +111,11 @@ print(sr, seconds, audio.min(), audio.max())</code></pre>
 
 def stft(audio: np.ndarray, n_fft: int = 400, hop: int = 160):
     # 25 ms window and 10 ms hop at 16 kHz are common ASR defaults.
+    if len(audio) < n_fft:
+        audio = np.pad(audio, (0, n_fft - len(audio)))
     window = np.hanning(n_fft).astype(np.float32)
     frames = []
-    for start in range(0, max(0, len(audio) - n_fft + 1), hop):
+    for start in range(0, len(audio) - n_fft + 1, hop):
         chunk = audio[start:start + n_fft]
         spectrum = np.fft.rfft(chunk * window)
         frames.append(spectrum)

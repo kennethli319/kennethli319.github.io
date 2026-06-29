@@ -67,7 +67,7 @@
     <section id="modules" class="band">
       <div class="section-head">
         <p class="eyebrow">Curriculum</p>
-        <h2>Forty Modules</h2>
+        <h2>Forty-One Modules</h2>
         <p>
           Lesson pages include code, checkpoints, and hidden answers. Start with
           the transformer lesson, then return here to connect it to ASR, TTS,
@@ -352,6 +352,13 @@
           <p class="lab">Lab: compare native, cascaded, front-end-assisted, and retrieval-augmented duplex serving designs with rollout gates and interruption metrics.</p>
           <p><a class="lesson-link" href="lessons/full-duplex-speech-to-speech-research-update.html">Open lesson: full-duplex speech-to-speech research update</a></p>
         </article>
+        <article>
+          <span>40</span>
+          <h3>Production Audio Judge Monitoring</h3>
+          <p>Build fast feedback loops from flagged ASR/TTS events, sampled production traffic, audio-aware judges, schema validation, and top-issue aggregation.</p>
+          <p class="lab">Lab: implement a privacy-safe top-issue aggregator over synthetic judge results from user-unsatisfied and sampled speech events.</p>
+          <p><a class="lesson-link" href="lessons/production-audio-judge-monitoring.html">Open lesson: production audio judge monitoring</a></p>
+        </article>
       </div>
     </section>
 
@@ -507,6 +514,11 @@
           <h3>Full-Duplex S2S Research Update</h3>
           <p>Practice staff-level tradeoffs for native full-duplex SpeechLMs, VAD-free micro-turn cascades, role-conditioned duplex models, asynchronous RAG, action streams, privacy risk, and turn-taking benchmarks.</p>
           <p><a class="lesson-link" href="lessons/full-duplex-speech-to-speech-research-update.html">Open lesson: full-duplex speech-to-speech research update</a></p>
+        </article>
+        <article class="card">
+          <h3>Production Audio Judge Monitoring</h3>
+          <p>Practice production QC loops for ASR and TTS: flagged live events, user dissatisfaction signals, audio LLM diagnostics, schema failures, and top recurring issues.</p>
+          <p><a class="lesson-link" href="lessons/production-audio-judge-monitoring.html">Open lesson: production audio judge monitoring</a></p>
         </article>
         <article class="card">
           <h3>What This Adds</h3>
@@ -671,6 +683,10 @@
           <h3>Project S: Full-Duplex S2S Launch Review</h3>
           <p>Write a launch review for a full-duplex speech-to-speech agent, including interruption handling, backchannel metrics, micro-turn budgets, action-stream safety, and rollback gates.</p>
         </article>
+        <article class="card">
+          <h3>Project T: Production Audio Judge QC Loop</h3>
+          <p>Design a local monitor that flags the most recent transcription or TTS output, runs an audio judge, and reports top recurring user-felt issues without committing private audio.</p>
+        </article>
       </div>
     </section>
 
@@ -706,6 +722,10 @@
         <li><a href="https://arxiv.org/abs/2604.04847">Full-Duplex-Bench-v3</a> - tool use under real human disfluency and multi-step tasks.</li>
         <li><a href="https://arxiv.org/abs/2507.23159">Full-Duplex-Bench v1.5</a> - overlap handling across interruptions, backchannels, side speech, and background speech.</li>
         <li><a href="https://arxiv.org/abs/2509.26388">Game-Time</a> - temporal dynamics benchmark for tempo, synchronized responses, and simultaneous speaking.</li>
+        <li><a href="https://arxiv.org/html/2412.05579v2">LLMs-as-Judges survey</a> - judge prompt criteria, references, explanations, feedback, and meta-evaluation.</li>
+        <li><a href="https://aclanthology.org/2025.naacl-long.218/">AudioBench</a> - broad audio LLM evaluation across speech, audio scenes, and paralinguistic understanding.</li>
+        <li><a href="https://aclanthology.org/2026.eacl-long.168.pdf">AudioJudge</a> - multi-aspect large audio model judging, pairwise protocols, and bias checks.</li>
+        <li><a href="https://research.google/blog/assessing-asr-performance-with-meaning-preservation/">Google Research: meaning preservation for ASR</a> - semantic ASR evaluation beyond WER.</li>
       </ul>
     </section>
   </main>

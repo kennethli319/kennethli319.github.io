@@ -1,5 +1,7 @@
 # Speech ML/AI Domain Study Guide
 
+Hosted at https://kennethli319.github.io/audio-text-ml-course/
+
 A self-paced study guide for learning machine learning from the
 fundamentals through audio/text multimodality, ASR, TTS, speech-to-speech
 systems, efficient transformers, and practical inference hosting across the
@@ -28,6 +30,10 @@ Open `index.html` in a browser to read the website locally.
   privacy-safe telemetry, rollback, cost controls, and production incidents.
 - Evaluation and RAG: WER/CER/entity metrics, retrieval recall, grounded answer
   evaluation, LLM judges, human review, monitoring, and rollout gates.
+- Production audio judge monitoring: flagged recent ASR/TTS events, sampled
+  traffic, user dissatisfaction signals, audio-aware LLM judge diagnostics,
+  strict schema validation, and top-issue aggregation for fast feedback without
+  waiting on manual labels.
 - Voice-agent benchmarks: task success, spoken RAG, multi-turn safety, speech
   repair, launch gates, slice regressions, cost-quality tradeoffs, and rollback
   decisions.

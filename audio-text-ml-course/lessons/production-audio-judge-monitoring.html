@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Audio Judge Monitoring</title>
+  <link rel="stylesheet" href="../styles.css?v=20260616c">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#why">Why</a>
+      <a href="#contract">Contract</a>
+      <a href="#diagnostics">Diagnostics</a>
+      <a href="#aggregation">Aggregation</a>
+      <a href="#lab">Lab</a>
+    </nav>
+    <p class="eyebrow">Production Evaluation</p>
+    <h1>Production Audio Judge Monitoring</h1>
+    <p class="lede">
+      Build a fast feedback loop for ASR and TTS products by sampling or flagging
+      live traffic, running audio-aware diagnostic judges, and aggregating likely
+      user pain before a labeled benchmark catches up.
+    </p>
+  </header>
+
+  <main>
+    <section id="why" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Product Motivation</p>
+        <h2>Monitor User-Felt Badness, Not Only Model Goodness</h2>
+        <p>
+          Offline benchmarks answer whether one system is better than another on
+          curated examples. Production monitoring answers a different question:
+          what felt bad to users today, and what issue should the team fix next?
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Competitor Quality Axis</h3>
+          <p>Use pairwise or rubric evaluations to compare one ASR, TTS, or speech-to-speech system against another on stable slices.</p>
+          <details class="qa">
+            <summary>Hidden answer: when this axis is right</summary>
+            <p>
+              Use it for release decisions, vendor selection, model upgrades,
+              and public claims. Keep prompts versioned, randomize order in
+              pairwise tests, and track judge bias before trusting a leaderboard.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>User Pain Axis</h3>
+          <p>Use flagged recent events, sampled live traffic, corrections, retries, abandons, and explicit negative feedback to find recurring failures.</p>
+          <details class="qa">
+            <summary>Hidden answer: why this axis changes iteration speed</summary>
+            <p>
+              It does not wait for labels. The judge proposes likely issue
+              classes, severity, and examples. Humans review the top clusters
+              only when an issue becomes important enough to act on.
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section id="contract" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Event Contract</p>
+        <h2>Capture Enough Context To Diagnose Without Exposing Everything</h2>
+        <p>
+          A production audio judge needs the audio or synthesized output, the
+          relevant text context, versions, and user feedback metadata. It should
+          not require committing private audio, raw user text, or credentials.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Minimum Event Schema</h3>
+        <pre><code>{
+  "id": "event-2026-06-29-0001",
+  "task": "asr_error",
+  "source": "production_flagged",
+  "flag_reason": "user_unsatisfied",
+  "audio_path": "private/audio/event.wav",
+  "candidate_text": "recognized transcript or TTS prompt",
+  "reference_text": "optional user correction or expected text",
+  "turns": [
+    {"role": "user", "content": "optional surrounding request"},
+    {"role": "assistant", "content": "optional system response"}
+  ],
+  "metadata": {
+    "app": "LocalWhisperTranscriber",
+    "app_version": "0.4.2",
+    "model": "whisper-small",
+    "latency_ms": 742,
+    "sample_policy": "user_flagged",
+    "privacy_tier": "local_only"
+  }
+}</code></pre>
+      </article>
+      <div class="grid two">
+        <article class="card">
+          <h3>ASR Flag Sources</h3>
+          <p>Flag the most recent transcription, user correction, command failure, pasted-text undo, repeated dictation, low confidence, or high partial churn.</p>
+        </article>
+        <article class="card">
+          <h3>TTS Flag Sources</h3>
+          <p>Flag the most recent spoken output, playback abort, user replay, long first-audio delay, artifact report, text-faithfulness concern, or voice mismatch.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="diagnostics" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Judge Output</p>
+        <h2>Emit Diagnostics That Lead To Action</h2>
+        <p>
+          Audio LLM judges are most useful when prompts ask for narrow,
+          schema-validated fields. A vague quality score is hard to debug; issue
+          labels, severity, and short evidence help the team react.
+        </p>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>ASR Diagnostics</h3>
+          <p>Meaning preservation, entity errors, number/unit mistakes, negation loss, omissions, insertions, speaker-turn confusion, and downstream task impact.</p>
+        </article>
+        <article class="card">
+          <h3>TTS Diagnostics</h3>
+          <p>Intelligibility, artifacts, skipped or altered text, unnatural prosody, pacing, voice consistency, clipping, silence, and conversational latency.</p>
+        </article>
+        <article class="card">
+          <h3>Judge Health</h3>
+          <p>Prompt id, prompt version, provider, model, parse status, schema errors, confidence, and whether the case used reference text or audio-direct judging.</p>
+        </article>
+      </div>
+      <details class="qa">
+        <summary>Question: Why validate the judge JSON schema strictly?</summary>
+        <p>
+          Monitoring systems must fail predictably. If a judge omits required
+          diagnostics or invents fields, reports should mark the result as a
+          bounded parse/schema failure instead of silently mixing malformed
+          outputs into top-issue counts.
+        </p>
+      </details>
+    </section>
+
+    <section id="aggregation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Aggregation</p>
+        <h2>Turn Case-Level Guesses Into Top Issues</h2>
+        <p>
+          The goal is not to inspect every transcript. The goal is to cluster
+          likely failures, rank them by severity and frequency, and choose the
+          next model, prompt, decoder, UX, or data fix.
+        </p>
+      </div>
+      <ol class="steps">
+        <li><strong>Ingest:</strong> collect flagged events plus a small consent-aware traffic sample.</li>
+        <li><strong>Judge:</strong> run task-specific ASR or TTS diagnostic prompts against audio plus text context.</li>
+        <li><strong>Normalize:</strong> validate the response schema and map detailed findings to a stable failure taxonomy.</li>
+        <li><strong>Aggregate:</strong> group by issue type, app version, model, language, device, latency bucket, and user feedback reason.</li>
+        <li><strong>Act:</strong> create one short issue packet with examples, counts, severity, suspected owner, and rollback or experiment recommendation.</li>
+      </ol>
+      <article class="card">
+        <h3>Top-Issue Packet</h3>
+        <p>
+          A useful packet says: "Top issue is missing final words in long noisy
+          dictation after release 0.4.2, 37 flagged cases, mostly laptop mic,
+          median severity high, examples point to endpointing and final decode
+          overlap. Try longer tail overlap or rollback endpointing change."
+        </p>
+      </article>
+    </section>
+
+    <section id="lab" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Lab</p>
+        <h2>Build A Top-Issue Aggregator</h2>
+        <p>
+          Start from judge results, not raw audio. The lab mirrors a production
+          dashboard where flagged events are already scored and schema-validated.
+        </p>
+      </div>
+      <article class="prompt">
+        <h3>Prompt</h3>
+        <p>
+          Given a list of judge result dictionaries, return the top issue groups
+          sorted by weighted impact. Weight each case by severity and user flag
+          strength. Keep only aggregate counts and example IDs.
+        </p>
+        <pre><code>SEVERITY_WEIGHT = {"low": 1, "medium": 3, "high": 8}
+FLAG_WEIGHT = {
+    "sampled": 1,
+    "low_confidence": 2,
+    "user_flagged": 5,
+    "user_unsatisfied": 8,
+}
+
+def top_audio_issues(results, limit=5):
+    groups = {}
+    for row in results:
+        issue = row["diagnostics"]["primary_issue"]
+        severity = row["diagnostics"].get("severity", "medium")
+        flag = row["metadata"].get("flag_reason", "sampled")
+        weight = SEVERITY_WEIGHT[severity] * FLAG_WEIGHT[flag]
+        bucket = groups.setdefault(issue, {
+            "issue": issue,
+            "count": 0,
+            "impact": 0,
+            "examples": [],
+            "models": {},
+        })
+        bucket["count"] += 1
+        bucket["impact"] += weight
+        bucket["examples"] = (bucket["examples"] + [row["id"]])[:3]
+        model = row["metadata"].get("model", "unknown")
+        bucket["models"][model] = bucket["models"].get(model, 0) + 1
+    return sorted(groups.values(), key=lambda item: (-item["impact"], -item["count"]))[:limit]</code></pre>
+        <details class="qa">
+          <summary>Hidden answer: what to test</summary>
+          <p>
+            Test that user-unsatisfied high-severity cases outrank many sampled
+            low-severity cases, malformed judge outputs are excluded before
+            aggregation, example IDs are capped, and model/version breakdowns
+            stay aggregate-only.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Reading Links</p>
+        <h2>Research Trail</h2>
+      </div>
+      <ul class="resources">
+        <li><a href="https://arxiv.org/html/2412.05579v2">LLMs-as-Judges survey</a> - prompt design, criteria, references, explanations, feedback, and meta-evaluation.</li>
+        <li><a href="https://aclanthology.org/2025.naacl-long.218/">AudioBench</a> - speech, audio scene, and paralinguistic evaluation coverage for audio LLMs.</li>
+        <li><a href="https://aclanthology.org/2026.eacl-long.168.pdf">AudioJudge</a> - large audio models as judges, multi-aspect evaluation, and judge-bias concerns.</li>
+        <li><a href="https://arxiv.org/html/2510.14664v1">SpeechLLM-as-Judges</a> - structured speech-quality judge prompts and explanation-guided outputs.</li>
+        <li><a href="https://research.google/blog/assessing-asr-performance-with-meaning-preservation/">Google Research: meaning preservation for ASR</a> - why WER misses user-impacting transcription failures.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

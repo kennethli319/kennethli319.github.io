@@ -266,11 +266,24 @@
           <p>
             A strong gate protects critical slices and privacy first. Average
             quality improvements cannot excuse a privacy error, protected-slice
-            regression, or tail-latency breach.
+            regression, tail-latency breach, or missing critical telemetry.
           </p>
           <pre><code class="language-python">def should_rollback_canary(metrics):
+    required = [
+        "privacy_errors",
+        "p99_turn_latency_delta_ms",
+        "noisy_room_task_success_delta",
+        "entity_recall_delta",
+    ]
     reasons = []
-    if metrics.get("privacy_errors", 0) &gt; 0:
+    for name in required:
+        if name not in metrics:
+            reasons.append(f"missing_{name}")
+
+    privacy_errors = metrics.get("privacy_errors", 0)
+    if privacy_errors &lt; 0:
+        reasons.append("invalid_privacy_errors")
+    if privacy_errors &gt; 0:
         reasons.append("privacy_errors")
     if metrics.get("p99_turn_latency_delta_ms", 0) &gt; 250:
         reasons.append("tail_latency")

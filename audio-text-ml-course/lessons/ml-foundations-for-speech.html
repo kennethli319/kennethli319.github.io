@@ -113,6 +113,8 @@ def seed_everything(seed=7):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 
 class TinyClassifier(nn.Module):
@@ -156,7 +158,9 @@ def train_step(model, batch, optimizer):
           Replace fixed vectors with frames or learned audio tokens, add
           padding masks, and choose a sequence objective. The same discipline
           remains: verify tensor axes, loss behavior, gradient scale, split
-          metrics, deterministic fixtures, and a small overfit run.
+          metrics, seeded fixtures, and a small overfit run. Seeds reduce
+          run-to-run noise, but exact determinism can still vary across
+          hardware, kernels, and distributed training settings.
         </p>
       </details>
     </section>

@@ -74,11 +74,15 @@
           <p>
             State: <code>ways[i]</code> is the number of ways to reach step
             <code>i</code>. Recurrence: the last move came from
-            <code>i - 1</code> or <code>i - 2</code>. Test <code>n = 1</code>,
-            <code>n = 2</code>, and a larger value. The rolling variables store
-            the two previous states.
+            <code>i - 1</code> or <code>i - 2</code>. The usual interview
+            contract has <code>n &gt;= 1</code>; if the helper may be called
+            directly, reject non-positive inputs instead of returning a
+            misleading count. Test <code>n = 1</code>, <code>n = 2</code>, and a
+            larger value. The rolling variables store the two previous states.
           </p>
           <pre><code class="language-python">def climb_stairs(n):
+    if n &lt; 1:
+        raise ValueError("n must be positive")
     if n &lt;= 2:
         return n
 

@@ -217,7 +217,8 @@ print(log_mel.shape)  # [time, n_mels]</code></pre>
         change the transcript or speaker label unless the training objective
         expects that change.
       </p>
-      <pre><code class="language-python">def add_noise(audio, snr_db=20.0, rng=np.random.default_rng(0)):
+      <pre><code class="language-python">def add_noise(audio, snr_db=20.0, rng=None):
+    rng = np.random.default_rng() if rng is None else rng
     noise = rng.standard_normal(len(audio)).astype(np.float32)
     signal_power = np.mean(audio ** 2) + 1e-12
     noise_power = np.mean(noise ** 2) + 1e-12
@@ -226,12 +227,13 @@ print(log_mel.shape)  # [time, n_mels]</code></pre>
     return np.clip(audio + noise, -1.0, 1.0)
 
 
-def time_mask(log_mel, max_width=20, rng=np.random.default_rng(0)):
+def time_mask(log_mel, max_width=20, rng=None):
+    rng = np.random.default_rng() if rng is None else rng
     out = log_mel.copy()
     width = int(rng.integers(0, max_width + 1))
     if width == 0 or width >= out.shape[0]:
         return out
-    start = int(rng.integers(0, out.shape[0] - width))
+    start = int(rng.integers(0, out.shape[0] - width + 1))
     out[start:start + width, :] = out.mean()
     return out</code></pre>
 

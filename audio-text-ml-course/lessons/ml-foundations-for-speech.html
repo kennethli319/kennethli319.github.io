@@ -120,6 +120,8 @@ def seed_everything(seed=7):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+    if hasattr(torch, "mps") and torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
 
 
 class TinyClassifier(nn.Module):
@@ -164,8 +166,10 @@ def train_step(model, batch, optimizer):
           padding masks, and choose a sequence objective. The same discipline
           remains: verify tensor axes, loss behavior, gradient scale, split
           metrics, seeded fixtures, and a small overfit run. Seeds reduce
-          run-to-run noise, but exact determinism can still vary across
-          hardware, kernels, and distributed training settings.
+          run-to-run noise; on Apple Silicon, seed MPS explicitly when using
+          the PyTorch MPS backend. Exact determinism can still vary across
+          PyTorch releases, hardware, kernels, and distributed training
+          settings.
         </p>
       </details>
     </section>

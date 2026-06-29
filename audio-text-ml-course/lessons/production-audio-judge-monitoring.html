@@ -204,10 +204,11 @@ def top_audio_issues(results, limit=5):
     for row in results:
         diagnostics = row.get("diagnostics", {})
         metadata = row.get("metadata", {})
+        event_id = row.get("id")
         issue = diagnostics.get("primary_issue")
         severity = diagnostics.get("severity", "medium")
         flag = metadata.get("flag_reason", "sampled")
-        if not issue or severity not in SEVERITY_WEIGHT or flag not in FLAG_WEIGHT:
+        if not event_id or not issue or severity not in SEVERITY_WEIGHT or flag not in FLAG_WEIGHT:
             continue
         weight = SEVERITY_WEIGHT[severity] * FLAG_WEIGHT[flag]
         bucket = groups.setdefault(issue, {
@@ -219,8 +220,8 @@ def top_audio_issues(results, limit=5):
         })
         bucket["count"] += 1
         bucket["impact"] += weight
-        bucket["examples"] = (bucket["examples"] + [row["id"]])[:3]
-        model = row["metadata"].get("model", "unknown")
+        bucket["examples"] = (bucket["examples"] + [event_id])[:3]
+        model = metadata.get("model", "unknown")
         bucket["models"][model] = bucket["models"].get(model, 0) + 1
     return sorted(groups.values(), key=lambda item: (-item["impact"], -item["count"]))[:limit]</code></pre>
         <details class="qa">

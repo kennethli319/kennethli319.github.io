@@ -226,7 +226,9 @@
             Invariant: every record is assigned to exactly one duration bucket.
             Missing buckets return <code>None</code> rather than pretending the
             average is zero. Durations and latencies must be non-negative so a
-            bad telemetry row does not quietly distort incident analysis.
+            bad telemetry row does not quietly distort incident analysis. Rows
+            missing required fields should fail with an explicit validation
+            error instead of a raw telemetry-key exception.
           </p>
           <pre><code class="language-python">def latency_by_duration(records):
     buckets = {
@@ -235,6 +237,8 @@
         "long": [],
     }
     for item in records:
+        if "audio_seconds" not in item or "latency_ms" not in item:
+            raise ValueError("record must include audio_seconds and latency_ms")
         duration = item["audio_seconds"]
         latency = item["latency_ms"]
         if duration &lt; 0 or latency &lt; 0:

@@ -12,7 +12,7 @@
       <a href="#path">Path</a>
       <a href="#modules">Modules</a>
       <a href="#interview">Practice</a>
-      <a href="#coding">Coding</a>
+      <a href="#implementation">Implementation</a>
       <a href="#projects">Projects</a>
       <a href="#resources">Sources</a>
     </nav>
@@ -69,8 +69,8 @@
         <p class="eyebrow">Curriculum</p>
         <h2>Module Tour</h2>
         <p>
-          The numbered tour runs from 00 through 40, with additional practice
-          pages linked below. Lesson pages include code, checkpoints, and hidden
+          The numbered tour links audio ML and speech AI modules, with additional
+          practice pages below. Lesson pages include code, checkpoints, and hidden
           answers. Start with the transformer lesson, then return here to connect
           it to ASR, TTS, and speech-to-speech systems.
         </p>
@@ -233,15 +233,6 @@
           <p><a class="lesson-link" href="lessons/audio-ml-production-incidents.html">Open lesson: audio ML production incident drills</a></p>
         </article>
         <article>
-          <span>23</span>
-          <h3>Coding Implementation Drills</h3>
-          <p>Linked lists, binary search, heaps, dynamic programming, monotonic predicates, pointer invariants, and production follow-ups.</p>
-          <p class="lab">Lab: solve Blind 75 pointer, heap, binary-search, and DP problems before opening hidden Python answers.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-linkedlists-binarysearch.html">Open lesson: Blind 75 linked lists, binary search, and heaps</a></p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-dynamic-programming.html">Open lesson: Blind 75 dynamic programming deep dive</a></p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-trees-tries.html">Open lesson: Blind 75 trees and tries</a></p>
-        </article>
-        <article>
           <span>24</span>
           <h3>Voice Agent Evaluation Benchmarks</h3>
           <p>Advanced evaluation plans for spoken RAG agents, speech-to-speech repair, task success, latency, safety, cost, and launch gates.</p>
@@ -282,20 +273,6 @@
           <p>Production on-call practice for ASR, TTS, LLM, retrieval, and speech-to-speech serving incidents under real traffic constraints.</p>
           <p class="lab">Lab: implement queue saturation, cost-per-success, and rollback-candidate utilities with synthetic aggregate metrics.</p>
           <p><a class="lesson-link" href="lessons/model-serving-oncall-runbook.html">Open lesson: model serving on-call runbook</a></p>
-        </article>
-        <article>
-          <span>30</span>
-          <h3>Coding Interview Workbook</h3>
-          <p>Invariant-first coding practice for Blind 75 patterns, test design, debugging, and production speech ML follow-ups.</p>
-          <p class="lab">Lab: solve worked Python drills, then connect each pattern to ASR, RAG, queueing, or model-serving scenarios.</p>
-          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: advanced coding interview workbook</a></p>
-        </article>
-        <article>
-          <span>31</span>
-          <h3>Stacks And Sliding Windows</h3>
-          <p>Blind 75 stack, monotonic-stack, parser, and sliding-window drills with worked Python, hidden answers, edge tests, and speech-serving follow-ups.</p>
-          <p class="lab">Lab: solve Daily Temperatures, Minimum Window Substring, Decode String, and production queue-window prompts by invariant.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-stacks-windows.html">Open lesson: Blind 75 stacks and sliding windows</a></p>
         </article>
         <article>
           <span>32</span>
@@ -482,11 +459,6 @@
           <p><a class="lesson-link" href="lessons/model-serving-oncall-runbook.html">Open lesson: model serving on-call runbook</a></p>
         </article>
         <article class="card">
-          <h3>Coding Workbook</h3>
-          <p>Practice invariant-first Blind 75 coding, edge tests, worked Python, and production follow-ups for speech ML systems.</p>
-          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: advanced coding interview workbook</a></p>
-        </article>
-        <article class="card">
           <h3>Data And Evaluation Ops</h3>
           <p>Practice dataset contracts, labeling rubrics, CI release gates, drift monitoring, and data flywheel tradeoffs for speech products.</p>
           <p><a class="lesson-link" href="lessons/speech-data-eval-ops.html">Open lesson: speech data and evaluation operations</a></p>
@@ -528,76 +500,40 @@
       </div>
     </section>
 
-    <section id="coding" class="band">
+    <section id="implementation" class="band">
       <div class="section-head">
-        <p class="eyebrow">Coding Practice</p>
-        <h2>Core Coding Patterns</h2>
+        <p class="eyebrow">Implementation Practice</p>
+        <h2>Audio ML Coding Drills</h2>
         <p>
-          Speech ML/AI engineers still need reliable general coding. This chapter
-          covers the full Blind 75 problem bank with pattern strategies,
-          hidden-answer notes, and common mistakes, then connects those
-          patterns to speech data, evaluation, and serving work.
+          Keep implementation practice tied to speech systems: feature pipelines,
+          evaluation gates, serving telemetry, rollout decisions, and privacy-safe
+          synthetic fixtures.
         </p>
       </div>
       <div class="grid two">
         <article class="card">
-          <h3>Blind 75 Coding Track</h3>
-          <p>Practice arrays, hashing, binary search, dynamic programming, graphs, intervals, linked lists, matrix traversal, strings, trees, tries, and heaps.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75.html">Open lesson: Blind 75 coding interview chapter</a></p>
-        </article>
-        <article class="card">
-          <h3>Graphs, Trees, And DP Deep Dive</h3>
-          <p>Practice state search, recursive invariants, memoization, DP transitions, cycle handling, and worked Python solutions for high-yield Blind 75 items.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-graphs-dp.html">Open lesson: Blind 75 graphs, trees, and DP</a></p>
-        </article>
-        <article class="card">
-          <h3>Arrays, Intervals, Heaps, And Matrices</h3>
-          <p>Practice high-frequency Blind 75 implementation rounds with hidden strategies, invariants, edge cases, and worked Python for production-shaped data structures.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-arrays-intervals.html">Open lesson: Blind 75 arrays and intervals</a></p>
-        </article>
-        <article class="card">
-          <h3>Strings, Backtracking, And Tries</h3>
-          <p>Practice substring windows, palindromes, combinatorial search, prefix trees, pruning, edge cases, and production-style follow-ups.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-strings-backtracking.html">Open lesson: Blind 75 strings and backtracking</a></p>
-        </article>
-        <article class="card">
-          <h3>Linked Lists, Binary Search, And Heaps</h3>
-          <p>Practice pointer rewiring, monotonic predicates, priority queues, top-k streams, and worked Python solutions for common Blind 75 rounds.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-linkedlists-binarysearch.html">Open lesson: Blind 75 linked lists, binary search, and heaps</a></p>
-        </article>
-        <article class="card">
-          <h3>Dynamic Programming Deep Dive</h3>
-          <p>Practice 1D and 2D DP state definitions, recurrences, hidden-answer drills, worked Python, and production ML follow-ups.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-dynamic-programming.html">Open lesson: Blind 75 dynamic programming</a></p>
-        </article>
-        <article class="card">
-          <h3>Trees And Tries</h3>
-          <p>Practice recursive tree contracts, BST boundaries, trie prefix search, Word Search II pruning, and speech production follow-ups.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-trees-tries.html">Open lesson: Blind 75 trees and tries</a></p>
-        </article>
-        <article class="card">
-          <h3>Coding Workbook</h3>
-          <p>Practice interview contracts, invariants, edge-case tests, worked Python drills, and production follow-ups for audio ML work.</p>
-          <p><a class="lesson-link" href="lessons/senior-coding-interview-workbook.html">Open lesson: advanced coding interview workbook</a></p>
-        </article>
-        <article class="card">
-          <h3>Stacks And Sliding Windows</h3>
-          <p>Practice Valid Parentheses, Daily Temperatures, Histogram, Character Replacement, Minimum Window, Decode String, and speech-serving follow-ups.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-stacks-windows.html">Open lesson: Blind 75 stacks and sliding windows</a></p>
-        </article>
-        <article class="card">
-          <h3>Bit Manipulation And Math</h3>
-          <p>Practice XOR invariants, masks, popcount, reverse bits, integer boundaries, encode/decode strings, and production feature-flag follow-ups.</p>
-          <p><a class="lesson-link" href="lessons/coding-blind-75-bits-math.html">Open lesson: Blind 75 bit manipulation and math</a></p>
-        </article>
-        <article class="card">
-          <h3>Pipeline Coding Drills</h3>
-          <p>Practice Merge Intervals, Top K Elements, and sliding windows as speech feature-pipeline utilities with privacy and schema-contract follow-ups.</p>
+          <h3>Feature Pipeline Utilities</h3>
+          <p>Practice chunk merging, schema checks, active-learning ranking, and aggregate drift detectors for audio feature pipelines.</p>
           <p><a class="lesson-link" href="lessons/speech-feature-pipelines-data-contracts.html#coding">Open lesson: speech pipeline coding drills</a></p>
         </article>
         <article class="card">
+          <h3>Serving Reliability Utilities</h3>
+          <p>Practice queue alerts, load-test gates, cost regressions, retry storms, and rollout recommendations from synthetic aggregate metrics.</p>
+          <p><a class="lesson-link" href="lessons/speech-ai-load-testing-chaos.html">Open lesson: speech AI load testing and chaos readiness</a></p>
+        </article>
+        <article class="card">
+          <h3>Evaluation And Release Gates</h3>
+          <p>Practice promotion gates, sustained-drift detection, rollback ranking, and privacy-safe incident summaries.</p>
+          <p><a class="lesson-link" href="lessons/senior-audio-ml-evaluation-incident-exam.html">Open lesson: advanced audio ML evaluation and incident exam</a></p>
+        </article>
+        <article class="card">
+          <h3>Real-Time Speech Telemetry</h3>
+          <p>Practice latency budgets, prefix churn, canary triggers, and spoken-turn handoff checks for streaming products.</p>
+          <p><a class="lesson-link" href="lessons/realtime-speech-system-design-lab.html">Open lesson: real-time speech system design lab</a></p>
+        </article>
+        <article class="card">
           <h3>How To Use It</h3>
-          <p>Solve from the prompt first, classify the pattern, state invariants, then open the hidden strategy and compare against your code.</p>
+          <p>Solve from the speech-system prompt first, state the privacy boundary and metrics, then compare against the hidden strategy.</p>
         </article>
       </div>
     </section>

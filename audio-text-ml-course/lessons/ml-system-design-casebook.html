@@ -185,8 +185,8 @@
           <p>
             Invariant: every metric is compared in the direction that matters
             for the product. Test quality regression with latency win, latency
-            regression with quality win, missing metrics, and exactly-on-budget
-            changes.
+            regression with quality win, missing metrics, invalid budget
+            definitions, and exactly-on-budget changes.
           </p>
           <pre><code class="language-python">def canary_decision(baseline, canary, budgets):
     actions = []
@@ -197,11 +197,16 @@
 
         direction = budget["direction"]
         allowed = budget["allowed_delta"]
+        if allowed &lt; 0:
+            raise ValueError("allowed_delta must be non-negative")
+
         delta = canary[name] - baseline[name]
         if direction == "lower_is_better" and delta &gt; allowed:
             actions.append(("rollback", name, delta))
         elif direction == "higher_is_better" and -delta &gt; allowed:
             actions.append(("rollback", name, delta))
+        elif direction not in {"lower_is_better", "higher_is_better"}:
+            raise ValueError(f"unknown direction for {name}: {direction}")
 
     if any(action[0] == "rollback" for action in actions):
         return "rollback", actions
@@ -222,7 +227,8 @@
           <p>
             Invariant: real-time streams produce audio work every wall-clock
             second, reduced only by silence skipping or routing. Test zero
-            streams, no VAD savings, invalid utilization, and very large peaks.
+            streams, no VAD savings, invalid utilization, invalid negative
+            inputs, and very large peaks.
           </p>
           <pre><code class="language-python">import math
 
@@ -233,6 +239,10 @@ def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
         raise ValueError("target_utilization must be in (0, 1]")
     if not 0 &lt;= vad_savings &lt; 1:
         raise ValueError("vad_savings must be in [0, 1)")
+    if concurrent_streams &lt; 0:
+        raise ValueError("concurrent_streams must be non-negative")
+    if gpu_seconds_per_audio_second &lt; 0:
+        raise ValueError("gpu_seconds_per_audio_second must be non-negative")
 
     effective_audio_seconds = concurrent_streams * (1 - vad_savings)
     gpu_seconds_needed = effective_audio_seconds * gpu_seconds_per_audio_second

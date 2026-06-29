@@ -152,20 +152,22 @@
       <div class="grid two">
         <article class="card">
           <h3>Good Uses</h3>
-          <p>Classify answer helpfulness, detect unsupported claims, summarize error reports, and prioritize human review queues after calibration.</p>
+          <p>Classify answer helpfulness, check claims against retrieved evidence, summarize error reports, and prioritize human review queues after calibration.</p>
           <details class="qa">
             <summary>Question: How do you calibrate a judge?</summary>
             <p>
-              Build a labeled set, compare judge decisions to human labels,
-              inspect disagreements, measure precision and recall by slice,
-              lock the judge prompt and model version, and avoid using the
-              judge as the only launch gate for high-risk behavior.
+              Build a labeled set with transcripts, retrieved passages, answer
+              text, and any audio-specific human ratings needed for the task.
+              Compare judge decisions to human labels, inspect disagreements,
+              measure precision and recall by slice, lock the judge prompt and
+              model version, and avoid using the judge as the only launch gate
+              for high-risk behavior.
             </p>
           </details>
         </article>
         <article class="card">
           <h3>Risky Uses</h3>
-          <p>Replacing human labels for safety-critical cases, judging private content without retention controls, or using a judge that shares the same blind spots as the generator.</p>
+          <p>Replacing human labels for safety-critical cases, judging private content without retention controls, scoring speech quality with a text-only judge, or using a judge that shares the same blind spots as the generator.</p>
           <details class="qa">
             <summary>Question: What should be logged for judge outputs?</summary>
             <p>

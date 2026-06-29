@@ -141,9 +141,14 @@
             The helper returns the best one-sided gain that can extend to the
             parent. The global answer may use both left and right gains at the
             current node, but that split path cannot be returned upward because
-            it would branch. Clamp negative child gains to zero.
+            it would branch. Clamp negative child gains to zero. The standard
+            prompt expects a non-empty tree, so fail fast if the caller passes
+            an empty root.
           </p>
           <pre><code class="language-python">def max_path_sum(root):
+    if root is None:
+        raise ValueError("root must be non-empty")
+
     best = float("-inf")
 
     def gain(node):
@@ -206,9 +211,14 @@
             Inorder traversal visits BST values in sorted order. The stack
             stores the path to the next unvisited smallest node. Common mistakes
             are decrementing <code>k</code> before visiting a node or forgetting
-            to move to the right subtree after a visit.
+            to move to the right subtree after a visit. Validate
+            <code>k</code> up front so zero or negative input does not look like
+            a too-large tree traversal.
           </p>
           <pre><code class="language-python">def kth_smallest(root, k):
+    if k &lt;= 0:
+        raise ValueError("k must be positive")
+
     stack = []
     node = root
 
@@ -310,9 +320,13 @@ class Trie:
             visited mark belongs to the current path only, so restore the board
             cell after recursion. Store the full word at terminal trie nodes to
             avoid rebuilding strings and set it to <code>None</code> after
-            finding it to prevent duplicates.
+            finding it to prevent duplicates. Return early for an empty board
+            or empty word list before reading <code>board[0]</code>.
           </p>
           <pre><code class="language-python">def find_words(board, words):
+    if not board or not board[0] or not words:
+        return []
+
     root = {}
     END = "#"
     for word in words:

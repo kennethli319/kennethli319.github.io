@@ -373,6 +373,9 @@ def can_finish(num_courses, prerequisites):
 
 
 def min_window(s, t):
+    if not t:
+        return ""
+
     need = Counter(t)
     window = defaultdict(int)
     required = len(need)

@@ -151,8 +151,8 @@
       <article class="prompt">
         <h3>Worked Tree 1: Binary Tree Maximum Path Sum</h3>
         <p>
-          Return the maximum path sum in a binary tree. A path can start and end
-          at any nodes, but it must follow parent-child links.
+          Return the maximum path sum in a non-empty binary tree. A path can
+          start and end at any nodes, but it must follow parent-child links.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant, common mistake, and Python solution</summary>
@@ -163,6 +163,9 @@
             path upward, which is not a valid path for the parent to extend.
           </p>
           <pre><code class="language-python">def max_path_sum(root):
+    if root is None:
+        raise ValueError("root must be non-empty")
+
     best = -10**18
 
     def one_sided(node):

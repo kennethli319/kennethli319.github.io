@@ -171,9 +171,10 @@
           <p>
             Separate quality-sensitive and latency-sensitive use cases. Canary
             on non-critical flows first, stream by sentence, keep warm pools,
-            cache fixed prompts, and set an explicit first-audio-byte budget.
-            Roll back or route to the old voice when p95 latency breaks the
-            conversation SLO, even if offline preference scores look better.
+            cache only approved non-personal fixed prompts, and set an explicit
+            first-audio-byte budget. Roll back or route to the old voice when
+            p95 latency breaks the conversation SLO, even if offline preference
+            scores look better.
           </p>
         </details>
       </article>
@@ -220,9 +221,10 @@
           <p>
             Do not approve without a migration plan. Changing dimensionality can
             require reindexing, dual writes, backfills, compatibility shims, and
-            rollback planning. Compare product value from recall against
-            latency, infrastructure cost, index rebuild time, retrieval quality
-            by slice, and whether clients can handle mixed versions.
+            rollback planning; treat even a small dimension change as a schema
+            change. Compare product value from recall against latency,
+            infrastructure cost, index rebuild time, retrieval quality by
+            slice, and whether clients can handle mixed versions.
           </p>
         </details>
       </article>

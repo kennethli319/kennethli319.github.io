@@ -140,22 +140,28 @@
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
-            Invariant: compare each slice only when both baseline and current
-            values exist. Treat a zero baseline as a special case so the code
-            does not hide a new population. Test missing slices, zero baseline,
-            invalid negative thresholds, small changes, and large increases in
-            silence or clipping.
+            Invariant: report slices that appear or disappear, and compare a
+            slice only when both baseline and current values exist. Treat a zero
+            baseline as a special case so the code does not hide a new
+            population. Test missing slices, zero baseline, invalid negative
+            thresholds, small changes, and large increases in silence or
+            clipping.
           </p>
           <pre><code class="language-python">def drifted_slices(baseline, current, threshold):
     if threshold &lt; 0:
         raise ValueError("threshold must be non-negative")
 
     drifted = []
-    for name, now in current.items():
+    for name in sorted(set(baseline) | set(current)):
         if name not in baseline:
+            now = current[name]
             drifted.append((name, "new_slice", now))
             continue
+        if name not in current:
+            drifted.append((name, "missing_current", baseline[name]))
+            continue
 
+        now = current[name]
         before = baseline[name]
         if before == 0:
             if now != 0:

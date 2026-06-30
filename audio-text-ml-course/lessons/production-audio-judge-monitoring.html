@@ -217,12 +217,15 @@ def top_audio_issues(results, limit=5):
             "impact": 0,
             "examples": [],
             "models": {},
+            "versions": {},
         })
         bucket["count"] += 1
         bucket["impact"] += weight
         bucket["examples"] = (bucket["examples"] + [event_id])[:3]
         model = metadata.get("model", "unknown")
         bucket["models"][model] = bucket["models"].get(model, 0) + 1
+        version = metadata.get("app_version", "unknown")
+        bucket["versions"][version] = bucket["versions"].get(version, 0) + 1
     return sorted(groups.values(), key=lambda item: (-item["impact"], -item["count"]))[:limit]</code></pre>
         <details class="qa">
           <summary>Hidden answer: what to test</summary>

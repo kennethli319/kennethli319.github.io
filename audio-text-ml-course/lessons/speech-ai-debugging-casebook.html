@@ -168,9 +168,9 @@
             mixing lower-is-better and higher-is-better metrics, and reporting
             the worst release instead of the first bad one. Unknown budget
             directions should fail loudly so a malformed gate does not approve
-            a risky release. Metric values should also be finite numbers; NaN,
-            infinity, booleans, or strings should fail the gate instead of
-            silently passing a comparison.
+            a risky release. Metric values and budget limits should also be
+            finite numbers; NaN, infinity, booleans, or strings should fail the
+            gate instead of silently passing a comparison.
           </p>
           <pre><code class="language-python">import math
 
@@ -187,16 +187,19 @@ def first_bad_release(releases, budgets):
     for release in releases:
         metrics = release["metrics"]
         for metric, rule in budgets.items():
+            direction = rule["direction"]
+            limit = require_finite_number(rule["limit"], f"{metric} limit")
+            if direction not in {"max", "min"}:
+                raise ValueError(f"unknown budget direction: {direction}")
+
             if metric not in metrics:
                 return release["id"], metric, "missing"
 
             value = require_finite_number(metrics[metric], metric)
-            if rule["direction"] == "max" and value &gt; rule["limit"]:
+            if direction == "max" and value &gt; limit:
                 return release["id"], metric, value
-            if rule["direction"] == "min" and value &lt; rule["limit"]:
+            if direction == "min" and value &lt; limit:
                 return release["id"], metric, value
-            if rule["direction"] not in {"max", "min"}:
-                raise ValueError(f"unknown budget direction: {rule['direction']}")
 
     return None</code></pre>
         </details>
@@ -216,8 +219,8 @@ def first_bad_release(releases, budgets):
             metrics, and a newer model that passes aggregate metrics but fails
             the requested slice. Rollback selection must be slice-aware and must
             not treat quality, recall, or safety-recall gates as lower-is-better.
-            Reject malformed metric values instead of letting NaN, infinity, or
-            booleans bypass a production rollback gate.
+            Reject malformed metric values or thresholds instead of letting NaN,
+            infinity, or booleans bypass a production rollback gate.
           </p>
           <pre><code class="language-python">import math
 
@@ -243,7 +246,10 @@ def choose_rollback_target(versions, slice_name, gates):
                 break
 
             direction = rule["direction"]
-            limit = rule["limit"]
+            limit = require_finite_number(rule["limit"], f"{metric} limit")
+            if direction not in {"max", "min"}:
+                raise ValueError(f"unknown gate direction: {direction}")
+
             value = require_finite_number(metrics[metric], metric)
             if direction == "max" and value &gt; limit:
                 ok = False
@@ -251,8 +257,6 @@ def choose_rollback_target(versions, slice_name, gates):
             if direction == "min" and value &lt; limit:
                 ok = False
                 break
-            if direction not in {"max", "min"}:
-                raise ValueError(f"unknown gate direction: {direction}")
 
         if ok:
             return version["id"]

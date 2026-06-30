@@ -288,12 +288,16 @@
             and non-positive budgets before making SLO decisions.
           </p>
           <pre><code class="language-python">def budget_violations(records, budgets_ms):
+    if not isinstance(budgets_ms, dict):
+        raise ValueError("budgets_ms must be a mapping")
     for name, limit in budgets_ms.items():
-        if limit &lt;= 0:
+        if not isinstance(limit, (int, float)) or limit &lt;= 0:
             raise ValueError(f"budget for {name} must be positive")
 
     violations = []
     for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("each record must be a mapping")
         trace_id = record.get("trace_id")
         if not trace_id:
             raise ValueError("record is missing trace_id")
@@ -301,8 +305,8 @@
         if not isinstance(stages, dict):
             raise ValueError(f"stages_ms for {trace_id} must be a mapping")
         for name, value in stages.items():
-            if value &lt; 0:
-                raise ValueError(f"latency for {name} must be non-negative")
+            if not isinstance(value, (int, float)) or value &lt; 0:
+                raise ValueError(f"latency for {name} must be a non-negative number")
         bad = {
             name: value
             for name, value in stages.items()

@@ -162,8 +162,9 @@
               text, and any audio-specific human ratings needed for the task.
               Compare judge decisions to human labels, inspect disagreements,
               measure precision and recall by slice, lock the judge prompt and
-              model version, and avoid using the judge as the only launch gate
-              for high-risk behavior.
+              model version, hide system identity during grading, randomize
+              pairwise order when comparing releases, and avoid using the judge
+              as the only launch gate for high-risk behavior.
             </p>
           </details>
         </article>
@@ -175,7 +176,8 @@
             <p>
               Log judge model version, prompt version, rubric, score, reason
               category, request trace ID, and redacted inputs when allowed.
-              Keep enough metadata to reproduce decisions without making the
+              Recheck calibration after judge model or prompt updates, and keep
+              enough metadata to reproduce decisions without making the
               monitoring system a private-data sink.
             </p>
           </details>

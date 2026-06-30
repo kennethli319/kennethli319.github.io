@@ -278,9 +278,10 @@
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
             Invariant: the output contains counts, versions, and metric summaries
-            only. Test that transcript, audio path, user id, and raw text fields
-            never appear in the packet, and that slice keys are stable strings
-            suitable for JSON incident reports.
+            only, with rare slices bucketed so a one-off language/device pair
+            does not identify a user. Test that transcript, audio path, user id,
+            and raw text fields never appear in the packet, and that slice keys
+            are stable strings suitable for JSON incident reports.
           </p>
           <pre><code class="language-python">from collections import Counter, defaultdict
 from math import ceil
@@ -291,9 +292,9 @@ def nearest_rank(values, percentile):
     return values[index]
 
 
-def incident_packet(records):
+def incident_packet(records, min_slice_count=3):
     counts = Counter()
-    latency = defaultdict(list)
+    raw_latency = defaultdict(list)
     versions = Counter()
 
     for row in records:
@@ -302,9 +303,16 @@ def incident_packet(records):
         key = f"language={language}|device={device}"
         counts[key] += 1
         if "latency_ms" in row:
-            latency[key].append(row["latency_ms"])
+            raw_latency[key].append(row["latency_ms"])
         if "model_version" in row:
             versions[row["model_version"]] += 1
+
+    safe_counts = Counter()
+    latency = defaultdict(list)
+    for key, count in counts.items():
+        safe_key = key if count &gt;= min_slice_count else "language=rare|device=rare"
+        safe_counts[safe_key] += count
+        latency[safe_key].extend(raw_latency[key])
 
     latency_summary = {}
     for key, values in latency.items():
@@ -316,7 +324,7 @@ def incident_packet(records):
         }
 
     return {
-        "slice_counts": dict(counts),
+        "slice_counts": dict(safe_counts),
         "latency": latency_summary,
         "model_versions": dict(versions),
     }</code></pre>

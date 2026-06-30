@@ -259,8 +259,8 @@ from math import isfinite
 
 
 def rank_review_candidates(rows, k):
-    if k < 0:
-        raise ValueError("k must be non-negative")
+    if not isinstance(k, int) or k < 0:
+        raise ValueError("k must be a non-negative integer")
     if k == 0:
         return []
     required = ("uncertainty", "slice_rarity", "regression", "example_id")
@@ -309,13 +309,17 @@ assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
         </p>
         <details class="qa">
           <summary>Hidden answer with production follow-up</summary>
-          <pre><code>def first_coverage_drop(values, window, threshold):
-    if window <= 0:
-        raise ValueError("window must be positive")
-    if not 0 <= threshold <= 1:
+          <pre><code>from math import isfinite
+
+
+def first_coverage_drop(values, window, threshold):
+    if not isinstance(window, int) or window <= 0:
+        raise ValueError("window must be a positive integer")
+    if not isinstance(threshold, (int, float)) or not isfinite(threshold) or not 0 <= threshold <= 1:
         raise ValueError("threshold must be between 0 and 1")
-    if any(value < 0 or value > 1 for value in values):
-        raise ValueError("coverage values must be between 0 and 1")
+    for value in values:
+        if not isinstance(value, (int, float)) or not isfinite(value) or not 0 <= value <= 1:
+            raise ValueError("coverage values must be finite rates between 0 and 1")
     if len(values) < window:
         return None
 

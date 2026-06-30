@@ -111,6 +111,10 @@ print(sr, seconds, audio.min(), audio.max())</code></pre>
 
 def stft(audio: np.ndarray, n_fft: int = 400, hop: int = 160):
     # 25 ms window and 10 ms hop at 16 kHz are common ASR defaults.
+    if audio.ndim != 1:
+        raise ValueError("audio must be a 1-D mono array")
+    if n_fft <= 0 or hop <= 0:
+        raise ValueError("n_fft and hop must be positive")
     if len(audio) < n_fft:
         audio = np.pad(audio, (0, n_fft - len(audio)))
     window = np.hanning(n_fft).astype(np.float32)
@@ -173,6 +177,8 @@ def mel_to_hz(mel):
 
 
 def mel_filterbank(sample_rate: int, n_fft: int, n_mels: int = 80):
+    if sample_rate <= 0 or n_fft <= 0 or n_mels <= 0:
+        raise ValueError("sample_rate, n_fft, and n_mels must be positive")
     max_hz = sample_rate / 2
     mel_points = np.linspace(hz_to_mel(0), hz_to_mel(max_hz), n_mels + 2)
     hz_points = mel_to_hz(mel_points)

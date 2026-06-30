@@ -251,7 +251,9 @@
         <p>
           This small script estimates KV-cache memory. It is not a replacement
           for profiling, but it helps you reason about why long contexts,
-          concurrency, and attention-head choices matter.
+          concurrency, and attention-head choices matter. Real serving systems
+          also reserve memory for model weights, activations, block tables,
+          padding, allocator fragmentation, and scheduler headroom.
         </p>
       </div>
       <pre><code class="language-python">def kv_cache_gib(

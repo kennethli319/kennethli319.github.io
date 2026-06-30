@@ -219,7 +219,20 @@
             cost fail with quality gain, a missing required route, malformed
             metrics, and an unexpected route without a launch budget.
           </p>
-          <pre><code class="language-python">from math import isfinite
+          <pre><code class="language-python">from collections.abc import Mapping
+from math import isfinite
+
+
+def _mapping(value, field):
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{field} must be a mapping")
+    return value
+
+
+def _required(mapping, key, field):
+    if key not in mapping:
+        raise ValueError(f"{field}.{key} is required")
+    return mapping[key]
 
 
 def _finite_non_negative(value, field):
@@ -242,6 +255,8 @@ def _finite_rate(value, field):
 
 
 def evaluate_load_gate(routes, budgets):
+    routes = _mapping(routes, "routes")
+    budgets = _mapping(budgets, "budgets")
     failures = []
     for name in budgets:
         if name not in routes:
@@ -251,18 +266,24 @@ def evaluate_load_gate(routes, budgets):
         if name not in budgets:
             failures.append((name, "missing_budget", None))
             continue
+        metrics = _mapping(metrics, name)
         budget = budgets[name]
-        p95_ms = _finite_non_negative(metrics["p95_ms"], f"{name}.p95_ms")
-        error_rate = _finite_rate(metrics["error_rate"], f"{name}.error_rate")
-        cost_per_success = _finite_non_negative(metrics["cost_per_success"], f"{name}.cost_per_success")
-        task_success_delta = _finite_number(metrics["task_success_delta"], f"{name}.task_success_delta")
-        if p95_ms &gt; budget["p95_ms"]:
+        budget = _mapping(budget, f"{name}.budget")
+        p95_budget_ms = _finite_non_negative(_required(budget, "p95_ms", f"{name}.budget"), f"{name}.budget.p95_ms")
+        error_budget = _finite_rate(_required(budget, "error_rate", f"{name}.budget"), f"{name}.budget.error_rate")
+        cost_budget = _finite_non_negative(_required(budget, "cost_per_success", f"{name}.budget"), f"{name}.budget.cost_per_success")
+        p95_ms = _finite_non_negative(_required(metrics, "p95_ms", name), f"{name}.p95_ms")
+        error_rate = _finite_rate(_required(metrics, "error_rate", name), f"{name}.error_rate")
+        cost_per_success = _finite_non_negative(_required(metrics, "cost_per_success", name), f"{name}.cost_per_success")
+        task_success_delta = _finite_number(_required(metrics, "task_success_delta", name), f"{name}.task_success_delta")
+        if p95_ms &gt; p95_budget_ms:
             failures.append((name, "latency", p95_ms))
-        if error_rate &gt; _finite_rate(budget["error_rate"], f"{name}.budget.error_rate"):
+        if error_rate &gt; error_budget:
             failures.append((name, "errors", error_rate))
 
-        cost_over = cost_per_success &gt; budget["cost_per_success"]
-        quality_gain = task_success_delta &gt;= budget.get("min_gain_for_cost_overrun", 0.02)
+        cost_over = cost_per_success &gt; cost_budget
+        min_gain = _finite_number(budget.get("min_gain_for_cost_overrun", 0.02), f"{name}.budget.min_gain_for_cost_overrun")
+        quality_gain = task_success_delta &gt;= min_gain
         if cost_over and not quality_gain:
             failures.append((name, "cost_without_quality_gain", cost_per_success))
 

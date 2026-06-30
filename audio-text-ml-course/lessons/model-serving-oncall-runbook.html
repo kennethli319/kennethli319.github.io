@@ -38,7 +38,7 @@
       </div>
       <ol class="steps">
         <li><strong>Stabilize:</strong> protect users with rollback, traffic shed, fallback model, feature flag, or human handoff.</li>
-        <li><strong>Localize:</strong> split symptoms by model, version, tenant, region, device, language, accent, codec, and request path.</li>
+        <li><strong>Localize:</strong> split symptoms by model, version, tenant, region, device, language, codec, request path, and approved aggregate or consented high-risk cohorts.</li>
         <li><strong>Quantify:</strong> compare p50, p95, p99, error rate, queue depth, GPU utilization, cost per minute, and quality slices.</li>
         <li><strong>Hypothesize:</strong> map each metric change to a concrete failure mode such as KV-cache pressure, VAD drift, prompt bloat, or TTS warmup.</li>
         <li><strong>Recover:</strong> choose the smallest reversible action, record why it was safe, and add a prevention gate.</li>
@@ -76,11 +76,12 @@
           <summary>Hidden answer: strong triage outline</summary>
           <p>
             Slice by model version, device, codec, language, VAD state, chunk
-            size, region, and connection type. Check VAD false silence, audio
-            chunk buffering, batching policy, GPU queue depth, and client
-            upload cadence. Mitigate with canary rollback or reduced batch
-            delay on interactive traffic. Add a release gate for first partial
-            latency and partial churn by noisy/mobile slices, not only final WER.
+            size, region, connection type, and approved aggregate or consented
+            high-risk cohorts. Check VAD false silence, audio chunk buffering,
+            batching policy, GPU queue depth, and client upload cadence.
+            Mitigate with canary rollback or reduced batch delay on interactive
+            traffic. Add a release gate for first partial latency and partial
+            churn by noisy/mobile slices, not only final WER.
           </p>
         </details>
       </article>

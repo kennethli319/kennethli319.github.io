@@ -133,11 +133,12 @@
           <summary>Hidden answer: launch plan</summary>
           <p>
             Do not launch globally from aggregate WER. Define slice gates for
-            language, code-switching, SNR, microphone type, duration, region,
-            entity error rate, confidence calibration, and first partial latency.
-            Use traffic routing to keep regressed slices on the old model while
-            canarying improved slices. Add a model card, known limitations,
-            rollback trigger, shadow comparison, and post-launch drift watch.
+            language, code-switching, SNR, microphone type, duration, approved
+            aggregate or consented region tags, entity error rate, confidence
+            calibration, and first partial latency. Use traffic routing to keep
+            regressed slices on the old model while canarying improved slices.
+            Add a model card, known limitations, rollback trigger, shadow
+            comparison, and post-launch drift watch.
           </p>
         </details>
       </article>
@@ -383,9 +384,9 @@ def rank_canary_risks(slices, gates):
             bias decoding toward valid tool names, contact names, product SKUs,
             or safety-sensitive actions. They are useful when the allowed action
             space is small and explicit. The failure mode is over-constraining:
-            the decoder may not recover from ASR noise, accents, code-switching,
-            or user paraphrases, so launches need fallback paths and slice-level
-            evaluation.
+            the decoder may not recover from ASR noise, pronunciation variation,
+            code-switching, or user paraphrases, so launches need fallback paths
+            and approved aggregate or consented slice-level evaluation.
           </p>
         </details>
       </article>

@@ -76,10 +76,11 @@
             <summary>Hidden answer: state to preserve</summary>
             <p>
               Preserve trace ID, model versions, audio clock, chunk index,
-              endpoint decisions, partial transcript history, final transcript,
+              endpoint decisions, transcript stability metrics, redacted final
+              transcript or transcript hash when text retention is approved,
               prompt version, retrieved document IDs, TTS voice version, and
               client playback events. This lets you debug a bad turn without
-              storing raw private audio by default.
+              storing raw private audio or unnecessary private text by default.
             </p>
           </details>
         </article>

@@ -82,10 +82,12 @@
           <details class="qa">
             <summary>Hidden answer: strong mitigation</summary>
             <p>
-              Gate text before synthesis, restrict high-risk voices, watermark
-              or disclose where suitable, rate-limit abuse patterns, maintain
-              voice owner consent, and create rapid takedown and rollback paths.
-              Measure abuse response latency as an operational metric.
+              Gate text before synthesis, restrict high-risk voices, maintain
+              voice owner consent, rate-limit abuse patterns, and create rapid
+              takedown and rollback paths. Use disclosure, provenance, or
+              watermark signals where suitable, but do not rely on them as the
+              only fraud or impersonation control. Measure abuse response
+              latency as an operational metric.
             </p>
           </details>
         </article>
@@ -105,7 +107,7 @@
       <ol class="steps">
         <li><strong>Data contract:</strong> define consent, retention, redaction, allowed features, labeling access, and deletion behavior.</li>
         <li><strong>Model contract:</strong> document input modalities, output risks, unsupported use cases, safety filters, and fallback modes.</li>
-        <li><strong>Eval contract:</strong> include prompt injection, replay, PII leakage, toxic synthesis, language slices, and noisy-background cases.</li>
+        <li><strong>Eval contract:</strong> include prompt injection, replay, PII leakage, toxic synthesis, approved aggregate language slices, and noisy-background cases.</li>
         <li><strong>Serving contract:</strong> isolate tenants, version policies, record sanitized traces, enforce rate limits, and keep rollback fast.</li>
         <li><strong>Incident contract:</strong> define severity, owner, mitigation lever, user communication path, and evidence preservation rules.</li>
       </ol>

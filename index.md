@@ -2,57 +2,56 @@
 layout: default
 ---
 
-[Notes: [[Audio ML Course]](./audio-text-ml-course/) [[Others]](./notes.md)]
+[Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Audio ML Course](./audio-text-ml-course/) · [Notes](./notes.md)
 
 # About
 
 > Not until we are lost do we begin to understand ourselves.
 
-Speech-focused ML engineer in the San Francisco Bay Area, open to Forward-Deployed Engineering, Applied AI, and Speech/Audio ML roles on TN Visa. I work on production-oriented ML systems, evaluation pipelines, and automated workflows across ASR, TTS, streaming and full-duplex speech systems, keyword boosting, LLM-as-judge evaluation, RAG, and neural speech interfaces.
+Speech-focused ML engineer in the San Francisco Bay Area working on production-oriented ASR/TTS systems, speech LLM evaluation pipelines, and automated model-quality workflows. I have built across streaming ASR, TTS, full-duplex speech-to-speech systems, LLM-as-judge evaluation, RAG, keyword and hotword boosting, and neural speech interfaces.
 
-I enjoy turning ambiguous product and research problems into usable systems: customer-facing technical discovery, rapid prototyping, product integration, debugging, deployment-minded iteration, and evaluation design.
+I am targeting Applied AI, Speech LLM, and Audio ML roles focused on model training, evaluation systems, ASR/TTS workflows, LLM-as-judge systems, speech agents, multimodal model quality, and production data pipelines. TN Visa eligible.
 
 ---
 
-# Role Targets
+# Recent Focus
 
-- **Speech / Audio ML:** ASR and TTS data preparation and analysis; evaluation for task success rate, naturalness, conversationality, WER, CMOS, keyword boosting, streaming performance, speech-to-speech workflows, and neural speech interface research.
-- **Forward-Deployed / Applied AI:** customer-facing problem solving, rapid prototyping, product integration, agentic and LLM-as-judge workflows, evaluation design, debugging, and iteration from unclear requirements to usable systems.
+- **LLM-as-judge for voice AI:** led automated evaluation workflows that reduced evaluation cost by 10x with private models, 1000x with open-source models, and turnaround time by roughly 100x, from days to under 1 hour.
+- **Full-duplex speech LLM quality:** designed metrics for multi-turn full-duplex speech LLMs across 31 locales, improving quality tracking, iteration speed, cost efficiency, and production readiness.
+- **Production speech systems:** shipped and evaluated ASR/TTS workflows across wearable assistants, restaurant voice AI, contact center ASR, and BCI speech interfaces.
 
 ---
 
 # Experience
 
-#### Linguistic Engineer @ Meta, Reality Labs Wearables (Jan 2025 - Jun 2026)
+#### Linguistic Engineer, Speech LLM / ASR-TTS Evaluation @ Meta, Reality Labs Wearables (Jan 2025 - Present)
 
-- Improved on-device and server-side ASR/TTS for voice assistants across wearable devices, Meta glasses, and Meta AI through data preparation, evaluation, and model-development workflows for expressive speech and Llama 4 full-duplex speech LLMs.
-- Designed metrics and evaluated multi-turn, full-duplex speech LLM across 31 locales, improving cost efficiency, quality, iteration speed, and production readiness. Metrics included task success rate, naturalness, and conversationality.
-- Built and led the shift from manual human evaluation to semi- and fully automated LLM-as-judge and agent evaluation workflows, cutting evaluation costs by 5-10x and reducing turnaround time by roughly 100x.
-- Benchmarked internal models and leading external LLMs across multiple dimensions of audio modality performance.
-- Early adopter of internal agentic and auto-research workflows at Meta; hosted coworker Claw agents on g-chat to automate routine tasks, reduce repeated support requests, and let colleagues interact directly with common research and engineering workflows.
-- Explored frameworks for efficient autonomous agent self-improvement through evaluation-driven feedback loops.
+- Improved on-device and server-side ASR/TTS for voice assistants across wearable devices and Meta AI by leading data preparation and evaluation workflows for expressive speech and Llama 4 full-duplex speech LLMs.
+- Designed metrics for multi-turn full-duplex speech LLMs across 31 locales, improving cost efficiency, quality tracking, iteration speed, and production readiness.
+- Led the transition from manual human evaluation to automated LLM-as-judge workflows, reducing evaluation cost by 10x with private models and 1000x with open-source models.
+- Benchmarked internal models and leading external LLMs across multiple dimensions of audio-modality performance.
+- Deployed chat-based agentic workflows to automate routine research and engineering support tasks, reduce repeated support requests, and enable self-serve access.
+- Prototyped evaluation-driven feedback loops for autonomous agent self-improvement and workflow optimization.
 
-#### Founder & CEO @ [InnerSpeech](https://www.innerspeech.ai/) (Sep 2023 - Jan 2025)
+#### Founder & CEO @ InnerSpeech Canada / Hong Kong (Sep 2023 - Jan 2025)
 
 - Founded a non-invasive BCI speech startup focused on imagined and inner speech decoding using EEG and multimodal biosignals, with assistive communication as the initial target use case.
 - Owned product framing, technical roadmap, partnership conversations, grant and startup programs, and prototype development.
 - Built and open-sourced the InnerSpeech biosignal speech recognition and synthesis toolkit covering EEG, EMG, HD-EEG, MEG, fNIRS, and invasive neural speech datasets.
-- Developed Brain-to-Text Benchmark 2024 systems using RNN-Transformer modeling with language-model rescoring; achieved a 10.08 WER benchmark entry.
+- Developed Brain-to-Text Benchmark 2024 systems using RNN-Transformer modeling with language-model rescoring.
 - Secured founder and startup support including HKSTP Ideation, HK Tech 300 seed approval, NVIDIA Inception, AWS Activate, Google for Startups, Microsoft Founder Hub, and Communitech Founder Program.
 
-#### Machine Learning Engineer / Consultant @ Kea Cloud Inc. (Apr 2024 - Jul 2024)
+#### Machine Learning Engineer @ Kea Cloud Inc. (Apr 2024 - Jul 2024)
 
-- Improved speech recognition models for restaurant ordering through fine-tuning, contextual biasing, and internal evaluation.
-- Built LLM-augmented ordering agents with RAG in an ASR-NLU pipeline.
-- Worked on restaurant voice AI and ASR quality for automated ordering, including Deepgram and OpenAI API integrations, keyword boosting, and evaluation.
+- Improved restaurant-ordering ASR through API integration, contextual biasing, and menu/entity recognition evaluation.
+- Built LLM-augmented ordering-agent workflows using RAG-style ASR-to-NLU pipelines.
 - Evaluated ASR boosting and keyword strategies for restaurant-specific entities, menu items, and conversational order flows.
 
-#### Speech Recognition Engineer III @ Dialpad (Feb 2020 - Aug 2023)
+#### Speech Recognition Engineer III @ Dialpad Canada Inc. (Feb 2020 - Aug 2023)
 
-- Built and improved production ASR systems using Kaldi, NVIDIA NeMo, and K2 across hybrid and end-to-end speech recognition stacks.
+- Built and improved production ASR systems using Kaldi, NeMo, and K2 across hybrid and end-to-end speech recognition stacks.
 - Led ASR model updates and evaluation cycles, including analysis, data preparation, and deployment-oriented model comparisons.
-- Developed and shipped keyword and n-gram boosting methods for business-call ASR, improving recognition of customer-critical terms and recovering failing call scenarios.
-- Improved keyword adaptation for customer-specific vocabulary with contextual biasing, including n-gram boosting, lattice boosting, and in-house multi-speaker TTS-augmented data.
+- Developed and shipped contextual biasing methods, including n-gram and lattice boosting, to improve recognition of customer-specific vocabulary and recover failing business-call scenarios.
 - Published and presented work on ASR boosting and G2P modeling through SANE 2022 and SIGMORPHON 2021.
 - Co-supervised Master's thesis projects at the University of Edinburgh and The University of British Columbia.
 
@@ -60,51 +59,27 @@ I enjoy turning ambiguous product and research problems into usable systems: cus
 
 - Advised on grammar error correction and RAG-style workflows, including retrieval-augmented model design and evaluation.
 - Integrated rule-based and neural network-based methodologies to enhance system efficiency and performance.
-- Investigated and implemented quantization, data augmentation, and model optimization to improve system capabilities.
-
-#### Research Assistant @ City University of Hong Kong (Jul 2018 - Sep 2018)
-
-- Analysed Chinese word segmentation under the research project "Develop a large-scale Chinese reading corpus for machine learning of unconscious word segmentation from eye movements."
+- Investigated and implemented quantization, data augmentation, and model optimization to further elevate the system's capabilities.
 
 ---
 
-# Selected Projects
+# Projects & Certifications
 
-#### InnerSpeech biosignal speech recognition and synthesis toolkit
+#### [Open Audio Judge](https://github.com/kennethli319/open-audio-judge) (2026 - Present)
 
-- Open-source toolkit for neural speech interface research across EEG, EMG, HD-EEG, MEG, fNIRS, and invasive neural speech datasets.
-- Explored biosignal-to-text and biosignal-to-speech modeling with EEG-Conformer, GPT, Wav2Vec2, VQ-VAE, and RNN-Transformer systems.
+- Built an open-source LLM-as-judge evaluation and monitoring toolkit for voice-AI systems, using omni-model APIs and self-hosted models to assess ASR, TTS, and speech-agent outputs.
 
-#### Brain-to-Text Benchmark 2024
+#### [Speech ML Systems Curriculum](./audio-text-ml-course/) (2025 - Present)
 
-- Developed systems using RNN-Transformer modeling with language-model rescoring for inner speech and neural speech decoding.
-- Achieved a 10.08 WER benchmark entry in the [Brain-to-Text Benchmark 2024](https://eval.ai/web/challenges/challenge-page/2099/overview).
+- Created and maintained an open-source course covering audio representations, ASR/TTS foundations, modern speech agents, evaluation, serving, safety, and production reliability.
 
-#### ASR contextual biasing and keyword boosting
+#### NLP Consultant - UsherGPT (2023 - 2024)
 
-- Built and shipped n-gram and lattice boosting approaches for customer-specific business-call vocabulary.
-- Evaluated keyword strategies for restaurant ordering, menu items, customer-critical terms, and conversational order flows.
+- Guided development of UsherGPT, tailored for public health and medical data applications using Retrieval-Augmented Generation techniques at the University of Edinburgh Usher Institute.
 
-#### ASR, TTS, RAG, and multimodal tooling
+#### [Third Prize in MUCS 2021](https://github.com/dialpad/mucs_2021_dialpad) (2021)
 
-- Maintained demos and prototypes for [ASR](https://huggingface.co/spaces/kennethli319/ASR-toolbox), [TTS](https://huggingface.co/spaces/kennethli319/TTS-toolbox), [TTS voice conversion](https://huggingface.co/spaces/kennethli319/xtts), [RAG](https://huggingface.co/spaces/kennethli319/RAGArchcd), and [multimodal LLMs](https://huggingface.co/spaces/kennethli319/LLaVA-1.6).
-
-#### MUCS 2021 multilingual and code-switching ASR
-
-- Third Prize in [MUCS 2021](https://navana-tech.github.io/MUCS2021/assets/img/winners/subtask1/3.PNG) for multilingual and low-resource ASR for Indian languages.
-- Contributed to benchmarking and [open-sourcing end-to-end ASR methods](https://github.com/dialpad/mucs_2021_dialpad).
-
-#### UsherGPT
-
-- Guided development of UsherGPT for public health and medical data applications using Retrieval-Augmented Generation techniques with the University of Edinburgh Usher Institute.
-
----
-
-# Publications
-
-- [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092). Poster at SANE 2022.
-- [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16/). Paper at the 18th SIGMORPHON Workshop, 2021.
-- Can linguistics help neural machine translation? Evidence from a case study of interlingual vs. neural machine translation of numerical expressions. Presentation at AI and Linguistics Conference 2018.
+- Contributed to multilingual and low-resource ASR for Indian languages, benchmarking and open-sourcing end-to-end methods.
 
 ---
 
@@ -122,13 +97,23 @@ I enjoy turning ambiguous product and research problems into usable systems: cus
 
 #### Bachelor of Arts in Linguistics and Language Applications, First Class Honours @ City University of Hong Kong (2014 - 2018)
 
+**Major:** Linguistics and Language Applications. **Minor:** Translations.
+
 **Thesis:** A Comparative Study of Interlingual vs. Neural Approach to Machine Translation of Numerical Expressions (TensorFlow and Java).
 
 ---
 
 # Core Skills
 
-- **Applied AI & systems:** Python, PyTorch, Docker, AWS, Redis, PostgreSQL, data pipelines, production debugging, evaluation automation, internal tooling, LLM/RAG workflows, agentic development tooling.
-- **Speech ML:** ASR, TTS, speech data preparation, ASR/TTS evaluation, hotword and keyword boosting, WER analysis, streaming ASR, speech-to-speech workflows.
-- **Modeling & frameworks:** Kaldi, NVIDIA NeMo, K2, CTC, Transducer/RNN-T, Conformer, RNN-Transformer, n-gram rescoring.
-- **Research areas:** speech recognition, speech synthesis, NLP, grammatical error correction, non-invasive BCI, EEG/fNIRS speech decoding, and multimodal speech interfaces.
+- **Applied AI & systems:** Python, PyTorch, Docker, data pipelines, production debugging, evaluation automation, LLM-as-judge, internal tooling, LLM/RAG workflows, agentic development tooling.
+- **Speech ML:** ASR, TTS, speech data preparation, ASR/TTS evaluation, hotword and keyword boosting, WER/MOS/CMOS analysis, streaming ASR, speech-to-speech workflows.
+- **Modeling & frameworks:** Kaldi, NVIDIA NeMo, K2, CTC, Transducer/RNN-T, Conformer, Thinker-Talker, n-gram rescoring.
+- **Research areas:** speech recognition, speech synthesis, NLP, non-invasive BCI, EEG/fNIRS speech decoding, multimodal speech interfaces.
+
+---
+
+# Publications
+
+- [N-gram Boosting: Improving Contextual Biasing with Normalized N-gram Targets](https://arxiv.org/abs/2308.02092). Poster at SANE 2022.
+- [Avengers, Ensemble! Benefits of ensembling in grapheme-to-phoneme prediction](https://aclanthology.org/2021.sigmorphon-1.16/). Paper at the 18th SIGMORPHON Workshop, 2021.
+- Can linguistics help neural machine translation? Evidence from a case study of interlingual vs. neural machine translation of numerical expressions. Presentation at AI and Linguistics Conference 2018.

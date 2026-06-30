@@ -159,14 +159,14 @@
         <li><strong>Ingest:</strong> collect flagged events plus a small consent-aware traffic sample.</li>
         <li><strong>Judge:</strong> run task-specific ASR or TTS diagnostic prompts against audio plus text context.</li>
         <li><strong>Normalize:</strong> validate the response schema and map detailed findings to a stable failure taxonomy.</li>
-        <li><strong>Aggregate:</strong> group by issue type, app version, model, language, device, latency bucket, and user feedback reason.</li>
+        <li><strong>Aggregate:</strong> group by issue type, app version, model, approved coarse language or locale slice, device class, latency bucket, and user feedback reason; bucket rare slices before reporting.</li>
         <li><strong>Act:</strong> create one short issue packet with examples, counts, severity, suspected owner, and rollback or experiment recommendation.</li>
       </ol>
       <article class="card">
         <h3>Top-Issue Packet</h3>
         <p>
           A useful packet says: "Top issue is missing final words in long noisy
-          dictation after release 0.4.2, 37 flagged cases, mostly laptop mic,
+          dictation after release 0.4.2, 37 flagged cases, mostly desktop-class mic,
           median severity high, examples point to endpointing and final decode
           overlap. Try longer tail overlap or rollback endpointing change."
         </p>

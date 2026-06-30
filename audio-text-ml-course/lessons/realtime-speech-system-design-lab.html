@@ -87,8 +87,9 @@
             stable-prefix rendering, speaker diarization if required, a
             consent-aware transcript store, retrieval over authorized meeting
             context, and background summarization. Gate releases by partial
-            latency, final WER by noise and accent slice, speaker attribution,
-            retrieval grounding, privacy checks, and cost per meeting hour.
+            latency, final WER by noise plus approved aggregate or consented
+            accent/dialect slice, speaker attribution, retrieval grounding,
+            privacy checks, and cost per meeting hour.
             Keep previous ASR, diarization, prompt, and index versions available
             for rollback.
           </p>
@@ -118,8 +119,9 @@
               Check partial rewrite rate, stable-prefix policy, endpointing,
               VAD thresholds, chunk size, decoder beam settings, timestamp
               alignment, client debounce, network jitter, and slices by noise,
-              accent, language, and device. Mitigate with a stable prefix,
-              endpointing rollback, or affected-slice routing.
+              language, device, and approved aggregate or consented
+              accent/dialect tags. Mitigate with a stable prefix, endpointing
+              rollback, or affected-slice routing.
             </p>
           </details>
         </article>

@@ -39,11 +39,11 @@
         </p>
       </div>
       <ol class="steps">
-        <li><strong>Train:</strong> store code SHA, data manifest, labels, hyperparameters, random seeds, and base model.</li>
+        <li><strong>Train:</strong> store code SHA, data manifest, approved label schema, hyperparameters, random seeds, and base model.</li>
         <li><strong>Evaluate:</strong> run aggregate and slice tests for WER, CER, MOS proxy, latency, safety, and cost.</li>
         <li><strong>Package:</strong> freeze feature extraction, tokenizer, model weights, decoder settings, and serving runtime.</li>
         <li><strong>Stage:</strong> replay sanitized fixtures and synthetic traffic through the exact production API.</li>
-        <li><strong>Canary:</strong> route a small cohort with explicit stop conditions and privacy-safe telemetry.</li>
+        <li><strong>Canary:</strong> route a small consented or policy-approved slice with explicit stop conditions and privacy-safe telemetry.</li>
         <li><strong>Promote:</strong> increase traffic only when slice metrics, SLOs, and incident dashboards remain healthy.</li>
       </ol>
       <details class="qa">

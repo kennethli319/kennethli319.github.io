@@ -219,11 +219,18 @@ def validate_registry_entry(entry):
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">REQUIRED_SLICE_FIELDS = {
+          <pre><code class="language-python">import math
+
+
+REQUIRED_SLICE_FIELDS = {
     "wer_relative_delta",
     "p95_latency_ms_delta",
     "requests",
 }
+
+
+def finite_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
 def canary_promotion(metrics, min_requests_per_slice=100):
@@ -242,21 +249,21 @@ def canary_promotion(metrics, min_requests_per_slice=100):
         if missing:
             blockers.append(f"{name}:missing_{sorted(missing)[0]}")
             continue
-        if values["requests"] &lt; min_requests_per_slice:
+        if not finite_number(values["requests"]) or values["requests"] &lt; min_requests_per_slice:
             blockers.append(f"{name}:low_exposure")
-        if values["wer_relative_delta"] &gt; 0.02:
+        if not finite_number(values["wer_relative_delta"]) or values["wer_relative_delta"] &gt; 0.02:
             blockers.append(f"{name}:wer")
-        if values["p95_latency_ms_delta"] &gt; 75:
+        if not finite_number(values["p95_latency_ms_delta"]) or values["p95_latency_ms_delta"] &gt; 75:
             blockers.append(f"{name}:latency")
 
     if metrics.get("privacy_errors") is None:
         blockers.append("missing_privacy_errors")
-    elif metrics["privacy_errors"] &gt; 0:
+    elif not finite_number(metrics["privacy_errors"]) or metrics["privacy_errors"] &gt; 0:
         blockers.append("privacy")
 
     if metrics.get("unit_cost_relative_delta") is None:
         blockers.append("missing_unit_cost")
-    elif metrics["unit_cost_relative_delta"] &gt; 0.15:
+    elif not finite_number(metrics["unit_cost_relative_delta"]) or metrics["unit_cost_relative_delta"] &gt; 0.15:
         blockers.append("unit_cost")
 
     if blockers:
@@ -266,7 +273,8 @@ def canary_promotion(metrics, min_requests_per_slice=100):
             Average quality improvement is not enough. A canary should protect
             critical slices, privacy, latency, unit economics, and telemetry
             completeness before promotion. Missing top-level or slice telemetry
-            should hold the release, not crash late or default to success.
+            should hold the release, not crash late, smuggle NaN through a
+            comparison, or default to success.
           </p>
         </details>
       </article>

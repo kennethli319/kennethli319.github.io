@@ -160,7 +160,10 @@ class SingleHeadSelfAttention(nn.Module):
 
         weights = F.softmax(scores, dim=-1)
         mixed = weights @ v
-        return self.out(mixed), weights
+        y = self.out(mixed)
+        if padding_mask is not None:
+            y = y.masked_fill(padding_mask[:, :, None], 0.0)
+        return y, weights
 
 
 x = torch.randn(2, 5, 16)
@@ -187,7 +190,9 @@ print(attn.shape)  # torch.Size([2, 5, 5])</code></pre>
         <p>
           Speech clips have different durations, but GPU batches are rectangular.
           A padding mask prevents real frames from attending to padded tail
-          frames that were added only to make the tensor shape line up.
+          frames that were added only to make the tensor shape line up. The
+          example also zeroes outputs at padded query positions; training code
+          should still mask padded labels or losses downstream.
         </p>
       </details>
 

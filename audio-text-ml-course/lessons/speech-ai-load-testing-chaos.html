@@ -228,6 +228,13 @@ def _finite_number(value, field):
     return value
 
 
+def _finite_rate(value, field):
+    value = _finite_non_negative(value, field)
+    if value &gt; 1:
+        raise ValueError(f"{field} must be between 0 and 1")
+    return value
+
+
 def evaluate_load_gate(routes, budgets):
     failures = []
     for name in budgets:
@@ -240,12 +247,12 @@ def evaluate_load_gate(routes, budgets):
             continue
         budget = budgets[name]
         p95_ms = _finite_non_negative(metrics["p95_ms"], f"{name}.p95_ms")
-        error_rate = _finite_non_negative(metrics["error_rate"], f"{name}.error_rate")
+        error_rate = _finite_rate(metrics["error_rate"], f"{name}.error_rate")
         cost_per_success = _finite_non_negative(metrics["cost_per_success"], f"{name}.cost_per_success")
         task_success_delta = _finite_number(metrics["task_success_delta"], f"{name}.task_success_delta")
         if p95_ms &gt; budget["p95_ms"]:
             failures.append((name, "latency", p95_ms))
-        if error_rate &gt; budget["error_rate"]:
+        if error_rate &gt; _finite_rate(budget["error_rate"], f"{name}.budget.error_rate"):
             failures.append((name, "errors", error_rate))
 
         cost_over = cost_per_success &gt; budget["cost_per_success"]
@@ -280,16 +287,23 @@ def _finite_non_negative(value, field):
     return value
 
 
+def _finite_rate(value, field):
+    value = _finite_non_negative(value, field)
+    if value &gt; 1:
+        raise ValueError(f"{field} must be between 0 and 1")
+    return value
+
+
 def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_threshold=0.05):
     attempt_ratio_threshold = _finite_non_negative(attempt_ratio_threshold, "attempt_ratio_threshold")
-    dependency_error_threshold = _finite_non_negative(dependency_error_threshold, "dependency_error_threshold")
+    dependency_error_threshold = _finite_rate(dependency_error_threshold, "dependency_error_threshold")
     if attempt_ratio_threshold &lt;= 0:
         raise ValueError("thresholds must be non-negative and attempt ratio must be positive")
     alerts = []
     for point in points:
         user_turns = _finite_non_negative(point["user_turns"], "user_turns")
         service_attempts = _finite_non_negative(point["service_attempts"], "service_attempts")
-        dependency_error_rate = _finite_non_negative(point["dependency_error_rate"], "dependency_error_rate")
+        dependency_error_rate = _finite_rate(point["dependency_error_rate"], "dependency_error_rate")
         user_turn_denominator = max(user_turns, 1)
         attempt_ratio = service_attempts / user_turn_denominator
         if attempt_ratio &gt;= attempt_ratio_threshold and dependency_error_rate &gt;= dependency_error_threshold:
@@ -326,14 +340,21 @@ def _finite_non_negative(value, field):
     return value
 
 
+def _finite_rate(value, field):
+    value = _finite_non_negative(value, field)
+    if value &gt; 1:
+        raise ValueError(f"{field} must be between 0 and 1")
+    return value
+
+
 def first_capacity_break(steps, p95_budget_ms, error_budget):
     p95_budget_ms = _finite_non_negative(p95_budget_ms, "p95_budget_ms")
-    error_budget = _finite_non_negative(error_budget, "error_budget")
+    error_budget = _finite_rate(error_budget, "error_budget")
     last_passing = None
     for step in steps:
         concurrency = _finite_non_negative(step["concurrency"], "concurrency")
         p95_ms = _finite_non_negative(step["p95_ms"], "p95_ms")
-        error_rate = _finite_non_negative(step["error_rate"], "error_rate")
+        error_rate = _finite_rate(step["error_rate"], "error_rate")
         passes = p95_ms &lt;= p95_budget_ms and error_rate &lt;= error_budget
         if passes:
             last_passing = concurrency

@@ -68,11 +68,14 @@
             <summary>Hidden answer: ASR gate example</summary>
             <p>
               Require no unapproved global WER regression, no critical entity
-              error regression, and no material loss on accents, noise buckets,
-              domain vocabulary, short utterances, long calls, and code-switched
-              speech. If a product tradeoff intentionally accepts a global
-              metric loss, document the owner, user benefit, rollback threshold,
-              and manual review for every high-risk slice.
+              error regression, and no material loss on approved evaluation
+              slices such as accent or dialect coverage, noise buckets, domain
+              vocabulary, short utterances, long calls, and code-switched
+              speech. Use consented, policy-approved, or coarse aggregate slice
+              tags rather than storing sensitive labels by default. If a product
+              tradeoff intentionally accepts a global metric loss, document the
+              owner, user benefit, rollback threshold, and manual review for
+              every high-risk slice.
             </p>
           </details>
         </article>

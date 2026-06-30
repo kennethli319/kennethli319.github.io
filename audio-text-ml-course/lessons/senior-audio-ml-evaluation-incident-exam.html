@@ -266,28 +266,38 @@
         <h3>Drill 2: Consecutive Drift Detector</h3>
         <p>
           Given daily aggregate metrics for one slice, flag the first day where
-          a metric has exceeded a threshold for <code>n</code> consecutive days.
+          a metric has breached its threshold for <code>n</code> consecutive
+          days. The threshold declares whether higher or lower values are worse.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant, common mistakes, and Python solution</summary>
           <p>
             Invariant: <code>streak</code> is the number of consecutive days up
-            to the current point that violate the threshold. Reset it on a
-            healthy day. Common mistakes include flagging one-day noise and
+            to the current point that violate the threshold in the configured
+            direction. Reset it on a healthy day. Common mistakes include
+            flagging one-day noise, assuming every metric drifts upward, and
             forgetting to return the first sustained breach. In production,
             reject invalid windows and missing telemetry instead of treating
             unknown days as healthy.
           </p>
-          <pre><code class="language-python">def first_sustained_drift(points, metric, threshold, consecutive_days):
+          <pre><code class="language-python">def first_sustained_drift(points, metric, threshold, consecutive_days, direction):
     if consecutive_days &lt;= 0:
         raise ValueError("consecutive_days must be positive")
+    if direction not in {"higher_is_worse", "lower_is_worse"}:
+        raise ValueError(f"unknown direction: {direction}")
 
     streak = 0
     for point in points:
         if metric not in point:
             raise ValueError(f"missing {metric} for day {point.get('day')}")
 
-        if point[metric] &gt; threshold:
+        value = point[metric]
+        if direction == "higher_is_worse":
+            breached = value &gt; threshold
+        else:
+            breached = value &lt; threshold
+
+        if breached:
             streak += 1
             if streak &gt;= consecutive_days:
                 return point["day"]

@@ -38,7 +38,7 @@
       </div>
       <ol class="steps">
         <li><strong>Define quality:</strong> specify user-visible outcomes, proxy metrics, and failure modes.</li>
-        <li><strong>Slice first:</strong> segment by language, accent, noise, device, tenant, region, model version, and traffic path.</li>
+        <li><strong>Slice first:</strong> segment by language, approved aggregate or consented accent/dialect tags, noise, device, tenant, region, model version, and traffic path.</li>
         <li><strong>Gate releases:</strong> combine offline evals, shadow traffic, canaries, SLOs, and rollback criteria.</li>
         <li><strong>Debug safely:</strong> use aggregate telemetry and consented fixtures instead of private raw audio or transcripts.</li>
         <li><strong>Encode judgment:</strong> write small deterministic utilities for promotion, rollback, drift, and cost decisions.</li>
@@ -48,9 +48,10 @@
         <p>
           Aggregate WER can improve while a critical slice regresses. An experienced
           launch gate checks user-impacting slices such as noisy mobile calls,
-          accented speech, domain terms, entity-heavy utterances, and regions
-          with different network conditions. It also connects WER to downstream
-          task success, correction rate, latency, safety, and cost.
+          approved aggregate or consented accent/dialect tags, domain terms,
+          entity-heavy utterances, and regions with different network
+          conditions. It also connects WER to downstream task success,
+          correction rate, latency, safety, and cost.
         </p>
       </details>
     </section>
@@ -79,8 +80,9 @@
             user-visible, first partial latency, finalization latency, partial
             churn, endpointing false cuts, correction rate, and downstream task
             success. Run offline fixtures, shadow traffic, and a small canary.
-            Promote only if no protected or high-value slice crosses a defined
-            regression threshold. Roll back on tail-latency SLO breach,
+            Promote only if no high-risk approved aggregate, consented, or
+            high-value slice crosses a defined regression threshold. Roll back
+            on tail-latency SLO breach,
             correction-rate spike, or severe entity recall regression.
           </p>
         </details>

@@ -297,8 +297,10 @@
             and severity is normalized so different metric units can be sorted
             together, including zero-budget safety gates such as unsafe-rate
             ceilings. Validate gate definitions and metric values before
-            scoring. Reject booleans, NaN, and infinity so malformed telemetry
-            cannot silently pass a launch gate or distort severity sorting. Test missing
+            scoring. Keep missing metrics explicit and finite in reports so
+            launch tooling does not emit non-JSON severity values. Reject
+            booleans, NaN, and infinity so malformed telemetry cannot silently
+            pass a launch gate or distort severity sorting. Test missing
             metrics, exactly-on-threshold values, lower-is-better metrics,
             higher-is-better metrics, zero thresholds, invalid gates, nonnumeric
             metrics, non-finite values, and multiple failures in the same slice.
@@ -322,7 +324,7 @@ def rank_canary_risks(slices, gates):
             threshold = _finite_number(gate.get("threshold"), f"threshold for {metric}")
 
             if metric not in metrics:
-                failures.append((float("inf"), slice_name, metric, "missing"))
+                failures.append((1_000_000.0, slice_name, metric, "missing"))
                 continue
 
             value = _finite_number(metrics[metric], f"value for {slice_name}/{metric}")

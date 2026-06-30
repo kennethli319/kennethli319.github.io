@@ -284,11 +284,12 @@
         <details class="qa">
           <summary>Hidden answer: launch-gate outline</summary>
           <p>
-            Include global WER plus slice WER, entity error, partial churn,
-            first partial latency, finalization delay, p95 and p99 server
-            latency, GPU cost per audio minute, privacy review, canary plan,
-            rollback switch, and owner. The gate should define explicit
-            regression budgets, not only "looks good" review.
+            Include global WER plus approved aggregate or consented slice WER,
+            entity error, partial churn, first partial latency, finalization
+            delay, p95 and p99 server latency, GPU cost per audio minute,
+            privacy review, canary plan, rollback switch, and owner. The gate
+            should define explicit regression budgets, not only "looks good"
+            review.
           </p>
         </details>
       </article>
@@ -302,11 +303,12 @@
         <details class="qa">
           <summary>Hidden answer: hotfix plan</summary>
           <p>
-            Restore the prior threshold for affected cohorts or roll back the
-            feature flag first. Reproduce with quiet-speaker fixtures, add a
-            regression test for leading-word deletion, canary the corrected
-            threshold, monitor first-token deletion, latency, false starts, and
-            VAD segment count, then update the release checklist.
+            Restore the prior threshold for approved aggregate cohorts or roll
+            back the feature flag first. Reproduce with consented or synthetic
+            quiet-speaker fixtures, add a regression test for leading-word
+            deletion, canary the corrected threshold, monitor first-token
+            deletion, latency, false starts, and VAD segment count, then update
+            the release checklist.
           </p>
         </details>
       </article>

@@ -66,7 +66,7 @@
       <div class="grid three">
         <article class="card">
           <h3>Required Metadata</h3>
-          <p>Purpose, owner, consent scope, source, retention policy, allowed uses, language, domain, acoustic conditions, device class, and known gaps.</p>
+          <p>Purpose, owner, consent scope, source, retention policy, deletion obligations, allowed uses, language, domain, acoustic conditions, device class, and known gaps.</p>
           <details class="qa">
             <summary>Hidden answer: why metadata changes model risk</summary>
             <p>
@@ -79,15 +79,16 @@
         </article>
         <article class="card">
           <h3>Versioned Artifacts</h3>
-          <p>Keep immutable manifests, checksums, schema versions, split definitions, label rubric versions, and model-to-data lineage.</p>
+          <p>Keep immutable manifests, checksums, schema versions, split definitions, label rubric versions, derived artifact lineage, and model-to-data lineage.</p>
           <details class="qa">
             <summary>Hidden answer: release-review invariant</summary>
             <p>
               A model release must be reproducible enough to answer: which
-              data trained it, which data evaluated it, which labels changed,
-              which slices regressed, and which users could be affected. If
-              the team cannot answer those questions, rollback and debugging
-              become guesswork.
+              data trained it, which data evaluated it, which transcripts,
+              embeddings, or cached features were derived from it, which labels
+              changed, which slices regressed, and which users could be
+              affected. If the team cannot answer those questions, deletion
+              requests, rollback, and debugging become guesswork.
             </p>
           </details>
         </article>

@@ -242,9 +242,10 @@ except ValueError:
         <h3>Problem: Rank Active-Learning Candidates</h3>
         <p>
           Select the top <code>k</code> consented examples for human review
-          using aggregate scoring signals such as uncertainty, slice rarity,
-          and recent regression score. The queue must fail closed on invalid
-          limits or missing scoring signals.
+          using aggregate scoring signals such as uncertainty, approved
+          coarse-cohort rarity, and recent regression score. The queue must
+          fail closed on invalid limits, missing scoring signals, or rare
+          cohorts that are too small to review safely.
         </p>
         <details class="qa">
           <summary>Questions, common mistakes, and hidden Python answer</summary>
@@ -253,20 +254,23 @@ except ValueError:
             ties? Should one user dominate the queue? Common mistakes include
             ignoring consent, sorting the entire stream when a heap is enough,
             using raw transcript content in logs, and optimizing uncertainty
-            while starving rare slices. A production queue should also cap or
-            diversify per-user contributions before sending examples to
-            reviewers.
+            while starving approved rare cohorts. A production queue should
+            also require minimum cohort support, cap or diversify per-user
+            contributions, and avoid exposing raw transcripts before sending
+            examples to reviewers.
           </p>
           <pre><code>from heapq import heappush, heappushpop
 from math import isfinite
 
 
-def rank_review_candidates(rows, k):
+def rank_review_candidates(rows, k, min_slice_count=20):
     if not isinstance(k, int) or k < 0:
         raise ValueError("k must be a non-negative integer")
+    if not isinstance(min_slice_count, int) or min_slice_count <= 0:
+        raise ValueError("min_slice_count must be a positive integer")
     if k == 0:
         return []
-    required = ("uncertainty", "slice_rarity", "regression", "example_id")
+    required = ("uncertainty", "slice_rarity", "regression", "slice_count", "example_id")
     heap = []
     for row in rows:
         if not row.get("consented"):
@@ -278,6 +282,8 @@ def rank_review_candidates(rows, k):
             value = row[name]
             if not isinstance(value, (int, float)) or not isfinite(value) or not 0 <= value <= 1:
                 raise ValueError(f"{name} must be a finite score between 0 and 1")
+        if not isinstance(row["slice_count"], int) or row["slice_count"] < min_slice_count:
+            continue
         score = (
             0.55 * row["uncertainty"]
             + 0.30 * row["slice_rarity"]
@@ -293,9 +299,10 @@ def rank_review_candidates(rows, k):
 
 
 rows = [
-    {"example_id": "a", "consented": True, "uncertainty": 0.9, "slice_rarity": 0.2, "regression": 0.3},
-    {"example_id": "b", "consented": False, "uncertainty": 1.0, "slice_rarity": 1.0, "regression": 1.0},
-    {"example_id": "c", "consented": True, "uncertainty": 0.5, "slice_rarity": 0.9, "regression": 0.8},
+    {"example_id": "a", "consented": True, "uncertainty": 0.9, "slice_rarity": 0.2, "regression": 0.3, "slice_count": 80},
+    {"example_id": "b", "consented": False, "uncertainty": 1.0, "slice_rarity": 1.0, "regression": 1.0, "slice_count": 100},
+    {"example_id": "c", "consented": True, "uncertainty": 0.5, "slice_rarity": 0.9, "regression": 0.8, "slice_count": 40},
+    {"example_id": "d", "consented": True, "uncertainty": 0.8, "slice_rarity": 1.0, "regression": 1.0, "slice_count": 3},
 ]
 assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
         </details>

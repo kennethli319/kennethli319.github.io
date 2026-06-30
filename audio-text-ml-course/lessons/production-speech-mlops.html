@@ -43,7 +43,7 @@
         <li><strong>Route:</strong> select CPU, GPU, local, batch, or streaming path by model type, latency SLO, and tenant policy.</li>
         <li><strong>Infer:</strong> use bounded queues, dynamic batching, KV-cache or decoder state reuse, and timeout-aware cancellation.</li>
         <li><strong>Postprocess:</strong> restore timestamps, punctuation, speaker labels, redaction, confidence, and downstream event schema.</li>
-        <li><strong>Observe:</strong> emit privacy-safe metrics, traces, eval samples, cost tags, model version, and approved aggregate slice tags.</li>
+        <li><strong>Observe:</strong> emit privacy-safe metrics, redacted traces, approved eval samples, cost tags, model version, and aggregate slice tags.</li>
       </ol>
       <details class="qa">
         <summary>Question: Why keep preprocessing versioned with the model?</summary>
@@ -270,12 +270,12 @@
           <p>
             Require unit tests for feature shape, sample-rate handling,
             normalization, streaming chunk boundaries, and model wrapper
-            schema. Require repeatable offline eval on public or approved fixtures,
+            schema. Require repeatable offline eval on public, synthetic, or approved retained fixtures,
             slice regression checks, latency and memory benchmarks, artifact
             versioning, dependency lockfile, model card, rollback plan, and
             privacy review. The deployment should stage through offline eval,
-            shadow traffic, canary, and gradual rollout with automatic halt
-            criteria.
+            policy-approved shadow traffic, canary, and gradual rollout with
+            automatic halt criteria.
           </p>
         </details>
       </article>
@@ -374,9 +374,10 @@ def asr_slice_gate(baseline, candidate, budgets):
             Include model version, feature flag name, owner, launch cohort,
             dashboard links, SLO thresholds, known risks, exact rollback
             command or UI path, data compatibility notes, cache behavior,
-            verification query, customer-support message, and criteria for
-            re-enabling. The packet should avoid private transcripts while
-            still giving enough metrics and traces to make a decision.
+            retention limits, verification query, customer-support message,
+            and criteria for re-enabling. The packet should avoid private
+            transcripts and raw audio while still giving enough aggregate
+            metrics and redacted traces to make a decision.
           </p>
         </details>
       </article>

@@ -284,15 +284,19 @@
             Invariant: each reported trace has at least one named stage whose
             observed latency is greater than the allowed budget. Missing stages
             are ignored, but each record still needs a trace ID and a mapping
-            of stage latencies. Reject malformed records, negative latencies,
-            and non-positive budgets before making SLO decisions.
+            of stage latencies. Reject malformed records, negative or
+            non-finite latencies, and non-positive or non-finite budgets before
+            making SLO decisions.
           </p>
-          <pre><code class="language-python">def budget_violations(records, budgets_ms):
+          <pre><code class="language-python">import math
+
+
+def budget_violations(records, budgets_ms):
     if not isinstance(budgets_ms, dict):
         raise ValueError("budgets_ms must be a mapping")
     for name, limit in budgets_ms.items():
-        if not isinstance(limit, (int, float)) or limit &lt;= 0:
-            raise ValueError(f"budget for {name} must be positive")
+        if not isinstance(limit, (int, float)) or not math.isfinite(limit) or limit &lt;= 0:
+            raise ValueError(f"budget for {name} must be a positive finite number")
 
     violations = []
     for record in records:
@@ -305,8 +309,8 @@
         if not isinstance(stages, dict):
             raise ValueError(f"stages_ms for {trace_id} must be a mapping")
         for name, value in stages.items():
-            if not isinstance(value, (int, float)) or value &lt; 0:
-                raise ValueError(f"latency for {name} must be a non-negative number")
+            if not isinstance(value, (int, float)) or not math.isfinite(value) or value &lt; 0:
+                raise ValueError(f"latency for {name} must be a non-negative finite number")
         bad = {
             name: value
             for name, value in stages.items()

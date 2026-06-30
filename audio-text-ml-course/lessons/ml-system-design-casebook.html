@@ -192,6 +192,12 @@
           <pre><code class="language-python">def canary_decision(baseline, canary, budgets):
     actions = []
     for name, budget in budgets.items():
+        required_fields = {"direction", "allowed_delta"}
+        missing_fields = required_fields - budget.keys()
+        if missing_fields:
+            missing = ", ".join(sorted(missing_fields))
+            raise ValueError(f"budget for {name} missing: {missing}")
+
         if name not in baseline or name not in canary:
             actions.append(("pause", name, "missing metric"))
             continue

@@ -313,7 +313,12 @@ from collections.abc import Mapping
 
 
 def valid_rate(value):
-    return isinstance(value, (int, float)) and math.isfinite(value) and 0 &lt;= value &lt;= 1
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(value)
+        and 0 &lt;= value &lt;= 1
+    )
 
 
 def asr_slice_gate(baseline, candidate, budgets):

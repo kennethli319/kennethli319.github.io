@@ -201,15 +201,19 @@ def top_audio_issues(results, limit=5):
     if limit < 1:
         return []
     groups = {}
+    seen_event_ids = set()
     for row in results:
         diagnostics = row.get("diagnostics", {})
         metadata = row.get("metadata", {})
         event_id = row.get("id")
+        if event_id in seen_event_ids:
+            continue
         issue = diagnostics.get("primary_issue")
         severity = diagnostics.get("severity", "medium")
         flag = metadata.get("flag_reason", "sampled")
         if not event_id or not issue or severity not in SEVERITY_WEIGHT or flag not in FLAG_WEIGHT:
             continue
+        seen_event_ids.add(event_id)
         weight = SEVERITY_WEIGHT[severity] * FLAG_WEIGHT[flag]
         bucket = groups.setdefault(issue, {
             "issue": issue,
@@ -232,8 +236,8 @@ def top_audio_issues(results, limit=5):
           <p>
             Test that user-unsatisfied high-severity cases outrank many sampled
             low-severity cases, malformed judge outputs are excluded before
-            aggregation, example IDs are capped, and model/version breakdowns
-            stay aggregate-only.
+            aggregation, duplicate event IDs do not inflate impact, example IDs
+            are capped, and model/version breakdowns stay aggregate-only.
           </p>
         </details>
       </article>

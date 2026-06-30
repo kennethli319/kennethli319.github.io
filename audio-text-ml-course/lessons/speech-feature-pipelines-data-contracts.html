@@ -255,6 +255,7 @@ except ValueError:
             while starving rare slices.
           </p>
           <pre><code>from heapq import heappush, heappushpop
+from math import isfinite
 
 
 def rank_review_candidates(rows, k):
@@ -270,6 +271,10 @@ def rank_review_candidates(rows, k):
         missing = [name for name in required if name not in row]
         if missing:
             raise ValueError(f"missing candidate fields: {missing}")
+        for name in ("uncertainty", "slice_rarity", "regression"):
+            value = row[name]
+            if not isinstance(value, (int, float)) or not isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{name} must be a finite score between 0 and 1")
         score = (
             0.55 * row["uncertainty"]
             + 0.30 * row["slice_rarity"]

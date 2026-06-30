@@ -123,8 +123,8 @@
         <h3>Incident 1: Accent Slice Regression</h3>
         <p>
           A new ASR model improves aggregate WER by 5% relative but doubles
-          correction rate for accented support calls in two regions. What do
-          you do in the first hour?
+          correction rate on an approved aggregate accent/dialect slice in two
+          regions. What do you do in the first hour?
         </p>
         <details class="qa">
           <summary>Hidden answer: first-hour response</summary>
@@ -132,11 +132,11 @@
             Freeze promotion, route affected slices back to the prior model,
             preserve aggregate-only metrics, and compare model version, region,
             client, device, VAD, language ID, noise level, and contextual bias
-            features. Check whether eval coverage missed those accents or
-            whether serving config differs from offline evaluation. Communicate
-            blast radius and rollback status. Prevention should add slice gates,
-            consented eval fixtures, labeling rubric updates, and canary alerts
-            on correction rate, not only WER.
+            features. Check whether consented eval coverage missed that
+            slice or whether serving config differs from offline evaluation.
+            Communicate blast radius and rollback status. Prevention should add
+            approved aggregate slice gates, consented eval fixtures, labeling
+            rubric updates, and canary alerts on correction rate, not only WER.
           </p>
         </details>
       </article>

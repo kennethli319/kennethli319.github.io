@@ -112,8 +112,9 @@
           <summary>Hidden answer: eval and debugging plan</summary>
           <p>
             Re-run the retrieval eval using clean text, old ASR hypotheses, new
-            ASR hypotheses, noisy partials, and final transcripts. Slice by
-            entity substitutions, punctuation loss, homophones, language mix,
+            ASR hypotheses, noisy partials, and final transcripts from a
+            consented or de-identified evaluation set. Slice by entity
+            substitutions, punctuation loss, homophones, language mix,
             wake-word clipping, and endpointing. Add retrieval recall at k,
             grounded answer rate, refusal precision, citation coverage, and
             human review for high-risk queries. Gate future ASR changes on
@@ -183,9 +184,10 @@
             Inspect traffic mix, retry loops, longer conversations, ASR segment
             count, LLM tokens per turn, TTS retries, cache hit rate, batch pool
             spillover, warm-pool size, autoscaling thresholds, and model version
-            routing. Stabilize with quotas, request deadlines, retry caps,
-            fallback tiers, and per-stage cost alerts. Keep quality and safety
-            gates active while reducing spend.
+            routing using aggregate counters and redacted request metadata
+            rather than raw audio or transcripts. Stabilize with quotas,
+            request deadlines, retry caps, fallback tiers, and per-stage cost
+            alerts. Keep quality and safety gates active while reducing spend.
           </p>
         </details>
       </article>

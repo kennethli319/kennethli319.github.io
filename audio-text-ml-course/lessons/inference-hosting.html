@@ -51,10 +51,11 @@
           <details class="qa">
             <summary>Question: What makes KV cache a serving problem?</summary>
             <p>
-              The cache grows with layers, heads, head dimension, sequence
-              length, batch size, and precision. Long conversations can consume
-              more memory than the model weights, so schedulers need limits,
-              eviction, paging, truncation, or summarization.
+              The cache grows with layers, KV heads, head dimension, sequence
+              length, batch size, and precision. Across many active long
+              conversations, cache memory can rival or exceed the model
+              weights, so schedulers need limits, eviction, paging,
+              truncation, or summarization.
             </p>
           </details>
         </article>

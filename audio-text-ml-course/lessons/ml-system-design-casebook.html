@@ -231,7 +231,8 @@
         <h3>Lab 2: Estimate Real-Time Audio Capacity</h3>
         <p>
           Estimate required replicas from concurrent streams, model cost per
-          audio second, utilization target, and VAD savings.
+          audio second, per-replica serving capacity, utilization target, and
+          VAD savings.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
@@ -239,17 +240,20 @@
             Invariant: real-time streams produce audio work every wall-clock
             second, reduced only by silence skipping or routing. Test zero
             streams, no VAD savings, invalid utilization, invalid negative
-            inputs, and very large peaks.
+            inputs, nonpositive replica capacity, and very large peaks.
           </p>
           <pre><code class="language-python">import math
 
 
 def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
-                      target_utilization=0.7, vad_savings=0.0):
+                      replica_capacity=1.0, target_utilization=0.7,
+                      vad_savings=0.0):
     if not 0 &lt; target_utilization &lt;= 1:
         raise ValueError("target_utilization must be in (0, 1]")
     if not 0 &lt;= vad_savings &lt; 1:
         raise ValueError("vad_savings must be in [0, 1)")
+    if replica_capacity &lt;= 0:
+        raise ValueError("replica_capacity must be positive")
     if concurrent_streams &lt; 0:
         raise ValueError("concurrent_streams must be non-negative")
     if gpu_seconds_per_audio_second &lt; 0:
@@ -257,7 +261,8 @@ def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
 
     effective_audio_seconds = concurrent_streams * (1 - vad_savings)
     gpu_seconds_needed = effective_audio_seconds * gpu_seconds_per_audio_second
-    return math.ceil(gpu_seconds_needed / target_utilization)</code></pre>
+    usable_capacity = replica_capacity * target_utilization
+    return math.ceil(gpu_seconds_needed / usable_capacity)</code></pre>
         </details>
       </article>
     </section>

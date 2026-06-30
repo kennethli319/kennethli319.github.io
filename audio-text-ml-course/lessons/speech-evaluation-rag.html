@@ -118,8 +118,11 @@
             with query and conversation context, generate a grounded answer,
             and synthesize speech. Evaluate ASR entity accuracy, retrieval
             recall at k, answer faithfulness, citation support, latency, and
-            redaction. Log trace IDs, versions, aggregate metrics, and
-            privacy-safe error categories rather than raw private audio by
+            redaction. Treat retrieved passages and transcript text as
+            untrusted inputs: ignore instructions found inside evidence, refuse
+            unsupported personal-data requests, and require answers to cite
+            approved source chunks. Log trace IDs, versions, aggregate metrics,
+            and privacy-safe error categories rather than raw private audio by
             default.
           </p>
         </details>
@@ -242,7 +245,7 @@
       <ol class="steps">
         <li><strong>Inputs:</strong> write the spoken request, expected ASR pitfalls, allowed sanitized transcript, and the ground-truth document IDs or note that evidence is intentionally absent.</li>
         <li><strong>Retrieval:</strong> record sanitized ASR text, alternate hypotheses when available, normalized query text, top-k results, recall against expected evidence, and reranker notes.</li>
-        <li><strong>Answer:</strong> score correctness, faithfulness to retrieved evidence, missing caveats, unsupported-answer behavior, refusal quality, and spoken clarity.</li>
+        <li><strong>Answer:</strong> score correctness, faithfulness to retrieved evidence, missing caveats, unsupported-answer behavior, refusal quality, retrieved-instruction resistance, and spoken clarity.</li>
         <li><strong>Latency:</strong> measure ASR partial time, retrieval time, LLM first token, first audio byte, and final audio.</li>
         <li><strong>Decision:</strong> write pass, fail, or needs human review with the rollback or mitigation action.</li>
       </ol>

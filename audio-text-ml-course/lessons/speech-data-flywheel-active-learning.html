@@ -44,6 +44,7 @@
         <li><strong>Filter:</strong> exclude disallowed consent scopes, sensitive categories, retention-expired data, and raw payloads that the team cannot review.</li>
         <li><strong>Select:</strong> choose examples by uncertainty, slice gap, production impact, and diversity rather than random volume alone.</li>
         <li><strong>Label:</strong> use rubrics that separate acoustic, linguistic, retrieval, reasoning, safety, and delivery failures.</li>
+        <li><strong>Quarantine:</strong> assign train, validation, eval, or incident-review use before labels can influence a model or release gate.</li>
         <li><strong>Evaluate:</strong> promote only when offline, shadow, canary, and production guardrail metrics agree enough for the risk.</li>
         <li><strong>Retire:</strong> archive or delete examples according to policy, and keep immutable metadata for reproducibility.</li>
       </ol>
@@ -54,6 +55,9 @@
           source, consent scope, retention policy, label rubric, split
           assignment, and model-release lineage. If an example cannot be traced
           or is not allowed for the intended use, it must not enter the loop.
+          A newly labeled active-learning batch should not silently update both
+          the training set and the eval set, because that turns release metrics
+          into a memory test instead of an independent quality check.
         </p>
       </details>
     </section>

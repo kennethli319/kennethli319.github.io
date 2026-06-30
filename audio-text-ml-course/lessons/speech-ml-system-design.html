@@ -135,13 +135,14 @@
         </article>
         <article class="card">
           <h3>Quality</h3>
-          <p>Track WER, entity error, turn success, groundedness, TTS preference, pronunciation, safety, and correction rate by slice.</p>
+          <p>Track WER, entity error, turn success, groundedness, TTS preference, pronunciation, safety, and correction rate by approved aggregate or consented slice.</p>
           <details class="qa">
             <summary>Hidden answer: why aggregate WER is insufficient</summary>
             <p>
               Aggregate WER can hide failures on names, addresses, rare domain
-              terms, accents, noisy microphones, code-switching, quiet
-              speakers, long-form dictation, and streaming partial stability.
+              terms, approved aggregate or consented accent and dialect
+              groups, noisy microphones, code-switching, quiet speakers,
+              long-form dictation, and streaming partial stability.
               Slice metrics and product metrics prevent a launch that looks
               good only on average.
             </p>
@@ -166,11 +167,13 @@
           <summary>Hidden answer: strong diagnosis</summary>
           <p>
             Compare correction rate by entity-heavy turns, noise level,
-            language, device, utterance length, and confidence. Inspect WER,
-            entity error, timestamp drift, decoder beam settings, punctuation,
-            and postprocessing. Keep the latency win only if the regression is
+            language, device, utterance length, consented or approved
+            aggregate cohorts, and confidence. Inspect WER, entity error,
+            timestamp drift, decoder beam settings, punctuation, and
+            postprocessing. Keep the latency win only if the regression is
             within the launch budget or can be routed away from product-critical
-            slices that are safe to detect operationally. Otherwise pause or roll back.
+            slices that are safe and approved to detect operationally.
+            Otherwise pause or roll back.
           </p>
         </details>
       </article>

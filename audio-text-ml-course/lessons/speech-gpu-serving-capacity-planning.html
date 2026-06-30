@@ -238,12 +238,14 @@
             mistakes are off-by-one return times, integer division, and
             forgetting that alerting usually triggers at the end of the window.
             Test empty input, k larger than input, threshold exactly equal,
-            first window breach, later breach, no breach, and invalid negative
-            telemetry.
+            first window breach, later breach, no breach, negative thresholds,
+            and invalid negative telemetry.
           </p>
           <pre><code class="language-python">def first_capacity_alert(queue_age_ms, k, threshold_ms):
     if k &lt;= 0:
         raise ValueError("k must be positive")
+    if threshold_ms &lt; 0:
+        raise ValueError("threshold_ms must be non-negative")
     if any(age &lt; 0 for age in queue_age_ms):
         raise ValueError("queue_age_ms must be non-negative")
     if len(queue_age_ms) &lt; k:
@@ -318,6 +320,10 @@
           <pre><code class="language-python">def retry_storm_windows(records, k, retry_threshold, min_requests):
     if k &lt;= 0:
         raise ValueError("k must be positive")
+    if not 0 &lt;= retry_threshold &lt;= 1:
+        raise ValueError("retry_threshold must be between 0 and 1")
+    if min_requests &lt; 0:
+        raise ValueError("min_requests must be non-negative")
     alerts = []
     req_sum = 0
     retry_sum = 0

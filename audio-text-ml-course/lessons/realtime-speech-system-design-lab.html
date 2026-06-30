@@ -193,21 +193,25 @@
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
-            Invariant: the sum of component p95 estimates is an approximate
-            upper-bound planning budget, not a replacement for trace percentiles.
+            Invariant: the sum of component p95 estimates is a conservative
+            planning budget, not a true end-to-end percentile or a replacement
+            for trace percentiles.
             Test exact budget, empty components, one dominant component, and a
             negative, non-finite, non-numeric, or missing value rejected by
             input validation in real code.
           </p>
           <pre><code class="language-python">def latency_budget_report(components_ms, slo_ms, top_k=3):
     import math
+    from collections.abc import Mapping
 
-    if not isinstance(slo_ms, (int, float)) or not math.isfinite(slo_ms) or slo_ms &lt; 0:
+    if not isinstance(components_ms, Mapping):
+        raise ValueError("components_ms must be a mapping of component names to latencies")
+    if isinstance(slo_ms, bool) or not isinstance(slo_ms, (int, float)) or not math.isfinite(slo_ms) or slo_ms &lt; 0:
         raise ValueError("slo_ms must be a finite non-negative number")
-    if not isinstance(top_k, int) or top_k &lt; 1:
+    if isinstance(top_k, bool) or not isinstance(top_k, int) or top_k &lt; 1:
         raise ValueError("top_k must be a positive integer")
     for name, value in components_ms.items():
-        if not isinstance(value, (int, float)) or not math.isfinite(value) or value &lt; 0:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value &lt; 0:
             raise ValueError(f"{name} latency must be a finite non-negative number")
 
     total = sum(components_ms.values())
@@ -273,9 +277,13 @@
             regression, tail-latency breach, or missing critical telemetry.
           </p>
           <pre><code class="language-python">import math
+from collections.abc import Mapping
 
 
 def should_rollback_canary(metrics):
+    if not isinstance(metrics, Mapping):
+        raise ValueError("metrics must be a mapping of metric names to values")
+
     required = [
         "privacy_errors",
         "p99_turn_latency_delta_ms",
@@ -287,7 +295,7 @@ def should_rollback_canary(metrics):
     for name in required:
         if name not in metrics:
             reasons.append(f"missing_{name}")
-        elif not isinstance(metrics[name], (int, float)) or not math.isfinite(metrics[name]):
+        elif isinstance(metrics[name], bool) or not isinstance(metrics[name], (int, float)) or not math.isfinite(metrics[name]):
             reasons.append(f"invalid_{name}")
         else:
             clean[name] = metrics[name]

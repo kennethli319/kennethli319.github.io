@@ -141,22 +141,44 @@
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
-            Invariant: each sensitive detector is applied before persistence,
-            and any match upgrades handling. Test no matches, repeated matches,
-            overlapping categories, and transcripts that should be discarded
-            rather than stored.
+            Invariant: each sensitive detector is validated and applied to the
+            original transcript before persistence, overlapping matches are
+            redacted as one span, and any match upgrades handling. Test no
+            matches, repeated matches, overlapping categories, invalid detector
+            labels or patterns, and transcripts that should be discarded rather
+            than stored.
           </p>
           <pre><code class="language-python">import re
 
 
 def redact_transcript(text, detectors):
-    restricted = False
-    redacted = text
+    spans = []
     for label, pattern in detectors:
-        redacted, count = re.subn(pattern, f"[REDACTED_{label}]", redacted)
-        if count:
-            restricted = True
-    return redacted, restricted
+        if not re.fullmatch(r"[A-Z_]+", label):
+            raise ValueError("detector labels must be trusted marker names")
+        regex = re.compile(pattern)
+        spans.extend((m.start(), m.end(), label) for m in regex.finditer(text))
+
+    if not spans:
+        return text, False
+
+    spans.sort(key=lambda span: (span[0], -span[1]))
+    merged = []
+    for start, end, label in spans:
+        if not merged or start &gt; merged[-1][1]:
+            merged.append([start, end, {label}])
+        else:
+            merged[-1][1] = max(merged[-1][1], end)
+            merged[-1][2].add(label)
+
+    parts = []
+    cursor = 0
+    for start, end, labels in merged:
+        parts.append(text[cursor:start])
+        parts.append("[REDACTED_" + "_".join(sorted(labels)) + "]")
+        cursor = end
+    parts.append(text[cursor:])
+    return "".join(parts), True
 
 
 detectors = [

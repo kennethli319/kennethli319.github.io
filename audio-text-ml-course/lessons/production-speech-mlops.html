@@ -309,6 +309,7 @@
             metric quality cannot silently disappear.
           </p>
           <pre><code class="language-python">import math
+from collections.abc import Mapping
 
 
 def valid_rate(value):
@@ -316,8 +317,14 @@ def valid_rate(value):
 
 
 def asr_slice_gate(baseline, candidate, budgets):
+    if not all(isinstance(group, Mapping) for group in (baseline, candidate, budgets)):
+        return "pause_for_eval", [("pause", "all", "metric inputs must be maps")]
+
     findings = []
     for slice_name, budget in budgets.items():
+        if not isinstance(budget, Mapping):
+            findings.append(("pause", slice_name, "invalid budget entry"))
+            continue
         max_delta = budget.get("max_wer_delta")
         if not valid_rate(max_delta):
             findings.append(("pause", slice_name, "invalid regression budget"))
@@ -325,11 +332,16 @@ def asr_slice_gate(baseline, candidate, budgets):
         if slice_name not in baseline or slice_name not in candidate:
             findings.append(("pause", slice_name, "missing eval slice"))
             continue
-        if "wer" not in baseline[slice_name] or "wer" not in candidate[slice_name]:
+        old_metrics = baseline[slice_name]
+        new_metrics = candidate[slice_name]
+        if not isinstance(old_metrics, Mapping) or not isinstance(new_metrics, Mapping):
+            findings.append(("pause", slice_name, "invalid metric entry"))
+            continue
+        if "wer" not in old_metrics or "wer" not in new_metrics:
             findings.append(("pause", slice_name, "missing WER metric"))
             continue
-        old_wer = baseline[slice_name]["wer"]
-        new_wer = candidate[slice_name]["wer"]
+        old_wer = old_metrics["wer"]
+        new_wer = new_metrics["wer"]
         if not valid_rate(old_wer) or not valid_rate(new_wer):
             findings.append(("pause", slice_name, "WER outside 0..1 range"))
             continue

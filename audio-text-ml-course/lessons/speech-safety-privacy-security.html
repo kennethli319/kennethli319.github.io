@@ -281,9 +281,11 @@ policy = {
             Delete raw audio, transcripts, labels, embeddings, derived examples,
             and model-training references linked to the user according to the
             retention contract. Keep only permitted aggregate metrics and audit
-            records that do not reconstruct the user's content. The answer
-            should mention lineage, backups, downstream datasets, and proof of
-            deletion.
+            records that do not reconstruct the user's content. For checkpoints
+            already trained on the data, record affected lineage, stop future
+            use, and retrain, unlearn, or replace the model when policy or law
+            requires it. The answer should mention lineage, backups, downstream
+            datasets, and proof of deletion.
           </p>
         </details>
       </article>

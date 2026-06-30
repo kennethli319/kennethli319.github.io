@@ -36,7 +36,7 @@
         <li><strong>HMM/GMM systems:</strong> model hidden phonetic states, acoustic likelihoods, pronunciation lexicons, and language models.</li>
         <li><strong>DNN-HMM hybrids:</strong> replace GMM acoustic models with neural posterior estimators while keeping decoding graphs.</li>
         <li><strong>End-to-end ASR:</strong> CTC, attention encoder-decoder, and RNN-T reduce hand-built components but shift complexity into data and decoding.</li>
-        <li><strong>Self-supervised and weakly supervised systems:</strong> wav2vec-style pretraining and Whisper-style scale improve robustness, but production still depends on slice evaluation.</li>
+        <li><strong>Self-supervised and weakly supervised systems:</strong> wav2vec-style pretraining can reduce labeled-data needs and Whisper-style scale can improve robustness, but production still depends on slice evaluation for domain terms, timestamps, low-resource accents, and silence or noise behavior.</li>
       </ol>
       <details class="qa">
         <summary>Question: Why did HMM/GMM systems use lexicons and language models?</summary>

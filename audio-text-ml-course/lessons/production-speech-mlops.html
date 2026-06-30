@@ -43,7 +43,7 @@
         <li><strong>Route:</strong> select CPU, GPU, local, batch, or streaming path by model type, latency SLO, and tenant policy.</li>
         <li><strong>Infer:</strong> use bounded queues, dynamic batching, KV-cache or decoder state reuse, and timeout-aware cancellation.</li>
         <li><strong>Postprocess:</strong> restore timestamps, punctuation, speaker labels, redaction, confidence, and downstream event schema.</li>
-        <li><strong>Observe:</strong> emit privacy-safe metrics, traces, eval samples, cost tags, model version, and data-slice labels.</li>
+        <li><strong>Observe:</strong> emit privacy-safe metrics, traces, eval samples, cost tags, model version, and approved aggregate slice tags.</li>
       </ol>
       <details class="qa">
         <summary>Question: Why keep preprocessing versioned with the model?</summary>
@@ -249,8 +249,8 @@
           <summary>Hidden answer: decision framework</summary>
           <p>
             Do not decide from global WER alone. Compare slice metrics,
-            entity error, downstream task success, latency, cost, user segment,
-            and recovery behavior. A likely strong answer is a cascade: route
+            entity error, downstream task success, latency, cost, approved
+            operational context, and recovery behavior. A likely strong answer is a cascade: route
             clean, short, high-confidence utterances to the smaller model and
             route noisy, long, low-confidence, or domain-heavy utterances to
             the larger model. Canary the router, cap blast radius, monitor
@@ -295,13 +295,13 @@
         <h3>Exercise 1: Build A CI Gate For ASR Slice Regressions</h3>
         <p>
           You receive old and new metric maps by slice. Decide whether a pull
-          request can merge when global WER improves but a protected domain
-          slice regresses.
+          request can merge when global WER improves but a launch-critical
+          approved eval slice regresses.
         </p>
         <details class="qa">
           <summary>Hidden answer: strong checklist and Python sketch</summary>
           <p>
-            A strong gate treats protected slices as first-class release
+            A strong gate treats approved launch-critical slices as first-class release
             criteria. Merge should be blocked or paused when a critical slice
             exceeds its regression budget, even if the aggregate metric
             improves. Include invalid-budget, missing-slice, and missing-metric

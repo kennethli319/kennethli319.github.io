@@ -277,8 +277,9 @@
           <summary>Hidden answer: invariant and Python solution</summary>
           <p>
             Invariant: the supported capacity is the last passing step before
-            the first sustained violation. This avoids claiming capacity from a
-            single lucky point after overload has started.
+            the first failing step. In production, repeat or soak that boundary
+            before publishing a capacity number so a single noisy point does not
+            define the launch limit.
           </p>
           <pre><code class="language-python">def first_capacity_break(steps, p95_budget_ms, error_budget):
     last_passing = None

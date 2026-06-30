@@ -168,16 +168,29 @@
             mixing lower-is-better and higher-is-better metrics, and reporting
             the worst release instead of the first bad one. Unknown budget
             directions should fail loudly so a malformed gate does not approve
-            a risky release.
+            a risky release. Metric values should also be finite numbers; NaN,
+            infinity, booleans, or strings should fail the gate instead of
+            silently passing a comparison.
           </p>
-          <pre><code class="language-python">def first_bad_release(releases, budgets):
+          <pre><code class="language-python">import math
+
+
+def require_finite_number(value, metric):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{metric} must be a finite number")
+    if not math.isfinite(value):
+        raise ValueError(f"{metric} must be a finite number")
+    return value
+
+
+def first_bad_release(releases, budgets):
     for release in releases:
         metrics = release["metrics"]
         for metric, rule in budgets.items():
             if metric not in metrics:
                 return release["id"], metric, "missing"
 
-            value = metrics[metric]
+            value = require_finite_number(metrics[metric], metric)
             if rule["direction"] == "max" and value &gt; rule["limit"]:
                 return release["id"], metric, value
             if rule["direction"] == "min" and value &lt; rule["limit"]:
@@ -203,8 +216,21 @@
             metrics, and a newer model that passes aggregate metrics but fails
             the requested slice. Rollback selection must be slice-aware and must
             not treat quality, recall, or safety-recall gates as lower-is-better.
+            Reject malformed metric values instead of letting NaN, infinity, or
+            booleans bypass a production rollback gate.
           </p>
-          <pre><code class="language-python">def choose_rollback_target(versions, slice_name, gates):
+          <pre><code class="language-python">import math
+
+
+def require_finite_number(value, metric):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{metric} must be a finite number")
+    if not math.isfinite(value):
+        raise ValueError(f"{metric} must be a finite number")
+    return value
+
+
+def choose_rollback_target(versions, slice_name, gates):
     for version in reversed(versions):
         metrics = version["slices"].get(slice_name)
         if metrics is None:
@@ -218,7 +244,7 @@
 
             direction = rule["direction"]
             limit = rule["limit"]
-            value = metrics[metric]
+            value = require_finite_number(metrics[metric], metric)
             if direction == "max" and value &gt; limit:
                 ok = False
                 break

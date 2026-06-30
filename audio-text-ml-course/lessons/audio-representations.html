@@ -157,6 +157,13 @@ print(power.shape)</code></pre>
         energy differences into additive scale differences. Log-mel features are
         a practical middle ground: compact, robust, and still speech-rich.
       </p>
+      <p>
+        MFCCs start from the same log-mel idea, then apply a cosine transform to
+        decorrelate the bands and keep a smaller set of coefficients. They were a
+        durable interface for classic ASR pipelines; modern neural ASR commonly
+        keeps the full log-mel time-frequency grid so convolutional or attention
+        layers can learn local patterns directly.
+      </p>
       <pre><code class="language-python">def hz_to_mel(hz):
     return 2595.0 * np.log10(1.0 + hz / 700.0)
 

@@ -176,16 +176,24 @@ detectors = [
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
             Invariant: high-risk action classes require explicit confirmation
-            from the active user context, and disallowed actions are refused
-            even when the transcript sounds confident. Test background speaker
-            commands, money movement, account deletion, and harmless queries.
+            from trusted session state, not a flag parsed from the transcript,
+            and disallowed actions are refused even when the transcript sounds
+            confident. Test background speaker commands, money movement,
+            account deletion, repeated confirmations, and harmless queries.
           </p>
-          <pre><code class="language-python">def tool_decision(intent, policy):
+          <pre><code class="language-python">def tool_decision(intent, policy, session):
     action = intent["action"]
     if action in policy["blocked"]:
         return "refuse"
     if action in policy["requires_confirmation"]:
-        if intent.get("confirmed") and intent.get("speaker") == "active_user":
+        expected = session.get("pending_confirmation_id")
+        confirmed = session.get("confirmed_confirmation_id")
+        if (
+            intent.get("speaker") == "active_user"
+            and expected
+            and confirmed == expected
+            and intent.get("confirmation_id") == expected
+        ):
             return "execute"
         return "confirm"
     return "execute"

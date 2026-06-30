@@ -40,7 +40,7 @@
         <li><strong>Impact:</strong> quantify affected users, traffic share, SLO burn, regions, languages, clients, and model versions.</li>
         <li><strong>Mitigation:</strong> freeze rollout, roll back, reduce concurrency, route a slice to fallback, or disable a risky feature flag.</li>
         <li><strong>Hypotheses:</strong> list likely causes across data, model, decoder, client, serving, retrieval, and policy layers.</li>
-        <li><strong>Slices:</strong> compare canary versus control by noise, accent proxy, duration, query type, text length, tenant, and route.</li>
+        <li><strong>Slices:</strong> compare canary versus control by noise, privacy-safe accent or locale proxies, duration, query type, text length, tenant, and route; do not infer or expose protected attributes from raw speech.</li>
         <li><strong>Prevention:</strong> add a launch gate, synthetic fixture, dashboard, alert, model-card note, or runbook step.</li>
       </ol>
       <details class="qa">

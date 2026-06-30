@@ -76,10 +76,11 @@
           <p>
             Separate real-time streaming from offline correction jobs. Use VAD,
             normalization, streaming ASR, domain contextual biasing, entity
-            post-processing, and privacy-safe telemetry. Gate releases by WER,
-            entity error rate, partial churn, first partial latency, finalization
-            delay, tenant-level SLOs, and correction rate. Roll back by model
-            version and feature flag, not by redeploying the whole service.
+            post-processing, and privacy-safe aggregate telemetry. Gate releases
+            by WER, entity error rate, partial churn, first partial latency,
+            finalization delay, tenant-level SLOs, and correction rate. Roll
+            back by model version and feature flag, not by redeploying the whole
+            service.
           </p>
         </details>
       </article>
@@ -130,7 +131,8 @@
         <h3>Case 4: Audio Data Flywheel</h3>
         <p>
           Design a privacy-preserving data and evaluation loop for improving
-          ASR on noisy, accented, and domain-specific utterances.
+          ASR on noisy, domain-specific, and policy-approved aggregate
+          language or pronunciation-variation slices.
         </p>
         <details class="qa">
           <summary>Hidden answer: data operations plan</summary>
@@ -156,7 +158,8 @@
           <p>
             Compare old and new voice by first audio byte, chunk cadence,
             text normalization, sentence segmentation, vocoder time, client
-            playback, interruption rate, abandonment, and long-tail languages.
+            playback, interruption rate, abandonment, and approved aggregate
+            language slices.
             Mitigate with canary rollback, fallback voice, shorter first
             segment, warm pools, or lower-cost vocoding for noncritical turns.
             Prevent with conversational evals, not only offline preference MOS.
@@ -208,9 +211,10 @@
             raise ValueError("allowed_delta must be non-negative")
 
         delta = canary[name] - baseline[name]
-        if direction == "lower_is_better" and delta &gt; allowed:
+        tolerance = 1e-12
+        if direction == "lower_is_better" and delta - allowed &gt; tolerance:
             actions.append(("rollback", name, delta))
-        elif direction == "higher_is_better" and -delta &gt; allowed:
+        elif direction == "higher_is_better" and -delta - allowed &gt; tolerance:
             actions.append(("rollback", name, delta))
         elif direction not in {"lower_is_better", "higher_is_better"}:
             raise ValueError(f"unknown direction for {name}: {direction}")
@@ -288,9 +292,10 @@ def estimate_replicas(concurrent_streams, gpu_seconds_per_audio_second,
           <summary>Hidden answer</summary>
           <p>
             Spoken queries include ASR substitutions, punctuation loss, entity
-            errors, disfluencies, accents, language switches, endpointing
-            mistakes, and rewritten partials. Evaluate clean text, final ASR,
-            noisy ASR, and streaming partial paths separately.
+            errors, disfluencies, approved aggregate pronunciation-variation
+            slices, language switches, endpointing mistakes, and rewritten
+            partials. Evaluate clean text, final ASR, noisy ASR, and streaming
+            partial paths separately.
           </p>
         </details>
       </article>

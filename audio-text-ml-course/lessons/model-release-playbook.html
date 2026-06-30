@@ -77,6 +77,21 @@
           </details>
         </article>
         <article class="card">
+          <h3>Eval Integrity Gate</h3>
+          <p>Confirm the release decision is based on stable, non-leaky evaluation data.</p>
+          <details class="qa">
+            <summary>Hidden answer: Data checks</summary>
+            <p>
+              Freeze the eval snapshot before training, keep train/dev/test
+              sources disjoint, deduplicate repeated audio and transcripts, and
+              label synthetic-only slices clearly. Do not promote a speech model
+              on aggregate gains if a benchmark refresh, prompt rewrite,
+              normalization change, or leaked customer debug set explains the
+              movement.
+            </p>
+          </details>
+        </article>
+        <article class="card">
           <h3>Serving Gate</h3>
           <p>Prove the release can satisfy latency, memory, and concurrency constraints.</p>
           <details class="qa">

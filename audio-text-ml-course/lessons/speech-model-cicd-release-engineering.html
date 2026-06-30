@@ -279,11 +279,27 @@ def canary_promotion(metrics, min_requests_per_slice=100):
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def rollback_target(releases, family):
-    candidates = [
-        release for release in releases
-        if release["family"] == family and release["state"] == "stable"
-    ]
+          <pre><code class="language-python">REQUIRED_RELEASE_FIELDS = {
+    "family",
+    "state",
+    "promoted_at",
+    "model_id",
+    "version",
+    "serving_image",
+}
+
+
+def rollback_target(releases, family):
+    candidates = []
+    for release in releases:
+        if not isinstance(release, dict):
+            raise ValueError("release records must be dictionaries")
+        missing = REQUIRED_RELEASE_FIELDS - release.keys()
+        if missing:
+            raise ValueError(f"release missing {sorted(missing)[0]}")
+        if release["family"] == family and release["state"] == "stable":
+            candidates.append(release)
+
     if not candidates:
         raise ValueError(f"no stable rollback target for {family}")
 
@@ -295,8 +311,8 @@ def canary_promotion(metrics, min_requests_per_slice=100):
     }</code></pre>
           <p>
             The target must be a known stable serving bundle, not merely the
-            previous commit. A release system records enough metadata to
-            restore behavior quickly.
+            previous commit. A release system validates its metadata before an
+            incident so rollback does not fail late on a malformed record.
           </p>
         </details>
       </article>

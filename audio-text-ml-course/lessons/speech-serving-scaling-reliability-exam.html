@@ -75,7 +75,7 @@
             Moshi modeled user and assistant speech streams in parallel.
             BayLing-Duplex extends this direction by converting a turn-based
             GLM-4-Voice style backbone into a native full-duplex model using a
-            small set of dialogue-state tokens, so listen, speak, and stop
+            four-token dialogue-state vocabulary, so listen, speak, and stop
             decisions become next-token prediction.
           </p>
         </article>
@@ -117,6 +117,20 @@
           micro-turn freshness, action-stream safety latency, and speech/audio
           continuity. Keep classic p95/p99 stage latency, error budget burn,
           and cost-per-success, but slice them by duplex event type.
+        </p>
+      </details>
+
+      <details class="qa">
+        <summary>Primary references for this research update</summary>
+        <p>
+          Verify the serving claims against the primary sources:
+          <a href="https://arxiv.org/abs/2410.00037">Moshi</a>,
+          <a href="https://arxiv.org/abs/2606.14528">BayLing-Duplex</a>,
+          <a href="https://arxiv.org/abs/2603.09180">DuplexCascade</a>,
+          <a href="https://arxiv.org/abs/2602.06053">PersonaPlex</a>, and
+          <a href="https://arxiv.org/abs/2605.20755">DuplexSLA</a>.
+          Treat performance and benchmark claims as fast-moving research
+          evidence, not as production guarantees.
         </p>
       </details>
 

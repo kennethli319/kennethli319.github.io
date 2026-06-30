@@ -137,8 +137,10 @@
             Add domain vocabulary biasing, pronunciation variants, entity
             normalization, fuzzy lexical retrieval, character n-gram features,
             audio-confidence-aware query rewriting, and retrieval evaluation
-            with noisy ASR hypotheses. Keep a fallback clarification question
-            when confidence is low or top passages disagree.
+            with noisy ASR hypotheses. Bound rewrites to known product IDs or
+            catalog terms, preserve the original ASR hypothesis for debugging,
+            and keep a fallback clarification question when confidence is low
+            or top passages disagree.
           </p>
         </details>
       </article>
@@ -235,7 +237,7 @@
       </div>
       <ol class="steps">
         <li><strong>Inputs:</strong> write the spoken request, expected ASR pitfalls, and allowed sanitized transcript.</li>
-        <li><strong>Retrieval:</strong> record expected document IDs, top-k results, recall, and reranker notes.</li>
+        <li><strong>Retrieval:</strong> record expected document IDs, raw-ASR versus normalized query text, top-k results, recall, and reranker notes.</li>
         <li><strong>Answer:</strong> score correctness, faithfulness, missing caveats, refusal behavior, and spoken clarity.</li>
         <li><strong>Latency:</strong> measure ASR partial time, retrieval time, LLM first token, first audio byte, and final audio.</li>
         <li><strong>Decision:</strong> write pass, fail, or needs human review with the rollback or mitigation action.</li>

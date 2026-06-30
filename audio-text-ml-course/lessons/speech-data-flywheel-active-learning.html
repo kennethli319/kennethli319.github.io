@@ -261,18 +261,20 @@
         </details>
       </article>
       <article class="prompt">
-        <h3>Incident 2: Active Learning Batch Hurts Accented Speech</h3>
+        <h3>Incident 2: Active Learning Batch Hurts Pronunciation Variation</h3>
         <p>
           The latest training batch came from low-confidence sampling. It
-          improved call-center audio but regressed accented assistant queries.
+          improved call-center audio but regressed assistant queries with
+          pronunciation variation.
         </p>
         <details class="qa">
           <summary>Hidden answer: root cause and prevention</summary>
           <p>
             The sampler likely shifted the training distribution without slice
-            caps or weighting review. Add stratified sampling, per-slice
+            caps or weighting review. Add stratified sampling, approved
+            aggregate or consented pronunciation-variation slices, per-slice
             regression budgets, active-learning batch manifests, and an eval
-            gate that protects accented assistant traffic.
+            gate that protects launch-critical assistant traffic.
           </p>
         </details>
       </article>

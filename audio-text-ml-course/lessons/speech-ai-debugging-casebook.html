@@ -40,7 +40,7 @@
         <li><strong>Impact:</strong> quantify affected users, traffic share, SLO burn, regions, languages, clients, and model versions.</li>
         <li><strong>Mitigation:</strong> freeze rollout, roll back, reduce concurrency, route a slice to fallback, or disable a risky feature flag.</li>
         <li><strong>Hypotheses:</strong> list likely causes across data, model, decoder, client, serving, retrieval, and policy layers.</li>
-        <li><strong>Slices:</strong> compare canary versus control by noise, privacy-safe accent or locale proxies, duration, query type, text length, tenant, and route; do not infer or expose protected attributes from raw speech.</li>
+        <li><strong>Slices:</strong> compare canary versus control by noise, privacy-safe accent or locale proxies, duration, query type, text length, approved aggregate tenant or plan buckets, and route; do not infer or expose protected attributes from raw speech.</li>
         <li><strong>Prevention:</strong> add a launch gate, synthetic fixture, dashboard, alert, model-card note, or runbook step.</li>
       </ol>
       <details class="qa">
@@ -134,8 +134,9 @@
           <summary>Hidden answer: mitigation and prevention</summary>
           <p>
             Roll back or route sensitive traffic to the higher-precision model.
-            Slice by prompt-injection class, ASR-noise level, language, tool
-            type, threshold bucket, and false-negative examples from synthetic
+            Slice by prompt-injection class, ASR-noise level, approved
+            locale/language eval buckets, tool type, threshold bucket, and
+            false-negative examples from synthetic or consented redacted
             fixtures. Quantization must be evaluated on safety recall and
             calibration, not only average task accuracy or cost.
           </p>
@@ -308,7 +309,7 @@ def choose_rollback_target(versions, slice_name, gates):
           <summary>Hidden answer: dashboard outline</summary>
           <p>
             Include traffic, error rate, queue age, first partial transcript,
-            final transcript latency, WER/entity slices, retrieval recall,
+            final transcript latency, approved aggregate WER/entity slices, retrieval recall,
             groundedness, first audio byte, chunk underruns, barge-in success,
             cost per minute, GPU utilization, and canary versus control
             comparisons. Alerts should map to actions: page, freeze rollout,

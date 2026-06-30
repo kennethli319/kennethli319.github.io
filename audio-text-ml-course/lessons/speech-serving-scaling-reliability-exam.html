@@ -296,18 +296,20 @@
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
             Invariant: a sweep-line count equals active streams after applying
-            every event at a timestamp. Validate that every call interval has
-            <code>end_ms &gt;= start_ms</code> before the sweep. Process end
-            events before start events when an interval ending at
+            every event at a timestamp. Treat intervals as half-open
+            <code>[start_ms, end_ms)</code> call spans and validate that every
+            call has positive duration before the sweep. Process end events
+            before start events when an interval ending at
             <code>t</code> does not overlap an interval starting at
             <code>t</code>. Test empty input, touching intervals, nested
-            intervals, identical starts, inverted intervals, and one long call.
+            intervals, identical starts, zero-length intervals, inverted
+            intervals, and one long call.
           </p>
           <pre><code class="language-python">def peak_concurrent_streams(intervals):
     events = []
     for start, end in intervals:
-        if end &lt; start:
-            raise ValueError("end_ms must be greater than or equal to start_ms")
+        if end &lt;= start:
+            raise ValueError("end_ms must be greater than start_ms")
         events.append((start, 1))
         events.append((end, -1))
 

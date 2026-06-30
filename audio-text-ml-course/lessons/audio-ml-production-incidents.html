@@ -284,6 +284,11 @@
 from math import ceil
 
 
+def nearest_rank(values, percentile):
+    index = ceil(percentile * len(values)) - 1
+    return values[index]
+
+
 def incident_packet(records):
     counts = Counter()
     latency = defaultdict(list)
@@ -302,11 +307,10 @@ def incident_packet(records):
     latency_summary = {}
     for key, values in latency.items():
         values = sorted(values)
-        p95_index = ceil(0.95 * len(values)) - 1
         latency_summary[key] = {
             "count": len(values),
-            "p50_ms": values[len(values) // 2],
-            "p95_ms": values[p95_index],
+            "p50_ms": nearest_rank(values, 0.50),
+            "p95_ms": nearest_rank(values, 0.95),
         }
 
     return {

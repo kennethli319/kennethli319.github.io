@@ -513,11 +513,15 @@
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
           <pre><code class="language-python">def late_stop_segments(events, max_stop_ms):
+    if max_stop_ms &lt; 0:
+        raise ValueError("max_stop_ms must be non-negative")
+
+    ordered = sorted(events, key=lambda item: item["time_ms"])
     barge_in_at = None
     assistant_speaking = False
     late = []
 
-    for event in sorted(events, key=lambda item: item["time_ms"]):
+    for event in ordered:
         t = event["time_ms"]
         speaker = event["speaker"]
         kind = event["event"]
@@ -533,6 +537,12 @@
             barge_in_at = None
         elif speaker == "user" and kind == "barge_in" and assistant_speaking and barge_in_at is None:
             barge_in_at = t
+
+    if assistant_speaking and barge_in_at is not None and ordered:
+        observed_until = ordered[-1]["time_ms"]
+        delay = observed_until - barge_in_at
+        if delay &gt; max_stop_ms:
+            late.append({"barge_in_at": barge_in_at, "observed_until": observed_until, "delay_ms": delay})
 
     return late
 </code></pre>

@@ -212,8 +212,9 @@
         <h3>Drill 1: Promotion Gate</h3>
         <p>
           Given baseline and candidate metrics by slice, return whether the
-          candidate can promote. Lower-is-better metrics cannot regress beyond
-          their allowed threshold.
+          candidate can promote. Each threshold declares whether lower or
+          higher is better so latency/error metrics and recall/success metrics
+          are judged in the right direction.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant, edge cases, and Python solution</summary>
@@ -221,7 +222,8 @@
             Invariant: every required slice and metric must pass. Missing
             candidate metrics are failures because a release gate cannot assume
             safety. Test missing slices, missing metrics, exact threshold,
-            improvements, and one critical slice regression.
+            improvements, a lower-is-better regression, and a higher-is-better
+            regression.
           </p>
           <pre><code class="language-python">def can_promote(baseline, candidate, thresholds):
     failures = []
@@ -240,9 +242,18 @@
                 failures.append((slice_name, metric, "missing_metric"))
                 continue
 
-            allowed = thresholds[metric]
-            if cand_value - base_value &gt; allowed:
-                failures.append((slice_name, metric, cand_value - base_value))
+            direction = thresholds[metric]["direction"]
+            allowed = thresholds[metric]["allowed_regression"]
+
+            if direction == "lower_is_better":
+                regression = cand_value - base_value
+            elif direction == "higher_is_better":
+                regression = base_value - cand_value
+            else:
+                raise ValueError(f"unknown direction for {metric}: {direction}")
+
+            if regression - allowed &gt; 1e-12:
+                failures.append((slice_name, metric, regression))
 
     return {
         "promote": not failures,

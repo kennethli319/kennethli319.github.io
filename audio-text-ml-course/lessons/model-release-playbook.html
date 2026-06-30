@@ -151,11 +151,12 @@
           <summary>Hidden answer: Advanced rollout plan</summary>
           <p>
             Start with shadow traffic to compare transcripts, latency, and
-            partial churn without user exposure. Then canary low-risk tenants,
-            short calls, and one language before expanding. Gate each step on
-            WER proxies, entity errors, p95 latency, p99 latency, queue depth,
-            OOMs, partial churn, cancellation rate, and support tickets. Keep
-            old workers warm until the canary is stable.
+            partial churn without user exposure. Then canary internal or
+            explicitly opted-in beta traffic, short calls, and one language
+            before expanding. Gate each step on WER proxies, entity errors,
+            p95 latency, p99 latency, queue depth, OOMs, partial churn,
+            cancellation rate, and support tickets. Keep old workers warm
+            until the canary is stable.
           </p>
         </details>
       </article>

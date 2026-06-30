@@ -305,7 +305,20 @@ def evaluate_load_gate(routes, budgets):
             error signal. Retry storms show more attempts per original user turn
             plus rising dependency errors.
           </p>
-          <pre><code class="language-python">from math import isfinite
+          <pre><code class="language-python">from collections.abc import Mapping
+from math import isfinite
+
+
+def _mapping(value, field):
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{field} must be a mapping")
+    return value
+
+
+def _required(mapping, key, field):
+    if key not in mapping:
+        raise ValueError(f"{field}.{key} is required")
+    return mapping[key]
 
 
 def _finite_non_negative(value, field):
@@ -327,15 +340,17 @@ def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_th
     if attempt_ratio_threshold &lt;= 0:
         raise ValueError("thresholds must be non-negative and attempt ratio must be positive")
     alerts = []
-    for point in points:
-        user_turns = _finite_non_negative(point["user_turns"], "user_turns")
-        service_attempts = _finite_non_negative(point["service_attempts"], "service_attempts")
-        dependency_error_rate = _finite_rate(point["dependency_error_rate"], "dependency_error_rate")
+    for index, point in enumerate(points):
+        field = f"points[{index}]"
+        point = _mapping(point, field)
+        user_turns = _finite_non_negative(_required(point, "user_turns", field), f"{field}.user_turns")
+        service_attempts = _finite_non_negative(_required(point, "service_attempts", field), f"{field}.service_attempts")
+        dependency_error_rate = _finite_rate(_required(point, "dependency_error_rate", field), f"{field}.dependency_error_rate")
         user_turn_denominator = max(user_turns, 1)
         attempt_ratio = service_attempts / user_turn_denominator
         if attempt_ratio &gt;= attempt_ratio_threshold and dependency_error_rate &gt;= dependency_error_threshold:
             alerts.append({
-                "minute": point["minute"],
+                "minute": _required(point, "minute", field),
                 "attempt_ratio": round(attempt_ratio, 2),
                 "dependency_error_rate": dependency_error_rate,
                 "action": "cap_retries_and_enable_fallback",
@@ -358,7 +373,20 @@ def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_th
             before publishing a capacity number so a single noisy or malformed
             point does not define the launch limit.
           </p>
-          <pre><code class="language-python">from math import isfinite
+          <pre><code class="language-python">from collections.abc import Mapping
+from math import isfinite
+
+
+def _mapping(value, field):
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{field} must be a mapping")
+    return value
+
+
+def _required(mapping, key, field):
+    if key not in mapping:
+        raise ValueError(f"{field}.{key} is required")
+    return mapping[key]
 
 
 def _finite_non_negative(value, field):
@@ -378,10 +406,12 @@ def first_capacity_break(steps, p95_budget_ms, error_budget):
     p95_budget_ms = _finite_non_negative(p95_budget_ms, "p95_budget_ms")
     error_budget = _finite_rate(error_budget, "error_budget")
     last_passing = None
-    for step in steps:
-        concurrency = _finite_non_negative(step["concurrency"], "concurrency")
-        p95_ms = _finite_non_negative(step["p95_ms"], "p95_ms")
-        error_rate = _finite_rate(step["error_rate"], "error_rate")
+    for index, step in enumerate(steps):
+        field = f"steps[{index}]"
+        step = _mapping(step, field)
+        concurrency = _finite_non_negative(_required(step, "concurrency", field), f"{field}.concurrency")
+        p95_ms = _finite_non_negative(_required(step, "p95_ms", field), f"{field}.p95_ms")
+        error_rate = _finite_rate(_required(step, "error_rate", field), f"{field}.error_rate")
         passes = p95_ms &lt;= p95_budget_ms and error_rate &lt;= error_budget
         if passes:
             last_passing = concurrency

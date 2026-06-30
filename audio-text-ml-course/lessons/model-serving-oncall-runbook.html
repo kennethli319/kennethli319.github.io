@@ -166,22 +166,31 @@
           <p>
             Invariant: overload is a joint signal. High utilization alone can
             be healthy; queue growth plus tail latency means work is waiting.
-            Test flat queues, rising queues with low latency, high latency with
-            no queue growth, and missing minutes.
+            Sort or require monotonic telemetry before comparing adjacent
+            minutes. Test flat queues, rising queues with low latency, high
+            latency with no queue growth, missing minutes, duplicate minutes,
+            and impossible negative counters.
           </p>
           <pre><code class="language-python">def detect_saturation(minutes, queue_growth_threshold=25, p95_threshold_ms=1200):
+    if queue_growth_threshold &lt; 0 or p95_threshold_ms &lt; 0:
+        raise ValueError("thresholds must be non-negative")
+
     alerts = []
     previous_minute = None
     previous_depth = None
 
-    for point in minutes:
+    for point in sorted(minutes, key=lambda item: item["minute"]):
         minute = point["minute"]
         depth = point["queue_depth"]
         p95 = point["p95_ms"]
+        if depth &lt; 0 or p95 &lt; 0:
+            raise ValueError(f"minute {minute}: queue depth and p95 must be non-negative")
         if previous_depth is None:
             previous_minute = minute
             previous_depth = depth
             continue
+        if minute == previous_minute:
+            raise ValueError(f"duplicate telemetry for minute {minute}")
 
         if minute - previous_minute &gt; 1:
             alerts.append({

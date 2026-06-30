@@ -82,6 +82,36 @@ output = weights @ V</code></pre>
       </details>
     </section>
 
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Order</p>
+        <h2>Attention Still Needs Position Information</h2>
+      </div>
+      <p>
+        Dot-product attention compares content, but the raw operation does not
+        know whether one frame came before another. Transformer systems add
+        order through learned or sinusoidal positional embeddings, relative
+        position bias, or rotary position embeddings. In speech models this
+        matters because "same phoneme, different time" can mean a different
+        word boundary, duration, or turn-taking event.
+      </p>
+      <p>
+        RoPE is common in decoder LLMs because it rotates query and key vectors
+        by position before the dot product. It preserves the attention pattern
+        while making relative distance easier for the model to use, but it does
+        not remove the quadratic cost of full attention.
+      </p>
+
+      <details class="qa">
+        <summary>Question: Why is position information especially important for audio?</summary>
+        <p>
+          Audio is a dense time series. The model needs both local order, such as
+          which acoustic frames form a phoneme, and longer-range timing, such as
+          pauses, repetitions, speaker changes, and when a reply should stop.
+        </p>
+      </details>
+    </section>
+
     <section id="code" class="band">
       <div class="section-head">
         <p class="eyebrow">Implementation</p>

@@ -255,13 +255,13 @@
     if isinstance(partials, (str, bytes)) or not isinstance(partials, Iterable):
         raise ValueError("partials must be an iterable of transcript strings")
     partials = list(partials)
+    if any(not isinstance(partial, str) for partial in partials):
+        raise ValueError("each partial transcript must be a string")
 
     comparisons = 0
     churns = 0
 
     for prev, curr in zip(partials, partials[1:]):
-        if not isinstance(prev, str) or not isinstance(curr, str):
-            raise ValueError("each partial transcript must be a string")
         prev_words = prev.split()
         curr_words = curr.split()
         if not prev_words:

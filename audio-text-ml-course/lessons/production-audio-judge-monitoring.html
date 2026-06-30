@@ -203,8 +203,12 @@ def top_audio_issues(results, limit=5):
     groups = {}
     seen_event_ids = set()
     for row in results:
+        if not isinstance(row, dict):
+            continue
         diagnostics = row.get("diagnostics", {})
         metadata = row.get("metadata", {})
+        if not isinstance(diagnostics, dict) or not isinstance(metadata, dict):
+            continue
         event_id = row.get("id")
         if event_id in seen_event_ids:
             continue

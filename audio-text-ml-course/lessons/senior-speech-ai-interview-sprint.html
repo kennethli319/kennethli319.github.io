@@ -295,10 +295,12 @@
           <p>
             Invariant: every slice is judged against its own configured budgets,
             and severity is normalized so different metric units can be sorted
-            together. Validate gate definitions before scoring. Test missing
+            together, including zero-budget safety gates such as unsafe-rate
+            ceilings. Validate gate definitions and metric values before
+            scoring. Test missing
             metrics, exactly-on-threshold values, lower-is-better metrics,
-            higher-is-better metrics, invalid gates, and multiple failures in
-            the same slice.
+            higher-is-better metrics, zero thresholds, invalid gates, nonnumeric
+            metrics, and multiple failures in the same slice.
           </p>
           <pre><code class="language-python">def rank_canary_risks(slices, gates):
     failures = []
@@ -308,24 +310,27 @@
             threshold = gate.get("threshold")
             if direction not in {"max", "min"}:
                 raise ValueError(f"unknown direction for {metric}: {direction}")
-            if not isinstance(threshold, (int, float)) or threshold == 0:
-                raise ValueError(f"threshold for {metric} must be a non-zero number")
+            if not isinstance(threshold, (int, float)):
+                raise ValueError(f"threshold for {metric} must be numeric")
 
             if metric not in metrics:
                 failures.append((float("inf"), slice_name, metric, "missing"))
                 continue
 
             value = metrics[metric]
+            if not isinstance(value, (int, float)):
+                raise ValueError(f"value for {slice_name}/{metric} must be numeric")
+            scale = max(abs(threshold), 1.0)
 
             if direction == "max":
                 over = value - threshold
                 if over &gt; 0:
-                    severity = over / max(abs(threshold), 1e-9)
+                    severity = over / scale
                     failures.append((severity, slice_name, metric, value))
             else:
                 under = threshold - value
                 if under &gt; 0:
-                    severity = under / max(abs(threshold), 1e-9)
+                    severity = under / scale
                     failures.append((severity, slice_name, metric, value))
 
     failures.sort(reverse=True)

@@ -129,8 +129,9 @@
             strong answer should create a latency budget for VAD, ASR partials,
             LLM first token, TTS first audio, playback, and interruption. It
             should also include state management, echo control, local model
-            options, privacy rules, transcript UI, failure recovery, and
-            measurements for both quality and responsiveness.
+            options, privacy rules for retention and transcript access, transcript
+            UI, failure recovery, and measurements for both quality and
+            responsiveness.
           </p>
         </details>
       </article>
@@ -271,8 +272,10 @@
             stability, readability, and downstream summarization. Check
             train-test leakage, distribution shift, label quality, decoding
             changes, normalization rules, and whether the eval set matches
-            current traffic. Add slice metrics and human review on real
-            privacy-safe samples.
+            current traffic. Add slice metrics and human review on consented,
+            de-identified samples with short retention, access logging, and a
+            path to delete raw audio after labels or aggregate findings are
+            captured.
           </p>
         </details>
       </article>

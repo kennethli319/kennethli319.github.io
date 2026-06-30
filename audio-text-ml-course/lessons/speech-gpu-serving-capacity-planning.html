@@ -239,15 +239,19 @@
             forgetting that alerting usually triggers at the end of the window.
             Test empty input, k larger than input, threshold exactly equal,
             first window breach, later breach, no breach, negative thresholds,
-            and invalid negative telemetry.
+            non-integer windows, and invalid negative or non-finite telemetry.
           </p>
-          <pre><code class="language-python">def first_capacity_alert(queue_age_ms, k, threshold_ms):
-    if k &lt;= 0:
-        raise ValueError("k must be positive")
-    if threshold_ms &lt; 0:
-        raise ValueError("threshold_ms must be non-negative")
-    if any(age &lt; 0 for age in queue_age_ms):
-        raise ValueError("queue_age_ms must be non-negative")
+          <pre><code class="language-python">from math import isfinite
+
+
+def first_capacity_alert(queue_age_ms, k, threshold_ms):
+    if not isinstance(k, int) or isinstance(k, bool) or k &lt;= 0:
+        raise ValueError("k must be a positive integer")
+    if not isinstance(threshold_ms, (int, float)) or not isfinite(threshold_ms) or threshold_ms &lt; 0:
+        raise ValueError("threshold_ms must be a finite non-negative number")
+    for age in queue_age_ms:
+        if not isinstance(age, (int, float)) or not isfinite(age) or age &lt; 0:
+            raise ValueError("queue_age_ms must contain finite non-negative numbers")
     if len(queue_age_ms) &lt; k:
         return None
 
@@ -277,14 +281,19 @@
             unless the interviewer asks for value maximization. State the
             product policy first. Test zero capacity, ties, requests larger
             than capacity, equal priorities with different costs, invalid
-            negative costs, and stable identifiers for admitted requests.
+            negative or non-finite costs, and stable identifiers for admitted
+            requests.
           </p>
-          <pre><code class="language-python">def admit_requests(requests, capacity):
-    if capacity &lt; 0:
-        raise ValueError("capacity must be non-negative")
+          <pre><code class="language-python">from math import isfinite
+
+
+def admit_requests(requests, capacity):
+    if not isinstance(capacity, (int, float)) or not isfinite(capacity) or capacity &lt; 0:
+        raise ValueError("capacity must be a finite non-negative number")
     for request in requests:
-        if request["estimated_cost"] &lt; 0:
-            raise ValueError("estimated_cost must be non-negative")
+        cost = request["estimated_cost"]
+        if not isinstance(cost, (int, float)) or not isfinite(cost) or cost &lt; 0:
+            raise ValueError("estimated_cost must be a finite non-negative number")
 
     ordered = sorted(
         requests,
@@ -317,24 +326,33 @@
             traffic volume. Reject impossible aggregate telemetry instead of
             letting bad counters hide a production incident.
           </p>
-          <pre><code class="language-python">def retry_storm_windows(records, k, retry_threshold, min_requests):
-    if k &lt;= 0:
-        raise ValueError("k must be positive")
+          <pre><code class="language-python">from math import isfinite
+
+
+def retry_storm_windows(records, k, retry_threshold, min_requests):
+    if not isinstance(k, int) or isinstance(k, bool) or k &lt;= 0:
+        raise ValueError("k must be a positive integer")
+    if not isinstance(retry_threshold, (int, float)) or not isfinite(retry_threshold):
+        raise ValueError("retry_threshold must be finite")
     if not 0 &lt;= retry_threshold &lt;= 1:
         raise ValueError("retry_threshold must be between 0 and 1")
-    if min_requests &lt; 0:
-        raise ValueError("min_requests must be non-negative")
+    if not isinstance(min_requests, (int, float)) or not isfinite(min_requests) or min_requests &lt; 0:
+        raise ValueError("min_requests must be a finite non-negative number")
     alerts = []
     req_sum = 0
     retry_sum = 0
 
     for i, row in enumerate(records):
-        if row["requests"] &lt; 0 or row["retries"] &lt; 0:
-            raise ValueError("requests and retries must be non-negative")
-        if row["retries"] &gt; row["requests"]:
+        requests = row["requests"]
+        retries = row["retries"]
+        if not isinstance(requests, (int, float)) or not isfinite(requests) or requests &lt; 0:
+            raise ValueError("requests must be a finite non-negative number")
+        if not isinstance(retries, (int, float)) or not isfinite(retries) or retries &lt; 0:
+            raise ValueError("retries must be a finite non-negative number")
+        if retries &gt; requests:
             raise ValueError("retries cannot exceed requests")
-        req_sum += row["requests"]
-        retry_sum += row["retries"]
+        req_sum += requests
+        retry_sum += retries
         if i &gt;= k:
             old = records[i - k]
             req_sum -= old["requests"]

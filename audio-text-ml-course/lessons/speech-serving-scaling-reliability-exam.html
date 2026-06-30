@@ -333,14 +333,30 @@
           <p>
             Invariant: promotion is safe only if every protected slice stays
             within agreed thresholds. Test missing slices, improved quality with
-            worse latency, low-volume slices, and zero old cost. A strong answer
-            describes minimum sample rules instead of trusting tiny samples.
+            worse latency, low-volume old or new slices, and zero old cost. A
+            strong answer describes minimum sample rules instead of trusting tiny
+            samples.
           </p>
           <pre><code class="language-python">def rollback_blockers(old, new, min_calls=200):
+    if min_calls &lt;= 0:
+        raise ValueError("min_calls must be positive")
+
     blockers = []
     for slice_name, current in new.items():
         baseline = old.get(slice_name)
-        if baseline is None or current["calls"] &lt; min_calls:
+        if baseline is None:
+            continue
+
+        if current["calls"] &lt; 0 or baseline["calls"] &lt; 0:
+            raise ValueError("calls must be non-negative")
+        if current["wer"] &lt; 0 or baseline["wer"] &lt; 0:
+            raise ValueError("wer must be non-negative")
+        if current["p95_ms"] &lt; 0 or baseline["p95_ms"] &lt; 0:
+            raise ValueError("p95_ms must be non-negative")
+        if current["cost_per_min"] &lt; 0 or baseline["cost_per_min"] &lt; 0:
+            raise ValueError("cost_per_min must be non-negative")
+
+        if current["calls"] &lt; min_calls or baseline["calls"] &lt; min_calls:
             continue
 
         wer_delta = current["wer"] - baseline["wer"]

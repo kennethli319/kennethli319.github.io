@@ -67,7 +67,8 @@
         <h3>Prompt 1: Build A Training Dataset Pipeline For Streaming ASR</h3>
         <p>
           You need a weekly ASR training snapshot from consented call audio.
-          The model must improve noisy-device and accented-speech slices
+          The model must improve noisy-device and approved aggregate
+          pronunciation-variation slices
           without storing unnecessary private content. Design the pipeline.
         </p>
         <details class="qa">
@@ -78,10 +79,10 @@
             locale, device class, channel, noise bucket, duration, label
             status, and transform versions, not casual raw exports. Run
             privacy filters and redaction before labeling. Stratify sampling by
-            failure slices, keep holdout users out of training, version label
-            instructions, and produce a snapshot manifest that ties every row
-            to audio lineage, transcript version, VAD version, and evaluation
-            eligibility.
+            approved aggregate or consented failure slices, keep holdout users
+            out of training, version label instructions, and produce a snapshot
+            manifest that ties every row to audio lineage, transcript version,
+            VAD version, and evaluation eligibility.
           </p>
         </details>
       </article>
@@ -347,9 +348,9 @@ except ValueError:
     pass</code></pre>
           <p>
             Production follow-up: page only when the drop affects critical fields
-            or user-facing slices, deduplicate alerts by app version and
-            ingestion path, and attach rollout context so on-call can identify
-            whether the first bad hour matches a deployment.
+            or approved aggregate launch slices, deduplicate alerts by app
+            version and ingestion path, and attach rollout context so on-call
+            can identify whether the first bad hour matches a deployment.
           </p>
         </details>
       </article>

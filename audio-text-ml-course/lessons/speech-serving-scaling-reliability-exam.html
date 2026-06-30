@@ -75,7 +75,7 @@
             Moshi modeled user and assistant speech streams in parallel.
             BayLing-Duplex extends this direction by converting a turn-based
             GLM-4-Voice style backbone into a native full-duplex model using a
-            four-token dialogue-state vocabulary, so listen, speak, and stop
+            few added dialogue-state tokens, so listen, speak, and stop
             decisions become next-token prediction.
           </p>
         </article>
@@ -345,7 +345,7 @@
         <details class="qa">
           <summary>Hidden answer: invariant, edge cases, and Python solution</summary>
           <p>
-            Invariant: promotion is safe only if every protected slice stays
+            Invariant: promotion is safe only if every launch-critical slice stays
             within agreed thresholds. Test missing slices, improved quality with
             worse latency, low-volume old or new slices, and zero old cost. A
             strong answer describes minimum sample rules instead of trusting tiny

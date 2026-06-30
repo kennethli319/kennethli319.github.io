@@ -227,8 +227,10 @@
             direction = rule["direction"]
             if direction == "lower_is_better":
                 severity = delta - allowed
-            else:
+            elif direction == "higher_is_better":
                 severity = -delta - allowed
+            else:
+                raise ValueError(f"unsupported direction for {metric}: {direction}")
 
             if severity &gt; 0:
                 findings.append((severity, slice_name, metric, delta))

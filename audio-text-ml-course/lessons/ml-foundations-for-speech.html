@@ -121,10 +121,12 @@ def seed_everything(seed=7):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
     mps = getattr(torch, "mps", None)
+    mps_backend = getattr(torch.backends, "mps", None)
     if (
         mps is not None
+        and mps_backend is not None
         and hasattr(mps, "manual_seed")
-        and torch.backends.mps.is_available()
+        and mps_backend.is_available()
     ):
         mps.manual_seed(seed)
 

@@ -200,9 +200,15 @@
           <p>
             Invariant: each step compares one hypothesis with the immediately
             preceding hypothesis. Empty streams have zero churn, and repeated
-            identical partials should not inflate the metric.
+            identical partials should not inflate the metric. The input should
+            be a sequence of hypothesis strings; a bare transcript string is a
+            telemetry-shape bug, not a valid partial stream.
           </p>
           <pre><code class="language-python">def partial_churn_rate(partials):
+    if isinstance(partials, str):
+        raise ValueError("partials must be a sequence of hypothesis strings")
+    if any(not isinstance(item, str) for item in partials):
+        raise ValueError("each partial hypothesis must be a string")
     if len(partials) &lt; 2:
         return 0.0
 

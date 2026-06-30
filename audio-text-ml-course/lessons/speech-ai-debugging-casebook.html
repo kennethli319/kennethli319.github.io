@@ -278,14 +278,34 @@ def choose_rollback_target(versions, slice_name, gates):
             The packet should contain aggregate deltas, affected slices,
             mitigation, hypotheses, next checks, and prevention actions. It
             should not include raw transcripts, audio clips, user identifiers,
-            voiceprints, or unredacted support tickets.
+            voiceprints, or unredacted support tickets. Rare slice labels should
+            be bucketed before the packet leaves the incident room, so a
+            one-off locale, tenant, or device combination cannot identify a
+            user.
           </p>
-          <pre><code class="language-python">def build_incident_packet(incident_id, impact, mitigation, top_slices, hypotheses):
+          <pre><code class="language-python">def bucket_rare_slices(slices, min_count=3):
+    safe = []
+    rare_count = 0
+
+    for item in slices:
+        count = item.get("count", 0)
+        if count &gt;= min_count:
+            safe.append(dict(item))
+        else:
+            rare_count += count
+
+    if rare_count:
+        safe.append({"slice": "rare_or_low_count", "count": rare_count})
+
+    return safe
+
+
+def build_incident_packet(incident_id, impact, mitigation, top_slices, hypotheses):
     return {
         "incident_id": incident_id,
         "impact": impact,
         "mitigation": mitigation,
-        "top_regressed_slices": top_slices[:5],
+        "top_regressed_slices": bucket_rare_slices(top_slices[:5]),
         "hypotheses": hypotheses[:5],
         "privacy_note": "aggregate metrics only; no raw audio or transcripts",
     }</code></pre>

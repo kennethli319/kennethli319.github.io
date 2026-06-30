@@ -305,7 +305,8 @@
         <p>
           Given aggregate candidate metadata, prefer examples with high model
           uncertainty, high user impact, undercovered slices, and recent
-          regressions. Exclude disallowed consent scopes.
+          regressions. Exclude disallowed consent scopes and cap each slice so
+          one noisy cohort cannot consume the whole review batch.
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
@@ -320,11 +321,16 @@ def finite_number(value, name):
     return float(value)
 
 
-def rank_review_candidates(records, allowed_scopes):
+def rank_review_candidates(records, allowed_scopes, max_per_slice=2):
+    if not isinstance(max_per_slice, int) or max_per_slice &lt;= 0:
+        raise ValueError("max_per_slice must be a positive integer")
     ranked = []
     for row in records:
         if row["consent_scope"] not in allowed_scopes:
             continue
+        slice_id = row["slice_id"]
+        if not isinstance(slice_id, str) or not slice_id:
+            raise ValueError("slice_id must be a non-empty string")
         confidence = finite_number(row["confidence"], "confidence")
         daily_sessions = finite_number(row["daily_sessions"], "daily_sessions")
         slice_coverage = finite_number(row["slice_coverage"], "slice_coverage")
@@ -344,9 +350,16 @@ def rank_review_candidates(records, allowed_scopes):
         regression = 2.0 if row["recent_regression"] else 0.0
         privacy_penalty = 1.0 if row.get("sensitive_proxy", False) else 0.0
         score = uncertainty + impact + coverage_gap + regression - privacy_penalty
-        ranked.append((score, row["candidate_id"]))
+        ranked.append((score, row["candidate_id"], slice_id))
     ranked.sort(key=lambda item: (-item[0], item[1]))
-    return [candidate_id for score, candidate_id in ranked]</code></pre>
+    selected = []
+    per_slice = {}
+    for score, candidate_id, slice_id in ranked:
+        if per_slice.get(slice_id, 0) &gt;= max_per_slice:
+            continue
+        selected.append(candidate_id)
+        per_slice[slice_id] = per_slice.get(slice_id, 0) + 1
+    return selected</code></pre>
         </details>
       </article>
       <article class="prompt">
@@ -356,8 +369,9 @@ def rank_review_candidates(records, allowed_scopes):
           <p>
             Test disallowed consent exclusion, low-coverage boost, regression
             boost, capped impact, sensitive proxy penalty, tie behavior, empty
-            input, invalid confidence or coverage ranges, negative traffic, and
-            non-finite numeric inputs. Include a case where the
+            input, invalid confidence or coverage ranges, negative traffic,
+            non-finite numeric inputs, missing slice IDs, and per-slice caps.
+            Include a case where the
             highest-uncertainty example is not the best candidate because it
             has no launch relevance.
           </p>

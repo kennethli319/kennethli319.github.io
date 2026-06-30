@@ -234,12 +234,17 @@ def max_window_error_rate(records, window_seconds):
             Invariant: each candidate slice is compared only if the baseline
             exists, and positive delta means worse. Common mistakes include
             sorting in the wrong direction, hiding missing baselines, and using
-            aggregate averages that mask slice failures.
+            aggregate averages that mask slice failures. Test zero and negative
+            <code>k</code>, missing baselines, ties, no regressions, and
+            higher-is-better metrics that must be normalized before calling.
           </p>
           <pre><code class="language-python">import heapq
 
 
 def top_k_regressed_slices(baseline, candidate, k):
+    if k &lt; 0:
+        raise ValueError("k must be non-negative")
+
     heap = []
     missing = []
     for name, new_value in candidate.items():

@@ -243,6 +243,9 @@
             direction = rule["direction"]
             allowed = rule["allowed_delta"]
             severity = rule.get("severity", "normal")
+            if direction not in {"lower_is_better", "higher_is_better"}:
+                reasons.append(("pause", slice_name, f"bad direction for {metric}"))
+                continue
 
             regressed = (
                 direction == "lower_is_better" and delta &gt; allowed

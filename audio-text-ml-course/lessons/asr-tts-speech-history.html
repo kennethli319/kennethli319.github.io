@@ -113,17 +113,19 @@
       <article class="prompt">
         <h3>Cascaded ASR -> LLM -> TTS</h3>
         <p>
-          The cascade is easy to inspect, moderate, test, and debug. It also
-          creates latency at each boundary and may discard prosody, emotion, and
-          turn-taking cues.
+          The cascade is easy to inspect, moderate, test, and debug. Modern
+          versions often stream micro-turns rather than waiting for a full
+          transcript, but each boundary can still add latency and discard
+          prosody, emotion, and turn-taking cues.
         </p>
         <details class="qa">
           <summary>Hidden answer: When to choose the cascade</summary>
           <p>
             Choose it when correctness, explainability, safety review,
             transcript UI, tool use, enterprise compliance, and incremental
-            rollout matter more than preserving every acoustic cue. It is often
-            the best production default for a production assistant.
+            rollout matter more than preserving every acoustic cue. Treat it as
+            the baseline to beat, then compare native or codec-based speech
+            models on latency, barge-in, grounding, safety, and rollback.
           </p>
         </details>
       </article>
@@ -132,7 +134,8 @@
         <p>
           Direct systems can model speech tokens or latent audio representations
           and produce speech without a text-only bottleneck. They may preserve
-          prosody better, but are harder to evaluate and control.
+          timing and prosody better, especially in duplex conversation, but are
+          harder to evaluate and control.
         </p>
         <details class="qa">
           <summary>Hidden answer: What can go wrong?</summary>

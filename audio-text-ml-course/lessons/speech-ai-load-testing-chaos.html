@@ -210,10 +210,19 @@
           <p>
             Invariant: a route can only pass if user experience, reliability,
             and cost are all inside budget. Test a clean pass, a latency fail, a
-            cost fail with quality gain, a missing required route, and an
-            unexpected route without a launch budget.
+            cost fail with quality gain, a missing required route, malformed
+            metrics, and an unexpected route without a launch budget.
           </p>
-          <pre><code class="language-python">def evaluate_load_gate(routes, budgets):
+          <pre><code class="language-python">from math import isfinite
+
+
+def _finite_non_negative(value, field):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not isfinite(value) or value &lt; 0:
+        raise ValueError(f"{field} must be a finite non-negative number")
+    return value
+
+
+def evaluate_load_gate(routes, budgets):
     failures = []
     for name in budgets:
         if name not in routes:
@@ -224,15 +233,19 @@
             failures.append((name, "missing_budget", None))
             continue
         budget = budgets[name]
-        if metrics["p95_ms"] &gt; budget["p95_ms"]:
-            failures.append((name, "latency", metrics["p95_ms"]))
-        if metrics["error_rate"] &gt; budget["error_rate"]:
-            failures.append((name, "errors", metrics["error_rate"]))
+        p95_ms = _finite_non_negative(metrics["p95_ms"], f"{name}.p95_ms")
+        error_rate = _finite_non_negative(metrics["error_rate"], f"{name}.error_rate")
+        cost_per_success = _finite_non_negative(metrics["cost_per_success"], f"{name}.cost_per_success")
+        task_success_delta = _finite_non_negative(metrics["task_success_delta"], f"{name}.task_success_delta")
+        if p95_ms &gt; budget["p95_ms"]:
+            failures.append((name, "latency", p95_ms))
+        if error_rate &gt; budget["error_rate"]:
+            failures.append((name, "errors", error_rate))
 
-        cost_over = metrics["cost_per_success"] &gt; budget["cost_per_success"]
-        quality_gain = metrics["task_success_delta"] &gt;= budget.get("min_gain_for_cost_overrun", 0.02)
+        cost_over = cost_per_success &gt; budget["cost_per_success"]
+        quality_gain = task_success_delta &gt;= budget.get("min_gain_for_cost_overrun", 0.02)
         if cost_over and not quality_gain:
-            failures.append((name, "cost_without_quality_gain", metrics["cost_per_success"]))
+            failures.append((name, "cost_without_quality_gain", cost_per_success))
 
     return {"ship": not failures, "failures": failures}</code></pre>
         </details>
@@ -248,19 +261,36 @@
           <summary>Hidden answer: common mistakes and Python solution</summary>
           <p>
             Common mistakes are alerting on request count alone, ignoring the
-            baseline, and missing the dependency error signal. Retry storms show
-            more attempts per original user turn plus rising dependency errors.
+            baseline, accepting malformed counters, and missing the dependency
+            error signal. Retry storms show more attempts per original user turn
+            plus rising dependency errors.
           </p>
-          <pre><code class="language-python">def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_threshold=0.05):
+          <pre><code class="language-python">from math import isfinite
+
+
+def _finite_non_negative(value, field):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not isfinite(value) or value &lt; 0:
+        raise ValueError(f"{field} must be a finite non-negative number")
+    return value
+
+
+def retry_storm_windows(points, attempt_ratio_threshold=1.8, dependency_error_threshold=0.05):
+    attempt_ratio_threshold = _finite_non_negative(attempt_ratio_threshold, "attempt_ratio_threshold")
+    dependency_error_threshold = _finite_non_negative(dependency_error_threshold, "dependency_error_threshold")
+    if attempt_ratio_threshold &lt;= 0:
+        raise ValueError("thresholds must be non-negative and attempt ratio must be positive")
     alerts = []
     for point in points:
-        user_turns = max(point["user_turns"], 1)
-        attempt_ratio = point["service_attempts"] / user_turns
-        if attempt_ratio &gt;= attempt_ratio_threshold and point["dependency_error_rate"] &gt;= dependency_error_threshold:
+        user_turns = _finite_non_negative(point["user_turns"], "user_turns")
+        service_attempts = _finite_non_negative(point["service_attempts"], "service_attempts")
+        dependency_error_rate = _finite_non_negative(point["dependency_error_rate"], "dependency_error_rate")
+        user_turn_denominator = max(user_turns, 1)
+        attempt_ratio = service_attempts / user_turn_denominator
+        if attempt_ratio &gt;= attempt_ratio_threshold and dependency_error_rate &gt;= dependency_error_threshold:
             alerts.append({
                 "minute": point["minute"],
                 "attempt_ratio": round(attempt_ratio, 2),
-                "dependency_error_rate": point["dependency_error_rate"],
+                "dependency_error_rate": dependency_error_rate,
                 "action": "cap_retries_and_enable_fallback",
             })
     return alerts</code></pre>
@@ -278,21 +308,35 @@
           <p>
             Invariant: the supported capacity is the last passing step before
             the first failing step. In production, repeat or soak that boundary
-            before publishing a capacity number so a single noisy point does not
-            define the launch limit.
+            before publishing a capacity number so a single noisy or malformed
+            point does not define the launch limit.
           </p>
-          <pre><code class="language-python">def first_capacity_break(steps, p95_budget_ms, error_budget):
+          <pre><code class="language-python">from math import isfinite
+
+
+def _finite_non_negative(value, field):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not isfinite(value) or value &lt; 0:
+        raise ValueError(f"{field} must be a finite non-negative number")
+    return value
+
+
+def first_capacity_break(steps, p95_budget_ms, error_budget):
+    p95_budget_ms = _finite_non_negative(p95_budget_ms, "p95_budget_ms")
+    error_budget = _finite_non_negative(error_budget, "error_budget")
     last_passing = None
     for step in steps:
-        passes = step["p95_ms"] &lt;= p95_budget_ms and step["error_rate"] &lt;= error_budget
+        concurrency = _finite_non_negative(step["concurrency"], "concurrency")
+        p95_ms = _finite_non_negative(step["p95_ms"], "p95_ms")
+        error_rate = _finite_non_negative(step["error_rate"], "error_rate")
+        passes = p95_ms &lt;= p95_budget_ms and error_rate &lt;= error_budget
         if passes:
-            last_passing = step["concurrency"]
+            last_passing = concurrency
             continue
         return {
             "max_supported_concurrency": last_passing,
-            "first_failing_concurrency": step["concurrency"],
-            "p95_ms": step["p95_ms"],
-            "error_rate": step["error_rate"],
+            "first_failing_concurrency": concurrency,
+            "p95_ms": p95_ms,
+            "error_rate": error_rate,
         }
     return {"max_supported_concurrency": last_passing, "first_failing_concurrency": None}</code></pre>
         </details>

@@ -260,25 +260,34 @@
           <summary>Hidden answer: invariant and Python solution</summary>
           <p>
             Invariant: each flagged row has a slice present in both metric
-            maps, <code>new - old</code> is greater than the non-negative
-            regression budget, and missing or newly added slices are reported
-            separately instead of being silently treated as zero.
+            maps, both metric values are finite, <code>new - old</code> is
+            greater than the non-negative regression budget, and missing or
+            newly added slices are reported separately instead of being
+            silently treated as zero.
           </p>
-          <pre><code class="language-python">def slices_over_budget(old_metrics, new_metrics, budget):
+          <pre><code class="language-python">from math import isfinite
+
+
+def slices_over_budget(old_metrics, new_metrics, budget):
     if budget &lt; 0:
         raise ValueError("budget must be non-negative for lower-is-better metrics")
+    if not isfinite(budget):
+        raise ValueError("budget must be finite")
 
     missing_in_new = sorted(set(old_metrics) - set(new_metrics))
     new_only = sorted(set(new_metrics) - set(old_metrics))
     flagged = []
     for name in sorted(set(old_metrics) &amp; set(new_metrics)):
         old_value = old_metrics[name]
-        delta = new_metrics[name] - old_value
+        new_value = new_metrics[name]
+        if not isfinite(old_value) or not isfinite(new_value):
+            raise ValueError(f"{name} has a non-finite metric value")
+        delta = new_value - old_value
         if delta &gt; budget:
             flagged.append({
                 "slice": name,
                 "old": old_value,
-                "new": new_metrics[name],
+                "new": new_value,
                 "delta": delta,
             })
     return {

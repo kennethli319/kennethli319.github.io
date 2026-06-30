@@ -312,20 +312,32 @@
           <pre><code class="language-python">import math
 
 
+def finite_number(value, name):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name} must be numeric")
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be finite")
+    return float(value)
+
+
 def rank_review_candidates(records, allowed_scopes):
     ranked = []
     for row in records:
         if row["consent_scope"] not in allowed_scopes:
             continue
-        confidence = row["confidence"]
-        daily_sessions = row["daily_sessions"]
-        slice_coverage = row["slice_coverage"]
-        if not math.isfinite(confidence) or not 0.0 &lt;= confidence &lt;= 1.0:
+        confidence = finite_number(row["confidence"], "confidence")
+        daily_sessions = finite_number(row["daily_sessions"], "daily_sessions")
+        slice_coverage = finite_number(row["slice_coverage"], "slice_coverage")
+        if not 0.0 &lt;= confidence &lt;= 1.0:
             raise ValueError("confidence must be between 0 and 1")
-        if not math.isfinite(daily_sessions) or daily_sessions &lt; 0:
-            raise ValueError("daily_sessions must be finite and non-negative")
-        if not math.isfinite(slice_coverage) or not 0.0 &lt;= slice_coverage &lt;= 1.0:
+        if daily_sessions &lt; 0:
+            raise ValueError("daily_sessions must be non-negative")
+        if not 0.0 &lt;= slice_coverage &lt;= 1.0:
             raise ValueError("slice_coverage must be between 0 and 1")
+        if not isinstance(row["recent_regression"], bool):
+            raise ValueError("recent_regression must be boolean")
+        if not isinstance(row.get("sensitive_proxy", False), bool):
+            raise ValueError("sensitive_proxy must be boolean")
         uncertainty = 1.0 - confidence
         impact = min(daily_sessions / 1000.0, 3.0)
         coverage_gap = 1.5 if slice_coverage &lt; 0.2 else 0.0

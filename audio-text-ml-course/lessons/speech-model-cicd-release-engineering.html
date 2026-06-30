@@ -220,7 +220,7 @@ def validate_registry_entry(entry):
         <p>
           Decide whether a canary can promote based on slice metrics and exposure
           quality. Lower WER, lower latency, and lower cost are better, but an
-          incomplete or tiny canary should not auto-promote.
+          incomplete, tiny, or unapproved slice report should not auto-promote.
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
@@ -238,9 +238,11 @@ def finite_number(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
-def canary_promotion(metrics, min_requests_per_slice=100):
+def canary_promotion(metrics, approved_slices, min_requests_per_slice=100):
     if not isinstance(metrics, dict):
         return {"decision": "hold", "blockers": ["invalid_metrics"]}
+    if not isinstance(approved_slices, set) or not approved_slices:
+        raise ValueError("approved_slices must be a non-empty set")
     if not finite_number(min_requests_per_slice) or min_requests_per_slice &lt;= 0:
         raise ValueError("min_requests_per_slice must be positive")
 
@@ -252,6 +254,9 @@ def canary_promotion(metrics, min_requests_per_slice=100):
         slices = {}
 
     for name, values in slices.items():
+        if name not in approved_slices:
+            blockers.append(f"{name}:unapproved_slice")
+            continue
         if not isinstance(values, dict):
             blockers.append(f"{name}:invalid_metrics")
             continue
@@ -284,7 +289,7 @@ def canary_promotion(metrics, min_requests_per_slice=100):
             critical slices, privacy, latency, unit economics, and telemetry
             completeness before promotion. Missing top-level or slice telemetry
             should hold the release, not crash late, smuggle NaN through a
-            comparison, or default to success.
+            comparison, expose raw cohort labels, or default to success.
           </p>
         </details>
       </article>

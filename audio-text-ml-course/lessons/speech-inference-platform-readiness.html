@@ -262,7 +262,7 @@ def rollout_decision(metrics):
 
     return {"decision": "pause", "reasons": ["insufficient_gain"]}</code></pre>
           <p>
-            The invariant is that privacy errors and protected-slice regressions
+            The invariant is that privacy errors and critical-slice regressions
             dominate average quality wins. A common mistake is launching because
             aggregate WER improved. Missing canary metrics or impossible privacy
             counters are invalid telemetry, not evidence that a rollout is safe.

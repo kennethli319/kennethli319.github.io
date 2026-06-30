@@ -97,9 +97,10 @@ output = weights @ V</code></pre>
       </p>
       <p>
         RoPE is common in decoder LLMs because it rotates query and key vectors
-        by position before the dot product. It preserves the attention pattern
-        while making relative distance easier for the model to use, but it does
-        not remove the quadratic cost of full attention.
+        by position before the dot product. This makes each query-key score
+        depend on their relative offset, so the model can use distance and
+        order without adding separate position vectors to the values. It still
+        does not remove the quadratic cost of full attention.
       </p>
 
       <details class="qa">

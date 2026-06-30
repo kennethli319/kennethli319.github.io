@@ -270,7 +270,7 @@
           <p>
             Require unit tests for feature shape, sample-rate handling,
             normalization, streaming chunk boundaries, and model wrapper
-            schema. Require deterministic eval on public or approved fixtures,
+            schema. Require repeatable offline eval on public or approved fixtures,
             slice regression checks, latency and memory benchmarks, artifact
             versioning, dependency lockfile, model card, rollback plan, and
             privacy review. The deployment should stage through offline eval,
@@ -308,11 +308,18 @@
             handling, plus range checks for WER values, so eval coverage and
             metric quality cannot silently disappear.
           </p>
-          <pre><code class="language-python">def asr_slice_gate(baseline, candidate, budgets):
+          <pre><code class="language-python">import math
+
+
+def valid_rate(value):
+    return isinstance(value, (int, float)) and math.isfinite(value) and 0 &lt;= value &lt;= 1
+
+
+def asr_slice_gate(baseline, candidate, budgets):
     findings = []
     for slice_name, budget in budgets.items():
         max_delta = budget.get("max_wer_delta")
-        if max_delta is None or max_delta &lt; 0:
+        if not valid_rate(max_delta):
             findings.append(("pause", slice_name, "invalid regression budget"))
             continue
         if slice_name not in baseline or slice_name not in candidate:
@@ -323,7 +330,7 @@
             continue
         old_wer = baseline[slice_name]["wer"]
         new_wer = candidate[slice_name]["wer"]
-        if old_wer &lt; 0 or old_wer &gt; 1 or new_wer &lt; 0 or new_wer &gt; 1:
+        if not valid_rate(old_wer) or not valid_rate(new_wer):
             findings.append(("pause", slice_name, "WER outside 0..1 range"))
             continue
         delta = new_wer - old_wer

@@ -215,7 +215,12 @@ def top_audio_issues(results, limit=5):
         issue = diagnostics.get("primary_issue")
         severity = diagnostics.get("severity", "medium")
         flag = metadata.get("flag_reason", "sampled")
-        if not event_id or not issue or severity not in SEVERITY_WEIGHT or flag not in FLAG_WEIGHT:
+        if (
+            not isinstance(event_id, str)
+            or not isinstance(issue, str)
+            or severity not in SEVERITY_WEIGHT
+            or flag not in FLAG_WEIGHT
+        ):
             continue
         seen_event_ids.add(event_id)
         weight = SEVERITY_WEIGHT[severity] * FLAG_WEIGHT[flag]
@@ -231,8 +236,12 @@ def top_audio_issues(results, limit=5):
         bucket["impact"] += weight
         bucket["examples"] = (bucket["examples"] + [event_id])[:3]
         model = metadata.get("model", "unknown")
+        if not isinstance(model, str):
+            model = "unknown"
         bucket["models"][model] = bucket["models"].get(model, 0) + 1
         version = metadata.get("app_version", "unknown")
+        if not isinstance(version, str):
+            version = "unknown"
         bucket["versions"][version] = bucket["versions"].get(version, 0) + 1
     return sorted(groups.values(), key=lambda item: (-item["impact"], -item["count"]))[:limit]</code></pre>
         <details class="qa">

@@ -406,13 +406,13 @@ def asr_slice_gate(baseline, candidate, budgets):
         <h3>Exercise 4: Production Debugging Narrative</h3>
         <p>
           A canary improves offline WER by 2 percent, but live correction rate
-          rises for Spanish-English code-switching users. Explain the first
+          rises on an approved Spanish-English code-switching eval slice. Explain the first
           hour, the next day, and the prevention work.
         </p>
         <details class="qa">
           <summary>Hidden answer: incident narrative</summary>
           <p>
-            First hour: pause or roll back the canary for the affected slice,
+            First hour: pause or roll back the canary for the affected approved aggregate slice,
             compare request routing, language ID, contextual biasing, text
             normalization, and entity errors against the baseline. Next day:
             build a targeted eval slice, inspect redacted or approved examples,
@@ -437,7 +437,7 @@ def asr_slice_gate(baseline, candidate, budgets):
         </article>
         <article class="card">
           <h3>Quantization</h3>
-          <p>Reduces memory and can improve latency, but must be checked by slice because rare words, accents, and prosody can regress.</p>
+          <p>Reduces memory and can improve latency, but must be checked on approved aggregate eval slices because rare words, language mix, and prosody can regress.</p>
         </article>
         <article class="card">
           <h3>Cascading</h3>

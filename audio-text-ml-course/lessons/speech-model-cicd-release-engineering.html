@@ -197,6 +197,11 @@
 
 
 def validate_registry_entry(entry):
+    if not isinstance(entry, dict):
+        return {
+            "release_blocked": True,
+            "missing_fields": sorted(REQUIRED_FIELDS),
+        }
     missing = sorted(field for field in REQUIRED_FIELDS if not entry.get(field))
     return {
         "release_blocked": bool(missing),
@@ -234,6 +239,11 @@ def finite_number(value):
 
 
 def canary_promotion(metrics, min_requests_per_slice=100):
+    if not isinstance(metrics, dict):
+        return {"decision": "hold", "blockers": ["invalid_metrics"]}
+    if not finite_number(min_requests_per_slice) or min_requests_per_slice &lt;= 0:
+        raise ValueError("min_requests_per_slice must be positive")
+
     blockers = []
 
     slices = metrics.get("slices")

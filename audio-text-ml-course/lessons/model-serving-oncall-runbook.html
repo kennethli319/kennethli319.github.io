@@ -279,11 +279,18 @@
             than generic traffic.
           </p>
           <pre><code class="language-python">def select_rollback_candidate(version_slices, critical_weights):
+    if not version_slices:
+        raise ValueError("at least one model version is required")
+
     scores = {}
     for version, slices in version_slices.items():
         score = 0.0
         for slice_name, regression in slices.items():
+            if regression &lt; 0:
+                raise ValueError(f"{version}/{slice_name}: regression must be non-negative")
             weight = critical_weights.get(slice_name, 1.0)
+            if weight &lt; 0:
+                raise ValueError(f"{slice_name}: critical weight must be non-negative")
             score += max(0.0, regression) * weight
         scores[version] = score
 

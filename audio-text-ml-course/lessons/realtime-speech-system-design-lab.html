@@ -243,13 +243,23 @@
             already visible in the previous partial. Count substitutions and
             deletions as churn, but do not penalize append-only growth. Common
             mistakes include comparing full strings, counting appended words as
-            churn, and ignoring shortened partials.
+            churn, ignoring shortened partials, accepting a single transcript
+            string as an iterable of characters, and allowing non-string
+            partials to fail later with unclear errors.
           </p>
           <pre><code class="language-python">def prefix_churn_rate(partials):
+    from collections.abc import Iterable
+
+    if isinstance(partials, (str, bytes)) or not isinstance(partials, Iterable):
+        raise ValueError("partials must be an iterable of transcript strings")
+    partials = list(partials)
+
     comparisons = 0
     churns = 0
 
     for prev, curr in zip(partials, partials[1:]):
+        if not isinstance(prev, str) or not isinstance(curr, str):
+            raise ValueError("each partial transcript must be a string")
         prev_words = prev.split()
         curr_words = curr.split()
         if not prev_words:

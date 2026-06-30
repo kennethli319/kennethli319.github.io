@@ -166,7 +166,9 @@
             Invariant: all earlier releases are acceptable under the same
             budget rules. Common mistakes are treating missing metrics as pass,
             mixing lower-is-better and higher-is-better metrics, and reporting
-            the worst release instead of the first bad one.
+            the worst release instead of the first bad one. Unknown budget
+            directions should fail loudly so a malformed gate does not approve
+            a risky release.
           </p>
           <pre><code class="language-python">def first_bad_release(releases, budgets):
     for release in releases:
@@ -180,6 +182,8 @@
                 return release["id"], metric, value
             if rule["direction"] == "min" and value &lt; rule["limit"]:
                 return release["id"], metric, value
+            if rule["direction"] not in {"max", "min"}:
+                raise ValueError(f"unknown budget direction: {rule['direction']}")
 
     return None</code></pre>
         </details>

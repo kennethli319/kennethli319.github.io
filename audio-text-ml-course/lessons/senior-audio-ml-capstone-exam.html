@@ -182,20 +182,30 @@
         <details class="qa">
           <summary>Hidden answer: invariant, tests, and Python solution</summary>
           <p>
-            Invariant: after advancing <code>left</code>, every record in the
-            active window is within <code>window_seconds</code> of the current
-            right edge. Test empty input, all success, all failure, same
-            timestamp, and records exactly on the boundary.
+            Invariant: records are processed in nondecreasing timestamp order;
+            after advancing <code>left</code>, every record in the active
+            window is within <code>window_seconds</code> of the current right
+            edge. Test empty input, all success, all failure, same timestamp,
+            out-of-order timestamps, negative windows, and records exactly on
+            the boundary.
           </p>
           <pre><code class="language-python">from collections import deque
 
 
 def max_window_error_rate(records, window_seconds):
+    if window_seconds &lt; 0:
+        raise ValueError("window_seconds must be non-negative")
+
     window = deque()
     failures = 0
     best = 0.0
+    previous_ts = None
 
     for ts, ok in records:
+        if previous_ts is not None and ts &lt; previous_ts:
+            raise ValueError("records must be sorted by timestamp")
+        previous_ts = ts
+
         window.append((ts, ok))
         if not ok:
             failures += 1

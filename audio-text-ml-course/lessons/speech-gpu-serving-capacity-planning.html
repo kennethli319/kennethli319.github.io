@@ -281,8 +281,8 @@ def first_capacity_alert(queue_age_ms, k, threshold_ms):
             unless the interviewer asks for value maximization. State the
             product policy first. Test zero capacity, ties, requests larger
             than capacity, equal priorities with different costs, invalid
-            negative or non-finite costs, and stable identifiers for admitted
-            requests.
+            negative or non-finite costs or priorities, malformed identifiers,
+            and stable identifiers for admitted requests.
           </p>
           <pre><code class="language-python">from math import isfinite
 
@@ -291,7 +291,13 @@ def admit_requests(requests, capacity):
     if not isinstance(capacity, (int, float)) or not isfinite(capacity) or capacity &lt; 0:
         raise ValueError("capacity must be a finite non-negative number")
     for request in requests:
+        request_id = request["id"]
+        priority = request["priority"]
         cost = request["estimated_cost"]
+        if not isinstance(request_id, str) or not request_id:
+            raise ValueError("id must be a non-empty string")
+        if not isinstance(priority, (int, float)) or not isfinite(priority):
+            raise ValueError("priority must be finite")
         if not isinstance(cost, (int, float)) or not isfinite(cost) or cost &lt; 0:
             raise ValueError("estimated_cost must be a finite non-negative number")
 

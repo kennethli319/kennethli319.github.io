@@ -235,9 +235,11 @@
         <details class="qa">
           <summary>Hidden answer: invariant, common mistakes, and Python solution</summary>
           <p>
-            Invariant: only compare the shared prefix length between adjacent
-            partials. Common mistakes include comparing full strings, counting
-            appended words as churn, and ignoring empty partials.
+            Invariant: compare each new partial against the words that were
+            already visible in the previous partial. Count substitutions and
+            deletions as churn, but do not penalize append-only growth. Common
+            mistakes include comparing full strings, counting appended words as
+            churn, and ignoring shortened partials.
           </p>
           <pre><code class="language-python">def prefix_churn_rate(partials):
     comparisons = 0
@@ -246,12 +248,11 @@
     for prev, curr in zip(partials, partials[1:]):
         prev_words = prev.split()
         curr_words = curr.split()
-        shared = min(len(prev_words), len(curr_words))
-        if shared == 0:
+        if not prev_words:
             continue
-        comparisons += shared
-        for i in range(shared):
-            if prev_words[i] != curr_words[i]:
+        comparisons += len(prev_words)
+        for i, prev_word in enumerate(prev_words):
+            if i &gt;= len(curr_words) or curr_words[i] != prev_word:
                 churns += 1
 
     return 0.0 if comparisons == 0 else churns / comparisons</code></pre>

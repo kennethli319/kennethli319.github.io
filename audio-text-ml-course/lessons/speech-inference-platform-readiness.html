@@ -184,7 +184,8 @@
           <details class="qa">
             <summary>Hidden answer: what to inspect</summary>
             <p>
-              Slice by region, language, accent, microphone path, network jitter,
+              Slice by region, language, approved aggregate or consented
+              pronunciation-variation tags, microphone path, network jitter,
               client version, model version, feature extraction version, and
               routing policy. Compare canary and control cohorts. An experienced
               responder does not rely on global WER during a regional complaint.
@@ -325,20 +326,25 @@ def cost_regression(old, new, tolerance=0.10):
         raise ValueError("tolerance must be finite")
     if tolerance &lt; 0:
         raise ValueError("tolerance must be non-negative")
-    if old["successful_turns"] &lt;= 0 or new["successful_turns"] &lt;= 0:
-        raise ValueError("successful_turns must be positive")
+    required = (
+        "successful_turns",
+        "gpu_dollars",
+        "avg_context_tokens",
+        "retry_rate",
+        "shadow_traffic_fraction",
+    )
     for label, window in (("old", old), ("new", new)):
-        for key in (
-            "successful_turns",
-            "gpu_dollars",
-            "avg_context_tokens",
-            "retry_rate",
-            "shadow_traffic_fraction",
-        ):
+        missing = [key for key in required if key not in window]
+        if missing:
+            raise ValueError(f"{label} missing metrics: {missing}")
+    for label, window in (("old", old), ("new", new)):
+        for key in required:
             if not math.isfinite(window[key]):
                 raise ValueError(f"{label}.{key} must be finite")
             if window[key] &lt; 0:
                 raise ValueError(f"{label}.{key} must be non-negative")
+    if old["successful_turns"] &lt;= 0 or new["successful_turns"] &lt;= 0:
+        raise ValueError("successful_turns must be positive")
     old_unit = old["gpu_dollars"] / old["successful_turns"]
     new_unit = new["gpu_dollars"] / new["successful_turns"]
     if old_unit &lt;= 0:

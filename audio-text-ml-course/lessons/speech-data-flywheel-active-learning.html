@@ -114,7 +114,7 @@
         </article>
         <article class="card">
           <h3>Privacy-Safe Proxies</h3>
-          <p>Use synthetic utterances, aggregate metrics, redacted text, hashed slice IDs, generated noise conditions, and review-approved fixtures.</p>
+          <p>Use synthetic utterances, aggregate metrics, redacted text, approved coarse slice buckets, generated noise conditions, and review-approved fixtures.</p>
           <details class="qa">
             <summary>Hidden answer: when proxies are enough</summary>
             <p>
@@ -200,7 +200,7 @@
       <div class="grid three">
         <article class="card">
           <h3>Data Diff</h3>
-          <p>Report added, removed, relabeled, and reweighted examples by slice, source, consent scope, and label policy.</p>
+          <p>Report added, removed, relabeled, and reweighted examples by slice, source, consent scope, and label policy; bucket sparse or sensitive slices before sharing metrics.</p>
           <details class="qa">
             <summary>Question: What should block the release?</summary>
             <p>
@@ -327,9 +327,11 @@ def finite_number(value, name):
     return float(value)
 
 
-def rank_review_candidates(records, allowed_scopes, max_per_slice=2):
+def rank_review_candidates(records, allowed_scopes, max_per_slice=2, min_slice_count=20):
     if not isinstance(max_per_slice, int) or max_per_slice &lt;= 0:
         raise ValueError("max_per_slice must be a positive integer")
+    if not isinstance(min_slice_count, int) or min_slice_count &lt;= 0:
+        raise ValueError("min_slice_count must be a positive integer")
     ranked = []
     for row in records:
         if row["consent_scope"] not in allowed_scopes:
@@ -346,10 +348,15 @@ def rank_review_candidates(records, allowed_scopes, max_per_slice=2):
             raise ValueError("daily_sessions must be non-negative")
         if not 0.0 &lt;= slice_coverage &lt;= 1.0:
             raise ValueError("slice_coverage must be between 0 and 1")
+        slice_count = finite_number(row.get("slice_count", min_slice_count), "slice_count")
+        if slice_count &lt; 0:
+            raise ValueError("slice_count must be non-negative")
         if not isinstance(row["recent_regression"], bool):
             raise ValueError("recent_regression must be boolean")
         if not isinstance(row.get("sensitive_proxy", False), bool):
             raise ValueError("sensitive_proxy must be boolean")
+        if row.get("sensitive_proxy", False) and slice_count &lt; min_slice_count:
+            slice_id = "bucketed_sensitive_proxy"
         uncertainty = 1.0 - confidence
         impact = min(daily_sessions / 1000.0, 3.0)
         coverage_gap = 1.5 if slice_coverage &lt; 0.2 else 0.0
@@ -376,8 +383,8 @@ def rank_review_candidates(records, allowed_scopes, max_per_slice=2):
             Test disallowed consent exclusion, low-coverage boost, regression
             boost, capped impact, sensitive proxy penalty, tie behavior, empty
             input, invalid confidence or coverage ranges, negative traffic,
-            non-finite numeric inputs, missing slice IDs, and per-slice caps.
-            Include a case where the
+            non-finite numeric inputs, missing slice IDs, sparse sensitive
+            slice bucketing, and per-slice caps. Include a case where the
             highest-uncertainty example is not the best candidate because it
             has no launch relevance.
           </p>

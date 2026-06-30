@@ -238,11 +238,14 @@
             mistakes are off-by-one return times, integer division, and
             forgetting that alerting usually triggers at the end of the window.
             Test empty input, k larger than input, threshold exactly equal,
-            first window breach, later breach, and no breach.
+            first window breach, later breach, no breach, and invalid negative
+            telemetry.
           </p>
           <pre><code class="language-python">def first_capacity_alert(queue_age_ms, k, threshold_ms):
     if k &lt;= 0:
         raise ValueError("k must be positive")
+    if any(age &lt; 0 for age in queue_age_ms):
+        raise ValueError("queue_age_ms must be non-negative")
     if len(queue_age_ms) &lt; k:
         return None
 
@@ -309,7 +312,8 @@
             Maintain rolling requests and retries. The invariant is that both
             sums represent exactly the current window. Avoid dividing by zero,
             alerting on tiny samples, or looking only at retry count without
-            traffic volume.
+            traffic volume. Reject impossible aggregate telemetry instead of
+            letting bad counters hide a production incident.
           </p>
           <pre><code class="language-python">def retry_storm_windows(records, k, retry_threshold, min_requests):
     if k &lt;= 0:
@@ -319,6 +323,10 @@
     retry_sum = 0
 
     for i, row in enumerate(records):
+        if row["requests"] &lt; 0 or row["retries"] &lt; 0:
+            raise ValueError("requests and retries must be non-negative")
+        if row["retries"] &gt; row["requests"]:
+            raise ValueError("retries cannot exceed requests")
         req_sum += row["requests"]
         retry_sum += row["retries"]
         if i &gt;= k:

@@ -94,13 +94,14 @@
         <details class="qa">
           <summary>Hidden answer: architecture and tradeoffs</summary>
           <p>
-            A cascaded ASR-LLM/RAG-TTS system is easier to debug and control
-            than a direct speech-to-speech model. Track ASR confidence, retrieval
-            grounding, answer safety, TTS first audio byte, turn latency,
-            barge-in, and handoff rate. Use session state with explicit TTLs,
-            policy-document versioning, retrieval evals from spoken queries,
-            and human escalation when grounding, identity, or intent confidence
-            is weak.
+            A cascaded ASR-LLM/RAG-TTS system is often easier to debug and
+            control than a direct speech-to-speech model, while direct models
+            may reduce latency or preserve prosody when they have strong evals
+            and guardrails. Track ASR confidence, retrieval grounding, answer
+            safety, TTS first audio byte, turn latency, barge-in, and handoff
+            rate. Use session state with explicit TTLs, policy-document
+            versioning, retrieval evals from spoken queries, and human
+            escalation when grounding, identity, or intent confidence is weak.
           </p>
         </details>
       </article>

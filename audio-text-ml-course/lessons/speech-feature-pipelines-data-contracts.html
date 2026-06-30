@@ -298,12 +298,20 @@ assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
         <p>
           Given hourly metadata coverage rates, return the first window where
           average coverage falls below a threshold for <code>w</code> hours.
-          This is a sliding-window incident detector.
+          This is a sliding-window incident detector. Fail closed on invalid
+          windows, thresholds, or impossible coverage values so bad telemetry
+          cannot look like a healthy stream.
         </p>
         <details class="qa">
           <summary>Hidden answer with production follow-up</summary>
           <pre><code>def first_coverage_drop(values, window, threshold):
-    if window <= 0 or len(values) < window:
+    if window <= 0:
+        raise ValueError("window must be positive")
+    if not 0 <= threshold <= 1:
+        raise ValueError("threshold must be between 0 and 1")
+    if any(value < 0 or value > 1 for value in values):
+        raise ValueError("coverage values must be between 0 and 1")
+    if len(values) < window:
         return None
 
     total = sum(values[:window])
@@ -320,7 +328,12 @@ assert rank_review_candidates(rows, 2) == ["c", "a"]</code></pre>
 
 
 assert first_coverage_drop([0.99, 0.98, 0.70, 0.72, 0.74], 3, 0.85) == 1
-assert first_coverage_drop([0.99, 0.98, 0.97], 2, 0.95) is None</code></pre>
+assert first_coverage_drop([0.99, 0.98, 0.97], 2, 0.95) is None
+try:
+    first_coverage_drop([0.99, 1.2], 2, 0.95)
+    raise AssertionError("expected validation failure")
+except ValueError:
+    pass</code></pre>
           <p>
             Production follow-up: page only when the drop affects critical fields
             or user-facing slices, deduplicate alerts by app version and

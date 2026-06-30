@@ -145,6 +145,12 @@
       <div class="section-head">
         <p class="eyebrow">Evaluation Design</p>
         <h2>Build Gates That Catch Real Regressions</h2>
+        <p>
+          Slice gates should pair point estimates with enough support to make
+          the decision meaningful. A five-utterance slice can reveal a risk,
+          but it should usually trigger more review or targeted sampling
+          rather than a confident ship/no-ship call by itself.
+        </p>
       </div>
       <article class="prompt">
         <h3>Gate 1: Streaming ASR Release</h3>
@@ -254,19 +260,21 @@
         <p>
           Given old and new metric values by slice, return the slices where
           a lower-is-better metric regresses more than the allowed amount, and
-          report slice mismatches before making a release decision.
+          report slice mismatches or underpowered slices before making a
+          release decision.
         </p>
         <details class="qa">
           <summary>Hidden answer: invariant and Python solution</summary>
           <p>
             Invariant: each flagged row has a slice present in both metric
-            maps, both metric values are finite, <code>new - old</code> is
-            greater than the non-negative regression budget, and missing or
-            newly added slices are reported separately instead of being
+            maps, both metric values are finite, the slice has enough examples
+            for a release gate, <code>new - old</code> is greater than the
+            non-negative regression budget, and missing, newly added, or
+            underpowered slices are reported separately instead of being
             silently treated as zero.
           </p>
           <pre><code class="language-python">from math import isfinite
-from numbers import Real
+from numbers import Integral, Real
 
 
 def _finite_number(value, name):
@@ -275,17 +283,32 @@ def _finite_number(value, name):
     return float(value)
 
 
-def slices_over_budget(old_metrics, new_metrics, budget):
+def _count(value, name):
+    if isinstance(value, bool) or not isinstance(value, Integral) or value &lt; 0:
+        raise ValueError(f"{name} must be a non-negative integer")
+    return int(value)
+
+
+def slices_over_budget(old_metrics, new_metrics, budget, slice_counts=None, min_count=1):
     budget = _finite_number(budget, "budget")
     if budget &lt; 0:
         raise ValueError("budget must be non-negative for lower-is-better metrics")
+    min_count = _count(min_count, "min_count")
+    if min_count == 0:
+        raise ValueError("min_count must be positive for a release gate")
 
     missing_in_new = sorted(set(old_metrics) - set(new_metrics))
     new_only = sorted(set(new_metrics) - set(old_metrics))
     flagged = []
+    underpowered = []
     for name in sorted(set(old_metrics) &amp; set(new_metrics)):
         old_value = _finite_number(old_metrics[name], f"{name} old metric")
         new_value = _finite_number(new_metrics[name], f"{name} new metric")
+        if slice_counts is not None:
+            support = _count(slice_counts.get(name, 0), f"{name} count")
+            if support &lt; min_count:
+                underpowered.append({"slice": name, "count": support})
+                continue
         delta = new_value - old_value
         if delta &gt; budget:
             flagged.append({
@@ -298,6 +321,7 @@ def slices_over_budget(old_metrics, new_metrics, budget):
         "flagged": flagged,
         "missing_in_new": missing_in_new,
         "new_only": new_only,
+        "underpowered": underpowered,
     }</code></pre>
         </details>
       </article>

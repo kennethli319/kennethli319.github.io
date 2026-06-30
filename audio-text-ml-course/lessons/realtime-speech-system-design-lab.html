@@ -268,7 +268,10 @@
             quality improvements cannot excuse a privacy error, protected-slice
             regression, tail-latency breach, or missing critical telemetry.
           </p>
-          <pre><code class="language-python">def should_rollback_canary(metrics):
+          <pre><code class="language-python">import math
+
+
+def should_rollback_canary(metrics):
     required = [
         "privacy_errors",
         "p99_turn_latency_delta_ms",
@@ -276,20 +279,25 @@
         "entity_recall_delta",
     ]
     reasons = []
+    clean = {}
     for name in required:
         if name not in metrics:
             reasons.append(f"missing_{name}")
+        elif not isinstance(metrics[name], (int, float)) or not math.isfinite(metrics[name]):
+            reasons.append(f"invalid_{name}")
+        else:
+            clean[name] = metrics[name]
 
-    privacy_errors = metrics.get("privacy_errors", 0)
+    privacy_errors = clean.get("privacy_errors", 0)
     if privacy_errors &lt; 0:
         reasons.append("invalid_privacy_errors")
     if privacy_errors &gt; 0:
         reasons.append("privacy_errors")
-    if metrics.get("p99_turn_latency_delta_ms", 0) &gt; 250:
+    if clean.get("p99_turn_latency_delta_ms", 0) &gt; 250:
         reasons.append("tail_latency")
-    if metrics.get("noisy_room_task_success_delta", 0) &lt; -0.03:
+    if clean.get("noisy_room_task_success_delta", 0) &lt; -0.03:
         reasons.append("noisy_room_regression")
-    if metrics.get("entity_recall_delta", 0) &lt; -0.02:
+    if clean.get("entity_recall_delta", 0) &lt; -0.02:
         reasons.append("entity_recall_regression")
 
     return {

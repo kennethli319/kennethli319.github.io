@@ -221,8 +221,10 @@
             Invariants: critical safety regressions override cost wins, every
             slice is checked independently, lower-is-better and higher-is-better
             metrics use opposite delta signs, and missing launch-critical
-            metrics pause the rollout. Test clean wins, cost-only wins, safety
-            regressions, latency regressions, and missing slice metrics.
+            metrics pause the rollout, and thin slices need enough baseline
+            and candidate examples before the comparison is trusted. Test clean
+            wins, cost-only wins, safety regressions, latency regressions,
+            missing slice metrics, and underpowered slices.
           </p>
           <pre><code class="language-python">def decide_voice_agent_release(baseline, candidate, budgets):
     reasons = []
@@ -234,7 +236,14 @@
             reasons.append(("pause", slice_name, "missing slice"))
             continue
 
+        min_count = metric_budgets.get("_min_count", 0)
+        if old.get("n", 0) &lt; min_count or new.get("n", 0) &lt; min_count:
+            reasons.append(("pause", slice_name, "underpowered slice"))
+            continue
+
         for metric, rule in metric_budgets.items():
+            if metric == "_min_count":
+                continue
             if metric not in old or metric not in new:
                 reasons.append(("pause", slice_name, f"missing {metric}"))
                 continue

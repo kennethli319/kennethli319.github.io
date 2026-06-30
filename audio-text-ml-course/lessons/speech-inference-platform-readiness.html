@@ -227,7 +227,10 @@
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def rollout_decision(metrics):
+          <pre><code class="language-python">import math
+
+
+def rollout_decision(metrics):
     required = (
         "p95_latency_ms_delta",
         "far_field_wer_relative_delta",
@@ -237,6 +240,9 @@
     missing = [key for key in required if key not in metrics]
     if missing:
         raise ValueError(f"missing metrics: {missing}")
+    for key in required:
+        if not math.isfinite(metrics[key]):
+            raise ValueError(f"{key} must be finite")
     if metrics["privacy_error_count"] &lt; 0:
         raise ValueError("privacy_error_count must be non-negative")
 
@@ -260,6 +266,7 @@
             dominate average quality wins. A common mistake is launching because
             aggregate WER improved. Missing canary metrics or impossible privacy
             counters are invalid telemetry, not evidence that a rollout is safe.
+            Non-finite telemetry such as NaN or infinity should fail closed too.
           </p>
         </details>
       </article>
@@ -271,11 +278,20 @@
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def queue_burn_rate(latencies_ms, threshold_ms=250, allowed_bad_fraction=0.01):
+          <pre><code class="language-python">import math
+
+
+def queue_burn_rate(latencies_ms, threshold_ms=250, allowed_bad_fraction=0.01):
+    if not math.isfinite(threshold_ms):
+        raise ValueError("threshold_ms must be finite")
+    if not math.isfinite(allowed_bad_fraction):
+        raise ValueError("allowed_bad_fraction must be finite")
     if threshold_ms &lt;= 0:
         raise ValueError("threshold_ms must be positive")
     if not 0 &lt; allowed_bad_fraction &lt;= 1:
         raise ValueError("allowed_bad_fraction must be in (0, 1]")
+    if any(not math.isfinite(x) for x in latencies_ms):
+        raise ValueError("latencies_ms must be finite")
     if any(x &lt; 0 for x in latencies_ms):
         raise ValueError("latencies_ms cannot contain negative values")
     if not latencies_ms:
@@ -288,7 +304,8 @@
             faster than planned for that window. Alerting should combine short
             and long windows to catch both spikes and slow burns. Negative
             latencies or impossible error-budget fractions are invalid
-            telemetry, not launch evidence.
+            telemetry, not launch evidence. NaN and infinity must be rejected
+            before alerting logic decides the service is healthy.
           </p>
         </details>
       </article>
@@ -300,13 +317,26 @@
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def cost_regression(old, new, tolerance=0.10):
+          <pre><code class="language-python">import math
+
+
+def cost_regression(old, new, tolerance=0.10):
+    if not math.isfinite(tolerance):
+        raise ValueError("tolerance must be finite")
     if tolerance &lt; 0:
         raise ValueError("tolerance must be non-negative")
     if old["successful_turns"] &lt;= 0 or new["successful_turns"] &lt;= 0:
         raise ValueError("successful_turns must be positive")
     for label, window in (("old", old), ("new", new)):
-        for key in ("gpu_dollars", "avg_context_tokens", "retry_rate", "shadow_traffic_fraction"):
+        for key in (
+            "successful_turns",
+            "gpu_dollars",
+            "avg_context_tokens",
+            "retry_rate",
+            "shadow_traffic_fraction",
+        ):
+            if not math.isfinite(window[key]):
+                raise ValueError(f"{label}.{key} must be finite")
             if window[key] &lt; 0:
                 raise ValueError(f"{label}.{key} must be non-negative")
     old_unit = old["gpu_dollars"] / old["successful_turns"]
@@ -333,6 +363,9 @@
             requires a capacity or product explanation. Do not hide zero-turn
             windows with a fallback denominator; mark them as invalid telemetry
             and investigate the pipeline before making a rollout decision.
+            Non-finite spend, traffic, retry, or context counters should also
+            block the decision rather than silently producing a false
+            non-regression.
           </p>
         </details>
       </article>

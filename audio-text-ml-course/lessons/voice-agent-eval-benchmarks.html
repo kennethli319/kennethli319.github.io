@@ -221,12 +221,20 @@
             Invariants: critical safety regressions override cost wins, every
             slice is checked independently, lower-is-better and higher-is-better
             metrics use opposite delta signs, and missing launch-critical
-            metrics pause the rollout, and thin slices need enough baseline
-            and candidate examples before the comparison is trusted. Test clean
-            wins, cost-only wins, safety regressions, latency regressions,
-            missing slice metrics, and underpowered slices.
+            metrics pause the rollout, malformed metric values pause the
+            rollout, and thin slices need enough baseline and candidate examples
+            before the comparison is trusted. Test clean wins, cost-only wins,
+            safety regressions, latency regressions, missing slice metrics,
+            non-finite telemetry, invalid budgets, and underpowered slices.
           </p>
-          <pre><code class="language-python">def decide_voice_agent_release(baseline, candidate, budgets):
+          <pre><code class="language-python">import math
+
+
+def finite_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def decide_voice_agent_release(baseline, candidate, budgets):
     reasons = []
 
     for slice_name, metric_budgets in budgets.items():
@@ -237,7 +245,22 @@
             continue
 
         min_count = metric_budgets.get("_min_count", 0)
-        if old.get("n", 0) &lt; min_count or new.get("n", 0) &lt; min_count:
+        if not isinstance(min_count, int) or min_count &lt; 0:
+            reasons.append(("pause", slice_name, "invalid min_count"))
+            continue
+        old_n = old.get("n", 0)
+        new_n = new.get("n", 0)
+        if (
+            not isinstance(old_n, int)
+            or not isinstance(new_n, int)
+            or isinstance(old_n, bool)
+            or isinstance(new_n, bool)
+            or old_n &lt; 0
+            or new_n &lt; 0
+        ):
+            reasons.append(("pause", slice_name, "invalid sample count"))
+            continue
+        if old_n &lt; min_count or new_n &lt; min_count:
             reasons.append(("pause", slice_name, "underpowered slice"))
             continue
 
@@ -247,15 +270,24 @@
             if metric not in old or metric not in new:
                 reasons.append(("pause", slice_name, f"missing {metric}"))
                 continue
+            if not isinstance(rule, dict) or "direction" not in rule or "allowed_delta" not in rule:
+                reasons.append(("pause", slice_name, f"bad rule for {metric}"))
+                continue
 
-            delta = new[metric] - old[metric]
             direction = rule["direction"]
             allowed = rule["allowed_delta"]
             severity = rule.get("severity", "normal")
+            if not finite_number(old[metric]) or not finite_number(new[metric]):
+                reasons.append(("pause", slice_name, f"invalid {metric}"))
+                continue
+            if not finite_number(allowed) or allowed &lt; 0:
+                reasons.append(("pause", slice_name, f"bad budget for {metric}"))
+                continue
             if direction not in {"lower_is_better", "higher_is_better"}:
                 reasons.append(("pause", slice_name, f"bad direction for {metric}"))
                 continue
 
+            delta = new[metric] - old[metric]
             regressed = (
                 direction == "lower_is_better" and delta &gt; allowed
             ) or (

@@ -192,7 +192,8 @@
             policy on WER/CER slices, first partial latency, abandonment,
             downstream task success, and cost per successful minute. Failure
             modes include biased routing, stale noise classifiers, retry loops,
-            and silently routing rare accents to the wrong model.
+            and silently routing approved aggregate or consented pronunciation
+            variation slices to the wrong model.
           </p>
         </details>
       </article>
@@ -248,21 +249,23 @@
       </article>
 
       <article class="prompt">
-        <h3>Drill 2: Drift In Noisy Accent Slice</h3>
+        <h3>Drill 2: Drift In A Consented Noisy Speech Slice</h3>
         <p>
           Weekly aggregate WER is flat, but support tickets mention worse
-          recognition for noisy accented calls after a data refresh.
+          recognition for an approved aggregate or consented noisy
+          pronunciation-variation slice after a data refresh.
         </p>
         <details class="qa">
           <summary>Hidden answer: slice investigation</summary>
           <p>
-            Compare slice-level WER, entity error rate, endpointing errors,
-            partial churn, and downstream task success before and after the
-            refresh. Audit labeling mix, augmentation, sample weights, language
-            detection, and test-set leakage. Mitigate by routing the slice to
-            the last good model or raising confidence thresholds. Add active
-            learning coverage checks, label audit gates, and drift monitors for
-            the affected slice.
+            Compare privacy-approved slice-level WER, entity error rate,
+            endpointing errors, partial churn, and downstream task success
+            before and after the refresh. Audit labeling mix, augmentation,
+            sample weights, language detection, consent or aggregation policy,
+            and test-set leakage. Mitigate by routing the slice to the last
+            good model or raising confidence thresholds. Add active learning
+            coverage checks, label audit gates, and drift monitors for the
+            affected approved aggregate or consented slice.
           </p>
         </details>
       </article>

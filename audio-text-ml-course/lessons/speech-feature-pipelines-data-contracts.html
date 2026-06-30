@@ -240,10 +240,10 @@ except ValueError:
       <article class="problem-card">
         <h3>Problem: Rank Active-Learning Candidates</h3>
         <p>
-          Select the top <code>k</code> consented aggregate examples for human
-          review using uncertainty, slice rarity, and recent regression score.
-          The queue must fail closed on invalid limits or missing scoring
-          signals.
+          Select the top <code>k</code> consented examples for human review
+          using aggregate scoring signals such as uncertainty, slice rarity,
+          and recent regression score. The queue must fail closed on invalid
+          limits or missing scoring signals.
         </p>
         <details class="qa">
           <summary>Questions, common mistakes, and hidden Python answer</summary>
@@ -252,7 +252,9 @@ except ValueError:
             ties? Should one user dominate the queue? Common mistakes include
             ignoring consent, sorting the entire stream when a heap is enough,
             using raw transcript content in logs, and optimizing uncertainty
-            while starving rare slices.
+            while starving rare slices. A production queue should also cap or
+            diversify per-user contributions before sending examples to
+            reviewers.
           </p>
           <pre><code>from heapq import heappush, heappushpop
 from math import isfinite

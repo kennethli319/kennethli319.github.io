@@ -309,7 +309,10 @@
         </p>
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
-          <pre><code class="language-python">def rank_review_candidates(records, allowed_scopes):
+          <pre><code class="language-python">import math
+
+
+def rank_review_candidates(records, allowed_scopes):
     ranked = []
     for row in records:
         if row["consent_scope"] not in allowed_scopes:
@@ -317,11 +320,11 @@
         confidence = row["confidence"]
         daily_sessions = row["daily_sessions"]
         slice_coverage = row["slice_coverage"]
-        if not 0.0 &lt;= confidence &lt;= 1.0:
+        if not math.isfinite(confidence) or not 0.0 &lt;= confidence &lt;= 1.0:
             raise ValueError("confidence must be between 0 and 1")
-        if daily_sessions &lt; 0:
-            raise ValueError("daily_sessions must be non-negative")
-        if not 0.0 &lt;= slice_coverage &lt;= 1.0:
+        if not math.isfinite(daily_sessions) or daily_sessions &lt; 0:
+            raise ValueError("daily_sessions must be finite and non-negative")
+        if not math.isfinite(slice_coverage) or not 0.0 &lt;= slice_coverage &lt;= 1.0:
             raise ValueError("slice_coverage must be between 0 and 1")
         uncertainty = 1.0 - confidence
         impact = min(daily_sessions / 1000.0, 3.0)
@@ -342,8 +345,9 @@
             Test disallowed consent exclusion, low-coverage boost, regression
             boost, capped impact, sensitive proxy penalty, tie behavior, empty
             input, invalid confidence or coverage ranges, negative traffic, and
-            a case where the highest-uncertainty example is not the best
-            candidate because it has no launch relevance.
+            non-finite numeric inputs. Include a case where the
+            highest-uncertainty example is not the best candidate because it
+            has no launch relevance.
           </p>
         </details>
       </article>

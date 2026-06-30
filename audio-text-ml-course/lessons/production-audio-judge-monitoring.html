@@ -79,14 +79,14 @@
         <pre><code>{
   "id": "event-2026-06-29-0001",
   "task": "asr_error",
-  "source": "production_flagged",
+  "source": "consented_production_flagged",
   "flag_reason": "user_unsatisfied",
   "audio_path": "private/audio/event.wav",
-  "candidate_text": "recognized transcript or TTS prompt",
-  "reference_text": "optional user correction or expected text",
+  "candidate_text": "redacted recognized transcript or TTS prompt",
+  "reference_text": "optional redacted user correction or expected text",
   "turns": [
-    {"role": "user", "content": "optional surrounding request"},
-    {"role": "assistant", "content": "optional system response"}
+    {"role": "user", "content": "optional minimized surrounding request"},
+    {"role": "assistant", "content": "optional minimized system response"}
   ],
   "metadata": {
     "app": "LocalWhisperTranscriber",

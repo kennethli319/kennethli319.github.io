@@ -295,12 +295,32 @@
           <summary>Hidden answer: strong reasoning and Python solution</summary>
           <p>
             A rollback target should reduce user impact quickly without hiding
-            safety or privacy issues. Prefer a known-good version with lower
-            regression score and short rollback time. If two options are close,
-            choose the one with better observability and smaller config
-            difference from the current serving path.
+            safety or privacy issues. Only rank candidates that are explicitly
+            known-good; an unknown version is not a safe rollback target during
+            an incident. Prefer lower regression score and short rollback time.
+            If two options are close, choose the one with better observability
+            and smaller config difference from the current serving path.
           </p>
           <pre><code class="language-python">def rank_rollback_targets(candidates):
+    required = {
+        "version",
+        "known_good",
+        "regression_score",
+        "blast_radius_percent",
+        "rollback_minutes",
+    }
+
+    safe_candidates = []
+    for candidate in candidates:
+        missing = required - candidate.keys()
+        if missing:
+            raise ValueError(f"missing rollback fields: {sorted(missing)}")
+        if candidate["known_good"]:
+            safe_candidates.append(candidate)
+
+    if not safe_candidates:
+        raise ValueError("no known-good rollback target")
+
     def score(candidate):
         return (
             candidate["regression_score"],
@@ -309,7 +329,7 @@
             -candidate.get("observability_score", 0),
         )
 
-    return sorted(candidates, key=score)</code></pre>
+    return sorted(safe_candidates, key=score)</code></pre>
         </details>
       </article>
     </section>

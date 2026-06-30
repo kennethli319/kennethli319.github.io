@@ -229,7 +229,15 @@ def validate_registry_entry(entry):
 def canary_promotion(metrics, min_requests_per_slice=100):
     blockers = []
 
-    for name, values in metrics["slices"].items():
+    slices = metrics.get("slices")
+    if not isinstance(slices, dict) or not slices:
+        blockers.append("missing_slices")
+        slices = {}
+
+    for name, values in slices.items():
+        if not isinstance(values, dict):
+            blockers.append(f"{name}:invalid_metrics")
+            continue
         missing = REQUIRED_SLICE_FIELDS - values.keys()
         if missing:
             blockers.append(f"{name}:missing_{sorted(missing)[0]}")
@@ -241,9 +249,14 @@ def canary_promotion(metrics, min_requests_per_slice=100):
         if values["p95_latency_ms_delta"] &gt; 75:
             blockers.append(f"{name}:latency")
 
-    if metrics["privacy_errors"] &gt; 0:
+    if metrics.get("privacy_errors") is None:
+        blockers.append("missing_privacy_errors")
+    elif metrics["privacy_errors"] &gt; 0:
         blockers.append("privacy")
-    if metrics["unit_cost_relative_delta"] &gt; 0.15:
+
+    if metrics.get("unit_cost_relative_delta") is None:
+        blockers.append("missing_unit_cost")
+    elif metrics["unit_cost_relative_delta"] &gt; 0.15:
         blockers.append("unit_cost")
 
     if blockers:
@@ -252,7 +265,8 @@ def canary_promotion(metrics, min_requests_per_slice=100):
           <p>
             Average quality improvement is not enough. A canary should protect
             critical slices, privacy, latency, unit economics, and telemetry
-            completeness before promotion.
+            completeness before promotion. Missing top-level or slice telemetry
+            should hold the release, not crash late or default to success.
           </p>
         </details>
       </article>

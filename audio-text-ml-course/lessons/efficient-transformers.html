@@ -300,10 +300,11 @@ if __name__ == "__main__":
       <details class="qa">
         <summary>Question: What test cases should you add around this estimate?</summary>
         <p>
-          Test zero tokens, batch size one, large batch, fp16 versus int8 cache
-          assumptions, MHA versus GQA head counts, and an expected hand-computed
-          case. Also test that bad inputs such as negative tokens are rejected
-          if this becomes a real utility.
+          Test zero tokens, batch size one, large batch, fp16 or bf16 cache
+          assumptions, lower-precision KV-cache storage only if the serving
+          stack actually uses it, MHA versus GQA head counts, and an expected
+          hand-computed case. Also test that bad inputs such as negative tokens
+          are rejected if this becomes a real utility.
         </p>
       </details>
     </section>

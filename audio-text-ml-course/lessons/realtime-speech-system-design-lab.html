@@ -196,16 +196,19 @@
             Invariant: the sum of component p95 estimates is an approximate
             upper-bound planning budget, not a replacement for trace percentiles.
             Test exact budget, empty components, one dominant component, and a
-            negative or missing value rejected by input validation in real code.
+            negative, non-finite, non-numeric, or missing value rejected by
+            input validation in real code.
           </p>
           <pre><code class="language-python">def latency_budget_report(components_ms, slo_ms, top_k=3):
-    if slo_ms &lt; 0:
-        raise ValueError("slo_ms must be non-negative")
-    if top_k &lt; 1:
-        raise ValueError("top_k must be at least 1")
+    import math
+
+    if not isinstance(slo_ms, (int, float)) or not math.isfinite(slo_ms) or slo_ms &lt; 0:
+        raise ValueError("slo_ms must be a finite non-negative number")
+    if not isinstance(top_k, int) or top_k &lt; 1:
+        raise ValueError("top_k must be a positive integer")
     for name, value in components_ms.items():
-        if value is None or value &lt; 0:
-            raise ValueError(f"{name} latency must be non-negative")
+        if not isinstance(value, (int, float)) or not math.isfinite(value) or value &lt; 0:
+            raise ValueError(f"{name} latency must be a finite non-negative number")
 
     total = sum(components_ms.values())
     contributors = sorted(

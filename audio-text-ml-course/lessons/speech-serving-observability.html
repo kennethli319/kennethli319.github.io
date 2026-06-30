@@ -37,7 +37,7 @@
       <div class="grid two">
         <article class="card">
           <h3>Streaming ASR SLO</h3>
-          <p>Track first partial latency, partial churn, finalization delay, WER slices, entity errors, timeout rate, and cost per audio minute.</p>
+          <p>Track first partial latency, partial churn, finalization delay, approved aggregate WER slices, entity errors, timeout rate, and cost per audio minute.</p>
           <details class="qa">
             <summary>Hidden answer: minimum release gate</summary>
             <p>
@@ -75,7 +75,7 @@
       </div>
       <ol class="steps">
         <li><strong>Executive view:</strong> SLO burn, error budget, active incidents, rollout stage, and user-visible impact.</li>
-        <li><strong>Model view:</strong> model version, language, acoustic condition, WER/CER, entity error, confidence, drift, and correction signals.</li>
+        <li><strong>Model view:</strong> model version, language, acoustic condition, approved aggregate WER/CER slices, entity error, confidence, drift, and correction signals.</li>
         <li><strong>Serving view:</strong> queue age, batch size, model time, preprocessing time, GPU memory, autoscaler lag, retries, and fallbacks.</li>
         <li><strong>Privacy view:</strong> raw audio access, retention, redaction status, opt-in review counts, and synthetic fixture coverage.</li>
         <li><strong>Cost view:</strong> cost per audio minute, cost per generated second, GPU utilization, cache hit rate, and waste from retries.</li>
@@ -245,7 +245,7 @@
         <h3>Prompt 1: A Canary Improves Average WER But Hurts One Region</h3>
         <p>
           The new ASR model improves aggregate WER by 4 percent, but a noisy
-          mobile cohort in one region regresses by 11 percent. What do you do?
+          consented or approved aggregate mobile cohort in one region regresses by 11 percent. What do you do?
         </p>
         <details class="qa">
           <summary>Hidden answer: strong response</summary>
@@ -253,7 +253,7 @@
             Do not hide behind the aggregate win. Pause or exclude the affected
             cohort, verify sample size and label quality, inspect audio feature
             drift, compare entity error and correction rate, and define a slice
-            gate before resuming. A strong answer protects harmed cohorts while
+            gate using approved aggregate or consented tags before resuming. A strong answer protects harmed cohorts while
             preserving the ability to ship where the model is truly better.
           </p>
         </details>
@@ -286,7 +286,7 @@
         <details class="qa">
           <summary>Hidden answer: postmortem outline</summary>
           <p>
-            Include timeline, detection gap, user impact by slice, root cause,
+            Include timeline, detection gap, user impact by approved aggregate or consented slice, root cause,
             why tests missed quiet speakers, rollback timeline, privacy-safe
             evidence, immediate remediation, new synthetic fixtures, release
             gate updates, owners, deadlines, and a follow-up check that proves

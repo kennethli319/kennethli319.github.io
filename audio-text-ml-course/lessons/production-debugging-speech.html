@@ -244,10 +244,14 @@
         "long": [],
     }
     for item in records:
+        if not isinstance(item, dict):
+            raise ValueError("each record must be a dictionary")
         if "audio_seconds" not in item or "latency_ms" not in item:
             raise ValueError("record must include audio_seconds and latency_ms")
         duration = item["audio_seconds"]
         latency = item["latency_ms"]
+        if not isinstance(duration, (int, float)) or not isinstance(latency, (int, float)):
+            raise ValueError("duration and latency must be numeric")
         if duration &lt; 0 or latency &lt; 0:
             raise ValueError("duration and latency must be non-negative")
         if duration &lt; 5:

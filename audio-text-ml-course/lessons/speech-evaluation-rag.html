@@ -236,9 +236,9 @@
         </p>
       </div>
       <ol class="steps">
-        <li><strong>Inputs:</strong> write the spoken request, expected ASR pitfalls, and allowed sanitized transcript.</li>
-        <li><strong>Retrieval:</strong> record expected document IDs, raw-ASR versus normalized query text, top-k results, recall, and reranker notes.</li>
-        <li><strong>Answer:</strong> score correctness, faithfulness, missing caveats, refusal behavior, and spoken clarity.</li>
+        <li><strong>Inputs:</strong> write the spoken request, expected ASR pitfalls, allowed sanitized transcript, and the ground-truth document IDs or note that evidence is intentionally absent.</li>
+        <li><strong>Retrieval:</strong> record raw ASR text, alternate hypotheses when available, normalized query text, top-k results, recall against expected evidence, and reranker notes.</li>
+        <li><strong>Answer:</strong> score correctness, faithfulness to retrieved evidence, missing caveats, unsupported-answer behavior, refusal quality, and spoken clarity.</li>
         <li><strong>Latency:</strong> measure ASR partial time, retrieval time, LLM first token, first audio byte, and final audio.</li>
         <li><strong>Decision:</strong> write pass, fail, or needs human review with the rollback or mitigation action.</li>
       </ol>
@@ -247,8 +247,9 @@
         <p>
           It connects offline model metrics to production decisions. An experienced
           engineer does not stop at "the model improved"; they define the user
-          task, measure each system boundary, protect private data, price the
-          review burden, and state what would block rollout.
+          task, separate ASR noise from retrieval misses and generation errors,
+          protect private data, price the review burden, and state what would
+          block rollout.
         </p>
       </details>
     </section>

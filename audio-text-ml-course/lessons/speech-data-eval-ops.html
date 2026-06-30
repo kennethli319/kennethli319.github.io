@@ -63,7 +63,7 @@
         <p class="eyebrow">Dataset Contracts</p>
         <h2>Every Dataset Needs A Release Contract</h2>
       </div>
-      <div class="grid two">
+      <div class="grid three">
         <article class="card">
           <h3>Required Metadata</h3>
           <p>Purpose, owner, consent scope, source, retention policy, allowed uses, language, domain, acoustic conditions, device class, and known gaps.</p>
@@ -88,6 +88,21 @@
               which slices regressed, and which users could be affected. If
               the team cannot answer those questions, rollback and debugging
               become guesswork.
+            </p>
+          </details>
+        </article>
+        <article class="card">
+          <h3>Leakage Controls</h3>
+          <p>Keep train, validation, regression, canary, and human-audit sets separated by speaker, session, document, and collection window when those fields can leak the answer.</p>
+          <details class="qa">
+            <summary>Hidden answer: why leakage breaks gates</summary>
+            <p>
+              Speech systems can memorize recurring speakers, prompts,
+              document passages, room acoustics, or vendor transcripts. If the
+              same source appears in training and release evals, the gate may
+              reward memorization instead of measuring quality on future
+              traffic. Treat any promoted production sample as lineage-tracked
+              data with explicit split eligibility.
             </p>
           </details>
         </article>
@@ -149,7 +164,10 @@
           Slice gates should pair point estimates with enough support to make
           the decision meaningful. A five-utterance slice can reveal a risk,
           but it should usually trigger more review or targeted sampling
-          rather than a confident ship/no-ship call by itself.
+          rather than a confident ship/no-ship call by itself. Keep holdout
+          suites stable enough for trend comparisons, and route newly mined
+          production failures through a separate triage set before they become
+          training or regression data.
         </p>
       </div>
       <article class="prompt">

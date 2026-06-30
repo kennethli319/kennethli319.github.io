@@ -228,6 +228,18 @@
         <details class="qa">
           <summary>Hidden answer: Python solution</summary>
           <pre><code class="language-python">def rollout_decision(metrics):
+    required = (
+        "p95_latency_ms_delta",
+        "far_field_wer_relative_delta",
+        "privacy_error_count",
+        "overall_wer_relative_delta",
+    )
+    missing = [key for key in required if key not in metrics]
+    if missing:
+        raise ValueError(f"missing metrics: {missing}")
+    if metrics["privacy_error_count"] &lt; 0:
+        raise ValueError("privacy_error_count must be non-negative")
+
     hard_failures = []
     if metrics["p95_latency_ms_delta"] &gt; 100:
         hard_failures.append("latency")
@@ -246,7 +258,8 @@
           <p>
             The invariant is that privacy errors and protected-slice regressions
             dominate average quality wins. A common mistake is launching because
-            aggregate WER improved.
+            aggregate WER improved. Missing canary metrics or impossible privacy
+            counters are invalid telemetry, not evidence that a rollout is safe.
           </p>
         </details>
       </article>

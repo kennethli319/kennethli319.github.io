@@ -266,22 +266,26 @@
             silently treated as zero.
           </p>
           <pre><code class="language-python">from math import isfinite
+from numbers import Real
+
+
+def _finite_number(value, name):
+    if isinstance(value, bool) or not isinstance(value, Real) or not isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    return float(value)
 
 
 def slices_over_budget(old_metrics, new_metrics, budget):
+    budget = _finite_number(budget, "budget")
     if budget &lt; 0:
         raise ValueError("budget must be non-negative for lower-is-better metrics")
-    if not isfinite(budget):
-        raise ValueError("budget must be finite")
 
     missing_in_new = sorted(set(old_metrics) - set(new_metrics))
     new_only = sorted(set(new_metrics) - set(old_metrics))
     flagged = []
     for name in sorted(set(old_metrics) &amp; set(new_metrics)):
-        old_value = old_metrics[name]
-        new_value = new_metrics[name]
-        if not isfinite(old_value) or not isfinite(new_value):
-            raise ValueError(f"{name} has a non-finite metric value")
+        old_value = _finite_number(old_metrics[name], f"{name} old metric")
+        new_value = _finite_number(new_metrics[name], f"{name} new metric")
         delta = new_value - old_value
         if delta &gt; budget:
             flagged.append({

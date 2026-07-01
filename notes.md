@@ -20,3 +20,14 @@
 17. "We're never gonna know the impact of discovering any single building block of relait"
 
 -July2024
+
+-July2026
+
+18. An agent's memory is not merely storage; it is the portable context that allows identity, intent, and unfinished thoughts to survive across tools, platforms, and time.
+19. The next interface layer may not be a single model, but a shared skill format that lets different agents inherit each other's useful behaviors without forcing the user to repeat themselves.
+20. Parallel-universe thinking is a way to inspect latent branches of the self: each imagined life is a projection from different decisions, constraints, and values.
+21. Evaluation is the bridge between research and production. A model only becomes useful when its behavior can be measured, compared, trusted, and improved repeatedly.
+22. Inference speed is not just an engineering detail; it changes what products can exist. Text, audio, and omni models all become more agentic as latency approaches conversation speed.
+23. Audio agents expose truth faster than text agents because hesitation, interruption, timing, tone, and repair are part of the output distribution.
+24. A good automation system should reduce the cost of intention: the user states what should happen once, and the system preserves that intention until the world changes.
+25. Numerical stability is a reminder that intelligence also depends on representation: the same idea can fail or succeed depending on the coordinate system used to express it.

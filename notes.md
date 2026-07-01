@@ -66,17 +66,15 @@ title: Notes
     <div class="timeline-kicker">Recent conversations</div>
   </aside>
   <div class="timeline-body">
-    <h2>Agent memory, evaluation loops, and interface speed</h2>
-    <p class="timeline-summary">Thoughts on portable context, skill transfer, speech-agent truth, and automation that preserves intention.</p>
+    <h2>Evaluation, memory, and agent loops</h2>
+    <p class="timeline-summary">Notes on evaluation speed, portable memory, shared skills, interaction latency, and automation harnesses.</p>
     <ol>
-      <li>An agent's memory is not merely storage; it is the portable context that allows identity, intent, and unfinished thoughts to survive across tools, platforms, and time.</li>
-      <li>The next interface layer may not be a single model, but a shared skill format that lets different agents inherit each other's useful behaviors without forcing the user to repeat themselves.</li>
-      <li>Parallel-universe thinking is a way to inspect latent branches of the self: each imagined life is a projection from different decisions, constraints, and values.</li>
-      <li>Evaluation is the bridge between research and production. A model only becomes useful when its behavior can be measured, compared, trusted, and improved repeatedly.</li>
-      <li>Inference speed is not just an engineering detail; it changes what products can exist. Text, audio, and omni models all become more agentic as latency approaches conversation speed.</li>
-      <li>Audio agents expose truth faster than text agents because hesitation, interruption, timing, tone, and repair are part of the output distribution.</li>
-      <li>A good automation system should reduce the cost of intention: the user states what should happen once, and the system preserves that intention until the world changes.</li>
-      <li>Numerical stability is a reminder that intelligence also depends on representation: the same idea can fail or succeed depending on the coordinate system used to express it.</li>
+      <li>Fast, valid evaluation is the outer-loop gradient descent of AI systems: the quicker we measure behavior, the quicker the system improves.</li>
+      <li>A model instance is only the executor; continuity comes from shared memory. Different hosts can feel like one agent if they inherit the same history, constraints, and feedback loop.</li>
+      <li>Shared skills are a knowledge layer, not a model layer: they let different models reuse useful behaviors without retraining.</li>
+      <li>Interaction speed shapes adoption. The easier and faster a tool feels, the wider its influence can spread.</li>
+      <li>Audio agents make evaluation perceptual: timing, hesitation, interruption, tone, and repair expose quality before the transcript does.</li>
+      <li>Automation lowers the cost of intention by turning a goal into an environment: scenario, loop, constraints, and score. Harnesses are gradient descent at workflow scale.</li>
     </ol>
   </div>
 </section>

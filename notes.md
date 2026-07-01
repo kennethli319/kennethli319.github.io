@@ -11,23 +11,23 @@
 11. Meaning is not inherently linear, though its surface form may appear to be.
 12. The beauty of art lies in its information density.
 
--May2024
+-July2026
 
-13. We are the projection of our experience, both mental and physical.
-14. To understand an animal or plant is to grasp its neural connections, shaped by environmental influences over time, even before the existence of that specific being. This applies to humans as well. It's a continuous process along the time dimension, where a being is essentially a projection of cumulative experiences.
-15. Technological progression can be measured by the speed at which information is conveyed, transformed, or transferred between individuals, including the cost and time required to train or equip individuals to comprehend technological concepts.
-16. "as humans we experience only a tiny slice of the full scale of reality"
-17. "We're never gonna know the impact of discovering any single building block of relait"
+13. An agent's memory is not merely storage; it is the portable context that allows identity, intent, and unfinished thoughts to survive across tools, platforms, and time.
+14. The next interface layer may not be a single model, but a shared skill format that lets different agents inherit each other's useful behaviors without forcing the user to repeat themselves.
+15. Parallel-universe thinking is a way to inspect latent branches of the self: each imagined life is a projection from different decisions, constraints, and values.
+16. Evaluation is the bridge between research and production. A model only becomes useful when its behavior can be measured, compared, trusted, and improved repeatedly.
+17. Inference speed is not just an engineering detail; it changes what products can exist. Text, audio, and omni models all become more agentic as latency approaches conversation speed.
+18. Audio agents expose truth faster than text agents because hesitation, interruption, timing, tone, and repair are part of the output distribution.
+19. A good automation system should reduce the cost of intention: the user states what should happen once, and the system preserves that intention until the world changes.
+20. Numerical stability is a reminder that intelligence also depends on representation: the same idea can fail or succeed depending on the coordinate system used to express it.
 
 -July2024
 
--July2026
+-May2024
 
-18. An agent's memory is not merely storage; it is the portable context that allows identity, intent, and unfinished thoughts to survive across tools, platforms, and time.
-19. The next interface layer may not be a single model, but a shared skill format that lets different agents inherit each other's useful behaviors without forcing the user to repeat themselves.
-20. Parallel-universe thinking is a way to inspect latent branches of the self: each imagined life is a projection from different decisions, constraints, and values.
-21. Evaluation is the bridge between research and production. A model only becomes useful when its behavior can be measured, compared, trusted, and improved repeatedly.
-22. Inference speed is not just an engineering detail; it changes what products can exist. Text, audio, and omni models all become more agentic as latency approaches conversation speed.
-23. Audio agents expose truth faster than text agents because hesitation, interruption, timing, tone, and repair are part of the output distribution.
-24. A good automation system should reduce the cost of intention: the user states what should happen once, and the system preserves that intention until the world changes.
-25. Numerical stability is a reminder that intelligence also depends on representation: the same idea can fail or succeed depending on the coordinate system used to express it.
+21. We are the projection of our experience, both mental and physical.
+22. To understand an animal or plant is to grasp its neural connections, shaped by environmental influences over time, even before the existence of that specific being. This applies to humans as well. It's a continuous process along the time dimension, where a being is essentially a projection of cumulative experiences.
+23. Technological progression can be measured by the speed at which information is conveyed, transformed, or transferred between individuals, including the cost and time required to train or equip individuals to comprehend technological concepts.
+24. "as humans we experience only a tiny slice of the full scale of reality"
+25. "We're never gonna know the impact of discovering any single building block of relait"

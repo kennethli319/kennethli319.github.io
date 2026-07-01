@@ -75,7 +75,8 @@ title: Notes
       <li>Interaction speed shapes adoption. The easier and faster a tool feels, the wider its influence can spread.</li>
       <li>Audio agents make evaluation perceptual: timing, hesitation, interruption, tone, and repair expose quality before the transcript does.</li>
       <li>Automation lowers the cost of intention by turning a goal into an environment: scenario, loop, constraints, and score. Harnesses are gradient descent at workflow scale.</li>
-      <li>Capital > infrastructure > talent pool: in order of impact. Capital builds infrastructure; infrastructure compounds the talent pool.</li>
+      <li>Capital > infrastructure > talent pool: in order of impact.</li>
+      <li>Big tech is closer to the surface representation of problems under the hood; proximity gives signal, not necessarily solutions.</li>
     </ol>
   </div>
 </section>

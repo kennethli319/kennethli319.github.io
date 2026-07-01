@@ -67,7 +67,7 @@ title: Notes
   </aside>
   <div class="timeline-body">
     <h2>Evaluation, memory, and agent loops</h2>
-    <p class="timeline-summary">Notes on evaluation speed, portable memory, shared skills, interaction latency, and automation harnesses.</p>
+    <p class="timeline-summary">Notes on evaluation speed, portable memory, shared skills, interaction latency, automation harnesses, and talent infrastructure.</p>
     <ol>
       <li>Fast, valid evaluation is the outer-loop gradient descent of AI systems: the quicker we measure behavior, the quicker the system improves.</li>
       <li>A model instance is only the executor; continuity comes from shared memory. Different hosts can feel like one agent if they inherit the same history, constraints, and feedback loop.</li>
@@ -75,6 +75,7 @@ title: Notes
       <li>Interaction speed shapes adoption. The easier and faster a tool feels, the wider its influence can spread.</li>
       <li>Audio agents make evaluation perceptual: timing, hesitation, interruption, tone, and repair expose quality before the transcript does.</li>
       <li>Automation lowers the cost of intention by turning a goal into an environment: scenario, loop, constraints, and score. Harnesses are gradient descent at workflow scale.</li>
+      <li>Capital → infrastructure → talent pool: durable advantage comes from turning resources into systems that compound capable people.</li>
     </ol>
   </div>
 </section>

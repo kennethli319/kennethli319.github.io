@@ -63,7 +63,7 @@ title: Notes
 <section class="timeline-row">
   <aside class="timeline-date">
     July 2026
-    <div class="timeline-kicker">Recent conversations</div>
+    <div class="timeline-kicker">Thoughts from eval-focused roles</div>
   </aside>
   <div class="timeline-body">
     <h2>Evaluation, memory, and agent loops</h2>

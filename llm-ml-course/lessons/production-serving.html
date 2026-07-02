@@ -307,6 +307,38 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why can moving user-specific text earlier make serving slower?</summary>
         <p>It breaks the exact shared prefix, so later requests may miss the prompt or KV prefix cache even when most of the prompt template is the same.</p>
       </details>
+      <h3>Implementation Drill: Route Repeated Prefixes To The Cache That Knows Them</h3>
+      <p>
+        Prefix reuse is not only a local memory trick. SGLang describes its
+        runtime as using RadixAttention for prefix caching, and its tuning docs
+        expose a longest-prefix-match scheduling policy for workloads with many
+        shared prefixes. The RadixAttention paper generalizes the idea by
+        retaining KV cache in a radix tree so multi-call programs,
+        self-consistency branches, and agent workflows can reuse common
+        prefixes across generation calls. A production router should therefore
+        preserve prompt-template stability and, when the service is sharded,
+        prefer workers that already hold the longest useful prefix.
+      </p>
+      <pre><code>def choose_worker(request, workers):
+    token_ids = tokenize_with_pinned_template(request)
+    candidates = []
+    for worker in workers:
+        match = worker.prefix_index.longest_prefix_match(
+            token_ids,
+            namespace=request.cache_namespace,
+        )
+        candidates.append((match.cached_tokens, -worker.queue_depth, worker))
+    return max(candidates)[2]</code></pre>
+      <ol class="steps">
+        <li><strong>Pin the template:</strong> chat template, tool-schema ordering, tokenizer version, and model revision must be stable before cache hits are meaningful.</li>
+        <li><strong>Route by reusable tokens:</strong> prefer a warm worker only when the saved prefill tokens outweigh extra queueing or cross-region latency.</li>
+        <li><strong>Evict deliberately:</strong> track protected active cache separately from evictable completed-prefix cache, then compare LRU-style policy with workload-specific priority rules.</li>
+        <li><strong>Validate exactness:</strong> prefix reuse should skip redundant prefill compute without changing logits, so cache keys must include every factor that changes model states.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: When can cache-aware routing make latency worse?</summary>
+        <p>If the warm worker is already queued, overloaded, or far away, saved prefill may be smaller than the added wait. Cache-aware routing should compare reusable prefix tokens against queue and network cost.</p>
+      </details>
       <h3>Lab Prompt: Estimate Prefix-Cache Reuse From Block Hashes</h3>
       <p>
         Before enabling a fleet-wide prefix-cache policy, simulate the hit
@@ -716,6 +748,10 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html">vLLM automatic prefix caching</a>,
+        <a href="https://docs.sglang.io/">SGLang documentation</a>,
+        <a href="https://docs.sglang.io/docs/advanced_features/hyperparameter_tuning">SGLang hyperparameter tuning</a>,
+        <a href="https://www.lmsys.org/blog/2024-01-17-sglang/">LMSYS SGLang and RadixAttention blog</a>,
+        <a href="https://arxiv.org/abs/2312.07104">SGLang / RadixAttention paper</a>,
         <a href="https://developers.openai.com/api/docs/guides/prompt-caching">OpenAI prompt caching</a>,
         <a href="https://docs.vllm.ai/en/stable/design/metrics/">vLLM metrics</a>,
         <a href="https://docs.vllm.ai/en/v0.20.0/usage/metrics/">vLLM production metrics</a>,

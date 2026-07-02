@@ -72,6 +72,10 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Hugging Face Text Generation Inference overview: https://huggingface.co/docs/text-generation-inference/en/index
 - Hugging Face TGI serving engine notes: https://huggingface.co/docs/inference-endpoints/en/engines/tgi
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
+- SGLang documentation: https://docs.sglang.io/
+- SGLang hyperparameter tuning: https://docs.sglang.io/docs/advanced_features/hyperparameter_tuning
+- LMSYS SGLang and RadixAttention blog: https://www.lmsys.org/blog/2024-01-17-sglang/
+- SGLang / RadixAttention paper: https://arxiv.org/abs/2312.07104
 - OpenAI prompt caching: https://developers.openai.com/api/docs/guides/prompt-caching
 - vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/

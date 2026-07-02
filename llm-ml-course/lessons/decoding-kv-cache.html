@@ -150,6 +150,33 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <summary>Question: What should you test before trusting a hand-written KV cache?</summary>
         <p>Compare cached and uncached logits, vary prompt length and batch size, test left/right padding if supported, confirm RoPE positions, and run with deterministic sampling so generation noise does not hide cache errors.</p>
       </details>
+      <h3>Implementation Drill: Static Cache Is A Compile Contract</h3>
+      <p>
+        A dynamic KV cache is convenient because it grows with generation, but
+        changing cache shapes can block just-in-time optimizations. A static
+        cache pre-allocates a maximum length so the decode step sees steadier
+        shapes and can be paired with <code>torch.compile</code>. The tradeoff
+        is explicit: unused cache slots still consume memory and may add masked
+        attention work, so static cache is best tested on batches with similar
+        prompt and output lengths.
+      </p>
+      <pre><code class="language-python">def choose_cache(request_lengths, max_context, compile_decode):
+    spread = max(request_lengths) - min(request_lengths)
+    similar_lengths = spread <= 0.25 * max_context
+
+    if compile_decode and similar_lengths:
+        return {"cache_implementation": "static", "max_cache_len": max_context}
+    return {"cache_implementation": "dynamic"}</code></pre>
+      <ol class="steps">
+        <li><strong>Prove correctness first:</strong> compare cached and uncached logits before compiling the decode step.</li>
+        <li><strong>Bucket by shape:</strong> group requests by nearby context budgets so a static cache does not waste most of its slots on short prompts.</li>
+        <li><strong>Watch recompile signals:</strong> PyTorch documents guard failures and dynamic-shape tracing as the clues that shape variation is defeating compile reuse.</li>
+        <li><strong>Measure memory separately:</strong> <code>reduce-overhead</code> and CUDA graph paths can lower Python overhead, but PyTorch notes that this may cache extra workspace memory.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: When is static cache the wrong default?</summary>
+        <p>When request lengths vary widely, memory is already the bottleneck, or the decode path has not passed a cached-versus-uncached correctness test. In those cases, dynamic or offloaded cache may be a safer baseline.</p>
+      </details>
     </section>
 
     <section id="speculative" class="band">
@@ -199,6 +226,8 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,
+        <a href="https://huggingface.co/docs/transformers/en/cache_explanation">Hugging Face cache explanation</a>,
+        <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html">PyTorch torch.multinomial</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
         <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>,

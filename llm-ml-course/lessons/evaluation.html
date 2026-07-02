@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#record">Eval Record</a>
+      <a href="#rag-eval">RAG Eval</a>
       <a href="#rubrics">Rubrics</a>
       <a href="#judges">Judges</a>
       <a href="#gates">Gates</a>
@@ -52,6 +53,49 @@
         <summary>Question: Why is a single aggregate score dangerous?</summary>
         <p>It can hide which capability failed, whether the failure is high risk, and whether the fix belongs in retrieval, prompting, model choice, decoding, or product policy.</p>
       </details>
+    </section>
+
+    <section id="rag-eval" class="band">
+      <div class="section-head">
+        <p class="eyebrow">RAG Regression Drill</p>
+        <h2>Score Retrieval And Generation Separately</h2>
+      </div>
+      <p>
+        A RAG answer can fail because the retriever missed the needed evidence,
+        because the generator ignored good evidence, or because the answer was
+        relevant but unsupported. RAGAS frames this as separate dimensions such
+        as context precision, context recall, faithfulness, and answer
+        relevance. Keep those dimensions separate in a regression gate so one
+        good aggregate score cannot hide the failing component.
+      </p>
+      <pre><code>rag_eval_case = {
+    "question": "Can I return an opened accessory after 20 days?",
+    "gold_source_ids": ["returns-policy#accessories", "returns-policy#window"],
+    "retrieved_source_ids": list[str],
+    "answer": str,
+    "checks": {
+        "context_recall": found_all_required_sources,
+        "context_precision": top_k_chunks_are_relevant,
+        "faithfulness": every_claim_supported_by_retrieved_context,
+        "answer_relevance": directly_answers_user_question,
+    },
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start with retrieval:</strong> inspect whether the top chunks contain the required facts before judging the final answer.</li>
+        <li><strong>Then grade grounding:</strong> mark each answer claim as supported, contradicted, or not present in the retrieved context.</li>
+        <li><strong>Slice by corpus shape:</strong> report metrics separately for short FAQs, long manuals, stale documents, and conflicting policy pages.</li>
+        <li><strong>Block the right failures:</strong> missing mandatory evidence should fail retrieval; unsupported claims should fail generation even when retrieval succeeded.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not only score the final RAG answer?</summary>
+        <p>A final-answer score tells you the user experience got worse, but it may not tell you whether to fix chunking, embedding choice, reranking, context packing, prompting, decoding, or the answer policy.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2309.15217">RAGAS paper</a>,
+        <a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/">RAGAS context precision docs</a>,
+        <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>.
+      </p>
     </section>
 
     <section id="rubrics" class="band">

@@ -18,6 +18,7 @@
       <a href="#context-packing">Context Packing</a>
       <a href="#rag-eval">RAG Eval</a>
       <a href="#agents">Agents</a>
+      <a href="#agent-security">Agent Security</a>
       <a href="#tool-traces">Tool Traces</a>
     </nav>
     <p class="eyebrow">Module 09</p>
@@ -384,8 +385,53 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <a href="https://openai.github.io/openai-agents-python/tracing/">OpenAI Agents SDK tracing</a>,
         <a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK guardrails</a>,
         <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol introduction</a>,
-        <a href="https://modelcontextprotocol.io/specification/2025-03-26/server/tools">MCP tools specification</a>,
+        <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">MCP tools specification</a>,
         <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a>.
+      </p>
+    </section>
+
+    <section id="agent-security" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Agent Security</p>
+        <h2>Draw Trust Boundaries Around Every Tool Hop</h2>
+      </div>
+      <p>
+        Tool use creates at least three boundaries: the model reads tool
+        metadata, the client executes a proposed call, and a downstream system
+        accepts credentials or writes state. The MCP tool specification treats
+        tool annotations as untrusted unless they come from trusted servers,
+        recommends human confirmation for sensitive invocations, and assigns
+        servers and clients separate duties for input validation, access
+        control, output sanitization, timeouts, and audit logs. OpenAI's Agents
+        SDK guardrails give the same idea a runtime shape: validate or block
+        tool input before execution and validate tool output before the agent
+        consumes it.
+      </p>
+      <pre><code>tool_trust_boundary = {
+    "metadata": "display and route, but do not treat as policy",
+    "arguments": "schema + permission + tenant checks before execution",
+    "credentials": "audience-bound token, never generic passthrough",
+    "result": "typed, size-capped, sanitized observation",
+    "audit": "user, client_id, tool_name, scopes, call_id, decision",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Review metadata like input:</strong> tool names, descriptions, annotations, icons, and resource links can shape model behavior, so only trusted registries should influence high-risk tool choice.</li>
+        <li><strong>Bind authorization to the resource:</strong> MCP authorization requires clients to request tokens for the intended resource and servers to reject tokens not issued for them.</li>
+        <li><strong>Forbid token passthrough:</strong> do not let an MCP server relay a client token to a downstream API; use a separate downstream token with explicit audience and scope.</li>
+        <li><strong>Gate side effects before execution:</strong> use blocking guardrails, approval prompts, or dry-run previews for writes, spending, communication, and public actions.</li>
+        <li><strong>Sanitize results after execution:</strong> tool output is data, not developer instruction; cap payloads, redact secrets, validate structured fields, and preserve the raw result outside the prompt when possible.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is token passthrough an agent-security smell?</summary>
+        <p>It blurs which service the token was issued for, weakens audit trails, and can turn the MCP server into a confused deputy. A production agent should use audience-bound credentials and log which client, user, scope, and tool produced each downstream action.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">MCP tools specification</a>,
+        <a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization">MCP authorization specification</a>,
+        <a href="https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices">MCP security best practices</a>,
+        <a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK guardrails</a>,
+        <a href="https://www.nsa.gov/Portals/75/documents/Cybersecurity/CSI_MCP_SECURITY.pdf">NSA MCP security design considerations</a>.
       </p>
     </section>
 
@@ -455,7 +501,7 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <a href="https://arxiv.org/abs/2210.03629">ReAct</a>,
         <a href="https://arxiv.org/abs/2302.04761">Toolformer</a>,
         <a href="https://developers.openai.com/api/docs/guides/function-calling">OpenAI function calling guide</a>,
-        <a href="https://modelcontextprotocol.io/specification/2025-03-26/server/tools">MCP tools specification</a>.
+        <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">MCP tools specification</a>.
       </p>
     </section>
   </main>

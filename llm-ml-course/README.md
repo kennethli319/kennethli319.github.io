@@ -53,6 +53,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/
+- vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/

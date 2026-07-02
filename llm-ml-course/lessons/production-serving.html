@@ -184,6 +184,32 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why can prefix caching be almost invisible to quality?</summary>
         <p>It reuses exact cached KV blocks for an identical processed prefix, so it avoids duplicate compute without changing the model's logits for that prefix.</p>
       </details>
+      <h3>Implementation Drill: Treat Paged KV Cache Like A Block Table</h3>
+      <p>
+        The PagedAttention paper and vLLM design docs frame KV cache as fixed-size
+        blocks that may live in non-contiguous memory. The scheduler should
+        reason about a logical sequence of cache blocks for each request, while
+        the runtime maps those logical blocks to physical cache blocks. That
+        separation is what lets variable-length requests share a GPU without
+        reserving one giant contiguous allocation per stream.
+      </p>
+      <pre><code>def append_token(block_table, free_blocks, block_size, token_index):
+    logical_block = token_index // block_size
+    offset = token_index % block_size
+    if logical_block == len(block_table):
+        block_table.append(free_blocks.pop())
+    physical_block = block_table[logical_block]
+    return physical_block, offset</code></pre>
+      <ol class="steps">
+        <li><strong>Track logical length:</strong> the request owns a token count and a list of logical cache blocks, not one contiguous tensor sized for max context.</li>
+        <li><strong>Allocate on demand:</strong> add a physical block only when generation crosses a block boundary, then return blocks as requests finish.</li>
+        <li><strong>Budget tail waste:</strong> the final block of each live sequence may be partially empty, so short streams can still consume more blocks than raw token count suggests.</li>
+        <li><strong>Keep kernels aware:</strong> attention kernels must follow the block table when reading old keys and values, because adjacent logical tokens may not be adjacent in physical memory.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What invariant should a paged-cache scheduler protect?</summary>
+        <p>Every admitted request must have enough free physical blocks for its promised future tokens after rounding to the cache block size; otherwise decode can fail after the request has already started streaming.</p>
+      </details>
       <h3>Implementation Drill: Prefix Cache Keys Need A Trust Boundary</h3>
       <p>
         Prefix caching is a serving optimization, but the cache key is a
@@ -265,7 +291,9 @@ active_token_budget = estimate_decode_capacity(
 ]</code></pre>
       <p>
         Sources:
+        <a href="https://arxiv.org/abs/2309.06180">PagedAttention paper</a>,
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
+        <a href="https://docs.vllm.ai/en/latest/design/paged_attention/">vLLM paged attention design</a>,
         <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
         <a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM quantization</a>,
         <a href="https://docs.vllm.ai/en/stable/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,

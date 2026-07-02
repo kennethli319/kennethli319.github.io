@@ -16,7 +16,8 @@ Open `index.html` locally to read the course without a build step.
 ## Course Shape
 
 - Theory: probability, cross entropy, optimization, scaling laws, tokenization,
-  transformer internals, attention variants, positional encodings, and RoPE.
+  transformer internals, attention variants, positional encodings, RoPE, ALiBi,
+  and context-extension risks.
 - PyTorch: tensor shape discipline, stable softmax, losses, normalization,
   training loops, AdamW, gradient clipping, warmup cosine schedules, attention,
   MHA, GQA, MQA, SwiGLU, LoRA, and BPE-style tokenization.
@@ -49,6 +50,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 
 - Attention Is All You Need: https://arxiv.org/abs/1706.03762
 - RoFormer / RoPE: https://arxiv.org/abs/2104.09864
+- ALiBi: https://arxiv.org/abs/2108.12409
+- Hugging Face RoPE utilities: https://huggingface.co/docs/transformers/en/internal/rope_utils
+- Hugging Face TGI RoPE scaling notes: https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model
 - FlashAttention: https://arxiv.org/abs/2205.14135
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Position And Context</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#why">Why Position Exists</a>
+      <a href="#rope">RoPE</a>
+      <a href="#alibi">ALiBi</a>
+      <a href="#extension">Context Extension</a>
+      <a href="#sources">Sources</a>
+    </nav>
+    <p class="eyebrow">Module 05</p>
+    <h1>Position And Context</h1>
+    <p class="lede">How transformers recover token order, why RoPE is applied to Q/K, and what can go wrong when context length is stretched.</p>
+  </header>
+
+  <main>
+    <section id="why" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Motivation</p>
+        <h2>Attention Needs A Way To Tell Same Tokens Apart</h2>
+      </div>
+      <p>
+        Self-attention compares token representations, but the dot product does
+        not know whether a token appeared at the start, middle, or end of the
+        sequence unless position information is injected. Learned absolute
+        embeddings add a table lookup to token embeddings. Sinusoidal encodings
+        add fixed waves. Modern decoder-only LLMs often use rotary position
+        embeddings because the relative offset between query and key positions
+        becomes visible inside the attention score.
+      </p>
+      <details class="qa">
+        <summary>Question: Why is a bag-of-tokens transformer not enough for language?</summary>
+        <p>Language meaning depends on order. The phrases "dog bites person" and "person bites dog" contain the same words but require different next-token distributions.</p>
+      </details>
+    </section>
+
+    <section id="rope" class="band">
+      <div class="section-head">
+        <p class="eyebrow">RoPE</p>
+        <h2>Rotate Query And Key Pairs Before The Dot Product</h2>
+      </div>
+      <p>
+        RoPE treats pairs of head dimensions as 2D coordinates and rotates them
+        by an angle determined by token position and frequency. Apply the same
+        position-dependent rotation to queries and keys, not values. When a
+        query at one position meets a key at another, their dot product carries
+        information about the relative distance between the two positions.
+      </p>
+      <pre><code class="language-python">def rotate_half(x):
+    even = x[..., 0::2]
+    odd = x[..., 1::2]
+    return torch.stack((-odd, even), dim=-1).flatten(-2)
+
+def apply_rope(x, cos, sin):
+    # x, cos, sin broadcast over batch and heads.
+    return x * cos + rotate_half(x) * sin
+
+q = apply_rope(q, cos[position_ids], sin[position_ids])
+k = apply_rope(k, cos[position_ids], sin[position_ids])</code></pre>
+      <ol class="steps">
+        <li><strong>Shape check:</strong> head dimension must be even for this pairwise form, and cosine/sine tensors must broadcast to batch, heads, time, head_dim.</li>
+        <li><strong>Cache check:</strong> during decode, use the absolute cache position of the new token, not position zero of the one-token step.</li>
+        <li><strong>Value check:</strong> leave <code>v</code> unrotated; the position signal reaches values through the attention weights.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the classic RoPE cache bug?</summary>
+        <p>Reusing position zero for every decode step. Cached keys were rotated at their original positions, so the new query must be rotated at the next absolute cache position.</p>
+      </details>
+    </section>
+
+    <section id="alibi" class="band">
+      <div class="section-head">
+        <p class="eyebrow">ALiBi</p>
+        <h2>A Linear Bias Can Encode Recency Without Position Embeddings</h2>
+      </div>
+      <p>
+        ALiBi does not add a position vector to token embeddings. It adds a
+        head-specific linear penalty to attention scores based on how far the
+        key is from the query. Nearby past tokens receive a smaller penalty than
+        distant tokens, creating a recency bias that can extrapolate beyond the
+        training length more naturally than a learned absolute table.
+      </p>
+      <pre><code class="language-python">def causal_alibi_bias(num_heads, q_len, k_len, slopes, device):
+    slopes = slopes[:num_heads].to(device)
+    q_pos = torch.arange(k_len - q_len, k_len, device=device)[:, None]
+    k_pos = torch.arange(k_len, device=device)[None, :]
+    distance = q_pos - k_pos
+    distance = distance.clamp_min(0)
+    return -slopes[:, None, None] * distance[None, :, :]
+
+scores = (q @ k.transpose(-2, -1)) / math.sqrt(q.size(-1))
+scores = scores + causal_alibi_bias(q.size(1), q_len, k_len, slopes, q.device)</code></pre>
+      <details class="qa">
+        <summary>Question: Why does ALiBi belong in the score path?</summary>
+        <p>It is an attention-logit bias, so it changes which previous tokens each head prefers before softmax rather than changing token embeddings directly.</p>
+      </details>
+    </section>
+
+    <section id="extension" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Context Extension</p>
+        <h2>Longer Windows Need Quality Checks, Not Just A Larger Number</h2>
+      </div>
+      <p>
+        RoPE scaling can make a model run at a longer maximum sequence length,
+        but it is not proof that the model reasons well over that range. Treat
+        context extension as a model change: check perplexity on long text,
+        retrieval accuracy at different depths, instruction following when the
+        answer is near the middle, and serving memory after the longer KV cache
+        is admitted.
+      </p>
+      <ol class="steps">
+        <li><strong>Math gate:</strong> verify RoPE frequency parameters, cache positions, and max sequence settings agree across training, inference, and serving config.</li>
+        <li><strong>Quality gate:</strong> test short-context regressions and long-context recall separately; a longer window can still dilute attention or hurt precision.</li>
+        <li><strong>Systems gate:</strong> recompute KV-cache bytes from the new maximum prompt plus generation budget before increasing concurrency.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a longer configured context still fail a product eval?</summary>
+        <p>The runtime may accept more tokens, but the model may not reliably use evidence at that distance, and the larger KV cache may force lower concurrency or higher latency.</p>
+      </details>
+    </section>
+
+    <section id="sources" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sources</p>
+        <h2>Primary Reading</h2>
+      </div>
+      <p>
+        Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
+        <a href="https://arxiv.org/abs/2104.09864">RoFormer / Rotary Position Embedding</a>,
+        <a href="https://arxiv.org/abs/2108.12409">ALiBi: Train Short, Test Long</a>,
+        <a href="https://huggingface.co/docs/transformers/en/internal/rope_utils">Hugging Face RoPE utilities</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model">Hugging Face TGI model preparation and RoPE scaling</a>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

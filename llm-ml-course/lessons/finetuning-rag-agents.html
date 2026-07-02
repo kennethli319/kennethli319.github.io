@@ -13,6 +13,7 @@
       <a href="#finetune">Fine-Tuning</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
+      <a href="#reranking">Reranking</a>
       <a href="#context-packing">Context Packing</a>
       <a href="#rag-eval">RAG Eval</a>
       <a href="#agents">Agents</a>
@@ -83,6 +84,42 @@
         <p>Use RAG when facts change, provenance matters, or the model should answer from a bounded document set. Use fine-tuning when the desired behavior or style should generalize across many requests.</p>
       </details>
       <p>Source: <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>.</p>
+    </section>
+
+    <section id="reranking" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Reranking</p>
+        <h2>Separate Fast Recall From Careful Ranking</h2>
+      </div>
+      <p>
+        Dense or hybrid retrieval should usually optimize for recall: pull a
+        wide candidate set that probably contains the answer. A reranker then
+        scores each query-document pair more carefully and sends only the best
+        evidence into the prompt. Cross-encoders are slower than embedding
+        lookup because they jointly encode the query and candidate text, but
+        that extra interaction is useful when the right chunk appears in the
+        top 50 and still loses to nearby distractors.
+      </p>
+      <pre><code>candidates = vector_index.search(query, top_k=50)
+scored = [
+    (cross_encoder.score(query, chunk.text), chunk)
+    for chunk in candidates
+]
+context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></pre>
+      <ol class="steps">
+        <li><strong>Measure both stages:</strong> track recall@50 before reranking and nDCG or hit rate after reranking.</li>
+        <li><strong>Budget latency:</strong> rerank only the candidate count your p95 latency can afford; batch candidate pairs when possible.</li>
+        <li><strong>Keep citations stable:</strong> reranking should reorder chunk ids, not rewrite or detach evidence from its source metadata.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not use a cross-encoder for the whole corpus?</summary>
+        <p>A cross-encoder is too expensive for broad search because it must score the query with each candidate jointly. Use a fast retriever to narrow the set, then rerank the shortlist.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html">Sentence Transformers retrieve and rerank</a>,
+        <a href="https://sbert.net/examples/cross_encoder/training/rerankers/README.html">Sentence Transformers reranker docs</a>.
+      </p>
     </section>
 
     <section id="context-packing" class="band">

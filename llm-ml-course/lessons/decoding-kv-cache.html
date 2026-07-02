@@ -118,6 +118,43 @@ while not done:
         dimension, and bytes per element. GQA and MQA reduce the KV-head term.
       </p>
       <pre><code>kv_bytes = 2 * layers * batch * kv_heads * seq_len * head_dim * bytes_per_element</code></pre>
+      <h3>Implementation Drill: GQA Reduces Stored KV Heads</h3>
+      <p>
+        Grouped-query attention keeps many query heads but shares fewer key and
+        value heads across groups. In a decoder cache, this changes the stored
+        tensor count from <code>num_query_heads</code> to
+        <code>num_kv_heads</code>; it does not change the number of query heads
+        used to produce attention outputs. PyTorch's SDPA can expand grouped
+        K/V heads with <code>enable_gqa=True</code>, but the docs mark the
+        feature experimental and list backend constraints, so keep a reference
+        implementation for shape and logit tests.
+      </p>
+      <pre><code class="language-python">def kv_cache_bytes(layers, batch, kv_heads, seq_len, head_dim, dtype_bytes):
+    return 2 * layers * batch * kv_heads * seq_len * head_dim * dtype_bytes
+
+query_heads = 32
+kv_heads = 8
+assert query_heads % kv_heads == 0
+
+baseline = kv_cache_bytes(32, 4, query_heads, 8192, 128, 2)
+gqa = kv_cache_bytes(32, 4, kv_heads, 8192, 128, 2)
+assert gqa == baseline // (query_heads // kv_heads)
+
+q = torch.randn(4, query_heads, 1, 128, device="cuda")
+k = torch.randn(4, kv_heads, 8192, 128, device="cuda")
+v = torch.randn(4, kv_heads, 8192, 128, device="cuda")
+out = F.scaled_dot_product_attention(q, k, v, enable_gqa=True, dropout_p=0.0)
+assert out.shape == q.shape</code></pre>
+      <ol class="steps">
+        <li><strong>Memory check:</strong> compute cache size with KV heads, not query heads, or GQA/MQA savings will disappear from the estimate.</li>
+        <li><strong>Divisibility check:</strong> require query heads to be an integer multiple of KV heads before repeating or grouping K/V tensors.</li>
+        <li><strong>Quality check:</strong> treat MHA, GQA, and MQA as model architecture choices, not sampler settings; changing them after training requires validation or uptraining.</li>
+        <li><strong>Backend check:</strong> benchmark the exact SDPA backend and dtype used in production, because grouped attention support is backend-specific.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why does GQA help long-context serving?</summary>
+        <p>Long prompts make the KV cache large. Sharing fewer K/V heads reduces the cache memory read and storage terms while keeping multiple query heads for representation capacity.</p>
+      </details>
       <details class="qa">
         <summary>Question: Why does PagedAttention help serving systems?</summary>
         <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>
@@ -264,6 +301,7 @@ out = F.scaled_dot_product_attention(
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html">PyTorch torch.multinomial</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA causal mask notes</a>,
+        <a href="https://arxiv.org/abs/2305.13245">Grouped-query attention</a>,
         <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>,
         <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs</a>,
         <a href="https://huggingface.co/blog/constrained-beam-search">Hugging Face constrained beam search</a>,

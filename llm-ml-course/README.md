@@ -60,6 +60,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
+- Grouped-Query Attention: https://arxiv.org/abs/2305.13245
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/

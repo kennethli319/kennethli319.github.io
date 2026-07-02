@@ -26,6 +26,8 @@ Open `index.html` locally to read the course without a build step.
   RAG, agents, evaluation, monitoring, and launch gates.
 - Interview practice: explain-first coding prompts with complexity, edge cases,
   and common implementation bugs.
+- Research reading map: primary papers and official docs for Transformer,
+  RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, LoRA, DPO, and RAG.
 
 ## Suggested Use
 
@@ -39,3 +41,14 @@ Open `index.html` locally to read the course without a build step.
 
 Do not commit private prompts, documents, API keys, chat logs, model weights, or
 proprietary eval data. Keep local-only work under ignored private folders.
+
+## Research Sources
+
+- Attention Is All You Need: https://arxiv.org/abs/1706.03762
+- RoFormer / RoPE: https://arxiv.org/abs/2104.09864
+- FlashAttention: https://arxiv.org/abs/2205.14135
+- PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
+- LoRA: https://arxiv.org/abs/2106.09685
+- Direct Preference Optimization: https://arxiv.org/abs/2305.18290
+- Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401

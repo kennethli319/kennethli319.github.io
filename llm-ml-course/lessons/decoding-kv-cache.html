@@ -56,6 +56,11 @@ while not done:
         Cache memory scales with batch, layers, KV heads, sequence length, head
         dimension, and bytes per element. GQA and MQA reduce the KV-head term.
       </p>
+      <pre><code>kv_bytes = 2 * layers * batch * kv_heads * seq_len * head_dim * bytes_per_element</code></pre>
+      <details class="qa">
+        <summary>Question: Why does PagedAttention help serving systems?</summary>
+        <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>
+      </details>
     </section>
 
     <section id="serving" class="band">
@@ -67,6 +72,10 @@ while not done:
         Interactive LLM serving mixes requests with different prompt lengths and
         decode lengths. A scheduler tries to keep the GPU busy while protecting
         tail latency, memory limits, and fairness.
+      </p>
+      <p>
+        Sources: <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>,
+        <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>.
       </p>
     </section>
   </main>

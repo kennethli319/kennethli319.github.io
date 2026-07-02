@@ -14,6 +14,7 @@
       <a href="#pytorch">PyTorch</a>
       <a href="#systems">Systems</a>
       <a href="#practice">Practice</a>
+      <a href="#sources">Sources</a>
     </nav>
     <p class="eyebrow">LLM ML Course</p>
     <h1>Learn LLM Theory By Rebuilding The Stack</h1>
@@ -167,6 +168,13 @@
           <p class="lab">Lab: solve five prompts in 45 minutes and review edge cases.</p>
           <p><a class="lesson-link" href="lessons/interview-code-drills.html">Open lesson: interview code drills</a></p>
         </article>
+        <article>
+          <span>15</span>
+          <h3>Research Reading Map</h3>
+          <p>Read the primary LLM papers and official docs in a practical order: architecture, position, efficient attention, serving, adaptation, preferences, and RAG.</p>
+          <p class="lab">Lab: summarize one source into "what problem, what method, what tradeoff, what implementation test."</p>
+          <p><a class="lesson-link" href="lessons/research-reading-map.html">Open lesson: research reading map</a></p>
+        </article>
       </div>
     </section>
 
@@ -229,6 +237,29 @@
         <article class="problem-card">
           <h4>Prompt 4: KV Cache</h4>
           <p>Sketch incremental decoding pseudocode. Explain how cache size scales with layers, batch, heads, sequence length, and head dimension.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="sources" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Research Backbone</p>
+        <h2>Primary Sources To Read Alongside The Lessons</h2>
+        <p>
+          The course uses the PDFs as topic/index references, then fills the
+          material from public papers and official documentation. Start with
+          the Transformer paper, then connect each later source to a concrete
+          PyTorch or serving exercise.
+        </p>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Architecture And Training</h3>
+          <p><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>, <a href="https://arxiv.org/abs/2104.09864">RoFormer / RoPE</a>, <a href="https://arxiv.org/abs/2106.09685">LoRA</a>, and <a href="https://arxiv.org/abs/2305.18290">DPO</a>.</p>
+        </article>
+        <article class="card">
+          <h3>Inference And Retrieval</h3>
+          <p><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>, <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>, <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>, and <a href="https://arxiv.org/abs/2005.11401">RAG</a>.</p>
         </article>
       </div>
     </section>

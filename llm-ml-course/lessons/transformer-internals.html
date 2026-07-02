@@ -13,6 +13,7 @@
       <a href="#attention">Attention</a>
       <a href="#heads">Heads</a>
       <a href="#rope">RoPE</a>
+      <a href="#efficient">Efficient</a>
     </nav>
     <p class="eyebrow">Module 04</p>
     <h1>Transformer Internals</h1>
@@ -79,6 +80,40 @@ def attention(q, k, v, mask=None):
 
 def apply_rope(x, cos, sin):
     return x * cos + rotate_half(x) * sin</code></pre>
+    </section>
+
+    <section id="efficient" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Efficient Attention</p>
+        <h2>Modern PyTorch Can Dispatch To Fused Attention Kernels</h2>
+      </div>
+      <p>
+        The original Transformer paper defines scaled dot-product attention.
+        FlashAttention keeps the result exact but changes the memory schedule:
+        it tiles attention so the GPU moves less data between high-bandwidth
+        memory and faster on-chip memory. PyTorch exposes a high-level
+        <code>scaled_dot_product_attention</code> function that can select optimized
+        backends for supported inputs.
+      </p>
+      <pre><code class="language-python">import torch.nn.functional as F
+
+y = F.scaled_dot_product_attention(
+    query=q,
+    key=k,
+    value=v,
+    attn_mask=None,
+    dropout_p=0.0,
+    is_causal=True,
+)</code></pre>
+      <details class="qa">
+        <summary>Question: What should you still understand if PyTorch provides the kernel?</summary>
+        <p>You still need to reason about tensor layout, causal and padding masks, dropout behavior, dtype, sequence length, memory use, and whether your input shape can use the optimized backend.</p>
+      </details>
+      <p>
+        Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
+        <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>.
+      </p>
     </section>
   </main>
 </body>

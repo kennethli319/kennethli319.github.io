@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Research Reading Map</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701b">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#inference">Inference</a>
+      <a href="#adaptation">Adaptation</a>
+      <a href="#rag">RAG</a>
+    </nav>
+    <p class="eyebrow">Module 15</p>
+    <h1>LLM Research Reading Map</h1>
+    <p class="lede">A practical order for reading the papers and docs that support the rest of the course.</p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Reading Method</p>
+        <h2>Extract A Working Mental Model, Not Trivia</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Problem:</strong> what bottleneck or modeling gap is the source addressing?</li>
+        <li><strong>Method:</strong> what is the core mechanism in one diagram or equation?</li>
+        <li><strong>Tradeoff:</strong> what improves, what gets harder, and what assumptions matter?</li>
+        <li><strong>Implementation:</strong> what PyTorch function, model block, scheduler, or eval would prove you understand it?</li>
+      </ol>
+    </section>
+
+    <section id="architecture" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Architecture</p>
+        <h2>Read These Before Memorizing LLM Components</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a></h4>
+          <p>Learn self-attention, multi-head attention, residual paths, layer normalization, position encodings, warmup schedules, and why parallel sequence modeling displaced recurrent training for many tasks.</p>
+          <p class="lab">Implementation check: write scaled dot-product attention, then explain every dimension in Q, K, V, scores, weights, and output.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2104.09864">RoFormer / RoPE</a></h4>
+          <p>Learn why positional information can be applied by rotating Q/K pairs, giving attention scores a relative-position structure without adding position vectors to values.</p>
+          <p class="lab">Implementation check: apply RoPE to Q/K and test that dot products depend on relative offsets.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="inference" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Inference</p>
+        <h2>Read These To Connect Theory To Latency And Memory</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2205.14135">FlashAttention</a></h4>
+          <p>Learn why exact attention can be faster by changing memory access patterns rather than approximating attention scores.</p>
+          <p class="lab">Implementation check: compare naive attention memory use with PyTorch's scaled dot-product attention on increasing sequence lengths.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch Scaled Dot-Product Attention</a></h4>
+          <p>Learn the production-facing API surface for attention: masks, dropout, causal mode, grouped-query attention support, and backend selection behavior.</p>
+          <p class="lab">Implementation check: replace a handwritten attention function with <code>F.scaled_dot_product_attention</code> and keep tests identical.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a></h4>
+          <p>Learn why KV cache memory management determines serving throughput for variable-length requests and how block-based cache paging reduces waste.</p>
+          <p class="lab">Implementation check: estimate KV cache bytes and sketch a continuous batching admission rule.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="adaptation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Adaptation</p>
+        <h2>Read These Before Choosing Fine-Tuning Strategy</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2106.09685">LoRA</a></h4>
+          <p>Learn how freezing base weights and training low-rank update matrices cuts trainable parameters and optimizer memory for adaptation.</p>
+          <p class="lab">Implementation check: implement LoRA for a linear layer and count trainable parameters as rank changes.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a></h4>
+          <p>Learn how preference pairs can train a language model directly without a separate reward-model-plus-RL loop.</p>
+          <p class="lab">Implementation check: write the shape contract for chosen/rejected log probabilities and explain the role of the reference model.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="rag" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Retrieval</p>
+        <h2>Read RAG As A Product Quality Pattern</h2>
+      </div>
+      <article class="problem-card">
+        <h4><a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a></h4>
+        <p>Learn the distinction between parametric memory in model weights and non-parametric memory in a retrievable index. For applied LLM systems, RAG is often a provenance, freshness, and evaluation design problem as much as a modeling problem.</p>
+        <p class="lab">Implementation check: build a tiny retrieval eval with query, retrieved passages, answer, citation, and groundedness fields.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

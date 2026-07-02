@@ -127,6 +127,39 @@
         <summary>Question: Why is max context length not the same as safe concurrency?</summary>
         <p>Max context length describes one sequence limit. Safe concurrency depends on the sum of active prompt tokens, generated tokens, promised future tokens, cache block rounding, dtype, layers, KV heads, and GPU memory left for non-cache work.</p>
       </details>
+      <h3>Implementation Drill: Account For Memory Before Load Testing</h3>
+      <p>
+        A serving profile should reserve GPU memory in buckets before the first
+        traffic run: model weights, KV cache, temporary activations, framework
+        overhead, and fragmentation headroom. Hugging Face documents different
+        cache classes with different memory behavior, while TensorRT-LLM exposes
+        KV-cache sizing and offload controls such as GPU memory fraction and
+        host cache size. Treat those knobs as admission-control inputs, not just
+        runtime defaults.
+      </p>
+      <pre><code>def estimate_decode_capacity(gpu_bytes, weights_bytes, runtime_overhead,
+                             kv_bytes_per_token, safety=0.15):
+    usable = gpu_bytes * (1 - safety) - weights_bytes - runtime_overhead
+    if usable <= 0:
+        return 0
+    return floor(usable / kv_bytes_per_token)
+
+active_token_budget = estimate_decode_capacity(
+    gpu_bytes=80 * 2**30,
+    weights_bytes=model_resident_bytes,
+    runtime_overhead=activation_and_allocator_bytes,
+    kv_bytes_per_token=2 * layers * kv_heads * head_dim * cache_dtype_bytes,
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Keep buckets separate:</strong> shrinking weights with int4 or FP8 does not automatically shrink the KV cache or temporary activation peak.</li>
+        <li><strong>Budget the promise:</strong> reserve for admitted prompt tokens plus maximum generated tokens, then release unused cache as streams finish.</li>
+        <li><strong>Leave headroom:</strong> allocator fragmentation, CUDA graphs, speculative decoding buffers, and framework workspaces can turn a theoretical fit into an OOM.</li>
+        <li><strong>Recompute after policy changes:</strong> static cache, dynamic cache, quantized cache, offloaded cache, tensor parallelism, and LoRA adapters all change the memory ledger.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should memory accounting happen before a throughput benchmark?</summary>
+        <p>A benchmark that admits too much work may measure OOM recovery, queue collapse, or cache eviction instead of model throughput. A conservative memory ledger defines the request mix that the benchmark is allowed to test.</p>
+      </details>
     </section>
 
     <section id="cache-policy" class="band">
@@ -245,6 +278,8 @@
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html">TensorRT-LLM quantization</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
+        <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/examples/kvcacheconfig.md">TensorRT-LLM KV cache configuration</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,

@@ -97,10 +97,38 @@ dpo_record = {
         <summary>Question: What quick smoke test catches a reversed DPO dataset?</summary>
         <p>Run a tiny batch with known-good and known-bad answers, then check whether the update increases the chosen-minus-rejected margin. If it moves the wrong way, inspect column mapping and chat formatting before tuning beta.</p>
       </details>
+      <h3>Reasoning Drill: GRPO Needs A Reward Contract</h3>
+      <p>
+        Group Relative Policy Optimization is useful when the training signal
+        can be computed on model-generated completions, such as math accuracy,
+        code tests, format checks, or a calibrated reward function. Unlike DPO,
+        it is an online loop: sample several completions for the same prompt,
+        score them, turn each score into a group-relative advantage, and update
+        the policy while controlling drift from the reference behavior. The
+        serving-style risk is that reward bugs become training bugs, so the
+        reward contract belongs in version control before the GPU run starts.
+      </p>
+      <pre><code class="language-python">def grpo_batch(prompt, policy, reward_fn, group_size=8):
+    completions = [policy.generate(prompt) for _ in range(group_size)]
+    rewards = torch.tensor([reward_fn(prompt, y) for y in completions])
+    advantages = (rewards - rewards.mean()) / (rewards.std() + 1e-6)
+    return list(zip(completions, rewards.tolist(), advantages.tolist()))</code></pre>
+      <ol class="steps">
+        <li><strong>Choose the reward first:</strong> prefer deterministic tests for math, code, schema, and format before adding a learned judge.</li>
+        <li><strong>Inspect the group:</strong> for each prompt, log all sampled completions, rewards, and advantages so reward hacking is visible.</li>
+        <li><strong>Track policy drift:</strong> monitor KL, response length, pass rate, and held-out quality slices; a higher reward can still mean worse user behavior.</li>
+        <li><strong>Handle length carefully:</strong> modern trainer docs call out length-bias issues in GRPO-style losses, so record the loss variant and reward scaling in every run.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: When is DPO a better first preference-tuning baseline than GRPO?</summary>
+        <p>Use DPO first when you already have reliable chosen/rejected pairs and want an offline, simpler training loop. Consider GRPO when the task has a trustworthy reward function or executable verifier that can score fresh model samples.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a>,
-        <a href="https://huggingface.co/docs/trl/en/dpo_trainer">Hugging Face TRL DPOTrainer</a>.
+        <a href="https://huggingface.co/docs/trl/en/dpo_trainer">Hugging Face TRL DPOTrainer</a>,
+        <a href="https://arxiv.org/abs/2402.03300">DeepSeekMath GRPO paper</a>,
+        <a href="https://huggingface.co/docs/trl/en/grpo_trainer">Hugging Face TRL GRPOTrainer</a>.
       </p>
     </section>
 

@@ -330,6 +330,39 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why is tokens-per-second alone a weak speculation metric?</summary>
         <p>It can hide draft overhead, lower acceptance on hard prompts, and worse p95 inter-token latency. A useful report shows accepted tokens per verify step, target forward passes per output token, memory headroom, and tail latency against a non-speculative baseline.</p>
       </details>
+      <h3>Implementation Drill: Turn Acceptance Into A Latency Budget</h3>
+      <p>
+        Before enabling speculation in a shared serving pool, estimate the
+        breakeven point in decode steps rather than assuming every accepted
+        token is free. The original speculative decoding paper motivates the
+        speedup by reducing serial target-model calls, while current vLLM docs
+        caution that the method is most useful for medium-to-low QPS,
+        memory-bound decode workloads. A rollout gate should therefore combine
+        acceptance rate with the cost of the drafter, verification pass, and
+        any lost batching efficiency.
+      </p>
+      <pre><code>def speculation_wins(target_ms, draft_ms, verify_ms, draft_tokens, accepted_tokens):
+    if accepted_tokens == 0:
+        return False
+    baseline_ms = accepted_tokens * target_ms
+    speculative_ms = draft_tokens * draft_ms + verify_ms
+    return speculative_ms < baseline_ms
+
+rollout_gate = (
+    speculation_wins(target_decode_ms, draft_decode_ms, target_verify_ms,
+                     proposed_tokens, accepted_tokens)
+    and qps_bucket in ["low", "medium"]
+    and p95_itl_speculative <= p95_itl_baseline
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Count accepted tokens per verify pass:</strong> this is the practical unit of serial decode work saved.</li>
+        <li><strong>Charge the drafter honestly:</strong> include draft-model latency, tokenizer conversion if any, memory pressure, and queue slots.</li>
+        <li><strong>Fail closed under load:</strong> disable or shrink speculation when the target is compute-saturated, acceptance drops, or tail ITL regresses.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can the same speculation setting win offline but lose in production?</summary>
+        <p>An offline benchmark may have idle target capacity and repetitive prompts, while production adds queueing, mixed prompt domains, lower acceptance, and shared GPU resources for the drafter and verifier.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">

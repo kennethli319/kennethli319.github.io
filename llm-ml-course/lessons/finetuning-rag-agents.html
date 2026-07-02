@@ -13,6 +13,7 @@
       <a href="#finetune">Fine-Tuning</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
+      <a href="#rag-eval">RAG Eval</a>
       <a href="#agents">Agents</a>
       <a href="#tool-traces">Tool Traces</a>
     </nav>
@@ -81,6 +82,47 @@
         <p>Use RAG when facts change, provenance matters, or the model should answer from a bounded document set. Use fine-tuning when the desired behavior or style should generalize across many requests.</p>
       </details>
       <p>Source: <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>.</p>
+    </section>
+
+    <section id="rag-eval" class="band">
+      <div class="section-head">
+        <p class="eyebrow">RAG Evaluation</p>
+        <h2>Grade Retrieval And Generation Separately</h2>
+      </div>
+      <p>
+        A RAG answer can fail because the retriever missed the right evidence,
+        ranked noisy chunks above useful chunks, or because the generator ignored
+        the evidence it received. Keep the eval record explicit so each stage has
+        its own signal before you tune embeddings, chunking, prompts, or models.
+      </p>
+      <pre><code>rag_eval_case = {
+    "query": str,
+    "expected_evidence": list[str],
+    "retrieved_chunks": list[str],
+    "answer": str,
+    "citations": list[str],
+    "grades": {
+        "context_recall": float,
+        "context_precision": float,
+        "faithfulness": float,
+        "answer_relevance": float,
+    },
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Context recall:</strong> did retrieval include the evidence needed to answer?</li>
+        <li><strong>Context precision:</strong> did high-ranked chunks stay focused, or did they waste context budget?</li>
+        <li><strong>Faithfulness:</strong> does the answer stay supported by retrieved text instead of importing unsupported claims?</li>
+        <li><strong>Answer relevance:</strong> does the answer actually resolve the user query after grounding checks pass?</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not collapse RAG eval into one final answer score?</summary>
+        <p>A single score hides whether to fix the retriever, reranker, context packer, prompt, or generator. Stage-level metrics make regressions actionable.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>,
+        <a href="https://github.com/openai/evals">OpenAI Evals</a>.
+      </p>
     </section>
 
     <section id="agents" class="band">

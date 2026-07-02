@@ -65,7 +65,43 @@
         <summary>Question: What should an interview answer avoid overstating?</summary>
         <p>DPO is simpler than PPO-style RLHF, but it still depends on preference data quality, reference-model choice, beta, evaluation design, and distribution shift.</p>
       </details>
-      <p>Source: <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a>.</p>
+      <h3>Implementation Drill: Audit The DPO Pair Before Training</h3>
+      <p>
+        A DPO batch should make the preferred completion more likely relative to
+        the rejected completion while comparing that change against a frozen
+        reference policy. In practice, the dataset contract is just
+        <code>prompt</code>, <code>chosen</code>, and <code>rejected</code>, but
+        most bugs come from silent label swaps, chat-template mismatches,
+        missing reference log probabilities, or a beta value that changes the
+        strength of the preference update more than intended.
+      </p>
+      <pre><code class="language-python">def dpo_pair_loss(policy_chosen, policy_rejected,
+                  ref_chosen, ref_rejected, beta=0.1):
+    policy_margin = policy_chosen - policy_rejected
+    ref_margin = ref_chosen - ref_rejected
+    logits = beta * (policy_margin - ref_margin)
+    return -torch.nn.functional.logsigmoid(logits).mean()
+
+dpo_record = {
+    "prompt": "Explain KV cache in one sentence.",
+    "chosen": "KV cache stores past keys and values so decode can reuse them.",
+    "rejected": "KV cache stores gradients for later backpropagation.",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Validate labels:</strong> inspect random pairs and require that <code>chosen</code> is actually preferred under the rubric before any GPU run.</li>
+        <li><strong>Template both sides:</strong> apply the same tokenizer and chat template to chosen and rejected completions so length or role formatting does not become the signal.</li>
+        <li><strong>Track margins:</strong> log chosen reward, rejected reward, reward accuracy, and loss; a falling loss with worsening held-out preference accuracy is a warning sign.</li>
+        <li><strong>Keep a reference path:</strong> decide whether the reference policy is a separate frozen model, precomputed reference log probabilities, or the base model recovered by disabling adapters.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What quick smoke test catches a reversed DPO dataset?</summary>
+        <p>Run a tiny batch with known-good and known-bad answers, then check whether the update increases the chosen-minus-rejected margin. If it moves the wrong way, inspect column mapping and chat formatting before tuning beta.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a>,
+        <a href="https://huggingface.co/docs/trl/en/dpo_trainer">Hugging Face TRL DPOTrainer</a>.
+      </p>
     </section>
 
     <section id="rag" class="band">

@@ -456,6 +456,38 @@ rollout_gate = (
         <summary>Question: Why can an int4 weight model still run out of KV memory?</summary>
         <p>Weight quantization shrinks stored parameters. It does not automatically shrink the per-token keys and values accumulated during generation, so long contexts and many active streams can still exhaust the cache budget.</p>
       </details>
+      <h3>Rollout Drill: Separate Weight Dtype From Cache Dtype</h3>
+      <p>
+        Treat quantization as a matrix, not a single switch. Hugging Face's
+        bitsandbytes path changes how model weights are loaded, while vLLM and
+        TensorRT-LLM expose KV-cache dtype controls such as FP8 cache and, on
+        supported stacks, lower-precision cache formats. vLLM also distinguishes
+        uncalibrated FP8 cache, warmup-scale estimation, and dataset calibration
+        through llm-compressor, so the serving profile should record the scale
+        source alongside the dtype. A useful rollout compares each profile on
+        the same prompt buckets before changing max context or concurrency.
+      </p>
+      <pre><code>quantization_matrix = [
+    {"weights": "bf16", "kv_cache": "bf16", "calibration": "none"},
+    {"weights": "int8", "kv_cache": "bf16", "calibration": "weight loader"},
+    {"weights": "int4", "kv_cache": "bf16", "calibration": "weight loader"},
+    {"weights": "bf16", "kv_cache": "fp8", "calibration": "dataset scales"},
+    {"weights": "fp8", "kv_cache": "fp8", "calibration": "engine-specific"},
+]
+
+for profile in quantization_matrix:
+    run_eval(profile, buckets=["short_chat", "long_rag", "multi_turn"])
+    compare(profile, metrics=["quality", "ttft", "itl", "oom_rate", "cost"])</code></pre>
+      <ol class="steps">
+        <li><strong>Record support:</strong> note model family, GPU generation, serving engine, and whether the chosen cache dtype is native or requires offline quantization.</li>
+        <li><strong>Calibrate on the workload:</strong> use representative long-context and retrieval prompts when cache scales are estimated from data.</li>
+        <li><strong>Compare phase metrics:</strong> weight quantization may improve fit or load memory, while KV-cache quantization should show up in active-token capacity, OOM rate, and long-context TTFT/ITL.</li>
+        <li><strong>Keep rollback orthogonal:</strong> be able to disable cache quantization without changing the weight checkpoint, tokenizer, sampling contract, or eval threshold.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should a quantized-cache launch report include besides memory saved?</summary>
+        <p>It should include cache dtype, scale source, hardware and engine support, prompt buckets tested, quality deltas, TTFT, ITL, OOM or eviction rate, and the rollback profile that restores the previous cache dtype.</p>
+      </details>
     </section>
 
     <section id="observability" class="band">

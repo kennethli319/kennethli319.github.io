@@ -68,11 +68,15 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- TensorRT-LLM quantization: https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html
 - TensorRT-LLM metrics collector: https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py
 - TensorRT-LLM disaggregated serving: https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md
 - Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
 - Hugging Face cache explanation: https://huggingface.co/docs/transformers/en/cache_explanation
+- Hugging Face bitsandbytes quantization: https://huggingface.co/docs/transformers/en/quantization/bitsandbytes
+- vLLM quantized KV cache: https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/
+- vLLM llm-compressor KV cache quantization example: https://github.com/vllm-project/llm-compressor/blob/main/examples/quantization_kv_cache/README.md
 - PyTorch torch.compile: https://docs.pytorch.org/docs/2.12/generated/torch.compile.html
 - OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
 - Speculative decoding: https://arxiv.org/abs/2211.17192

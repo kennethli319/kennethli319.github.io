@@ -78,6 +78,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Speculative decoding: https://arxiv.org/abs/2211.17192
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
 - Hugging Face assisted decoding: https://huggingface.co/docs/transformers/en/assisted_decoding
+- Decoding Speculative Decoding: https://arxiv.org/abs/2402.01528
 - LoRA: https://arxiv.org/abs/2106.09685
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Hugging Face TRL DPOTrainer: https://huggingface.co/docs/trl/en/dpo_trainer

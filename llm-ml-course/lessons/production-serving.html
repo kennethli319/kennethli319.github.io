@@ -363,6 +363,35 @@ rollout_gate = (
         <summary>Question: Why can the same speculation setting win offline but lose in production?</summary>
         <p>An offline benchmark may have idle target capacity and repetitive prompts, while production adds queueing, mixed prompt domains, lower acceptance, and shared GPU resources for the drafter and verifier.</p>
       </details>
+      <h3>Reliability Drill: Add A Speculation Kill Switch</h3>
+      <p>
+        Speculative decoding should be a runtime profile, not a permanent
+        assumption baked into the service. The original algorithm preserves the
+        target distribution when the accept/reject step is implemented
+        correctly, but production frameworks still warn that the speedup is
+        workload-dependent. Use a short-window controller that can shrink the
+        draft length or fall back to ordinary decoding when acceptance, tail
+        latency, or memory headroom moves outside the launch envelope.
+      </p>
+      <pre><code>def choose_decode_profile(metrics):
+    if metrics.gpu_cache_free_blocks < metrics.min_free_blocks:
+        return {"speculative": False}
+    if metrics.accepted_tokens_per_verify < 1.5:
+        return {"speculative": False}
+    if metrics.p95_itl_ms > metrics.baseline_p95_itl_ms * 1.05:
+        return {"speculative": False}
+    if metrics.queue_depth > metrics.high_qps_queue_depth:
+        return {"speculative": False}
+    return {"speculative": True, "draft_tokens": metrics.best_recent_draft_tokens}</code></pre>
+      <ol class="steps">
+        <li><strong>Window the metrics:</strong> evaluate acceptance and ITL over recent requests so one hard prompt does not disable the whole fleet.</li>
+        <li><strong>Fall back by profile:</strong> keep the target model, tokenizer, and sampling contract unchanged; only disable the draft path.</li>
+        <li><strong>Record the reason:</strong> log whether the fallback came from low acceptance, queue pressure, memory pressure, or tail-latency regression.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should speculation be disabled under high queue pressure?</summary>
+        <p>At high load, the draft path can compete with target-model work for the same GPU resources. If acceptance is not high enough to reduce target forwards, speculation can make queued and streaming requests slower.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">
@@ -541,7 +570,8 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
-        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>.
+        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
+        <a href="https://arxiv.org/abs/2402.01528">Decoding Speculative Decoding</a>.
       </p>
     </section>
   </main>

@@ -69,6 +69,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
 - TensorRT-LLM quantization: https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html
+- TensorRT-LLM KV cache reuse: https://nvidia.github.io/TensorRT-LLM/advanced/kv-cache-reuse.html
 - TensorRT-LLM metrics collector: https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py
 - TensorRT-LLM disaggregated serving: https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md

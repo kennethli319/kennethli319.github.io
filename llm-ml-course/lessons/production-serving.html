@@ -615,6 +615,35 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <summary>Question: Why derive TTFT and ITL from raw stream timestamps?</summary>
         <p>Raw events make the metric boundary inspectable. Without them, a latency regression can be hidden inside a precomputed number whose definition changed between client, gateway, engine, or benchmark tool.</p>
       </details>
+      <h3>Cache Drill: Explain TTFT With Reuse, Not Averages</h3>
+      <p>
+        Prefix-cache reports should connect cache hits to the phase they
+        actually save. vLLM's automatic prefix caching and TensorRT-LLM's KV
+        cache reuse both skip redundant prefill work when requests begin with
+        matching prompt blocks, so the first expected win is lower TTFT for
+        repeated prefixes. Hugging Face cache strategies describe per-request
+        decode caches as a generation optimization, which means a prefix hit
+        should not be credited for faster output-token work unless decode
+        pressure also changed. Keep cache-hit metrics sliced by prompt
+        template, tenant or namespace, adapter, and model revision so eviction
+        or salting decisions are visible.
+      </p>
+      <pre><code>cache_latency_report = {
+    "slice": ["template_id", "tenant_policy", "model_revision", "adapter_id"],
+    "reuse": ["prefix_cache_hit_rate", "reused_prompt_tokens", "evicted_blocks"],
+    "latency": ["queue_ms", "prefill_ms", "ttft_ms", "itl_ms"],
+    "memory": ["gpu_cache_usage", "kv_blocks_free"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Compare matched slices:</strong> measure cached and uncached requests with the same prompt bucket and output budget before claiming a global latency win.</li>
+        <li><strong>Charge evictions:</strong> a high hit rate can still regress tails if useful blocks are evicted during prompt spikes or adapter-heavy traffic.</li>
+        <li><strong>Keep decode separate:</strong> prefix reuse reduces repeated prefill compute; ITL still depends on active streams, KV bandwidth, and decode batch scheduling.</li>
+        <li><strong>Audit namespace changes:</strong> model revisions, tokenizer changes, LoRA adapters, and tenant salts can intentionally split reuse and should appear in the report.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can prefix-cache hit rate rise while p95 latency gets worse?</summary>
+        <p>The hits may be concentrated in easy short prompts while long or high-priority requests wait behind queueing, evictions, or decode pressure. Slice TTFT, ITL, reused prompt tokens, and cache pressure before changing the cache policy.</p>
+      </details>
     </section>
 
     <section id="launch" class="band">
@@ -656,6 +685,7 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html">TensorRT-LLM quantization</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/advanced/kv-cache-reuse.html">TensorRT-LLM KV cache reuse</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py">TensorRT-LLM metrics collector</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/examples/kvcacheconfig.md">TensorRT-LLM KV cache configuration</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/commands/trtllm-serve/run-benchmark-with-trtllm-serve.md">TensorRT-LLM benchmark metrics</a>,

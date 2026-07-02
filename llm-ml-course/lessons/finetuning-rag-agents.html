@@ -13,6 +13,7 @@
       <a href="#finetune">Fine-Tuning</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
+      <a href="#hybrid-retrieval">Hybrid Retrieval</a>
       <a href="#reranking">Reranking</a>
       <a href="#context-packing">Context Packing</a>
       <a href="#rag-eval">RAG Eval</a>
@@ -148,6 +149,49 @@ dpo_record = {
         <p>Use RAG when facts change, provenance matters, or the model should answer from a bounded document set. Use fine-tuning when the desired behavior or style should generalize across many requests.</p>
       </details>
       <p>Source: <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>.</p>
+    </section>
+
+    <section id="hybrid-retrieval" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Hybrid Retrieval</p>
+        <h2>Fuse Lexical And Dense Signals Before You Rerank</h2>
+      </div>
+      <p>
+        Dense retrieval is good at semantic matches, while lexical retrieval is
+        hard to replace for exact names, ids, symbols, acronyms, and code. A
+        hybrid first stage can run both searches, combine their ranked lists,
+        then send the fused shortlist to a reranker. Reciprocal Rank Fusion is a
+        practical default because it uses rank positions instead of assuming
+        BM25 scores and embedding similarities are calibrated to the same scale.
+      </p>
+      <pre><code class="language-python">def reciprocal_rank_fusion(result_lists, k=60):
+    scores = {}
+    for results in result_lists:
+        for rank, doc_id in enumerate(results, start=1):
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank)
+    return [doc_id for doc_id, _ in sorted(
+        scores.items(), key=lambda item: item[1], reverse=True
+    )]
+
+sparse = bm25.search(query, top_k=50)
+dense = vector_index.search(embed(query), top_k=50)
+candidates = reciprocal_rank_fusion([sparse, dense])[:50]
+context = cross_encoder.rerank(query, candidates)[:6]</code></pre>
+      <ol class="steps">
+        <li><strong>Evaluate by slice:</strong> compare dense-only, lexical-only, fused, and fused-plus-rerank results on acronym, identifier, paraphrase, and long-question cases.</li>
+        <li><strong>Do not mix raw scores blindly:</strong> if the retrievers produce different score ranges, fuse by rank or use an explicitly normalized method.</li>
+        <li><strong>Keep HyDE gated:</strong> hypothetical-document query expansion can improve zero-shot dense recall, but its generated text adds latency and may inject false details before corpus grounding.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can hybrid search beat dense retrieval on technical RAG?</summary>
+        <p>Technical questions often depend on exact strings such as function names, error codes, product ids, and citations. Dense embeddings can blur those details, while lexical search keeps them visible for the reranker.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://qdrant.tech/documentation/search/hybrid-queries/">Qdrant hybrid queries</a>,
+        <a href="https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html">Sentence Transformers retrieve and rerank</a>,
+        <a href="https://arxiv.org/abs/2212.10496">HyDE paper</a>.
+      </p>
     </section>
 
     <section id="reranking" class="band">

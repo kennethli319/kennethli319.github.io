@@ -14,6 +14,7 @@
       <a href="#disaggregation">Disaggregation</a>
       <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
+      <a href="#quantization">Quantization</a>
       <a href="#launch">Launch Gates</a>
     </nav>
     <p class="eyebrow">Module 13</p>
@@ -152,6 +153,37 @@
       </details>
     </section>
 
+    <section id="quantization" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Quantization</p>
+        <h2>Quantize The Bottleneck You Actually Measured</h2>
+      </div>
+      <p>
+        Weight quantization and KV-cache quantization solve different serving
+        problems. Lower-precision weights reduce model-loading memory and can
+        make a larger model fit on the target device. KV-cache quantization
+        reduces the persistent memory that grows with active sequences, prompt
+        length, generated tokens, layer count, and KV heads. In a long-context
+        or high-concurrency service, cache dtype can matter more than weight
+        dtype after the model is already resident.
+      </p>
+      <pre><code>quantization_decision = {
+    "weights": "use when model weights do not fit or weight bandwidth dominates",
+    "kv_cache": "use when active tokens or long contexts cap concurrency",
+    "acceptance": "compare quality, TTFT, ITL, memory headroom, and fallback path",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start with a memory trace:</strong> split resident weight memory from KV-cache growth under realistic prompt and output lengths.</li>
+        <li><strong>Keep calibration explicit:</strong> cache scales, static versus dynamic quantization, and hardware support are runtime choices, not just model-card labels.</li>
+        <li><strong>Test the failure shape:</strong> long prompts, retrieval-heavy contexts, and multi-turn sessions are more likely to expose cache-precision regressions than short chat smoke tests.</li>
+        <li><strong>Ship with rollback:</strong> treat quantized weights, FP8 KV cache, and default cache dtype as separate launch profiles with comparable eval and latency reports.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can an int4 weight model still run out of KV memory?</summary>
+        <p>Weight quantization shrinks stored parameters. It does not automatically shrink the per-token keys and values accumulated during generation, so long contexts and many active streams can still exhaust the cache budget.</p>
+      </details>
+    </section>
+
     <section id="launch" class="band">
       <div class="section-head">
         <p class="eyebrow">Launch Gates</p>
@@ -174,15 +206,19 @@
         Sources:
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
         <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM quantization</a>,
+        <a href="https://docs.vllm.ai/en/stable/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html">TensorRT-LLM quantization</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
-        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
+        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
+        <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>.
       </p>
     </section>
   </main>

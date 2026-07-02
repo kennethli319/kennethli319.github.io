@@ -66,6 +66,11 @@
           <p class="lab">Implementation check: compare naive attention memory use with PyTorch's scaled dot-product attention on increasing sequence lengths.</p>
         </article>
         <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2407.08608">FlashAttention-3</a></h4>
+          <p>Read this as a hardware-aware sequel: the attention math stays exact, while Hopper-specific asynchrony, warp specialization, Tensor Memory Accelerator movement, and FP8 paths change the kernel bottleneck.</p>
+          <p class="lab">Implementation check: write a short compatibility note that separates algorithmic invariants from hardware requirements such as H100/H800-class GPUs, CUDA support, dtype, head dimension, dropout, and variable-length behavior.</p>
+        </article>
+        <article class="problem-card">
           <h4><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch Scaled Dot-Product Attention</a></h4>
           <p>Learn the production-facing API surface for attention: masks, dropout, causal mode, grouped-query attention support, and backend selection behavior.</p>
           <p class="lab">Implementation check: replace a handwritten attention function with <code>F.scaled_dot_product_attention</code> and keep tests identical.</p>

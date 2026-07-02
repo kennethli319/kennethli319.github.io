@@ -56,6 +56,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Hugging Face RoPE utilities: https://huggingface.co/docs/transformers/en/internal/rope_utils
 - Hugging Face TGI RoPE scaling notes: https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model
 - FlashAttention: https://arxiv.org/abs/2205.14135
+- FlashAttention-3: https://arxiv.org/abs/2407.08608
+- FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180

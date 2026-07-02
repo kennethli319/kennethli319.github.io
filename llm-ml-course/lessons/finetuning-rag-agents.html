@@ -247,6 +247,42 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         external state, retrying after failures, or maintaining a work log. They
         add risk when a simple one-shot call would be easier to test and control.
       </p>
+      <h3>Implementation Drill: Define The Control Plane Before Adding Tools</h3>
+      <p>
+        A production agent needs more than a list of functions. Decide which
+        actions require approval, which steps can be retried automatically, how
+        state is persisted between turns, and where execution can pause for a
+        human. OpenAI's Agents SDK separates orchestration, tool execution,
+        approvals, guardrails, and tracing; MCP standardizes connections to
+        external systems; LangGraph interrupts show the same reliability pattern
+        from the workflow side: pause, persist state, then resume from an
+        explicit decision.
+      </p>
+      <pre><code>agent_control_plane = {
+    "state_store": "durable run state, not only chat history",
+    "approval_required": ["send_email", "delete_file", "purchase", "public_post"],
+    "auto_retry": {"search_docs": 2, "read_file": 1},
+    "interrupt_points": ["before_external_action", "after_ambiguous_tool_result"],
+    "trace_fields": ["model_call", "tool_call", "guardrail", "handoff", "human_decision"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Classify tools:</strong> read-only, reversible write, irreversible write, and external communication tools should not share the same execution policy.</li>
+        <li><strong>Persist before waiting:</strong> if the agent asks for approval, save the run state and pending action so resume does not depend on hidden context.</li>
+        <li><strong>Trace decisions:</strong> log the model proposal, validated arguments, guardrail result, human decision, and final tool result for audits and regression tests.</li>
+        <li><strong>Test recovery:</strong> simulate tool timeouts, denied approvals, stale state, and duplicate resumes before trusting the loop in production.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is an approval prompt not enough by itself?</summary>
+        <p>The system also needs durable state, a typed pending action, a resume path, and trace evidence. Otherwise a denied or delayed approval can leave the agent in an ambiguous state that is hard to test or audit.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://developers.openai.com/api/docs/guides/agents">OpenAI Agents SDK guide</a>,
+        <a href="https://openai.github.io/openai-agents-python/tracing/">OpenAI Agents SDK tracing</a>,
+        <a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK guardrails</a>,
+        <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol introduction</a>,
+        <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a>.
+      </p>
     </section>
 
     <section id="tool-traces" class="band">

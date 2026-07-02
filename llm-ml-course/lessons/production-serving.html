@@ -394,6 +394,37 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why keep TTFT and ITL on different panels?</summary>
         <p>TTFT is usually where queueing and prefill show up; ITL is where decode-step contention, cache bandwidth, and streaming smoothness show up. A single latency percentile hides which path needs work.</p>
       </details>
+      <h3>Implementation Drill: Reconstruct Streaming Latency From Events</h3>
+      <p>
+        Benchmark tools often report TTFT, ITL, TPOT, throughput, and end-to-end
+        latency directly, but production traces should be able to recompute
+        them from event timestamps. vLLM documents TTFT and time-per-output-token
+        metrics, TensorRT-LLM separates TPOT from ITL, and Hugging Face TGI
+        exposes Prometheus metrics for server monitoring. Store the raw stream
+        events first, then derive dashboard numbers so you can audit definitions
+        when a benchmark and production graph disagree.
+      </p>
+      <pre><code>events = {
+    "received_at": t0,
+    "prefill_done_at": t_prefill,
+    "token_sent_at": [t1, t2, t3, t4],
+    "completed_at": t_done,
+}
+
+ttft = events["token_sent_at"][0] - events["received_at"]
+itl = [b - a for a, b in pairwise(events["token_sent_at"])]
+tpot = mean(itl)
+e2e = events["completed_at"] - events["received_at"]</code></pre>
+      <ol class="steps">
+        <li><strong>Name the boundary:</strong> decide whether TTFT starts at client send, gateway receive, engine receive, or scheduler enqueue, then keep that label visible.</li>
+        <li><strong>Keep token events:</strong> aggregate histograms are useful, but sampled per-request traces explain bursts, stalls, retries, and stream cancellations.</li>
+        <li><strong>Separate empty outputs:</strong> requests that fail, stop before emitting a token, or stream tool metadata need their own counters instead of fake TTFT or ITL values.</li>
+        <li><strong>Compare definitions:</strong> when two tools disagree, check whether they include tokenization, queueing, network flush, and the first generated token in the same way.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why derive TTFT and ITL from raw stream timestamps?</summary>
+        <p>Raw events make the metric boundary inspectable. Without them, a latency regression can be hidden inside a precomputed number whose definition changed between client, gateway, engine, or benchmark tool.</p>
+      </details>
     </section>
 
     <section id="launch" class="band">
@@ -442,6 +473,7 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html">NVIDIA NIM LLM benchmarking metrics</a>,
         <a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/perf_analyzer/genai-perf/README.html">NVIDIA GenAI-Perf</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/reference/metrics">Hugging Face TGI metrics</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,

@@ -139,10 +139,38 @@
         <summary>Question: Why not only score the final RAG answer?</summary>
         <p>A final-answer score tells you the user experience got worse, but it may not tell you whether to fix chunking, embedding choice, reranking, context packing, prompting, decoding, or the answer policy.</p>
       </details>
+      <h3>Metric Drill: Match The RAG Score To The Available Reference</h3>
+      <p>
+        Retrieval evals need different evidence depending on what the dataset
+        contains. RAGAS describes context precision as a ranking usefulness
+        check that can compare retrieved contexts against a reference answer,
+        while context recall asks whether the retrieval step found the relevant
+        documents or information. OpenAI's evaluation guidance recommends
+        designing evals around the behavior you expect in production, so choose
+        the metric from the failure you need to debug instead of forcing every
+        RAG case into one judge score.
+      </p>
+      <pre><code>rag_metric_plan = {
+    "has_reference_contexts": ["context_recall", "missing_required_sources"],
+    "has_reference_answer": ["context_precision", "answer_relevance"],
+    "has_generated_answer_only": ["context_utilization", "faithfulness_review"],
+    "always_log": ["query", "retrieved_ids", "rank", "answer_claims"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Use recall for misses:</strong> when gold source ids or required facts are known, ask whether retrieval brought them into the candidate context.</li>
+        <li><strong>Use precision for ranking:</strong> when retrieved chunks should be useful near the top, measure whether relevant context appears before distractors.</li>
+        <li><strong>Separate generation:</strong> a faithful answer can still come from weak retrieval if the answer was easy, and good retrieval can still produce an unsupported answer.</li>
+        <li><strong>Record uncertainty:</strong> cases without reference answers or source ids should be exploratory or judge-assisted until human review promotes them into a regression gate.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can context precision and context recall disagree?</summary>
+        <p>A retriever can rank one useful chunk first but miss other required evidence, or retrieve all required evidence while burying it among distractors. Precision and recall expose different repair paths.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2309.15217">RAGAS paper</a>,
         <a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/">RAGAS context precision docs</a>,
+        <a href="https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/context_recall/">RAGAS context recall docs</a>,
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>.
       </p>
     </section>

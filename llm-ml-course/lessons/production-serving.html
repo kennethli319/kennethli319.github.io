@@ -16,6 +16,7 @@
       <a href="#cache-policy">Cache Policy</a>
       <a href="#speculation">Speculation</a>
       <a href="#quantization">Quantization</a>
+      <a href="#observability">Observability</a>
       <a href="#launch">Launch Gates</a>
     </nav>
     <p class="eyebrow">Module 13</p>
@@ -305,6 +306,40 @@ active_token_budget = estimate_decode_capacity(
       </details>
     </section>
 
+    <section id="observability" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Observability</p>
+        <h2>Debug Serving With Phase Metrics, Not A Single Latency Number</h2>
+      </div>
+      <p>
+        A production LLM endpoint needs traces and metrics that preserve the
+        shape of the request. vLLM's metrics separate running and waiting
+        requests, GPU cache usage, prompt-token throughput, generation-token
+        throughput, and prefix-cache hit rate. OpenTelemetry's GenAI semantic
+        conventions give client and gateway traces common fields for operation,
+        model, provider, and token usage. TensorRT-LLM exposes iteration-level
+        serving stats such as queued requests, active requests, batch sizes,
+        memory, KV-cache state, in-flight batching, and speculative decoding.
+      </p>
+      <pre><code>serving_trace = {
+    "request": ["model", "tenant", "prompt_tokens", "max_new_tokens"],
+    "queue": ["waiting_requests", "queue_ms"],
+    "prefill": ["prompt_tokens_per_s", "ttft_ms", "prefix_cache_hit_rate"],
+    "decode": ["generation_tokens_per_s", "itl_ms", "accepted_spec_tokens"],
+    "memory": ["gpu_cache_usage", "kv_blocks_free", "oom_or_eviction_count"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>High TTFT:</strong> inspect queue time, prompt length, chunked-prefill budget, prefix-cache hit rate, and prefill worker saturation before blaming decode kernels.</li>
+        <li><strong>High ITL:</strong> inspect active streams, decode batch size, KV-cache bandwidth, speculative acceptance, and GPU cache pressure.</li>
+        <li><strong>Sudden OOM:</strong> compare promised tokens, real output lengths, cache block slack, adapter count, CUDA graph memory, and rollout changes.</li>
+        <li><strong>Cost drift:</strong> group input tokens, output tokens, cached-prefix reuse, model revision, and decoding profile so product changes are visible in token spend.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should observability record prompt tokens and output tokens separately?</summary>
+        <p>Prompt tokens mostly drive prefill cost and TTFT, while generated tokens drive decode occupancy, KV-cache growth, streaming duration, and user-visible cost. Combining them hides the phase that regressed.</p>
+      </details>
+    </section>
+
     <section id="launch" class="band">
       <div class="section-head">
         <p class="eyebrow">Launch Gates</p>
@@ -334,6 +369,7 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html">vLLM automatic prefix caching</a>,
+        <a href="https://docs.vllm.ai/en/stable/design/metrics/">vLLM metrics</a>,
         <a href="https://github.com/vllm-project/vllm/issues/16016">vLLM cache salting design discussion</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
@@ -341,10 +377,12 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html">TensorRT-LLM quantization</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
+        <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py">TensorRT-LLM metrics collector</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/examples/kvcacheconfig.md">TensorRT-LLM KV cache configuration</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
+        <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>.

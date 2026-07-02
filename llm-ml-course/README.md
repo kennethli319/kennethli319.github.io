@@ -56,12 +56,15 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
+- vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- TensorRT-LLM metrics collector: https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py
 - TensorRT-LLM disaggregated serving: https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md
 - Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
+- OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
 - Speculative decoding: https://arxiv.org/abs/2211.17192
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
 - LoRA: https://arxiv.org/abs/2106.09685

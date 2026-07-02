@@ -254,6 +254,36 @@ out = F.scaled_dot_product_attention(
         <summary>Question: Why can <code>is_causal=True</code> be risky in a custom decode wrapper?</summary>
         <p>Because non-square attention masks have an alignment convention. A wrapper that slices queries, appends cache, or shifts positions differently can silently mask the wrong keys unless the decode mask is tested against absolute positions.</p>
       </details>
+      <h3>Implementation Drill: Choose Cache Classes From The Constraint</h3>
+      <p>
+        Cache policy is not one universal speed switch. Hugging Face's cache
+        strategy docs describe <code>DynamicCache</code> as the default growing
+        cache, <code>StaticCache</code> as the compile-friendly fixed-shape
+        option, offloaded cache as a GPU-memory relief valve, and quantized
+        cache as a lower-memory path that can add latency on short contexts.
+        A practical implementation should pick the cache from the bottleneck
+        the benchmark actually shows.
+      </p>
+      <pre><code class="language-python">def select_cache_profile(workload):
+    if workload.cached_logits_do_not_match_uncached:
+        return {"cache_implementation": "dynamic", "reason": "debug correctness"}
+    if workload.decode_compile_needed and workload.length_bucket_is_tight:
+        return {"cache_implementation": "static", "reason": "stable decode shapes"}
+    if workload.gpu_oom_on_long_context:
+        return {"cache_implementation": "offloaded", "reason": "fit before speed"}
+    if workload.kv_memory_is_limit and workload.long_context_dominates:
+        return {"cache_implementation": "quantized", "reason": "reduce KV footprint"}
+    return {"cache_implementation": "dynamic", "reason": "simple baseline"}</code></pre>
+      <ol class="steps">
+        <li><strong>Dynamic first:</strong> use the default growing cache while validating positions, masks, and append order.</li>
+        <li><strong>Static for compile:</strong> pre-allocate only when request lengths are bucketed tightly enough that unused slots do not dominate memory or attention work.</li>
+        <li><strong>Offload for fit:</strong> move cache layers through CPU memory when OOM is the failure, then charge the copy overhead in latency reports.</li>
+        <li><strong>Quantize for long contexts:</strong> test quality and latency before launching, because smaller KV tensors can still cost extra dequantization work.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should cache selection start from a measured bottleneck?</summary>
+        <p>Each cache class trades a different resource. Static cache can help compile but wastes fixed slots, offloading saves GPU memory but moves tensors, and quantized cache saves memory but may slow short generations.</p>
+      </details>
       <h3>Implementation Drill: Static Cache Is A Compile Contract</h3>
       <p>
         A dynamic KV cache is convenient because it grows with generation, but

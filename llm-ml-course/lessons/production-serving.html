@@ -372,6 +372,32 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why estimate block-level reuse instead of counting repeated strings?</summary>
         <p>Serving engines reuse cached KV blocks after tokenization and block partitioning. String repetition can overestimate hits when chat templates, tokenizer versions, salts, adapter ids, or partial block boundaries differ.</p>
       </details>
+      <h3>Policy Drill: Give Valuable Cache Blocks A Retention Budget</h3>
+      <p>
+        KV reuse is only useful if the blocks survive long enough to be hit.
+        TensorRT-LLM's KV cache docs describe a block pool with cross-request
+        reuse, prioritized LRU eviction, optional host-memory offload, request
+        retention policies for prompt token ranges, and a separate priority for
+        decoded-token blocks. Treat those controls as product policy: a shared
+        system prompt, expensive retrieved context, or active multi-turn session
+        may deserve higher retention than one-off generated tails.
+      </p>
+      <pre><code>cache_retention_plan = {
+    "system_prompt": {"priority": 90, "duration_ms": 10 * 60 * 1000},
+    "retrieved_context": {"priority": 70, "duration_ms": 2 * 60 * 1000},
+    "generated_tail": {"priority": 35, "duration_ms": 30 * 1000},
+    "offload_min_priority": 50,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Protect what repeats:</strong> assign higher retention to stable prefixes that many future requests can reuse, not to every token equally.</li>
+        <li><strong>Expire deliberately:</strong> duration limits prevent stale prompt templates, adapters, or tenant-specific contexts from occupying cache after their value is gone.</li>
+        <li><strong>Charge offload latency:</strong> host-memory offload can preserve reuse, but reused blocks must be copied back before they help TTFT.</li>
+        <li><strong>Watch eviction counters:</strong> compare prefix-hit rate with evicted blocks by priority so a cache policy failure is visible before users report slower first tokens.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should generated tokens usually have lower cache priority than a shared system prompt?</summary>
+        <p>A shared prefix can be reused by many future requests, while a generated tail is often specific to one stream. Keeping both at the same priority lets low-reuse tail blocks evict high-value prompt blocks.</p>
+      </details>
     </section>
 
     <section id="speculation" class="band">

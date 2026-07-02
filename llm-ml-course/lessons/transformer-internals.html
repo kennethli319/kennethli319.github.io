@@ -105,6 +105,25 @@ y = F.scaled_dot_product_attention(
     dropout_p=0.0,
     is_causal=True,
 )</code></pre>
+      <h3>Implementation Drill: Explain A Fused-Attention Fallback</h3>
+      <p>
+        A good systems answer connects the math to GPU memory movement. Standard
+        attention materializes a large score matrix; FlashAttention computes the
+        same result with a tiled schedule that reduces high-bandwidth-memory
+        traffic. FlashAttention-2 keeps the exact-attention contract but improves
+        parallel work partitioning, so production code should ask which backend
+        ran, not only whether the formula is correct.
+      </p>
+      <ol class="steps">
+        <li><strong>Shape audit:</strong> confirm <code>q</code>, <code>k</code>, and <code>v</code> are laid out as batch, heads, time, head_dim, with mask broadcastable to batch, heads, query positions, key positions.</li>
+        <li><strong>Dropout audit:</strong> pass <code>dropout_p=0.0</code> during eval; PyTorch applies dropout according to the argument, independent of module training mode.</li>
+        <li><strong>Backend audit:</strong> test the fused backend intentionally with <code>sdpa_kernel</code>; if it cannot run, use PyTorch's warning reason as the next bug report, not a vague "attention is slow" note.</li>
+        <li><strong>GQA audit:</strong> when enabling grouped-query attention, verify query heads are divisible by key/value heads and that key and value have the same head count.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can exact attention become faster without changing big-O compute?</summary>
+        <p>On GPUs, moving tensors between memory levels can dominate runtime. FlashAttention keeps the same attention result but avoids writing and rereading the full attention matrix, reducing memory traffic and improving wall-clock speed.</p>
+      </details>
       <details class="qa">
         <summary>Question: What should you still understand if PyTorch provides the kernel?</summary>
         <p>You still need to reason about tensor layout, causal and padding masks, dropout behavior, dtype, sequence length, memory use, and whether your input shape can use the optimized backend.</p>
@@ -112,6 +131,7 @@ y = F.scaled_dot_product_attention(
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>.
       </p>
     </section>

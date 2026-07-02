@@ -28,8 +28,9 @@ Open `index.html` locally to read the course without a build step.
   and common implementation bugs.
 - Research reading map: primary papers and official docs for Transformer,
   RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, LoRA, DPO, and RAG.
-- Production serving lesson: scheduler budgets, KV cache policy, prefix caching,
-  chunked prefill, admission control, launch gates, metrics, and rollback checks.
+- Production serving lesson: scheduler budgets, prefill/decode disaggregation,
+  KV cache policy, prefix caching, chunked prefill, admission control, launch
+  gates, metrics, and rollback checks.
 
 ## Suggested Use
 
@@ -54,7 +55,10 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
+- vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
+- Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- TensorRT-LLM disaggregated serving: https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md
 - Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
 - LoRA: https://arxiv.org/abs/2106.09685

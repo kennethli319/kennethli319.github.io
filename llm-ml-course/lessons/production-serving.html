@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#scheduler">Scheduler</a>
+      <a href="#disaggregation">Disaggregation</a>
       <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
       <a href="#launch">Launch Gates</a>
@@ -63,6 +64,38 @@
       <details class="qa">
         <summary>Question: Why can a setting improve TTFT but hurt ITL?</summary>
         <p>Letting the scheduler admit more prefill tokens per iteration can reduce how long new prompts wait for their first forward pass, but those prefill chunks can interrupt decode iterations for already-streaming requests.</p>
+      </details>
+    </section>
+
+    <section id="disaggregation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Architecture Choice</p>
+        <h2>Disaggregate Prefill And Decode Only When The Workload Justifies It</h2>
+      </div>
+      <p>
+        Prefill/decode disaggregation runs prompt processing and token
+        generation on separate workers, then transfers the produced KV cache to
+        the decode side. The idea is attractive when long prompts and streaming
+        decode interfere with each other, or when the two phases should scale on
+        different hardware. It is not a free optimization: the service now owns
+        KV transfer latency, connector reliability, routing, autoscaling for two
+        pools, and harder failure recovery.
+      </p>
+      <pre><code>use_disaggregation = (
+    p95_ttft_is_prefill_bound
+    and decode_itl_regresses_during_prompt_spikes
+    and kv_transfer_ms < saved_queueing_ms
+    and ops_can_run_two_worker_pools
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Prove interference first:</strong> compare TTFT and inter-token latency under mixed short-chat and long-prompt load before changing topology.</li>
+        <li><strong>Account for KV movement:</strong> transferred cache blocks must arrive before decode can continue, so network and connector overhead belong in the latency budget.</li>
+        <li><strong>Scale asymmetrically:</strong> size prefill workers from prompt-token demand and decode workers from active-stream and output-token demand.</li>
+        <li><strong>Keep a fallback path:</strong> retain an aggregated serving profile for incidents, small deployments, or traffic shapes where transfer overhead dominates.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can disaggregation improve p95 latency but hurt a small deployment?</summary>
+        <p>It can isolate prefill spikes from decode streams at scale, but a small or steady workload may pay extra routing and KV-transfer overhead without enough queueing reduction to offset it.</p>
       </details>
     </section>
 
@@ -143,8 +176,11 @@
         <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
+        <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
       </p>

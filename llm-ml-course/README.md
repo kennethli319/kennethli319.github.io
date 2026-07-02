@@ -59,6 +59,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- PyTorch torch.multinomial: https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - Grouped-Query Attention: https://arxiv.org/abs/2305.13245
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
@@ -89,6 +90,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch inference_mode: https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html
 - Accelerating Large Language Model Decoding with Speculative Sampling: https://arxiv.org/abs/2302.01318
 - Speculative decoding: https://arxiv.org/abs/2211.17192
+- The Curious Case of Neural Text Degeneration: https://arxiv.org/abs/1904.09751
+- Hugging Face generation strategies: https://huggingface.co/docs/transformers/en/generation_strategies
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
 - vLLM EAGLE speculative decoding example: https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/
 - Hugging Face assisted decoding: https://huggingface.co/docs/transformers/en/assisted_decoding

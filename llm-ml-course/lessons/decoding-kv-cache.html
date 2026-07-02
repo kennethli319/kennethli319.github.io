@@ -70,6 +70,40 @@ def temperature_sample(logits, temperature=1.0):
         <summary>Question: Why shift the top-p removal mask right by one position?</summary>
         <p>Without the shift, the first token that crosses the probability threshold would be removed too. Keeping it makes the retained set reach the requested mass while still truncating the unreliable tail.</p>
       </details>
+      <h3>Implementation Drill: Repetition Controls Are Logit Rules</h3>
+      <p>
+        Repetition penalty and no-repeat n-gram constraints are decoder-side
+        rules layered on top of model logits. Use them to reduce loops, but test
+        the exact token-level behavior: subword tokens, punctuation, and copied
+        source phrases can be penalized even when a human would not call them
+        bad repetition. Keep the sampler contract intact after every processor:
+        probabilities passed to <code>torch.multinomial</code> must be finite,
+        non-negative, and have non-zero row mass.
+      </p>
+      <pre><code class="language-python">def ban_repeated_bigram(logits, generated):
+    if generated.size(-1) < 2:
+        return logits
+
+    prefix = generated[..., -1]
+    for row in range(generated.size(0)):
+        seen = generated[row].unfold(0, 2, 1)
+        banned = seen[seen[:, 0] == prefix[row], 1]
+        logits[row, banned] = float("-inf")
+    return logits
+
+def assert_sampleable(probs):
+    assert torch.isfinite(probs).all()
+    assert (probs >= 0).all()
+    assert (probs.sum(dim=-1) > 0).all()</code></pre>
+      <ol class="steps">
+        <li><strong>Hard constraint:</strong> no-repeat n-gram masking makes some next tokens impossible, so always leave at least one legal token or define a fallback.</li>
+        <li><strong>Soft penalty:</strong> repetition penalties reshape logits for tokens that already appeared; they are tunable preferences, not correctness guarantees.</li>
+        <li><strong>Task fit:</strong> open-ended writing often benefits from truncation sampling, while extractive QA, code, and citation-heavy answers may need weaker repetition controls so copied spans remain possible.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a high repetition penalty damage factual answers?</summary>
+        <p>It operates on token ids, not semantics. If the correct answer must repeat a name, symbol, code token, or quoted phrase, an aggressive penalty can push the decoder away from the faithful continuation.</p>
+      </details>
     </section>
 
     <section id="structured" class="band">
@@ -293,6 +327,7 @@ out = F.scaled_dot_product_attention(
         Sources: <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
         <a href="https://arxiv.org/abs/1904.09751">The Curious Case of Neural Text Degeneration</a>,
+        <a href="https://huggingface.co/docs/transformers/en/generation_strategies">Hugging Face generation strategies</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,

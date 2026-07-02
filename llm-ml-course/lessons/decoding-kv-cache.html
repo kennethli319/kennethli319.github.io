@@ -150,6 +150,39 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <summary>Question: What should you test before trusting a hand-written KV cache?</summary>
         <p>Compare cached and uncached logits, vary prompt length and batch size, test left/right padding if supported, confirm RoPE positions, and run with deterministic sampling so generation noise does not hide cache errors.</p>
       </details>
+      <h3>Implementation Drill: Non-Square Causal Masks Need Position Tests</h3>
+      <p>
+        Cached decoding often calls attention with one query token and many
+        cached key/value tokens. PyTorch documents <code>is_causal=True</code>
+        as using an upper-left causal alignment for non-square masks, so do not
+        assume that a one-token query automatically means "attend to every
+        cached key." Test the exact mask, position ids, and cache length that
+        your model wrapper sends to the attention kernel.
+      </p>
+      <pre><code class="language-python">def make_decode_attention_mask(cache_len, device):
+    # A decode query at absolute position cache_len should see all cached keys
+    # plus its own current key after the new K/V is appended.
+    return torch.ones(1, cache_len + 1, dtype=torch.bool, device=device)
+
+q = torch.randn(batch, heads, 1, head_dim, device=device)
+k = torch.randn(batch, heads, cache_len + 1, head_dim, device=device)
+v = torch.randn(batch, heads, cache_len + 1, head_dim, device=device)
+
+out = F.scaled_dot_product_attention(
+    q, k, v,
+    attn_mask=make_decode_attention_mask(cache_len, q.device),
+    dropout_p=0.0,
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Square prefill path:</strong> use the normal causal path for full prompts and compare it against a slow reference.</li>
+        <li><strong>Non-square decode path:</strong> separately test one-token and multi-token decode queries against the intended absolute positions.</li>
+        <li><strong>Boolean polarity:</strong> in PyTorch SDPA, <code>True</code> means the element participates in attention, which is the opposite of some padding-mask APIs.</li>
+        <li><strong>Failure signal:</strong> if cached and uncached logits diverge only after the first generated token, inspect mask alignment before tuning numerical tolerances.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can <code>is_causal=True</code> be risky in a custom decode wrapper?</summary>
+        <p>Because non-square attention masks have an alignment convention. A wrapper that slices queries, appends cache, or shifts positions differently can silently mask the wrong keys unless the decode mask is tested against absolute positions.</p>
+      </details>
       <h3>Implementation Drill: Static Cache Is A Compile Contract</h3>
       <p>
         A dynamic KV cache is convenient because it grows with generation, but
@@ -230,6 +263,7 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html">PyTorch torch.multinomial</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
+        <a href="https://docs.pytorch.org/docs/2.12/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA causal mask notes</a>,
         <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>,
         <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs</a>,
         <a href="https://huggingface.co/blog/constrained-beam-search">Hugging Face constrained beam search</a>,

@@ -63,6 +63,37 @@ def attention(q, k, v, mask=None):
           <p>All query heads share one key/value head. This is cache-efficient but can reduce quality for some models.</p>
         </article>
       </div>
+      <h3>Implementation Drill: Expand KV Heads Only When The Kernel Needs It</h3>
+      <p>
+        In GQA, the query tensor has more heads than the key/value tensors. The
+        attention math still needs every query head to attend to a compatible
+        key/value head, so a simple reference implementation repeats each KV
+        head across its query-head group. Production kernels may avoid physically
+        materializing that repeat, but your shape test should make the grouping
+        explicit.
+      </p>
+      <pre><code class="language-python">def repeat_kv_for_gqa(x, num_query_heads):
+    # x: [batch, kv_heads, time, head_dim]
+    b, kv_heads, t, d = x.shape
+    assert num_query_heads % kv_heads == 0
+    group_size = num_query_heads // kv_heads
+    x = x[:, :, None, :, :].expand(b, kv_heads, group_size, t, d)
+    return x.reshape(b, num_query_heads, t, d)
+
+k_expanded = repeat_kv_for_gqa(k, q.size(1))
+v_expanded = repeat_kv_for_gqa(v, q.size(1))
+out = torch.nn.functional.scaled_dot_product_attention(
+    q, k_expanded, v_expanded, is_causal=True, dropout_p=0.0
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Invariant:</strong> query heads must be divisible by KV heads; MHA is <code>q_heads == kv_heads</code>, and MQA is <code>kv_heads == 1</code>.</li>
+        <li><strong>Cache impact:</strong> KV cache memory scales with KV heads, not query heads, so reducing KV heads directly lowers long-context decode memory.</li>
+        <li><strong>Correctness check:</strong> compare the repeated-KV reference path with a fused GQA path such as PyTorch SDPA <code>enable_gqa=True</code> for small deterministic inputs.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not just reduce the number of query heads too?</summary>
+        <p>GQA keeps multiple query heads while sharing fewer key/value heads, so it aims for a middle ground: lower KV cache bandwidth and memory than MHA while preserving more attention capacity than MQA.</p>
+      </details>
     </section>
 
     <section id="rope" class="band">
@@ -131,6 +162,7 @@ y = F.scaled_dot_product_attention(
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>.
       </p>

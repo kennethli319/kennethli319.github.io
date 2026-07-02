@@ -12,6 +12,7 @@
       <a href="../index.html">Course Home</a>
       <a href="#sampling">Sampling</a>
       <a href="#cache">KV Cache</a>
+      <a href="#speculative">Speculative</a>
       <a href="#serving">Serving</a>
     </nav>
     <p class="eyebrow">Module 07</p>
@@ -63,6 +64,36 @@ while not done:
       </details>
     </section>
 
+    <section id="speculative" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Latency</p>
+        <h2>Speculative Decoding Verifies Draft Tokens In Parallel</h2>
+      </div>
+      <p>
+        Autoregressive decoding is serial because the target model normally
+        runs once per accepted token. Speculative decoding asks a cheaper draft
+        model to propose several candidate tokens, then uses one target-model
+        forward pass to verify the proposed block. If the acceptance rate is
+        high, the large model commits multiple tokens for nearly the cost of
+        one verification pass; if the draft model is poorly matched, rejected
+        tokens erase the speedup.
+      </p>
+      <pre><code>while not done:
+    draft_tokens = assistant.generate(prefix, max_draft_tokens)
+    target_logits = target.verify(prefix + draft_tokens)
+    accepted = accept_prefix_by_target_distribution(draft_tokens, target_logits)
+    prefix.extend(accepted or sample_one_from_target(target_logits))</code></pre>
+      <ol class="steps">
+        <li><strong>Measure acceptance:</strong> track accepted draft tokens per target verification step, not just tokens per second.</li>
+        <li><strong>Keep distributions honest:</strong> the verifier must preserve the target model's intended sampling distribution.</li>
+        <li><strong>Choose assistants carefully:</strong> fast is useful only when the assistant's guesses are often accepted.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is speculative decoding a serving optimization, not a model-quality trick?</summary>
+        <p>The target model still verifies the candidate tokens, so the goal is fewer expensive serial target passes. The main quality risk comes from implementing acceptance or sampling incorrectly.</p>
+      </details>
+    </section>
+
     <section id="serving" class="band">
       <div class="section-head">
         <p class="eyebrow">Serving</p>
@@ -75,7 +106,9 @@ while not done:
       </p>
       <p>
         Sources: <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>,
-        <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>.
+        <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
+        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>.
       </p>
     </section>
   </main>

@@ -268,6 +268,39 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why can moving user-specific text earlier make serving slower?</summary>
         <p>It breaks the exact shared prefix, so later requests may miss the prompt or KV prefix cache even when most of the prompt template is the same.</p>
       </details>
+      <h3>Lab Prompt: Estimate Prefix-Cache Reuse From Block Hashes</h3>
+      <p>
+        Before enabling a fleet-wide prefix-cache policy, simulate the hit
+        shape from real prompt templates. vLLM's prefix-caching design maps
+        full KV blocks through a hash of the parent block, current block tokens,
+        and extra cache-key fields; the PagedAttention paper explains why this
+        block-table indirection lets requests share cache without requiring
+        contiguous memory. A useful dry run is to tokenize production-like
+        prompts, split them into cache blocks, and count how many complete
+        prefix blocks would be reused under each namespace policy.
+      </p>
+      <pre><code>def prefix_block_keys(token_ids, block_size, namespace):
+    keys = []
+    parent = namespace
+    for start in range(0, len(token_ids), block_size):
+        block = tuple(token_ids[start:start + block_size])
+        if len(block) < block_size:
+            break
+        parent = hash((parent, block))
+        keys.append(parent)
+    return keys
+
+hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
+      <ol class="steps">
+        <li><strong>Use token ids:</strong> byte-identical text is not the real boundary; tokenizer version and chat template decide the actual prefix blocks.</li>
+        <li><strong>Ignore partial tails:</strong> incomplete final blocks may not be reusable in the same way as full KV blocks, so count them separately.</li>
+        <li><strong>Compare namespaces:</strong> run the same trace with global, tenant, adapter, and model-revision salts to see the privacy and hit-rate tradeoff.</li>
+        <li><strong>Report saved prefill:</strong> translate reused blocks into avoided prompt tokens, then compare that estimate with TTFT and prefix-cache-hit metrics after rollout.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why estimate block-level reuse instead of counting repeated strings?</summary>
+        <p>Serving engines reuse cached KV blocks after tokenization and block partitioning. String repetition can overestimate hits when chat templates, tokenizer versions, salts, adapter ids, or partial block boundaries differ.</p>
+      </details>
     </section>
 
     <section id="speculation" class="band">

@@ -19,8 +19,8 @@ Open `index.html` locally to read the course without a build step.
   transformer internals, attention variants, positional encodings, RoPE, ALiBi,
   and context-extension risks.
 - PyTorch: tensor shape discipline, stable softmax, losses, normalization,
-  training loops, AdamW, gradient clipping, warmup cosine schedules, attention,
-  MHA, GQA, MQA, SwiGLU, LoRA, and BPE-style tokenization.
+  training loops, AMP, torch.compile, AdamW, gradient clipping, warmup cosine
+  schedules, attention, MHA, GQA, MQA, SwiGLU, LoRA, and BPE-style tokenization.
 - Decoding: greedy, beam search, temperature, top-k, top-p, repetition penalty,
   no-repeat n-gram checks, KV cache, and serving-time tradeoffs.
 - Systems: batching, continuous batching, memory/cost math, fine-tuning,
@@ -78,6 +78,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM quantized KV cache: https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/
 - vLLM llm-compressor KV cache quantization example: https://github.com/vllm-project/llm-compressor/blob/main/examples/quantization_kv_cache/README.md
 - PyTorch torch.compile: https://docs.pytorch.org/docs/2.12/generated/torch.compile.html
+- PyTorch AMP reference: https://docs.pytorch.org/docs/2.12/amp.html
+- PyTorch AMP examples: https://docs.pytorch.org/docs/2.12/notes/amp_examples.html
 - OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
 - Accelerating Large Language Model Decoding with Speculative Sampling: https://arxiv.org/abs/2302.01318
 - Speculative decoding: https://arxiv.org/abs/2211.17192

@@ -13,6 +13,7 @@
       <a href="#softmax">Softmax</a>
       <a href="#norm">Norms</a>
       <a href="#training">Training</a>
+      <a href="#amp-compile">AMP + Compile</a>
     </nav>
     <p class="eyebrow">Module 02</p>
     <h1>PyTorch Foundations For LLMs</h1>
@@ -82,6 +83,58 @@ def rms_norm(x, weight, eps=1e-6):
         <summary>Question: Why does gradient accumulation divide the loss?</summary>
         <p>Dividing by accumulation steps keeps the effective gradient scale close to a single larger batch instead of making the learning rate implicitly larger.</p>
       </details>
+    </section>
+
+    <section id="amp-compile" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Performance Discipline</p>
+        <h2>Add Mixed Precision And Compilation As Measured Changes</h2>
+      </div>
+      <p>
+        Treat AMP and <code>torch.compile</code> as training-loop changes that
+        need correctness checks, not as one-line speed toggles. PyTorch AMP
+        uses autocast to choose lower precision for suitable ops while keeping
+        numerically sensitive work in float32. With float16 training,
+        <code>GradScaler</code> protects small gradients from underflow; if you
+        clip gradients, unscale them before clipping so the threshold applies to
+        real gradients. <code>torch.compile</code> can optimize a model or
+        function, but shape changes, Python control flow, and graph breaks can
+        cause recompilation or fallback, so benchmark it against eager mode.
+      </p>
+      <pre><code class="language-python">def amp_train_step(model, batch, optimizer, scaler, grad_clip=1.0):
+    model.train()
+    optimizer.zero_grad(set_to_none=True)
+    with torch.amp.autocast("cuda", dtype=torch.float16):
+        loss = model(**batch).loss
+    scaler.scale(loss).backward()
+    scaler.unscale_(optimizer)
+    torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+    scaler.step(optimizer)
+    scaler.update()
+    return float(loss.detach())
+
+compiled_model = torch.compile(model, dynamic=True)
+
+# Debug checklist:
+# 1. Compare eager vs compiled losses on the same batch.
+# 2. Run fixed-shape and variable-length batches.
+# 3. Try fullgraph=True once to expose graph breaks early.
+# 4. Use TORCH_LOGS=guards,dynamic when recompilation is surprising.</code></pre>
+      <ol class="steps">
+        <li><strong>Establish parity:</strong> compare loss, grad norms, and a short eval sample before accepting a speedup.</li>
+        <li><strong>Clip after unscale:</strong> scaled gradients make a clipping threshold meaningless until the scaler has unscaled them.</li>
+        <li><strong>Bucket shapes:</strong> LLM batches often vary by sequence length, so use padding buckets or dynamic tracing before blaming the compiler.</li>
+        <li><strong>Measure warm and cold:</strong> separate first-compile overhead from steady-state tokens or batches per second.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can <code>torch.compile</code> look slower in a tiny benchmark?</summary>
+        <p>The first call may pay compilation overhead, and changing shapes can trigger new compiled graphs. Benchmark after warmup and report whether the workload uses fixed or variable sequence lengths.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://docs.pytorch.org/docs/2.12/amp.html">PyTorch AMP reference</a>,
+        <a href="https://docs.pytorch.org/docs/2.12/notes/amp_examples.html">PyTorch AMP examples</a>,
+        <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile reference</a>.
+      </p>
     </section>
   </main>
 </body>

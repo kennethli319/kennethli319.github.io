@@ -126,6 +126,31 @@ scores = scores + causal_alibi_bias(q.size(1), q_len, k_len, slopes, q.device)</
         <summary>Question: Why can a longer configured context still fail a product eval?</summary>
         <p>The runtime may accept more tokens, but the model may not reliably use evidence at that distance, and the larger KV cache may force lower concurrency or higher latency.</p>
       </details>
+      <h3>Evaluation Drill: Sweep Evidence Position, Not Just Length</h3>
+      <p>
+        A long-context smoke test should vary where the needed evidence appears
+        inside the prompt. The Lost in the Middle study found that models can
+        perform best when relevant information is near the beginning or end and
+        degrade when it is buried in the middle. LongBench adds a broader check:
+        long-context quality should be measured across single-document QA,
+        multi-document QA, summarization, few-shot learning, synthetic tasks,
+        and code tasks rather than a single retrieval trick.
+      </p>
+      <pre><code>long_context_eval = {
+    "context_lengths": [4_000, 16_000, 64_000],
+    "evidence_depths": [0.05, 0.25, 0.50, 0.75, 0.95],
+    "tasks": ["key_value_retrieval", "multi_doc_qa", "summarization", "code"],
+    "slices": ["answer_near_start", "answer_middle", "answer_near_end"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Hold the answer fixed:</strong> move the same evidence across depths so position, not content difficulty, explains the score change.</li>
+        <li><strong>Separate retrieval from reasoning:</strong> a needle test catches exact lookup, while multi-document and code tasks catch synthesis over long inputs.</li>
+        <li><strong>Report the trough:</strong> publish the worst depth bucket as well as the average, because the middle of the prompt is often the product-critical failure case.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What does a needle-in-haystack pass not prove?</summary>
+        <p>It does not prove the model can synthesize multiple distant facts, resolve conflicts, summarize long documents, or maintain tool and instruction behavior across the whole window.</p>
+      </details>
     </section>
 
     <section id="sources" class="band">
@@ -137,6 +162,9 @@ scores = scores + causal_alibi_bias(q.size(1), q_len, k_len, slopes, q.device)</
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2104.09864">RoFormer / Rotary Position Embedding</a>,
         <a href="https://arxiv.org/abs/2108.12409">ALiBi: Train Short, Test Long</a>,
+        <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a>,
+        <a href="https://arxiv.org/abs/2308.14508">LongBench</a>,
+        <a href="https://arxiv.org/abs/2412.15204">LongBench v2</a>,
         <a href="https://huggingface.co/docs/transformers/en/internal/rope_utils">Hugging Face RoPE utilities</a>,
         <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model">Hugging Face TGI model preparation and RoPE scaling</a>.
       </p>

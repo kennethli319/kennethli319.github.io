@@ -42,6 +42,43 @@ def attention(q, k, v, mask=None):
         <summary>Question: What does the mask shape need to broadcast to?</summary>
         <p>It must broadcast to the attention score shape: batch, heads, query positions, key positions.</p>
       </details>
+      <h3>Implementation Drill: Prove SDPA Matches The Reference</h3>
+      <p>
+        Before swapping a hand-written attention block for
+        <code>torch.nn.functional.scaled_dot_product_attention</code>, build a
+        tiny deterministic test that compares both paths. PyTorch's SDPA API
+        can dispatch to optimized kernels, supports causal masking and optional
+        GQA, and applies dropout according to <code>dropout_p</code>, so the
+        safest first test fixes dropout at zero and checks mask semantics on
+        small tensors.
+      </p>
+      <pre><code class="language-python">def reference_sdpa(q, k, v, *, causal=False, mask=None):
+    scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))
+    if causal:
+        t_q, t_k = q.size(-2), k.size(-2)
+        causal_mask = torch.ones(t_q, t_k, dtype=torch.bool).triu(1)
+        scores = scores.masked_fill(causal_mask.to(q.device), float("-inf"))
+    if mask is not None:
+        scores = scores.masked_fill(mask, float("-inf"))
+    return torch.softmax(scores, dim=-1) @ v
+
+torch.manual_seed(0)
+q = torch.randn(2, 4, 5, 16)
+k = torch.randn(2, 4, 5, 16)
+v = torch.randn(2, 4, 5, 16)
+
+expected = reference_sdpa(q, k, v, causal=True)
+actual = F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=0.0)
+torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)</code></pre>
+      <ol class="steps">
+        <li><strong>Start small:</strong> use short sequences and fixed seeds so mask, transpose, and scale bugs are easy to isolate.</li>
+        <li><strong>Freeze dropout:</strong> pass <code>dropout_p=0.0</code> in correctness tests and evaluation code instead of relying on module mode.</li>
+        <li><strong>Test both masks:</strong> verify causal-only, padding-mask-only, and combined-mask cases before benchmarking a fused backend.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why test against a slow reference if SDPA is the production path?</summary>
+        <p>The reference makes the intended score shape, scale, mask polarity, and dropout behavior explicit. Once those match, any fused-kernel issue is easier to diagnose as a backend or input-layout problem.</p>
+      </details>
     </section>
 
     <section id="heads" class="band">

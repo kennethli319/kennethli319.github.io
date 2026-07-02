@@ -151,6 +151,34 @@
         <summary>Question: Why can prefix caching be almost invisible to quality?</summary>
         <p>It reuses exact cached KV blocks for an identical processed prefix, so it avoids duplicate compute without changing the model's logits for that prefix.</p>
       </details>
+      <h3>Implementation Drill: Prefix Cache Keys Need A Trust Boundary</h3>
+      <p>
+        Prefix caching is a serving optimization, but the cache key is a
+        product decision. vLLM's design maps processed KV blocks through hashes
+        derived from the prefix history, current block tokens, and optional
+        extra fields such as LoRA identifiers or multimodal hashes. That makes
+        repeated system prompts cheap, but it also means multi-tenant services
+        should decide whether tenants, products, or security domains share a
+        cache namespace.
+      </p>
+      <pre><code>prefix_cache_key = hash((
+    tenant_or_policy_salt,
+    parent_block_hash,
+    tuple(block_token_ids),
+    model_revision,
+    adapter_id,
+    decoding_contract_version,
+))</code></pre>
+      <ol class="steps">
+        <li><strong>Salt deliberately:</strong> add a tenant or policy salt when cache reuse across customers would be surprising, even if the raw token prefix matches.</li>
+        <li><strong>Hash strongly when needed:</strong> use a collision-resistant hash mode for untrusted or cross-tenant traffic rather than assuming the fastest hash is good enough.</li>
+        <li><strong>Invalidate by contract:</strong> include model revision, adapter id, tokenizer version, and schema/tool contract changes in the cache namespace.</li>
+        <li><strong>Measure the tradeoff:</strong> isolation can reduce hit rate, so compare TTFT savings, collision risk, and memory pressure under realistic prompt templates.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is prefix-cache salting different from prompt caching?</summary>
+        <p>Prompt caching describes reusing identical computed prefixes. Salting controls who is allowed to share that reuse; it can intentionally split identical token prefixes into separate cache namespaces.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">
@@ -210,6 +238,8 @@
         <a href="https://docs.vllm.ai/en/stable/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html">vLLM automatic prefix caching</a>,
+        <a href="https://github.com/vllm-project/vllm/issues/16016">vLLM cache salting design discussion</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,

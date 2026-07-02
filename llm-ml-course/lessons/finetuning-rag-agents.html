@@ -361,16 +361,46 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
       <pre><code>agent_trace_event = {
     "request_id": str,
     "step": int,
+    "call_id": optional(str),
     "decision": "answer" | "call_tool" | "ask_clarifying_question",
     "tool_name": optional(str),
     "arguments_valid": bool,
+    "tool_is_error": optional(bool),
     "observation_used": bool,
+    "observation_sanitized": bool,
     "retry_reason": optional(str),
 }</code></pre>
       <ol class="steps">
         <li><strong>Unit-test schemas:</strong> reject missing required fields, unknown tools, and unsafe argument shapes before execution.</li>
+        <li><strong>Preserve call identity:</strong> keep the model's tool-call id or MCP request id with the result so parallel calls, retries, and late failures cannot be attached to the wrong step.</li>
+        <li><strong>Classify errors:</strong> separate invalid arguments, unknown tools, server failures, and business-logic failures; only retry cases that are actually retryable.</li>
         <li><strong>Eval trajectories:</strong> grade not only the final answer, but whether the agent called the right tool at the right time.</li>
+        <li><strong>Sanitize observations:</strong> treat tool output as untrusted input before the model sees it; redact secrets, cap payload size, and keep external instructions as quoted evidence rather than system policy.</li>
         <li><strong>Log recovery:</strong> capture retries and fallbacks so failures become debuggable traces instead of opaque conversations.</li>
+      </ol>
+      <h3>Implementation Drill: Replay Tool Results By Id</h3>
+      <p>
+        Tool use becomes hard to debug when results are stored only as text in
+        the chat transcript. Store each proposed call, validated arguments,
+        execution result, and model-visible observation under the same call id.
+        OpenAI function calling returns a <code>call_id</code> that is echoed
+        when sending the tool result back to the model; MCP tool calls similarly
+        carry request identity, named tools, JSON arguments, result content, and
+        an <code>isError</code> flag. That identity is what makes trace replay,
+        duplicate suppression, and parallel tool calls testable.
+      </p>
+      <pre><code>tool_result_record = {
+    "call_id": "call_123",
+    "tool_name": "search_docs",
+    "validated_arguments": {"query": "KV cache"},
+    "raw_result": stored_outside_prompt,
+    "is_error": False,
+    "model_observation": "Top source ids: doc_7, doc_2",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Replay check:</strong> a saved trace should reconstruct the same model-visible observations without re-running external tools.</li>
+        <li><strong>Duplicate check:</strong> if the same write call is retried, the call id or idempotency key should prevent a second external mutation.</li>
+        <li><strong>Injection check:</strong> tool text can contain hostile instructions; the trace should mark it as data from a tool, not trusted developer policy.</li>
       </ol>
       <details class="qa">
         <summary>Question: Why is final-answer accuracy not enough for agent eval?</summary>
@@ -379,7 +409,9 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2210.03629">ReAct</a>,
-        <a href="https://arxiv.org/abs/2302.04761">Toolformer</a>.
+        <a href="https://arxiv.org/abs/2302.04761">Toolformer</a>,
+        <a href="https://developers.openai.com/api/docs/guides/function-calling">OpenAI function calling guide</a>,
+        <a href="https://modelcontextprotocol.io/specification/2025-03-26/server/tools">MCP tools specification</a>.
       </p>
     </section>
   </main>

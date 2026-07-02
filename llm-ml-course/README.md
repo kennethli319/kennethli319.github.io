@@ -59,6 +59,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- PyTorch FlexAttention docs: https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html
+- PyTorch FlexAttention inference note: https://pytorch.org/blog/flexattention-for-inference/
+- FlexAttention paper: https://arxiv.org/abs/2412.05496
 - PyTorch torch.multinomial: https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - Grouped-Query Attention: https://arxiv.org/abs/2305.13245

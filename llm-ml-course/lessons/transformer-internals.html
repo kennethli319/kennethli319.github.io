@@ -318,6 +318,47 @@ with torch.inference_mode():
         <summary>Question: Why can a correct MHA layer still miss the fastest inference path?</summary>
         <p>Correctness and dispatch eligibility are different contracts. A layer can compute the right attention while still returning weights, tracking gradients, using unsupported masks, or using projection settings that make PyTorch choose a slower path.</p>
       </details>
+      <h3>Reading Note: Use FlexAttention For Custom Attention Contracts</h3>
+      <p>
+        Plain SDPA is the first production target for standard full, causal, or
+        padding-masked attention. FlexAttention is useful when the attention
+        rule itself is part of the model or serving contract: sliding windows,
+        document boundaries, ALiBi-style score changes, packed examples, or
+        paged-cache lookup. PyTorch's API lets a <code>score_mod</code> change
+        each attention score after the query-key dot product, while a
+        <code>BlockMask</code> describes block-sparse connectivity. Treat those
+        functions as compiled kernel inputs: changing shapes, mask logic, or
+        captured values can change compile behavior as well as correctness.
+      </p>
+      <pre><code class="language-python">from torch.nn.attention.flex_attention import (
+    create_block_mask,
+    flex_attention,
+)
+
+def sliding_window_mask(b, h, q_idx, kv_idx):
+    return (kv_idx <= q_idx) & (q_idx - kv_idx < 256)
+
+block_mask = create_block_mask(
+    sliding_window_mask,
+    B=None,
+    H=None,
+    Q_LEN=max_seq_len,
+    KV_LEN=max_seq_len,
+    device="cuda",
+)
+
+compiled_flex_attention = torch.compile(flex_attention, dynamic=True)
+out = compiled_flex_attention(q, k, v, block_mask=block_mask)</code></pre>
+      <ol class="steps">
+        <li><strong>Start with SDPA:</strong> if the only requirement is standard causal attention, keep the simpler API and benchmark its backend first.</li>
+        <li><strong>Make the rule explicit:</strong> write the mask or score modification as a small function with absolute query and KV indices, then compare it against a dense reference mask.</li>
+        <li><strong>Cache the mask:</strong> precompute reusable block masks for fixed maximum shapes instead of rebuilding sparse structure inside the decode loop.</li>
+        <li><strong>Watch recompiles:</strong> prefill and decode can need different compiled kernels, and per-token Python function changes can destroy the intended speedup.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is FlexAttention not just a faster SDPA replacement?</summary>
+        <p>Its main value is expressing custom score and mask rules in a fused kernel. That extra flexibility adds contracts around mask functions, block masks, compilation, and shape stability that standard SDPA users may not need.</p>
+      </details>
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
@@ -325,7 +366,10 @@ with torch.inference_mode():
         <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>,
-        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">PyTorch MultiheadAttention docs</a>.
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">PyTorch MultiheadAttention docs</a>,
+        <a href="https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html">PyTorch FlexAttention docs</a>,
+        <a href="https://pytorch.org/blog/flexattention-for-inference/">PyTorch FlexAttention inference note</a>,
+        <a href="https://arxiv.org/abs/2412.05496">FlexAttention paper</a>.
       </p>
     </section>
   </main>

@@ -257,10 +257,25 @@ y = F.scaled_dot_product_attention(
         parallel work partitioning, so production code should ask which backend
         ran, not only whether the formula is correct.
       </p>
+      <pre><code class="language-python">from torch.nn.attention import SDPBackend, sdpa_kernel
+
+def require_flash_attention(q, k, v):
+    # Use this as a deployment probe, not as the only correctness test.
+    with sdpa_kernel(SDPBackend.FLASH_ATTENTION):
+        return F.scaled_dot_product_attention(
+            q, k, v, is_causal=True, dropout_p=0.0
+        )
+
+try:
+    y = require_flash_attention(q, k, v)
+except RuntimeError as exc:
+    raise RuntimeError(
+        "FlashAttention did not run for this device, dtype, shape, or mask."
+    ) from exc</code></pre>
       <ol class="steps">
         <li><strong>Shape audit:</strong> confirm <code>q</code>, <code>k</code>, and <code>v</code> are laid out as batch, heads, time, head_dim, with mask broadcastable to batch, heads, query positions, key positions.</li>
         <li><strong>Dropout audit:</strong> pass <code>dropout_p=0.0</code> during eval; PyTorch applies dropout according to the argument, independent of module training mode.</li>
-        <li><strong>Backend audit:</strong> test the fused backend intentionally with <code>sdpa_kernel</code>; if it cannot run, use PyTorch's warning reason as the next bug report, not a vague "attention is slow" note.</li>
+        <li><strong>Backend audit:</strong> test the fused backend intentionally with <code>sdpa_kernel</code>; if it cannot run, record the exact device, dtype, shape, mask, and PyTorch warning instead of filing a vague "attention is slow" note.</li>
         <li><strong>GQA audit:</strong> when enabling grouped-query attention, verify query heads are divisible by key/value heads and that key and value have the same head count.</li>
       </ol>
       <details class="qa">

@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#scheduler">Scheduler</a>
+      <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
       <a href="#launch">Launch Gates</a>
     </nav>
@@ -65,6 +66,35 @@
       </details>
     </section>
 
+    <section id="admission" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Admission Control</p>
+        <h2>Budget Tokens Before You Admit Requests</h2>
+      </div>
+      <p>
+        A production scheduler should reject, queue, or shorten work before the
+        KV cache is exhausted. Paged cache systems expose capacity in blocks,
+        not just bytes, so a practical admission check estimates the prompt
+        tokens already admitted, the maximum new tokens promised to each active
+        request, and the block slack left after rounding each sequence up to
+        the cache block size.
+      </p>
+      <pre><code>def can_admit(request, active, free_kv_tokens, block_size):
+    promised = request.prompt_tokens + request.max_new_tokens
+    active_promised = sum(r.cache_len + r.remaining_budget for r in active)
+    rounded = ceil_to_block(promised + active_promised, block_size)
+    return rounded <= free_kv_tokens</code></pre>
+      <ol class="steps">
+        <li><strong>Use promises, not averages:</strong> reserve against each request's max generation budget, then release unused cache as requests finish.</li>
+        <li><strong>Track block waste:</strong> many short requests can waste a meaningful number of tail slots when each sequence rounds to a page or block boundary.</li>
+        <li><strong>Fail predictably:</strong> when capacity is tight, prefer a bounded queue, a shorter max-output offer, or a controlled 429-style error over worker OOM.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is max context length not the same as safe concurrency?</summary>
+        <p>Max context length describes one sequence limit. Safe concurrency depends on the sum of active prompt tokens, generated tokens, promised future tokens, cache block rounding, dtype, layers, KV heads, and GPU memory left for non-cache work.</p>
+      </details>
+    </section>
+
     <section id="cache-policy" class="band">
       <div class="section-head">
         <p class="eyebrow">KV Cache</p>
@@ -110,10 +140,12 @@
       <p>
         Sources:
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
+        <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
+        <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
       </p>
     </section>

@@ -370,6 +370,40 @@ out = F.scaled_dot_product_attention(
         <summary>Question: Why is speculative decoding a serving optimization, not a model-quality trick?</summary>
         <p>The target model still verifies the candidate tokens, so the goal is fewer expensive serial target passes. The main quality risk comes from implementing acceptance or sampling incorrectly.</p>
       </details>
+      <h3>Implementation Drill: Match The Assisted-Decoding Contract</h3>
+      <p>
+        Assisted decoding is easy to call but easy to benchmark poorly.
+        Hugging Face documents several proposer paths: a smaller
+        <code>assistant_model</code>, prompt lookup decoding, self-speculation
+        with early exits, and universal assisted decoding when the assistant
+        and target use different tokenizers. vLLM exposes a broader production
+        menu, including draft models, EAGLE, MTP, n-gram, suffix decoding, and
+        custom proposers. Treat the proposer choice as part of the decoding
+        contract, then test whether it reduces target-model forward passes for
+        the actual prompt slice.
+      </p>
+      <pre><code class="language-python">spec_decode_case = {
+    "target": "large-model@revision",
+    "proposer": "assistant_model | prompt_lookup | early_exit | ngram | suffix",
+    "same_tokenizer": True,
+    "draft_tokens": 4,
+    "metrics": [
+        "accepted_tokens_per_verify",
+        "target_forwards_per_output_token",
+        "p95_inter_token_latency",
+        "fallback_rate",
+    ],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start same-tokenizer:</strong> paired model families are the simplest baseline because candidate tokens do not need retokenization.</li>
+        <li><strong>Use UAD deliberately:</strong> cross-tokenizer assistants need explicit target and assistant tokenizers, plus alignment checks before claiming speedup.</li>
+        <li><strong>Try lookup for copied text:</strong> prompt lookup or n-gram speculation can help summarization, translation, and retrieval-heavy answers without loading a draft model.</li>
+        <li><strong>Compare to no speculation:</strong> keep the same target model, prompt, sampling settings, and max tokens so latency changes come from the proposer path.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can universal assisted decoding be slower than a same-tokenizer assistant?</summary>
+        <p>It adds token re-encoding and alignment work. That cost can be worth paying when no small same-family assistant exists, but it belongs in the latency and acceptance report.</p>
+      </details>
     </section>
 
     <section id="serving" class="band">
@@ -389,6 +423,8 @@ out = F.scaled_dot_product_attention(
         <a href="https://huggingface.co/docs/transformers/en/generation_strategies">Hugging Face generation strategies</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
+        <a href="https://huggingface.co/blog/universal_assisted_generation">Hugging Face universal assisted generation</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,
         <a href="https://huggingface.co/docs/transformers/en/cache_explanation">Hugging Face cache explanation</a>,
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile</a>,

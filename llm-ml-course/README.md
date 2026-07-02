@@ -108,6 +108,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
 - vLLM EAGLE speculative decoding example: https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/
 - Hugging Face assisted decoding: https://huggingface.co/docs/transformers/en/assisted_decoding
+- Hugging Face universal assisted generation: https://huggingface.co/blog/universal_assisted_generation
 - Decoding Speculative Decoding: https://arxiv.org/abs/2402.01528
 - LoRA: https://arxiv.org/abs/2106.09685
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290

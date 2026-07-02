@@ -14,6 +14,7 @@
       <a href="#norm">Norms</a>
       <a href="#training">Training</a>
       <a href="#amp-compile">AMP + Compile</a>
+      <a href="#eval-mode">Eval Mode</a>
     </nav>
     <p class="eyebrow">Module 02</p>
     <h1>PyTorch Foundations For LLMs</h1>
@@ -134,6 +135,54 @@ compiled_model = torch.compile(model, dynamic=True)
         Sources: <a href="https://docs.pytorch.org/docs/2.12/amp.html">PyTorch AMP reference</a>,
         <a href="https://docs.pytorch.org/docs/2.12/notes/amp_examples.html">PyTorch AMP examples</a>,
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile reference</a>.
+      </p>
+    </section>
+
+    <section id="eval-mode" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Inference Discipline</p>
+        <h2>Separate Module Mode From Autograd Mode</h2>
+      </div>
+      <p>
+        PyTorch evaluation has two independent switches. <code>model.eval()</code>
+        changes module behavior such as dropout and batch normalization, while
+        grad modes decide whether operations are recorded by autograd. Use
+        <code>torch.inference_mode()</code> for pure validation or serving paths
+        whose tensors will not later re-enter a gradient-recorded computation.
+        Keep <code>torch.no_grad()</code> for mixed workflows where you only want
+        to skip recording a block but still need normal tensor behavior
+        afterward.
+      </p>
+      <pre><code class="language-python">def validate(model, dataloader, metric_fn):
+    was_training = model.training
+    model.eval()
+    totals = []
+    with torch.inference_mode():
+        for batch in dataloader:
+            logits = model(**batch).logits
+            totals.append(metric_fn(logits, batch["labels"]))
+    if was_training:
+        model.train()
+    return torch.stack(totals).mean().item()
+
+# Use no_grad, not inference_mode, when outputs must flow into later autograd work.
+with torch.no_grad():
+    frozen_features = encoder(inputs)
+loss = trainable_head(frozen_features).loss(labels)
+loss.backward()</code></pre>
+      <ol class="steps">
+        <li><strong>Set both switches:</strong> call <code>eval()</code> for module semantics and a grad mode for autograd memory and bookkeeping.</li>
+        <li><strong>Restore training state:</strong> validation inside a training loop should return the model to the previous mode.</li>
+        <li><strong>Use inference mode narrowly:</strong> prefer it for read-only eval and serving, but avoid it when tensors created inside the block must participate in later backward passes.</li>
+        <li><strong>Test stochastic layers:</strong> compare two eval passes on the same batch to catch dropout, batch norm, or generation-mode mistakes.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is <code>model.eval()</code> not enough for efficient validation?</summary>
+        <p>It changes layer behavior, but it does not by itself disable autograd recording. Without a grad-disabled context, validation can still waste memory building graphs that will never be backpropagated.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://docs.pytorch.org/docs/stable/notes/autograd.html#locally-disable-grad-doc">PyTorch locally disabling gradient computation</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html">PyTorch inference_mode reference</a>.
       </p>
     </section>
   </main>

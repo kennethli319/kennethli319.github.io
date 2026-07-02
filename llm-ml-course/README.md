@@ -81,6 +81,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch AMP reference: https://docs.pytorch.org/docs/2.12/amp.html
 - PyTorch AMP examples: https://docs.pytorch.org/docs/2.12/notes/amp_examples.html
 - OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
+- PyTorch autograd grad modes: https://docs.pytorch.org/docs/stable/notes/autograd.html#locally-disable-grad-doc
+- PyTorch inference_mode: https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html
 - Accelerating Large Language Model Decoding with Speculative Sampling: https://arxiv.org/abs/2302.01318
 - Speculative decoding: https://arxiv.org/abs/2211.17192
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/

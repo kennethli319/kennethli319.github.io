@@ -425,6 +425,40 @@ rollout_gate = (
         <summary>Question: Why should speculation be disabled under high queue pressure?</summary>
         <p>At high load, the draft path can compete with target-model work for the same GPU resources. If acceptance is not high enough to reduce target forwards, speculation can make queued and streaming requests slower.</p>
       </details>
+      <h3>Config Drill: Version The Speculation Contract</h3>
+      <p>
+        Treat a speculative-decoding rollout as a versioned serving contract,
+        not a hidden engine flag. vLLM's current configuration centers on a
+        <code>speculative_config</code> object with fields such as
+        <code>method</code>, <code>model</code>,
+        <code>num_speculative_tokens</code>, draft tensor-parallel size, and
+        rejection-sampling mode. The original speculative-sampling paper
+        preserves the target distribution through the verifier and modified
+        rejection sampling, so the production contract should record both the
+        algorithmic mode and the sampling settings that were validated.
+      </p>
+      <pre><code>speculation_contract = {
+    "target_model": "repo/name@revision",
+    "sampling": {"temperature": 0.7, "top_p": 0.95},
+    "speculative_config": {
+        "method": "draft_model | eagle3 | mtp | ngram | suffix",
+        "model": "draft-or-speculator@revision",
+        "num_speculative_tokens": 4,
+        "draft_tensor_parallel_size": 1,
+        "rejection_sample_method": "strict",
+    },
+    "validated_metrics": ["acceptance_rate", "p95_itl", "quality_delta"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Pin revisions:</strong> record target, draft, tokenizer, adapter, and serving-engine versions so acceptance changes can be traced.</li>
+        <li><strong>Keep sampling outside config:</strong> temperature and top-p are request sampling parameters, not speculative-config fields, but they still affect acceptance and must be part of the benchmark contract.</li>
+        <li><strong>Use compatibility checks:</strong> verify the installed engine supports the selected method and parallelism mode before comparing latency.</li>
+        <li><strong>Report the fallback:</strong> include the non-speculative profile that preserves the same target model and sampling settings.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why pin the draft model revision if the target model is unchanged?</summary>
+        <p>The draft model controls proposal quality. A changed draft checkpoint can lower acceptance, alter memory pressure, or trigger compatibility differences even though the verified target model remains the same.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">
@@ -633,8 +667,10 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
+        <a href="https://arxiv.org/abs/2302.01318">Accelerating Large Language Model Decoding with Speculative Sampling</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/">vLLM EAGLE speculative decoding example</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
         <a href="https://arxiv.org/abs/2402.01528">Decoding Speculative Decoding</a>.
       </p>

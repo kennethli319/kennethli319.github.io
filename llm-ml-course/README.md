@@ -79,8 +79,10 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM llm-compressor KV cache quantization example: https://github.com/vllm-project/llm-compressor/blob/main/examples/quantization_kv_cache/README.md
 - PyTorch torch.compile: https://docs.pytorch.org/docs/2.12/generated/torch.compile.html
 - OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
+- Accelerating Large Language Model Decoding with Speculative Sampling: https://arxiv.org/abs/2302.01318
 - Speculative decoding: https://arxiv.org/abs/2211.17192
 - vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
+- vLLM EAGLE speculative decoding example: https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/
 - Hugging Face assisted decoding: https://huggingface.co/docs/transformers/en/assisted_decoding
 - Decoding Speculative Decoding: https://arxiv.org/abs/2402.01528
 - LoRA: https://arxiv.org/abs/2106.09685

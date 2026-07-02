@@ -14,6 +14,7 @@
       <a href="#disaggregation">Disaggregation</a>
       <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
+      <a href="#speculation">Speculation</a>
       <a href="#quantization">Quantization</a>
       <a href="#launch">Launch Gates</a>
     </nav>
@@ -240,6 +241,39 @@ active_token_budget = estimate_decode_capacity(
       </details>
     </section>
 
+    <section id="speculation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Decode Acceleration</p>
+        <h2>Use Speculative Decoding Only When Draft Tokens Are Cheap And Accepted</h2>
+      </div>
+      <p>
+        Speculative decoding attacks the serial decode bottleneck by letting a
+        cheaper drafter propose several tokens, then asking the target model to
+        verify those candidates in parallel. The original method is designed to
+        preserve the target model's output distribution, but production speedup
+        depends on a practical ratio: draft cost, verification cost, accepted
+        tokens per step, and any extra memory needed for draft-model or
+        multi-head speculation state.
+      </p>
+      <pre><code>speculation_gate = (
+    target_decode_is_memory_bound
+    and draft_ms_per_token * draft_tokens < saved_target_decode_ms
+    and accepted_tokens_per_verify >= 2
+    and quality_regression_rate <= launch_threshold
+    and gpu_headroom_bytes > speculation_workspace_bytes
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Measure acceptance:</strong> log proposed tokens, accepted tokens, fallback tokens, and per-request latency instead of reporting only aggregate tokens per second.</li>
+        <li><strong>Pick the drafter by workload:</strong> a small model, n-gram matcher, suffix cache, or learned draft heads can win on different prompt domains and traffic levels.</li>
+        <li><strong>Protect tail latency:</strong> speculation can add work when the drafter is inaccurate or the server is already saturated, so compare p95 ITL and GPU utilization against a non-speculative profile.</li>
+        <li><strong>Keep rollback simple:</strong> launch speculation as a decoding profile that can be disabled without changing the target model, tokenizer, or eval contract.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can speculative decoding speed up output without changing the sampled distribution?</summary>
+        <p>The target model still verifies the proposed tokens and controls the accept/reject step, so accepted draft tokens are only a way to batch candidate checking rather than a replacement for the target model's distribution.</p>
+      </details>
+    </section>
+
     <section id="quantization" class="band">
       <div class="section-head">
         <p class="eyebrow">Quantization</p>
@@ -311,7 +345,9 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
-        <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>.
+        <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
+        <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>.
       </p>
     </section>
   </main>

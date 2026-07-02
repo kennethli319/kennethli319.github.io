@@ -29,8 +29,8 @@ Open `index.html` locally to read the course without a build step.
 - Research reading map: primary papers and official docs for Transformer,
   RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, LoRA, DPO, and RAG.
 - Production serving lesson: scheduler budgets, prefill/decode disaggregation,
-  KV cache policy, prefix caching, chunked prefill, admission control, launch
-  gates, metrics, and rollback checks.
+  KV cache policy, prefix caching, chunked prefill, admission control,
+  speculative decoding gates, launch gates, metrics, and rollback checks.
 
 ## Suggested Use
 
@@ -62,6 +62,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - TensorRT-LLM disaggregated serving: https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md
 - Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
+- Speculative decoding: https://arxiv.org/abs/2211.17192
+- vLLM speculative decoding: https://docs.vllm.ai/en/latest/features/speculative_decoding/
 - LoRA: https://arxiv.org/abs/2106.09685
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transformer Internals</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#attention">Attention</a>
+      <a href="#heads">Heads</a>
+      <a href="#rope">RoPE</a>
+    </nav>
+    <p class="eyebrow">Module 04</p>
+    <h1>Transformer Internals</h1>
+    <p class="lede">Attention, masks, head layouts, feed-forward blocks, residual paths, and position handling.</p>
+  </header>
+
+  <main>
+    <section id="attention" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Attention</p>
+        <h2>Scaled Dot-Product Attention</h2>
+      </div>
+      <pre><code class="language-python">import math
+import torch
+import torch.nn.functional as F
+
+def attention(q, k, v, mask=None):
+    # q, k, v: [batch, heads, time, d_head]
+    scores = q @ k.transpose(-2, -1)
+    scores = scores / math.sqrt(q.size(-1))
+    if mask is not None:
+        scores = scores.masked_fill(mask, float("-inf"))
+    weights = F.softmax(scores, dim=-1)
+    return weights @ v, weights</code></pre>
+      <details class="qa">
+        <summary>Question: What does the mask shape need to broadcast to?</summary>
+        <p>It must broadcast to the attention score shape: batch, heads, query positions, key positions.</p>
+      </details>
+    </section>
+
+    <section id="heads" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Head Layouts</p>
+        <h2>MHA, GQA, And MQA Are Cache/Quality Tradeoffs</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>MHA</h3>
+          <p>Each query head has its own key and value head. This is flexible but uses more KV cache memory.</p>
+        </article>
+        <article class="card">
+          <h3>GQA</h3>
+          <p>Groups of query heads share key/value heads. This reduces cache memory while keeping more capacity than MQA.</p>
+        </article>
+        <article class="card">
+          <h3>MQA</h3>
+          <p>All query heads share one key/value head. This is cache-efficient but can reduce quality for some models.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="rope" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Position</p>
+        <h2>RoPE Rotates Query And Key Pairs</h2>
+      </div>
+      <p>
+        Rotary position embeddings encode relative position by rotating pairs of
+        query and key dimensions before the dot product. Values are not rotated.
+      </p>
+      <pre><code class="language-python">def rotate_half(x):
+    x1, x2 = x[..., ::2], x[..., 1::2]
+    return torch.stack((-x2, x1), dim=-1).flatten(-2)
+
+def apply_rope(x, cos, sin):
+    return x * cos + rotate_half(x) * sin</code></pre>
+    </section>
+  </main>
+</body>
+</html>

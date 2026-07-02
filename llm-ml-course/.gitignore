@@ -1,0 +1,4 @@
+data/private/
+outputs/private/
+*.env
+.DS_Store

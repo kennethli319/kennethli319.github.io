@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fine-Tuning, RAG, And Agents</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#finetune">Fine-Tuning</a>
+      <a href="#rag">RAG</a>
+      <a href="#agents">Agents</a>
+    </nav>
+    <p class="eyebrow">Module 09</p>
+    <h1>Fine-Tuning, RAG, And Agents</h1>
+    <p class="lede">Choose the right adaptation path: train weights, retrieve context, call tools, or improve evaluation.</p>
+  </header>
+
+  <main>
+    <section id="finetune" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Fine-Tuning</p>
+        <h2>Fine-Tune Behavior That Must Live In The Model</h2>
+      </div>
+      <p>
+        Supervised fine-tuning changes model weights. It is useful for response
+        format, domain style, tool-call patterns, and task behavior that repeats
+        across many requests. It is not the best first choice for frequently
+        changing facts.
+      </p>
+      <pre><code class="language-python">class LoRALinear(torch.nn.Module):
+    def __init__(self, base, rank=8, alpha=16):
+        super().__init__()
+        self.base = base
+        self.base.weight.requires_grad_(False)
+        self.a = torch.nn.Linear(base.in_features, rank, bias=False)
+        self.b = torch.nn.Linear(rank, base.out_features, bias=False)
+        self.scale = alpha / rank
+
+    def forward(self, x):
+        return self.base(x) + self.b(self.a(x)) * self.scale</code></pre>
+    </section>
+
+    <section id="rag" class="band">
+      <div class="section-head">
+        <p class="eyebrow">RAG</p>
+        <h2>Retrieve Facts That Change Or Need Attribution</h2>
+      </div>
+      <p>
+        RAG quality depends on chunking, embedding choice, retrieval recall,
+        reranking, context packing, citation discipline, and answer evaluation.
+        The core failure is not just hallucination; it is often retrieving the
+        wrong evidence or burying the right evidence.
+      </p>
+    </section>
+
+    <section id="agents" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Agents</p>
+        <h2>Use Agent Loops For State, Tools, And Recovery</h2>
+      </div>
+      <p>
+        Agents add value when a task requires multi-step tool use, checking
+        external state, retrying after failures, or maintaining a work log. They
+        add risk when a simple one-shot call would be easier to test and control.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

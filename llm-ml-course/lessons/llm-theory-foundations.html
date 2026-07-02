@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Theory Foundations</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#likelihood">Likelihood</a>
+      <a href="#entropy">Entropy</a>
+      <a href="#optimization">Optimization</a>
+    </nav>
+    <p class="eyebrow">Module 01</p>
+    <h1>LLM Theory Foundations</h1>
+    <p class="lede">The math you need to explain language modeling, loss curves, gradients, and model quality without hiding behind jargon.</p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Outcome</p>
+        <h2>What You Should Be Able To Explain</h2>
+      </div>
+      <ul class="checklist">
+        <li>Why next-token prediction is maximum likelihood over a sequence.</li>
+        <li>Why cross entropy is the standard training loss for language models.</li>
+        <li>How KL divergence relates to fitting a model distribution to data.</li>
+        <li>Why logits are trained before softmax probabilities are sampled.</li>
+        <li>How optimization choices show up as instability, slow learning, or overfitting.</li>
+      </ul>
+    </section>
+
+    <section id="likelihood" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Language Modeling</p>
+        <h2>A Sequence Becomes Many Next-Token Classifications</h2>
+      </div>
+      <p>
+        A causal LLM estimates the probability of a token sequence by multiplying
+        conditional probabilities. In practice we add log probabilities so the
+        objective is numerically stable and decomposes token by token.
+      </p>
+      <pre><code>p(x_1, ..., x_T) = product_t p(x_t | x_1, ..., x_{t-1})
+log p(sequence) = sum_t log p(x_t | prefix)</code></pre>
+      <details class="qa">
+        <summary>Question: Why is teacher forcing useful during training?</summary>
+        <p>The model can train every position in parallel because each prediction receives the true prefix, not a sampled prefix from the model.</p>
+      </details>
+    </section>
+
+    <section id="entropy" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Loss</p>
+        <h2>Cross Entropy Is Negative Log Probability Of The Target</h2>
+      </div>
+      <p>
+        For one token with class index y, cross entropy is the negative log of
+        the probability assigned to y. With one-hot labels, the gradient with
+        respect to logits is the simple and important expression
+        <code>softmax(logits) - one_hot(y)</code>.
+      </p>
+      <pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+logits = torch.randn(2, 4, 32000)  # batch, time, vocab
+targets = torch.randint(0, 32000, (2, 4))
+loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))</code></pre>
+      <details class="qa">
+        <summary>Question: How are KL and cross entropy connected?</summary>
+        <p>Cross entropy equals the true distribution entropy plus KL divergence from the true distribution to the model distribution, so minimizing cross entropy minimizes KL when the data distribution is fixed.</p>
+      </details>
+    </section>
+
+    <section id="optimization" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Optimization</p>
+        <h2>Most Training Bugs Are Shape, Scale, Or State Bugs</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Shape</h3>
+          <p>Wrong flattening, wrong gather dimension, or forgotten padding masks can make the loss look plausible while training the wrong target.</p>
+        </article>
+        <article class="card">
+          <h3>Scale</h3>
+          <p>Unstable logits, unscaled attention scores, bad learning rates, or missing warmup can make gradients explode or vanish.</p>
+        </article>
+        <article class="card">
+          <h3>State</h3>
+          <p>Optimizer moments, scheduler steps, dropout mode, eval mode, and gradient accumulation must be kept consistent.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

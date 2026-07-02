@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM ML Course</title>
+  <link rel="stylesheet" href="styles.css?v=20260701a">
+</head>
+<body>
+  <header class="hero">
+    <nav>
+      <a href="#path">Path</a>
+      <a href="#modules">Modules</a>
+      <a href="#pytorch">PyTorch</a>
+      <a href="#systems">Systems</a>
+      <a href="#practice">Practice</a>
+    </nav>
+    <p class="eyebrow">LLM ML Course</p>
+    <h1>Learn LLM Theory By Rebuilding The Stack</h1>
+    <p class="lede">
+      A practical course for transformer theory, PyTorch implementation,
+      decoding, fine-tuning, RAG, agents, and interview-ready reasoning.
+    </p>
+  </header>
+
+  <main>
+    <section id="path" class="band">
+      <div class="section-head">
+        <p class="eyebrow">North Star</p>
+        <h2>Move From Equations To Working LLM Components</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Theory</h3>
+          <p>Explain probability, cross entropy, attention, tokenization, optimization, and scaling in plain language.</p>
+        </article>
+        <article class="card">
+          <h3>PyTorch</h3>
+          <p>Implement the core building blocks with clear shapes, masks, losses, schedules, and edge cases.</p>
+        </article>
+        <article class="card">
+          <h3>Systems</h3>
+          <p>Reason about context length, KV cache memory, batching, serving latency, fine-tuning, RAG, and evaluation.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Study Rhythm</p>
+        <h2>Use The Explain, Implement, Stress-Test Loop</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Explain:</strong> state the concept in 30 seconds, including why it exists.</li>
+        <li><strong>Implement:</strong> write the smallest correct function or module from memory.</li>
+        <li><strong>Stress-test:</strong> check shape, dtype, mask, empty-row, long-context, and numerical-stability cases.</li>
+        <li><strong>Connect:</strong> map the concept to training, inference, and product behavior.</li>
+        <li><strong>Review:</strong> answer one interview-style prompt without looking at notes.</li>
+      </ol>
+    </section>
+
+    <section id="modules" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Curriculum</p>
+        <h2>Module Tour</h2>
+        <p>
+          The course is LLM-first: start with ML math and PyTorch, then build
+          transformers, decoding, fine-tuning, retrieval, agents, evaluation,
+          and production serving. The attached PDFs informed the drill topics,
+          especially the hand-written coding questions.
+        </p>
+      </div>
+      <div class="timeline">
+        <article>
+          <span>00</span>
+          <h3>Orientation And Tooling</h3>
+          <p>Set up Python, PyTorch, notebooks, Git, experiment logs, and a reproducible local study loop.</p>
+          <p class="lab">Lab: run a tensor shape notebook and save a one-page setup note.</p>
+        </article>
+        <article>
+          <span>01</span>
+          <h3>ML Math For LLMs</h3>
+          <p>Linear models, logistic regression, softmax regression, KL, cross entropy, likelihood, and gradients.</p>
+          <p class="lab">Lab: derive softmax cross entropy and implement it with stable logits.</p>
+          <p><a class="lesson-link" href="lessons/llm-theory-foundations.html">Open lesson: LLM theory foundations</a></p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>PyTorch Foundations</h3>
+          <p>Tensors, broadcasting, autograd, modules, losses, normalization, optimizers, and training loops.</p>
+          <p class="lab">Lab: implement stable softmax, CE, layer norm, RMSNorm, AdamW, and clipping.</p>
+          <p><a class="lesson-link" href="lessons/pytorch-foundations.html">Open lesson: PyTorch foundations</a></p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Tokenization And Embeddings</h3>
+          <p>BPE intuition, vocabulary tradeoffs, embedding lookup, tied embeddings, and sequence length budgeting.</p>
+          <p class="lab">Lab: write a tiny BPE merge trainer and tokenizer for toy text.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Transformer Internals</h3>
+          <p>Scaled dot-product attention, masks, MHA, GQA, MQA, FFN, SwiGLU, residual paths, and normalization order.</p>
+          <p class="lab">Lab: implement single-head attention, then expand it to multi-head attention.</p>
+          <p><a class="lesson-link" href="lessons/transformer-internals.html">Open lesson: transformer internals</a></p>
+        </article>
+        <article>
+          <span>05</span>
+          <h3>Position And Context</h3>
+          <p>Learned positions, sinusoidal encodings, RoPE, ALiBi-style bias, context extension, and extrapolation risks.</p>
+          <p class="lab">Lab: apply RoPE to Q/K and test shape preservation.</p>
+        </article>
+        <article>
+          <span>06</span>
+          <h3>Pretraining Objective</h3>
+          <p>Causal language modeling, teacher forcing, next-token loss, masking, perplexity, and data mixing.</p>
+          <p class="lab">Lab: train a tiny character LM and inspect failure modes.</p>
+        </article>
+        <article>
+          <span>07</span>
+          <h3>Decoding And Sampling</h3>
+          <p>Greedy, beam search, temperature, top-k, top-p, repetition penalty, no-repeat n-gram, and stop conditions.</p>
+          <p class="lab">Lab: implement sampling helpers and explain every tensor dimension.</p>
+          <p><a class="lesson-link" href="lessons/decoding-kv-cache.html">Open lesson: decoding and KV cache</a></p>
+        </article>
+        <article>
+          <span>08</span>
+          <h3>KV Cache And Serving Math</h3>
+          <p>Prefill, decode, cache layout, memory growth, context windows, batching, and throughput/latency tradeoffs.</p>
+          <p class="lab">Lab: estimate KV memory for a model and batch under different context lengths.</p>
+        </article>
+        <article>
+          <span>09</span>
+          <h3>Fine-Tuning And Alignment</h3>
+          <p>SFT, instruction tuning, preference tuning, DPO-style objectives, LoRA, adapters, and eval gates.</p>
+          <p class="lab">Lab: implement a LoRA linear layer and count trainable parameters.</p>
+          <p><a class="lesson-link" href="lessons/finetuning-rag-agents.html">Open lesson: fine-tuning, RAG, and agents</a></p>
+        </article>
+        <article>
+          <span>10</span>
+          <h3>RAG And Tool Use</h3>
+          <p>Chunking, embeddings, retrieval, reranking, grounding, tool schemas, memory, and failure analysis.</p>
+          <p class="lab">Lab: build a tiny retrieval eval with exact-match and groundedness notes.</p>
+        </article>
+        <article>
+          <span>11</span>
+          <h3>LLM Agents</h3>
+          <p>Planning, tool calls, state, retries, guardrails, multi-turn memory, and when not to use an agent loop.</p>
+          <p class="lab">Lab: design an agent trace schema and write three failure-case tests.</p>
+        </article>
+        <article>
+          <span>12</span>
+          <h3>Evaluation</h3>
+          <p>Unit tests, golden sets, pairwise eval, rubrics, judges, hallucination checks, safety, and regression gates.</p>
+          <p class="lab">Lab: write a small eval suite for instruction following and retrieval grounding.</p>
+        </article>
+        <article>
+          <span>13</span>
+          <h3>Production Serving</h3>
+          <p>Continuous batching, PagedAttention concepts, quantization, autoscaling, observability, cost, and rollback.</p>
+          <p class="lab">Lab: choose a serving plan for an interactive assistant with cost and p95 latency targets.</p>
+        </article>
+        <article>
+          <span>14</span>
+          <h3>Interview Drill Pack</h3>
+          <p>Explain-first coding tasks for ML math, PyTorch components, transformers, decoding, KV cache, LoRA, and BPE.</p>
+          <p class="lab">Lab: solve five prompts in 45 minutes and review edge cases.</p>
+          <p><a class="lesson-link" href="lessons/interview-code-drills.html">Open lesson: interview code drills</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="pytorch" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Implementation Spine</p>
+        <h2>What You Should Be Able To Hand-Write</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <h3>Numerics</h3>
+          <p>Stable softmax, cross entropy, BCE with logits, clipping, log-sum-exp, label smoothing, and safe masking.</p>
+        </article>
+        <article class="card">
+          <h3>Blocks</h3>
+          <p>LayerNorm, RMSNorm, residual links, attention, MHA, GQA, MQA, FFN, SwiGLU, RoPE, and LoRA.</p>
+        </article>
+        <article class="card">
+          <h3>Loops</h3>
+          <p>AdamW, warmup cosine schedules, gradient accumulation, early stopping, EMA, eval loops, and checkpointing.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="systems" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Systems Lens</p>
+        <h2>Connect Model Internals To Runtime Behavior</h2>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>Inference</h3>
+          <p>Prefill is parallel over prompt tokens; decode is often memory-bandwidth bound one token at a time. KV cache turns repeated attention over old tokens into reads from cached keys and values.</p>
+        </article>
+        <article class="card">
+          <h3>Product Quality</h3>
+          <p>Sampling settings, context packing, retrieval precision, tool schemas, and evaluation gates directly shape user-visible correctness, latency, cost, and trust.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="practice" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Practice</p>
+        <h2>Explain Before You Code</h2>
+      </div>
+      <div class="problem-list">
+        <article class="problem-card">
+          <h4>Prompt 1: Stable Softmax</h4>
+          <p>Implement stable softmax for an arbitrary dimension. Explain why subtracting the max does not change the probabilities.</p>
+        </article>
+        <article class="problem-card">
+          <h4>Prompt 2: Causal Attention</h4>
+          <p>Implement scaled dot-product attention with both padding and causal masks. Explain the shape of every intermediate tensor.</p>
+        </article>
+        <article class="problem-card">
+          <h4>Prompt 3: Top-p Sampling</h4>
+          <p>Implement nucleus sampling and explain why sorting positions must be mapped back to original token IDs.</p>
+        </article>
+        <article class="problem-card">
+          <h4>Prompt 4: KV Cache</h4>
+          <p>Sketch incremental decoding pseudocode. Explain how cache size scales with layers, batch, heads, sequence length, and head dimension.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>LLM ML Course. Keep private prompts, data, model weights, and API keys out of the repo.</p>
+  </footer>
+</body>
+</html>

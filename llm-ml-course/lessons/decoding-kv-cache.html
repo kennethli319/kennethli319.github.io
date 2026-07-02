@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decoding And KV Cache</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#sampling">Sampling</a>
+      <a href="#cache">KV Cache</a>
+      <a href="#serving">Serving</a>
+    </nav>
+    <p class="eyebrow">Module 07</p>
+    <h1>Decoding And KV Cache</h1>
+    <p class="lede">How logits become tokens, and why inference performance depends on cache layout and batching.</p>
+  </header>
+
+  <main>
+    <section id="sampling" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sampling</p>
+        <h2>Sampling Changes The Output Distribution, Not The Model</h2>
+      </div>
+      <pre><code class="language-python">def top_k_filter(logits, k):
+    values, _ = torch.topk(logits, k, dim=-1)
+    cutoff = values[..., -1, None]
+    return logits.masked_fill(logits < cutoff, float("-inf"))
+
+def temperature_sample(logits, temperature=1.0):
+    probs = torch.softmax(logits / temperature, dim=-1)
+    return torch.multinomial(probs, num_samples=1).squeeze(-1)</code></pre>
+      <details class="qa">
+        <summary>Question: Why apply temperature before softmax?</summary>
+        <p>Temperature changes the relative logit gaps. After softmax, probabilities are already normalized and scaling them directly would not have the same meaning.</p>
+      </details>
+    </section>
+
+    <section id="cache" class="band">
+      <div class="section-head">
+        <p class="eyebrow">KV Cache</p>
+        <h2>Prefill Computes The Prompt, Decode Appends One Step</h2>
+      </div>
+      <pre><code>for token in prompt:
+    run transformer and store K/V for each layer
+
+while not done:
+    run transformer on latest token
+    read all old K/V from cache
+    append new K/V
+    sample next token</code></pre>
+      <p>
+        Cache memory scales with batch, layers, KV heads, sequence length, head
+        dimension, and bytes per element. GQA and MQA reduce the KV-head term.
+      </p>
+    </section>
+
+    <section id="serving" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Serving</p>
+        <h2>Continuous Batching Trades Simplicity For Throughput</h2>
+      </div>
+      <p>
+        Interactive LLM serving mixes requests with different prompt lengths and
+        decode lengths. A scheduler tries to keep the GPU busy while protecting
+        tail latency, memory limits, and fairness.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

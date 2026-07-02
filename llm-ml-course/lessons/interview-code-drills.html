@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LLM Interview Code Drills</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#math">Math</a>
+      <a href="#blocks">Blocks</a>
+      <a href="#systems">Systems</a>
+    </nav>
+    <p class="eyebrow">Module 14</p>
+    <h1>LLM Interview Code Drills</h1>
+    <p class="lede">A focused prompt bank inspired by common LLM and PyTorch hand-coding interviews.</p>
+  </header>
+
+  <main>
+    <section class="band">
+      <div class="section-head">
+        <p class="eyebrow">Answer Template</p>
+        <h2>Use The Same Structure Every Time</h2>
+      </div>
+      <ol class="steps">
+        <li>Give a 30-second explanation of the algorithm or layer.</li>
+        <li>Name input and output shapes before writing code.</li>
+        <li>Write the main path first.</li>
+        <li>Add numerical stability, masks, dtype, and edge cases.</li>
+        <li>State complexity and the most likely production bug.</li>
+      </ol>
+    </section>
+
+    <section id="math" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Math And Losses</p>
+        <h2>Foundational Prompts</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card"><h4>Stable softmax</h4><p>Support arbitrary dimension, preserve shape, and explain max subtraction.</p></article>
+        <article class="problem-card"><h4>Cross entropy from logits</h4><p>Use logsumexp and gather. Explain why direct softmax then log is less stable.</p></article>
+        <article class="problem-card"><h4>BCE with logits</h4><p>Implement the stable binary loss without separately applying sigmoid first.</p></article>
+        <article class="problem-card"><h4>Cosine top-k retrieval</h4><p>Normalize query/docs, compute scores, return top-k IDs, and handle zero vectors.</p></article>
+      </div>
+    </section>
+
+    <section id="blocks" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Transformer Blocks</p>
+        <h2>PyTorch Component Prompts</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card"><h4>LayerNorm and RMSNorm</h4><p>Implement forward pass and explain what dimensions are normalized.</p></article>
+        <article class="problem-card"><h4>Scaled dot-product attention</h4><p>Implement masks, softmax, and value mixing for batched multi-head tensors.</p></article>
+        <article class="problem-card"><h4>Multi-head attention</h4><p>Project Q/K/V, reshape heads, apply attention, merge heads, and project out.</p></article>
+        <article class="problem-card"><h4>SwiGLU FFN</h4><p>Implement gate/up/down projections and explain why gated FFNs help capacity.</p></article>
+        <article class="problem-card"><h4>RoPE</h4><p>Rotate Q/K pairs, preserve shape, and test even head dimensions.</p></article>
+      </div>
+    </section>
+
+    <section id="systems" class="band">
+      <div class="section-head">
+        <p class="eyebrow">LLM Systems</p>
+        <h2>Inference And Adaptation Prompts</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card"><h4>Top-p sampling</h4><p>Sort probabilities, keep the nucleus, sample in sorted space, and map back to original token IDs.</p></article>
+        <article class="problem-card"><h4>KV cache pseudocode</h4><p>Show prefill/decode split and estimate cache memory from model dimensions.</p></article>
+        <article class="problem-card"><h4>Continuous batching scheduler</h4><p>Sketch request states, memory admission, token budget, and fairness rules.</p></article>
+        <article class="problem-card"><h4>LoRA linear layer</h4><p>Freeze base weights, add low-rank adapters, count trainable parameters, and discuss merge-at-inference.</p></article>
+        <article class="problem-card"><h4>Tiny BPE trainer</h4><p>Count adjacent pairs, merge the best pair, repeat, then encode with learned merges.</p></article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

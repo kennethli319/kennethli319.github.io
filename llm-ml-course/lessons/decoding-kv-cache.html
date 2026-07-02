@@ -221,6 +221,35 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <summary>Question: What should you test before trusting a hand-written KV cache?</summary>
         <p>Compare cached and uncached logits, vary prompt length and batch size, test left/right padding if supported, confirm RoPE positions, and run with deterministic sampling so generation noise does not hide cache errors.</p>
       </details>
+      <h3>Implementation Drill: Keep KV Cache Out Of Training Graphs</h3>
+      <p>
+        A decode cache is an inference-time shortcut, not a replacement for
+        teacher-forced training. Hugging Face's cache explanation warns that
+        caching should be used for inference, because training needs gradients
+        through every token position and usually processes the full shifted
+        sequence in one pass. In practice, make <code>use_cache=False</code>
+        part of the training/eval contract, then test cached generation
+        separately under <code>torch.inference_mode()</code>.
+      </p>
+      <pre><code class="language-python">def training_step(model, input_ids, labels):
+    model.train()
+    out = model(input_ids, labels=labels, use_cache=False)
+    out.loss.backward()
+    return out.loss
+
+@torch.inference_mode()
+def generate_step(model, input_ids):
+    model.eval()
+    return model(input_ids, use_cache=True)</code></pre>
+      <ol class="steps">
+        <li><strong>Separate contracts:</strong> train with full-sequence logits and no cache; generate with cached prefill and one-token decode steps.</li>
+        <li><strong>Disable gradients:</strong> cache tensors should not keep autograd history or they can leak memory across decode steps.</li>
+        <li><strong>Test both paths:</strong> loss tests catch training regressions, while cached-versus-uncached logit tests catch inference state bugs.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a cache speedup not useful during teacher-forced training?</summary>
+        <p>Training already sees the target sequence in parallel and needs gradients for all positions. Reusing detached past states would break the optimization problem instead of making the full training pass correct.</p>
+      </details>
       <h3>Implementation Drill: Non-Square Causal Masks Need Position Tests</h3>
       <p>
         Cached decoding often calls attention with one query token and many

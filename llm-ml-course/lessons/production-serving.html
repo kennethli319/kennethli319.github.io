@@ -366,6 +366,34 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why should observability record prompt tokens and output tokens separately?</summary>
         <p>Prompt tokens mostly drive prefill cost and TTFT, while generated tokens drive decode occupancy, KV-cache growth, streaming duration, and user-visible cost. Combining them hides the phase that regressed.</p>
       </details>
+      <h3>Dashboard Drill: Split User SLOs From Engine Counters</h3>
+      <p>
+        A useful serving dashboard has two layers. The user layer tracks
+        end-to-end latency, TTFT, time-to-second-token, ITL or TPOT, error
+        rate, and stream completion. The engine layer tracks waiting requests,
+        running requests, prompt throughput, output throughput, cache usage,
+        prefix-cache hits, and speculative acceptance. vLLM exposes production
+        metrics for request and token phases; NVIDIA's NIM and GenAI-Perf docs
+        define TTFT, ITL, output-token throughput, and request throughput as
+        benchmark-facing metrics. Keep both views because an SLO page tells you
+        what users felt, while engine counters explain which phase caused it.
+      </p>
+      <pre><code>dashboard = {
+    "user_slo": ["p50_ttft", "p95_ttft", "p95_itl", "p99_e2e", "stream_errors"],
+    "engine": ["waiting_requests", "running_requests", "gpu_cache_usage",
+               "prompt_tokens_per_s", "output_tokens_per_s", "prefix_cache_hit_rate"],
+    "slices": ["model_revision", "adapter_id", "decode_profile", "prompt_bucket"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Alert on symptoms:</strong> page on user-facing TTFT, ITL, error rate, and saturation, not on every low-level counter twitch.</li>
+        <li><strong>Debug by phase:</strong> if TTFT rises with queue depth, look at admission and prefill; if ITL rises with running requests, look at decode batch, KV bandwidth, and cache pressure.</li>
+        <li><strong>Slice before changing knobs:</strong> separate short chat, long RAG prompts, tool-heavy requests, LoRA adapters, and speculative profiles before tuning a global scheduler setting.</li>
+        <li><strong>Compare benchmark and prod:</strong> a benchmark can report clean TTFT and ITL, but production traces must add gateway, network, retry, and streaming-client behavior.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why keep TTFT and ITL on different panels?</summary>
+        <p>TTFT is usually where queueing and prefill show up; ITL is where decode-step contention, cache bandwidth, and streaming smoothness show up. A single latency percentile hides which path needs work.</p>
+      </details>
     </section>
 
     <section id="launch" class="band">
@@ -399,6 +427,7 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html">vLLM automatic prefix caching</a>,
         <a href="https://developers.openai.com/api/docs/guides/prompt-caching">OpenAI prompt caching</a>,
         <a href="https://docs.vllm.ai/en/stable/design/metrics/">vLLM metrics</a>,
+        <a href="https://docs.vllm.ai/en/v0.20.0/usage/metrics/">vLLM production metrics</a>,
         <a href="https://github.com/vllm-project/vllm/issues/16016">vLLM cache salting design discussion</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
@@ -408,8 +437,11 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/tensorrt_llm/metrics/collector.py">TensorRT-LLM metrics collector</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/examples/kvcacheconfig.md">TensorRT-LLM KV cache configuration</a>,
+        <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/commands/trtllm-serve/run-benchmark-with-trtllm-serve.md">TensorRT-LLM benchmark metrics</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>,
         <a href="https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md">TensorRT-LLM paged KV cache notes</a>,
+        <a href="https://docs.nvidia.com/nim/benchmarking/llm/latest/metrics.html">NVIDIA NIM LLM benchmarking metrics</a>,
+        <a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/perf_analyzer/genai-perf/README.html">NVIDIA GenAI-Perf</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,

@@ -301,6 +301,35 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why can speculative decoding speed up output without changing the sampled distribution?</summary>
         <p>The target model still verifies the proposed tokens and controls the accept/reject step, so accepted draft tokens are only a way to batch candidate checking rather than a replacement for the target model's distribution.</p>
       </details>
+      <h3>Benchmark Drill: Plot Acceptance Before Claiming A Speedup</h3>
+      <p>
+        A speculative profile is only useful if accepted draft tokens reduce
+        target-model decode steps more than the extra draft and verification
+        work costs. Hugging Face's assisted decoding docs emphasize that an
+        assistant model drafts candidate tokens and the main model verifies
+        them in one pass; vLLM's production docs expose several speculation
+        methods, including draft-model, n-gram, suffix, and learned speculators.
+        Benchmark each method as a separate decoding contract, because the best
+        choice depends on prompt repetition, tokenizer compatibility, model
+        alignment, and live GPU saturation.
+      </p>
+      <pre><code>speculation_report = {
+    "method": "draft_model | ngram | suffix | learned_heads",
+    "draft_tokens_per_step": sweep([1, 2, 4, 8]),
+    "acceptance_rate": accepted_tokens / proposed_tokens,
+    "effective_decode_steps": target_forwards / output_tokens,
+    "tail_check": p95_itl_speculative <= p95_itl_baseline,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Sweep lookahead:</strong> increasing draft tokens can help when acceptance stays high, but it wastes work when rejections begin early.</li>
+        <li><strong>Check tokenizer assumptions:</strong> same-family assistant models are simpler; cross-tokenizer assisted generation needs an explicit retokenization path.</li>
+        <li><strong>Separate traffic slices:</strong> repetitive code completion, templated RAG answers, and open-ended chat may have very different acceptance curves.</li>
+        <li><strong>Watch saturation:</strong> a draft model that helps an idle target can hurt a busy server if it competes for the same memory, kernels, or batch slots.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is tokens-per-second alone a weak speculation metric?</summary>
+        <p>It can hide draft overhead, lower acceptance on hard prompts, and worse p95 inter-token latency. A useful report shows accepted tokens per verify step, target forward passes per output token, memory headroom, and tail latency against a non-speculative baseline.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">
@@ -478,7 +507,8 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
-        <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>.
+        <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
+        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>.
       </p>
     </section>
   </main>

@@ -51,6 +51,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - RoFormer / RoPE: https://arxiv.org/abs/2104.09864
 - FlashAttention: https://arxiv.org/abs/2205.14135
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/

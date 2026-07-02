@@ -94,6 +94,43 @@ out = torch.nn.functional.scaled_dot_product_attention(
         <summary>Question: Why not just reduce the number of query heads too?</summary>
         <p>GQA keeps multiple query heads while sharing fewer key/value heads, so it aims for a middle ground: lower KV cache bandwidth and memory than MHA while preserving more attention capacity than MQA.</p>
       </details>
+      <h3>Implementation Drill: Build The Head-Layout Memory Ledger</h3>
+      <p>
+        MQA was proposed for faster incremental decoding because decode steps
+        repeatedly load old keys and values from memory. GQA generalizes that
+        idea by choosing an intermediate number of KV heads. When interviewing
+        or designing a model variant, make the memory ratio explicit before
+        arguing about quality: for the same layers, sequence length, head
+        dimension, and dtype, the KV-cache difference is mostly the KV-head
+        count.
+      </p>
+      <pre><code class="language-python">def kv_cache_bytes(layers, batch, seq_len, kv_heads, head_dim, dtype_bytes):
+    # Factor 2 counts K and V.
+    return 2 * layers * batch * seq_len * kv_heads * head_dim * dtype_bytes
+
+def head_layout_report(query_heads, kv_heads):
+    assert query_heads % kv_heads == 0
+    if kv_heads == query_heads:
+        layout = "MHA"
+    elif kv_heads == 1:
+        layout = "MQA"
+    else:
+        layout = "GQA"
+    return {
+        "layout": layout,
+        "queries_per_kv_head": query_heads // kv_heads,
+        "kv_cache_ratio_vs_mha": kv_heads / query_heads,
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Estimate first:</strong> compare <code>kv_heads / query_heads</code> before changing kernels; a 32-query-head model with 8 KV heads uses one quarter of the MHA KV cache.</li>
+        <li><strong>Keep the contract visible:</strong> the attention layer still returns query-head outputs, even when fewer KV heads are stored.</li>
+        <li><strong>Test the API path:</strong> PyTorch SDPA's GQA path expects query heads to divide cleanly over key/value heads and key/value to have matching head counts.</li>
+        <li><strong>Separate model and serving claims:</strong> lower cache traffic can improve decode throughput, but quality depends on training or uptraining, not only on the inference kernel.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the fastest way to catch a wrong GQA implementation?</summary>
+        <p>Run a tiny deterministic case where the expanded-KV reference and the fused GQA path produce matching outputs, then vary the ratio between query heads and KV heads.</p>
+      </details>
     </section>
 
     <section id="rope" class="band">
@@ -162,6 +199,7 @@ y = F.scaled_dot_product_attention(
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://arxiv.org/abs/1911.02150">Multi-Query Attention</a>,
         <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>.

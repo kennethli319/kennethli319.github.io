@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokenization And Embeddings</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#subwords">Subwords</a>
+      <a href="#bpe">BPE Drill</a>
+      <a href="#embeddings">Embeddings</a>
+      <a href="#checks">Checks</a>
+    </nav>
+    <p class="eyebrow">Module 03</p>
+    <h1>Tokenization And Embeddings</h1>
+    <p class="lede">Turn raw text into ids, then into vectors the transformer can train and serve.</p>
+  </header>
+
+  <main>
+    <section id="subwords" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Subword Contract</p>
+        <h2>The Tokenizer Is Part Of The Model</h2>
+      </div>
+      <p>
+        LLMs do not see words. They see integer token ids produced by a fixed
+        tokenizer, then map those ids through an embedding table. Subword
+        tokenization is the practical compromise between character-level
+        flexibility and word-level vocabulary size: common strings can become
+        single tokens, while rare names, typos, code, or multilingual text can
+        still be represented as shorter pieces.
+      </p>
+      <ol class="steps">
+        <li><strong>Freeze the contract:</strong> model weights, tokenizer files, special token ids, and chat templates must travel together.</li>
+        <li><strong>Budget with tokens:</strong> context length, cost, prefill latency, and KV-cache growth depend on token count, not character count.</li>
+        <li><strong>Test round trips:</strong> <code>decode(encode(text))</code> should preserve the intended text for the supported input domain.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can two models price or truncate the same prompt differently?</summary>
+        <p>Different tokenizers can split the same characters into different token ids and token counts, so token budget calculations must use the target model's tokenizer.</p>
+      </details>
+    </section>
+
+    <section id="bpe" class="band">
+      <div class="section-head">
+        <p class="eyebrow">BPE Drill</p>
+        <h2>Learn Merges Before Memorizing Vocabulary Files</h2>
+      </div>
+      <p>
+        Byte pair encoding starts from small symbols, repeatedly finds a
+        frequent adjacent pair, and adds a merge rule that treats that pair as a
+        new symbol. Modern production tokenizers add important details around
+        bytes, Unicode, regex pre-tokenization, and special tokens, but the core
+        merge loop is small enough to implement from memory.
+      </p>
+      <pre><code class="language-python">from collections import Counter
+
+def learn_bpe_merges(words, num_merges):
+    splits = [tuple(word) + ("&lt;/w&gt;",) for word in words]
+    merges = []
+    for _ in range(num_merges):
+        pair_counts = Counter()
+        for pieces in splits:
+            pair_counts.update(zip(pieces, pieces[1:]))
+        if not pair_counts:
+            break
+        best = max(pair_counts, key=pair_counts.get)
+        merges.append(best)
+        merged = "".join(best)
+        next_splits = []
+        for pieces in splits:
+            out = []
+            i = 0
+            while i &lt; len(pieces):
+                if i + 1 &lt; len(pieces) and (pieces[i], pieces[i + 1]) == best:
+                    out.append(merged)
+                    i += 2
+                else:
+                    out.append(pieces[i])
+                    i += 1
+            next_splits.append(tuple(out))
+        splits = next_splits
+    return merges, splits</code></pre>
+      <ol class="steps">
+        <li><strong>Check determinism:</strong> define a tie-break rule for equally frequent pairs so training is reproducible.</li>
+        <li><strong>Check reversibility:</strong> keep enough boundary information to detokenize without silently deleting spaces or punctuation.</li>
+        <li><strong>Check unknowns:</strong> byte-level tokenizers can represent arbitrary text; wordpiece-style systems need an explicit unknown-token policy.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What interview bug hides in many toy BPE trainers?</summary>
+        <p>They merge string pairs without preserving boundaries, so detokenization loses spaces or turns separate words into one ambiguous stream.</p>
+      </details>
+    </section>
+
+    <section id="embeddings" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Embeddings</p>
+        <h2>Token Ids Become Rows In A Learned Table</h2>
+      </div>
+      <p>
+        An embedding layer is a lookup table from token id to vector. During
+        language-model training, gradients update only the rows used in the
+        batch. Many decoder-only models tie the input embedding matrix to the
+        output projection so the same token-vector space is used to read tokens
+        in and score next-token logits.
+      </p>
+      <pre><code class="language-python">class TinyTokenModel(torch.nn.Module):
+    def __init__(self, vocab_size, d_model):
+        super().__init__()
+        self.tok_emb = torch.nn.Embedding(vocab_size, d_model)
+        self.block = TransformerBlock(d_model)
+        self.norm = torch.nn.LayerNorm(d_model)
+        self.lm_head = torch.nn.Linear(d_model, vocab_size, bias=False)
+        self.lm_head.weight = self.tok_emb.weight  # tied embeddings
+
+    def forward(self, input_ids):
+        x = self.tok_emb(input_ids)
+        x = self.block(x)
+        return self.lm_head(self.norm(x))</code></pre>
+      <ol class="steps">
+        <li><strong>Shape check:</strong> input ids are <code>[batch, time]</code>; embeddings become <code>[batch, time, d_model]</code>; logits become <code>[batch, time, vocab]</code>.</li>
+        <li><strong>Resize carefully:</strong> adding special tokens requires resizing embeddings and initializing new rows before fine-tuning.</li>
+        <li><strong>Keep ids stable:</strong> changing token ids after training changes which vectors the model reads and writes.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is tokenizer mismatch so damaging?</summary>
+        <p>The same text can map to different ids, and each id selects a learned embedding row. A mismatch feeds the transformer vectors with the wrong learned meaning.</p>
+      </details>
+    </section>
+
+    <section id="checks" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Study Checks</p>
+        <h2>Treat Tokenization As A Testable Boundary</h2>
+      </div>
+      <ol class="steps">
+        <li><strong>Count:</strong> measure token counts for short chat, long RAG context, code, emoji, and non-English text with the target tokenizer.</li>
+        <li><strong>Round trip:</strong> encode and decode prompts with spaces, newlines, tabs, quotes, and special tokens.</li>
+        <li><strong>Budget:</strong> reserve context for system text, tools, retrieved chunks, user input, and expected output before serving.</li>
+        <li><strong>Version:</strong> log tokenizer name, model revision, special tokens, and chat template with training and eval runs.</li>
+      </ol>
+      <p>
+        Sources:
+        <a href="https://aclanthology.org/P16-1162/">Sennrich et al., subword BPE for rare words</a>,
+        <a href="https://arxiv.org/abs/1808.06226">SentencePiece</a>,
+        <a href="https://github.com/openai/tiktoken">OpenAI tiktoken</a>,
+        <a href="https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb">OpenAI Cookbook token counting</a>,
+        <a href="https://aclanthology.org/E17-2025/">Press and Wolf on tied embeddings</a>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

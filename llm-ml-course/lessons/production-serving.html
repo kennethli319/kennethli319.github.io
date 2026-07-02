@@ -650,6 +650,34 @@ for profile in quantization_matrix:
         <summary>Question: What should a quantized-cache launch report include besides memory saved?</summary>
         <p>It should include cache dtype, scale source, hardware and engine support, prompt buckets tested, quality deltas, TTFT, ITL, OOM or eviction rate, and the rollback profile that restores the previous cache dtype.</p>
       </details>
+      <h3>Validation Drill: Test The Cache Where Attention Is Fragile</h3>
+      <p>
+        KV-cache quantization changes the stored keys and values that every
+        later decode step attends over, so validate it on prompts where small
+        attention-score changes matter. KIVI motivates asymmetric cache
+        quantization by showing that key and value caches have different
+        distribution patterns, while Hugging Face's quantized cache keeps a
+        recent residual cache in full precision before quantizing older states.
+        That means a launch test should include long-range retrieval,
+        multi-turn references, exact copying, and reasoning prompts, not only
+        short conversational examples where the cache is small.
+      </p>
+      <pre><code>kv_quant_eval = {
+    "baseline": {"kv_cache": "bf16"},
+    "candidate": {"kv_cache": "quantized", "residual_length": 128},
+    "buckets": ["short_chat", "long_rag", "needle_retrieval", "exact_copy"],
+    "checks": ["answer_match", "citation_span", "loop_rate", "ttft", "itl", "oom_rate"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Stress old tokens:</strong> include prompts where the needed evidence appears far before the generated answer, because those K/V states are most likely to be quantized.</li>
+        <li><strong>Watch copy fidelity:</strong> names, numbers, code, and citations expose small attention errors faster than loose chat preferences.</li>
+        <li><strong>Separate residual length:</strong> sweep the unquantized recent-cache window independently from bit width so memory savings and quality loss are attributable.</li>
+        <li><strong>Compare cache and weight changes:</strong> keep the weight checkpoint fixed while testing cache dtype, then test combined weight-plus-cache quantization as a separate profile.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a quantized KV cache pass short prompts but fail long-context tasks?</summary>
+        <p>Short prompts mostly attend over recent full-precision or lightly compressed states. Long contexts force the model to retrieve and combine older cached K/V states, where quantization error and residual-cache policy matter more.</p>
+      </details>
     </section>
 
     <section id="observability" class="band">
@@ -832,8 +860,10 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/perf_analyzer/genai-perf/README.html">NVIDIA GenAI-Perf</a>,
         <a href="https://huggingface.co/docs/text-generation-inference/en/reference/metrics">Hugging Face TGI metrics</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
+        <a href="https://huggingface.co/blog/kv-cache-quantization">Hugging Face KV cache quantization</a>,
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
+        <a href="https://arxiv.org/abs/2402.02750">KIVI KV-cache quantization</a>,
         <a href="https://arxiv.org/abs/2302.01318">Accelerating Large Language Model Decoding with Speculative Sampling</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,

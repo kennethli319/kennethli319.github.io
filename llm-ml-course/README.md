@@ -69,7 +69,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
+- vLLM LoRA adapters: https://docs.vllm.ai/en/stable/features/lora/
 - Hugging Face Text Generation Inference overview: https://huggingface.co/docs/text-generation-inference/en/index
+- Hugging Face TGI LoRA: https://huggingface.co/docs/text-generation-inference/en/conceptual/lora
 - Hugging Face TGI serving engine notes: https://huggingface.co/docs/inference-endpoints/en/engines/tgi
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
 - SGLang documentation: https://docs.sglang.io/
@@ -80,6 +82,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
+- Ray Serve multi-LoRA deployment: https://docs.ray.io/en/latest/serve/llm/user-guides/multi-lora.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
 - TensorRT-LLM quantization: https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html
 - TensorRT-LLM KV cache system: https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html

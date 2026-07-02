@@ -201,6 +201,37 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why should memory accounting happen before a throughput benchmark?</summary>
         <p>A benchmark that admits too much work may measure OOM recovery, queue collapse, or cache eviction instead of model throughput. A conservative memory ledger defines the request mix that the benchmark is allowed to test.</p>
       </details>
+      <h3>Admission Drill: Budget Multi-LoRA Traffic Explicitly</h3>
+      <p>
+        Multi-adapter serving lets one base model handle many fine-tuned tasks,
+        but it is not free capacity. vLLM's LoRA docs expose limits such as
+        <code>max_loras</code> for the number of adapters in one batch and
+        <code>max_lora_rank</code> for the largest supported rank; Ray Serve's
+        multi-LoRA guide forwards the same knobs to the vLLM engine; Hugging
+        Face TGI describes loading multiple PEFT-compatible LoRA models at
+        startup. Treat adapter id and rank as scheduler dimensions alongside
+        prompt tokens, because mixing too many adapters can reduce batching
+        efficiency and reserve memory for ranks the traffic rarely uses.
+      </p>
+      <pre><code>def can_batch_with_loras(candidate, batch, max_loras, max_lora_rank):
+    adapter_ids = {r.adapter_id for r in batch if r.adapter_id is not None}
+    if candidate.adapter_id is not None:
+        adapter_ids.add(candidate.adapter_id)
+    if len(adapter_ids) > max_loras:
+        return False
+    if candidate.lora_rank > max_lora_rank:
+        return False
+    return same_base_model(candidate, batch) and fits_kv_budget(candidate, batch)</code></pre>
+      <ol class="steps">
+        <li><strong>Group by base model first:</strong> LoRA adapters share a resident base model, so requests for different base checkpoints belong in separate capacity pools.</li>
+        <li><strong>Keep rank tight:</strong> set the maximum served rank to the real adapter set instead of a generous placeholder that wastes memory.</li>
+        <li><strong>Limit active adapters:</strong> cap the number of distinct adapters in a batch or replica, then route hot adapters to warm workers before falling back to load-on-demand.</li>
+        <li><strong>Measure slices:</strong> report TTFT, ITL, cache pressure, adapter load time, and batch size by adapter id so one busy tenant does not hide global regressions.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can serving many small LoRA adapters still hurt latency?</summary>
+        <p>The adapter weights are small compared with the base model, but active-adapter limits, rank-sized buffers, routing misses, and reduced batch homogeneity can still add memory pressure and scheduling overhead.</p>
+      </details>
     </section>
 
     <section id="cache-policy" class="band">
@@ -767,7 +798,9 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
         <a href="https://docs.vllm.ai/en/latest/design/paged_attention/">vLLM paged attention design</a>,
         <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
+        <a href="https://docs.vllm.ai/en/stable/features/lora/">vLLM LoRA adapters</a>,
         <a href="https://huggingface.co/docs/text-generation-inference/en/index">Hugging Face TGI overview</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/conceptual/lora">Hugging Face TGI LoRA</a>,
         <a href="https://huggingface.co/docs/inference-endpoints/en/engines/tgi">Hugging Face TGI serving engine notes</a>,
         <a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM quantization</a>,
         <a href="https://docs.vllm.ai/en/stable/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,
@@ -784,6 +817,7 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://github.com/vllm-project/vllm/issues/16016">vLLM cache salting design discussion</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
+        <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/multi-lora.html">Ray Serve multi-LoRA deployment</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html">TensorRT-LLM quantization</a>,

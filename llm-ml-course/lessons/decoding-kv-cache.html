@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#sampling">Sampling</a>
+      <a href="#structured">Structured</a>
       <a href="#cache">KV Cache</a>
       <a href="#speculative">Speculative</a>
       <a href="#serving">Serving</a>
@@ -37,6 +38,34 @@ def temperature_sample(logits, temperature=1.0):
       <details class="qa">
         <summary>Question: Why apply temperature before softmax?</summary>
         <p>Temperature changes the relative logit gaps. After softmax, probabilities are already normalized and scaling them directly would not have the same meaning.</p>
+      </details>
+    </section>
+
+    <section id="structured" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Structured Decoding</p>
+        <h2>Constraints Filter Tokens Before They Are Sampled</h2>
+      </div>
+      <p>
+        Structured generation is not just a stronger prompt. A decoder can
+        compile a schema, regex, grammar, or required phrase set into a state
+        machine, then mask out invalid next tokens at each step. The model still
+        scores the allowed tokens, but the sampler is prevented from choosing a
+        token that would make the output impossible to parse.
+      </p>
+      <pre><code class="language-python">allowed = constraint_state.allowed_token_ids(prefix)
+masked_logits = torch.full_like(logits, float("-inf"))
+masked_logits[..., allowed] = logits[..., allowed]
+next_token = sample(masked_logits, temperature=0.2)
+constraint_state = constraint_state.advance(next_token)</code></pre>
+      <ol class="steps">
+        <li><strong>Use for contracts:</strong> JSON schemas, enums, tool arguments, and required phrases belong in decoding constraints or strict API output modes when downstream code depends on them.</li>
+        <li><strong>Still validate:</strong> constrained decoding improves syntax, but application rules, safety checks, and semantic validation remain separate gates.</li>
+        <li><strong>Measure overhead:</strong> every step now computes an allowed-token mask, so benchmark latency and batching behavior against unconstrained sampling.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What bug does constrained decoding prevent that prompt engineering cannot?</summary>
+        <p>It can make syntactically invalid continuations unreachable by assigning them zero probability before sampling. A prompt can request valid JSON, but the model can still emit an illegal token unless the decoder or API enforces the contract.</p>
       </details>
     </section>
 
@@ -139,7 +168,10 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
-        <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>.
+        <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>,
+        <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs</a>,
+        <a href="https://huggingface.co/blog/constrained-beam-search">Hugging Face constrained beam search</a>,
+        <a href="https://dottxt-ai.github.io/outlines/latest/">Outlines structured generation docs</a>.
       </p>
     </section>
   </main>

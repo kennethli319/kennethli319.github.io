@@ -14,6 +14,7 @@
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
       <a href="#agents">Agents</a>
+      <a href="#tool-traces">Tool Traces</a>
     </nav>
     <p class="eyebrow">Module 09</p>
     <h1>Fine-Tuning, RAG, And Agents</h1>
@@ -91,6 +92,44 @@
         Agents add value when a task requires multi-step tool use, checking
         external state, retrying after failures, or maintaining a work log. They
         add risk when a simple one-shot call would be easier to test and control.
+      </p>
+    </section>
+
+    <section id="tool-traces" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tool Use</p>
+        <h2>Specify The Trace Before You Optimize The Agent</h2>
+      </div>
+      <p>
+        Tool-using agents are easier to evaluate when every step has a typed
+        record: user goal, model decision, tool name, validated arguments, tool
+        result, model observation, retry reason, and final answer. ReAct-style
+        loops make the reasoning/action alternation explicit, while Toolformer
+        highlights that useful tool use includes deciding when to call a tool,
+        what arguments to pass, and how to fold the result back into generation.
+      </p>
+      <pre><code>agent_trace_event = {
+    "request_id": str,
+    "step": int,
+    "decision": "answer" | "call_tool" | "ask_clarifying_question",
+    "tool_name": optional(str),
+    "arguments_valid": bool,
+    "observation_used": bool,
+    "retry_reason": optional(str),
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Unit-test schemas:</strong> reject missing required fields, unknown tools, and unsafe argument shapes before execution.</li>
+        <li><strong>Eval trajectories:</strong> grade not only the final answer, but whether the agent called the right tool at the right time.</li>
+        <li><strong>Log recovery:</strong> capture retries and fallbacks so failures become debuggable traces instead of opaque conversations.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is final-answer accuracy not enough for agent eval?</summary>
+        <p>A lucky final answer can hide unsafe arguments, unnecessary calls, ignored observations, or brittle retry logic. Trace-level eval catches failures that will surface under different tools, users, or state.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2210.03629">ReAct</a>,
+        <a href="https://arxiv.org/abs/2302.04761">Toolformer</a>.
       </p>
     </section>
   </main>

@@ -28,6 +28,8 @@ Open `index.html` locally to read the course without a build step.
   and common implementation bugs.
 - Research reading map: primary papers and official docs for Transformer,
   RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, LoRA, DPO, and RAG.
+- Production serving lesson: scheduler budgets, KV cache policy, prefix caching,
+  chunked prefill, launch gates, metrics, and rollback checks.
 
 ## Suggested Use
 
@@ -49,6 +51,10 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention: https://arxiv.org/abs/2205.14135
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
+- vLLM documentation: https://docs.vllm.ai/
+- vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
+- TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
 - LoRA: https://arxiv.org/abs/2106.09685
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401

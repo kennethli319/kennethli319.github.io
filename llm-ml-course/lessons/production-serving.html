@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production Serving</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#scheduler">Scheduler</a>
+      <a href="#cache-policy">Cache Policy</a>
+      <a href="#launch">Launch Gates</a>
+    </nav>
+    <p class="eyebrow">Module 13</p>
+    <h1>Production Serving</h1>
+    <p class="lede">Turn model internals into a serving plan with latency, memory, quality, and rollback constraints.</p>
+  </header>
+
+  <main>
+    <section id="scheduler" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Scheduler</p>
+        <h2>Separate Prefill Pressure From Decode Pressure</h2>
+      </div>
+      <p>
+        Prefill work is parallel over prompt tokens and can dominate time for
+        long contexts. Decode work adds one token per active sequence and often
+        becomes memory-bandwidth bound because every step reads cached keys and
+        values. Continuous batching keeps the device busy by adding and removing
+        requests at step boundaries instead of waiting for a whole static batch
+        to finish.
+      </p>
+      <pre><code>serving_budget = {
+    "prefill_tokens_per_second": measure_prompt_throughput(),
+    "decode_tokens_per_second": measure_generation_throughput(),
+    "max_active_tokens": floor(kv_memory_budget / kv_bytes_per_token),
+    "tail_latency_guard": p95_ms <= target_ms,
+}</code></pre>
+      <details class="qa">
+        <summary>Question: What does chunked prefill trade off?</summary>
+        <p>It interleaves long prompt processing with decode steps so one large prompt does not monopolize the GPU, but it adds scheduler complexity and may reduce single-request simplicity.</p>
+      </details>
+    </section>
+
+    <section id="cache-policy" class="band">
+      <div class="section-head">
+        <p class="eyebrow">KV Cache</p>
+        <h2>Choose Cache Policy Before You Choose Max Context</h2>
+      </div>
+      <p>
+        KV cache is usually the first hard memory limit for long-context
+        serving. Paged cache managers reduce waste from variable-length
+        requests, prefix caching reuses prompt blocks when many requests share
+        the same prefix, and cache quantization can lower memory use at the cost
+        of extra implementation and quality checks.
+      </p>
+      <ol class="steps">
+        <li><strong>Estimate:</strong> compute KV bytes per token for the target model, dtype, layers, KV heads, and batch.</li>
+        <li><strong>Measure:</strong> benchmark prefill and decode separately under realistic prompt and output lengths.</li>
+        <li><strong>Constrain:</strong> set max model length, max batched tokens, and queue limits from memory and p95 latency data.</li>
+        <li><strong>Optimize:</strong> test paged cache, prefix caching, chunked prefill, quantization, and tensor parallelism one at a time.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can prefix caching be almost invisible to quality?</summary>
+        <p>It reuses exact cached KV blocks for an identical processed prefix, so it avoids duplicate compute without changing the model's logits for that prefix.</p>
+      </details>
+    </section>
+
+    <section id="launch" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Launch Gates</p>
+        <h2>Ship Only After The Runtime Has Tests, Metrics, And Rollback</h2>
+      </div>
+      <p>
+        A serving launch is not just a faster endpoint. It needs regression
+        prompts, load tests, OOM behavior, streaming behavior, safety gates,
+        cost monitoring, and a rollback path to the previous model or decoding
+        configuration.
+      </p>
+      <pre><code>minimum_launch_checks = [
+    "golden prompts unchanged or explained",
+    "p50/p95 latency under expected concurrency",
+    "OOM returns controlled errors, not worker death loops",
+    "streaming emits first token within target",
+    "rollback command tested before launch",
+]</code></pre>
+      <p>
+        Sources:
+        <a href="https://docs.vllm.ai/">vLLM documentation</a>,
+        <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
+        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

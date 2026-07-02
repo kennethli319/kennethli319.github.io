@@ -107,6 +107,29 @@
         <li><strong>Use anchors:</strong> include known-pass, known-fail, and borderline examples in every judge calibration run.</li>
         <li><strong>Escalate drift:</strong> when judge disagreement rises, inspect examples before changing the model, prompt, or rubric threshold.</li>
       </ol>
+      <h3>Implementation Drill: Make Pairwise Grading Auditable</h3>
+      <p>
+        Official eval guidance recommends pairwise or pass/fail grading for
+        reliability, plus checks for position and verbosity bias. A useful
+        pairwise grader should therefore record the candidate order, response
+        lengths, rubric version, judge model version, and whether the same
+        comparison was repeated with the answers swapped.
+      </p>
+      <pre><code>pairwise_grade = {
+    "case_id": "refund_policy_012",
+    "rubric_version": "groundedness-v3",
+    "judge_model": "fixed_model_version",
+    "order": ["candidate_b", "candidate_a"],
+    "winner": "candidate_a",
+    "swapped_order_winner": "candidate_a",
+    "length_delta_tokens": len_b - len_a,
+    "needs_human_review": winner_changes_after_swap or abs(length_delta_tokens) > 150,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Run the swap:</strong> grade A/B and B/A for a sample of cases; disagreement is a position-bias signal, not a model-quality result.</li>
+        <li><strong>Control verbosity:</strong> compare length deltas and inspect cases where the judge consistently prefers longer but less grounded answers.</li>
+        <li><strong>Store enough context:</strong> keep the rubric, inputs, outputs, judge decision, and scorer config so a future model upgrade can replay the same gate.</li>
+      </ol>
       <details class="qa">
         <summary>Question: When should a judge score be a warning instead of a hard block?</summary>
         <p>Use warnings while the rubric is new, human agreement is low, or the failure is low risk. Promote to a hard block only after calibration shows the judge reliably catches product-relevant regressions.</p>
@@ -144,6 +167,7 @@
         Sources:
         <a href="https://github.com/openai/evals">OpenAI Evals</a>,
         <a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals API guide</a>,
+        <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
         <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
         <a href="https://arxiv.org/abs/2211.09110">HELM paper</a>,
         <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>.

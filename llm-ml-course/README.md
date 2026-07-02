@@ -82,6 +82,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401
 - OpenAI Evals: https://github.com/openai/evals
 - OpenAI Evals API guide: https://developers.openai.com/api/docs/guides/evals
+- OpenAI evaluation best practices: https://developers.openai.com/api/docs/guides/evaluation-best-practices
 - Stanford HELM: https://crfm.stanford.edu/helm/
 - Holistic Evaluation of Language Models: https://arxiv.org/abs/2211.09110
 - RAGAS: https://arxiv.org/abs/2309.15217
+- Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena: https://arxiv.org/abs/2306.05685
+- Judging the Judges, position bias in LLM-as-a-Judge: https://arxiv.org/abs/2406.07791

@@ -174,6 +174,29 @@
         <li><strong>Control verbosity:</strong> compare length deltas and inspect cases where the judge consistently prefers longer but less grounded answers.</li>
         <li><strong>Store enough context:</strong> keep the rubric, inputs, outputs, judge decision, and scorer config so a future model upgrade can replay the same gate.</li>
       </ol>
+      <h3>Reliability Drill: Separate Repetition From Position Effects</h3>
+      <p>
+        A judge can be stable and still biased. MT-Bench and Chatbot Arena
+        popularized LLM judges for open-ended answers, while later position-bias
+        work separates repeated-run stability from whether the same candidate
+        wins after order changes. For a launch gate, compute both: repeated
+        agreement on the identical prompt catches sampling or prompt instability,
+        and swap consistency catches order sensitivity.
+      </p>
+      <pre><code>def judge_reliability(grades):
+    # grades: rows with case_id, run_id, order, winner
+    repeated = agreement_same_case_same_order(grades)
+    swapped = agreement_same_case_swapped_order(grades)
+    return {
+        "repetition_stability": repeated,
+        "position_consistency": swapped,
+        "gate_ready": repeated >= 0.9 and swapped >= 0.85,
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Repeat before swapping:</strong> if identical prompts do not produce stable decisions, lower temperature, simplify the rubric, or keep the score as advisory.</li>
+        <li><strong>Then swap order:</strong> a candidate that wins in A/B should still win when presented as B/A unless the answers are truly tied.</li>
+        <li><strong>Report by slice:</strong> judge reliability can differ for coding, retrieval, safety, summarization, and reasoning cases, so do not promote a single global score into a hard gate.</li>
+      </ol>
       <details class="qa">
         <summary>Question: When should a judge score be a warning instead of a hard block?</summary>
         <p>Use warnings while the rubric is new, human agreement is low, or the failure is low risk. Promote to a hard block only after calibration shows the judge reliably catches product-relevant regressions.</p>
@@ -214,7 +237,9 @@
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
         <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
         <a href="https://arxiv.org/abs/2211.09110">HELM paper</a>,
-        <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>.
+        <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>,
+        <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
+        <a href="https://arxiv.org/abs/2406.07791">LLM judge position-bias study</a>.
       </p>
     </section>
   </main>

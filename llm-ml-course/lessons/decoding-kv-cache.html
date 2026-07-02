@@ -62,6 +62,34 @@ while not done:
         <summary>Question: Why does PagedAttention help serving systems?</summary>
         <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>
       </details>
+      <h3>Implementation Drill: Cache Correctness Before Cache Speed</h3>
+      <p>
+        Start with a tiny decode loop that compares cached and uncached logits
+        on the same prompt. Only optimize after the last-token logits match
+        within tolerance; most cache bugs are position, mask, dtype, or append
+        order bugs rather than math bugs.
+      </p>
+      <pre><code class="language-python"># Pseudocode: one test prompt, deterministic mode, no dropout.
+full_logits = model(input_ids, use_cache=False).logits[:, -1]
+
+prefill = model(input_ids[:, :-1], use_cache=True)
+step = model(
+    input_ids[:, -1:],
+    past_key_values=prefill.past_key_values,
+    use_cache=True,
+)
+cached_logits = step.logits[:, -1]
+
+torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</code></pre>
+      <ol class="steps">
+        <li><strong>Mask alignment:</strong> with PyTorch SDPA, make sure the query length and key/value length imply the causal mask you intend, especially when decoding one token against a longer cache.</li>
+        <li><strong>Cache shape:</strong> inspect every layer's K/V tensors as <code>batch, kv_heads, cache_len, head_dim</code> or the local equivalent, then verify that cache length increases by exactly one per decode step.</li>
+        <li><strong>Policy choice:</strong> dynamic caches are convenient for correctness tests; static caches can support compiled generation but require careful max-length budgeting; prefix caching is a serving-layer reuse policy, not a conversation memory feature.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should you test before trusting a hand-written KV cache?</summary>
+        <p>Compare cached and uncached logits, vary prompt length and batch size, test left/right padding if supported, confirm RoPE positions, and run with deterministic sampling so generation noise does not hide cache errors.</p>
+      </details>
     </section>
 
     <section id="speculative" class="band">
@@ -108,7 +136,10 @@ while not done:
         Sources: <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
-        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>.
+        <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
+        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
+        <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>.
       </p>
     </section>
   </main>

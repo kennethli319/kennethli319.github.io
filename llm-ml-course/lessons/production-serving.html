@@ -43,6 +43,26 @@
         <summary>Question: What does chunked prefill trade off?</summary>
         <p>It interleaves long prompt processing with decode steps so one large prompt does not monopolize the GPU, but it adds scheduler complexity and may reduce single-request simplicity.</p>
       </details>
+      <h3>Latency Drill: Tune TTFT And ITL Separately</h3>
+      <p>
+        Do not collapse serving latency into one average. Time-to-first-token
+        mostly exposes queueing and prefill pressure, while inter-token latency
+        exposes decode-step contention. vLLM's chunked prefill guidance frames
+        <code>max_num_batched_tokens</code> as a throughput and latency knob:
+        smaller token budgets can protect decode latency, while larger budgets
+        admit more prefill work per iteration. TensorRT-LLM's in-flight batching
+        uses the same core idea of changing the active request set during the
+        generation loop instead of waiting for a static batch to drain.
+      </p>
+      <ol class="steps">
+        <li><strong>Measure separately:</strong> record queue time, prefill time, first-token time, and per-token decode time.</li>
+        <li><strong>Stress long prompts:</strong> mix short chat requests with long-context requests and watch whether decode tokens stall behind prefill chunks.</li>
+        <li><strong>Change one knob:</strong> sweep max batched tokens or partial-prefill limits before changing model, quantization, or hardware.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a setting improve TTFT but hurt ITL?</summary>
+        <p>Letting the scheduler admit more prefill tokens per iteration can reduce how long new prompts wait for their first forward pass, but those prefill chunks can interrupt decode iterations for already-streaming requests.</p>
+      </details>
     </section>
 
     <section id="cache-policy" class="band">
@@ -90,8 +110,10 @@
       <p>
         Sources:
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
+        <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/">TensorRT-LLM documentation</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/overview.html">TensorRT-LLM overview</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
       </p>
     </section>

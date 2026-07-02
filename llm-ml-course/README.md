@@ -32,6 +32,8 @@ Open `index.html` locally to read the course without a build step.
 - Production serving lesson: scheduler budgets, prefill/decode disaggregation,
   KV cache policy, prefix caching, chunked prefill, admission control,
   speculative decoding gates, launch gates, metrics, and rollback checks.
+- Evaluation lesson: eval case schemas, rubrics, LLM judge calibration,
+  regression gates, operational metrics, and rollback evidence.
 
 ## Suggested Use
 
@@ -76,3 +78,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - LoRA: https://arxiv.org/abs/2106.09685
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401
+- OpenAI Evals: https://github.com/openai/evals
+- OpenAI Evals API guide: https://developers.openai.com/api/docs/guides/evals
+- Stanford HELM: https://crfm.stanford.edu/helm/
+- Holistic Evaluation of Language Models: https://arxiv.org/abs/2211.09110
+- RAGAS: https://arxiv.org/abs/2309.15217

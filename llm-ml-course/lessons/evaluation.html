@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evaluation And Regression Gates</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701b">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#record">Eval Record</a>
+      <a href="#rubrics">Rubrics</a>
+      <a href="#judges">Judges</a>
+      <a href="#gates">Gates</a>
+    </nav>
+    <p class="eyebrow">Module 12</p>
+    <h1>Evaluation And Regression Gates</h1>
+    <p class="lede">Turn demos into repeatable checks for quality, grounding, safety, latency, and cost.</p>
+  </header>
+
+  <main>
+    <section id="record" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Dataset Shape</p>
+        <h2>Make Every Eval Case Explain The Failure Mode</h2>
+      </div>
+      <p>
+        A useful LLM eval is not just a prompt and a score. It records the task,
+        inputs, expected behavior, allowed tools or sources, scoring method,
+        model output, trace metadata, and the reason a failure matters. That
+        makes regressions actionable instead of becoming a vague leaderboard
+        number.
+      </p>
+      <pre><code>eval_case = {
+    "id": "refund_policy_012",
+    "capability": "retrieval_grounded_answer",
+    "prompt": str,
+    "allowed_sources": list[str],
+    "expected_claims": list[str],
+    "forbidden_claims": list[str],
+    "scorers": ["exact_check", "citation_check", "rubric_judge"],
+    "metadata": {"split": "regression", "risk": "customer_visible"},
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Split by risk:</strong> keep smoke tests, regression tests, adversarial tests, and exploratory benchmark runs separate.</li>
+        <li><strong>Keep provenance:</strong> store source ids or public URLs for grounding checks, but do not publish private eval rows.</li>
+        <li><strong>Log the trace:</strong> capture retrieved chunks, tool calls, latency, token counts, and judge rationales when they are part of the contract.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a single aggregate score dangerous?</summary>
+        <p>It can hide which capability failed, whether the failure is high risk, and whether the fix belongs in retrieval, prompting, model choice, decoding, or product policy.</p>
+      </details>
+    </section>
+
+    <section id="rubrics" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Rubrics</p>
+        <h2>Grade The Behavior You Would Actually Block On</h2>
+      </div>
+      <p>
+        HELM frames evaluation as scenarios plus metrics rather than one universal
+        score. Use the same habit for product evals: define the scenario first,
+        then choose metrics that match the user promise. For a RAG answer, grade
+        retrieval recall, citation support, answer relevance, refusal behavior,
+        and latency separately.
+      </p>
+      <pre><code>rubric = [
+    ("answer_relevance", "Resolves the user request without dodging it."),
+    ("faithfulness", "Every factual claim is supported by cited context."),
+    ("source_precision", "Citations point to the right retrieved chunks."),
+    ("policy_fit", "Refuses or limits unsafe requests when required."),
+    ("latency_budget", "p95 stays under the launch threshold."),
+]</code></pre>
+      <ol class="steps">
+        <li><strong>Prefer deterministic checks first:</strong> exact match, schema validation, citation existence, and tool-argument validation are cheaper and more stable than judge calls.</li>
+        <li><strong>Use graded rubrics for judgment:</strong> helpfulness, faithfulness, harmlessness, and instruction following often need a rubric with examples.</li>
+        <li><strong>Track slices:</strong> report by prompt type, language, document source, tool path, and difficulty so one easy slice cannot cover a hard-slice regression.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the difference between a benchmark and a regression gate?</summary>
+        <p>A benchmark compares broad model behavior. A regression gate protects a specific product contract and should block launches when high-risk cases get worse.</p>
+      </details>
+    </section>
+
+    <section id="judges" class="band">
+      <div class="section-head">
+        <p class="eyebrow">LLM Judges</p>
+        <h2>Calibrate Judges Before Trusting Their Scores</h2>
+      </div>
+      <p>
+        LLM-as-judge can speed up qualitative evaluation, but the judge is
+        another model component. Treat it like a noisy classifier: freeze the
+        rubric, use blind grading when possible, compare against human-reviewed
+        examples, and measure agreement before making it a release gate.
+      </p>
+      <pre><code>judge_report = {
+    "judge_model": "fixed_model_version",
+    "rubric_version": "groundedness-v3",
+    "human_agreement": 0.84,
+    "known_bias_checks": ["position", "verbosity", "self-preference"],
+    "decision": "warn" if human_agreement < 0.8 else "gate",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Blind the judge:</strong> hide model names and randomize answer order for pairwise comparisons.</li>
+        <li><strong>Use anchors:</strong> include known-pass, known-fail, and borderline examples in every judge calibration run.</li>
+        <li><strong>Escalate drift:</strong> when judge disagreement rises, inspect examples before changing the model, prompt, or rubric threshold.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: When should a judge score be a warning instead of a hard block?</summary>
+        <p>Use warnings while the rubric is new, human agreement is low, or the failure is low risk. Promote to a hard block only after calibration shows the judge reliably catches product-relevant regressions.</p>
+      </details>
+    </section>
+
+    <section id="gates" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Launch Gates</p>
+        <h2>Ship Only When Quality And Operations Move Together</h2>
+      </div>
+      <p>
+        A model update can improve answer quality while breaking cost, latency,
+        tool reliability, or safety behavior. Build launch gates that compare
+        the candidate against the current production profile across both answer
+        quality and system metrics.
+      </p>
+      <pre><code>launch_gate = (
+    quality_score >= baseline_quality - allowed_delta
+    and high_risk_failures == 0
+    and p95_latency_ms <= latency_budget_ms
+    and cost_per_1k_requests <= cost_budget
+    and rollback_plan_tested
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Compare to baseline:</strong> run the same eval cases against current production and the candidate, then inspect deltas, not just absolute scores.</li>
+        <li><strong>Block severe failures:</strong> a small average gain should not ship if safety, citation, or tool-argument cases newly fail.</li>
+        <li><strong>Keep artifacts:</strong> save run config, model versions, prompts, tokenizer or chat template versions, and scorer versions for reproducibility.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should be in the rollback note?</summary>
+        <p>The production profile to restore, the config flag or deployment action, the eval evidence that triggered rollback, and the owner who verifies recovery.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://github.com/openai/evals">OpenAI Evals</a>,
+        <a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals API guide</a>,
+        <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
+        <a href="https://arxiv.org/abs/2211.09110">HELM paper</a>,
+        <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

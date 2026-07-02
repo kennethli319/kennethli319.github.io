@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#finetune">Fine-Tuning</a>
+      <a href="#qlora">QLoRA</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
       <a href="#hybrid-retrieval">Hybrid Retrieval</a>
@@ -49,6 +50,42 @@
 
     def forward(self, x):
         return self.base(x) + self.b(self.a(x)) * self.scale</code></pre>
+    </section>
+
+    <section id="qlora" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Quantized Fine-Tuning</p>
+        <h2>QLoRA Trains Adapters Through A Frozen 4-Bit Base</h2>
+      </div>
+      <p>
+        QLoRA keeps the pretrained model frozen and quantized, then backpropagates
+        through it into small LoRA adapter weights. The paper's practical memory
+        recipe combines NF4 quantization, double quantization, and paged optimizers.
+        Treat that as a training configuration, not as permission to update or
+        permanently save the base checkpoint in 4-bit form.
+      </p>
+      <pre><code class="language-python">qlora_contract = {
+    "base_weights": "frozen 4-bit model used for forward/backward",
+    "trainable_weights": "LoRA adapter matrices only",
+    "optimizer_state": "adapter parameters, often memory-reduced",
+    "merge_for_serving": "reload base at serving dtype, then merge or load adapter",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Freeze audit:</strong> after wrapping the model, count trainable parameters and confirm only adapter modules require gradients.</li>
+        <li><strong>Dtype audit:</strong> record compute dtype, quantization type, and double-quantization setting so a later run can reproduce memory and quality.</li>
+        <li><strong>Adapter audit:</strong> save adapter config, tokenizer changes, and target module names; a missing module match can silently leave capacity on the table.</li>
+        <li><strong>Serving audit:</strong> decide whether production loads base plus adapter, merges adapters into a higher-precision base, or serves multiple adapters on one resident base model.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is QLoRA not just "training a 4-bit model"?</summary>
+        <p>The base model is quantized and frozen to save memory, while the learned change lives in trainable LoRA adapter weights. Gradients pass through the quantized base computation, but the base weights are not the parameters being optimized.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2305.14314">QLoRA paper</a>,
+        <a href="https://huggingface.co/docs/peft/package_reference/lora">Hugging Face PEFT LoRA docs</a>,
+        <a href="https://huggingface.co/docs/bitsandbytes/en/optimizers">Hugging Face bitsandbytes optimizer docs</a>.
+      </p>
     </section>
 
     <section id="preference" class="band">

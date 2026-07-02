@@ -111,6 +111,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Hugging Face universal assisted generation: https://huggingface.co/blog/universal_assisted_generation
 - Decoding Speculative Decoding: https://arxiv.org/abs/2402.01528
 - LoRA: https://arxiv.org/abs/2106.09685
+- QLoRA: https://arxiv.org/abs/2305.14314
+- Hugging Face PEFT LoRA docs: https://huggingface.co/docs/peft/package_reference/lora
+- Hugging Face bitsandbytes optimizer docs: https://huggingface.co/docs/bitsandbytes/en/optimizers
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Hugging Face TRL DPOTrainer: https://huggingface.co/docs/trl/en/dpo_trainer
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401

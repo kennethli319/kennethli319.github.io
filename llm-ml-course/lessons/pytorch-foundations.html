@@ -63,6 +63,45 @@ def cross_entropy_from_logits(logits: torch.Tensor, target: torch.Tensor) -> tor
 def rms_norm(x, weight, eps=1e-6):
     rms = x.pow(2).mean(dim=-1, keepdim=True)
     return x * torch.rsqrt(rms + eps) * weight</code></pre>
+      <h3>Implementation Drill: Test RMSNorm Without Accidentally Recentering</h3>
+      <p>
+        RMSNorm keeps the rescaling part of LayerNorm but removes mean
+        subtraction. The original RMSNorm paper frames this as preserving
+        re-scaling invariance while dropping re-centering, and PyTorch exposes
+        the layer as <code>torch.nn.RMSNorm</code> with an optional per-element
+        affine weight. A good unit test should therefore compare your function
+        with the library module and also prove that shifted inputs are not
+        treated like LayerNorm.
+      </p>
+      <pre><code class="language-python">def test_rms_norm_matches_pytorch():
+    torch.manual_seed(0)
+    x = torch.randn(3, 5, dtype=torch.float32)
+    weight = torch.randn(5)
+
+    expected = torch.nn.RMSNorm(5, eps=1e-6)
+    expected.weight.data.copy_(weight)
+
+    actual = rms_norm(x, weight, eps=1e-6)
+    torch.testing.assert_close(actual, expected(x), rtol=1e-6, atol=1e-6)
+
+    shifted = x + 10.0
+    ln = torch.nn.LayerNorm(5, elementwise_affine=False)
+    assert torch.allclose(ln(x), ln(shifted), atol=1e-5)
+    assert not torch.allclose(rms_norm(x, weight), rms_norm(shifted, weight))</code></pre>
+      <ol class="steps">
+        <li><strong>Match the module:</strong> compare shape, dtype, epsilon, and affine-weight behavior against <code>torch.nn.RMSNorm</code> before using a hand-written layer.</li>
+        <li><strong>Do not subtract the mean:</strong> RMSNorm should change when a large constant is added to the hidden state, while affine-free LayerNorm should not.</li>
+        <li><strong>Set epsilon deliberately:</strong> PyTorch accepts <code>eps=None</code>, but course code should pass an explicit value so tests are stable across dtypes.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What bug does the shifted-input check catch?</summary>
+        <p>It catches an implementation that silently became LayerNorm by subtracting the mean before computing the scale.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://arxiv.org/abs/1910.07467">Root Mean Square Layer Normalization</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.RMSNorm.html">PyTorch RMSNorm reference</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html">PyTorch LayerNorm reference</a>.
+      </p>
     </section>
 
     <section id="training" class="band">

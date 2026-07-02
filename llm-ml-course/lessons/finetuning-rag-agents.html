@@ -275,12 +275,44 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <summary>Question: Why is an approval prompt not enough by itself?</summary>
         <p>The system also needs durable state, a typed pending action, a resume path, and trace evidence. Otherwise a denied or delayed approval can leave the agent in an ambiguous state that is hard to test or audit.</p>
       </details>
+      <h3>Implementation Drill: Treat Tool Calls As Validated Transactions</h3>
+      <p>
+        A tool schema helps the model propose structured arguments, but the
+        application still owns validation, authorization, execution, and result
+        handling. Before a tool call touches external state, parse the
+        arguments against the declared schema, apply a permission policy, record
+        an idempotency key, and store the result as a typed observation rather
+        than untrusted free text. MCP uses tool metadata and input schemas to
+        expose executable capabilities, while OpenAI function calling uses
+        JSON-schema-style tool definitions to let the model request application
+        actions.
+      </p>
+      <pre><code>tool_transaction = {
+    "tool_name": "create_calendar_event",
+    "arguments": validated_json,
+    "permission": "approved | denied | read_only",
+    "idempotency_key": request_id + ":" + step_id,
+    "result": typed_tool_result,
+    "observation_visible_to_model": summarized_result,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Validate twice:</strong> check model-produced arguments before execution and tool-produced results before feeding them back into the agent state.</li>
+        <li><strong>Separate permission from parsing:</strong> a schema-valid request can still require approval, tenant checks, rate limits, or a dry-run preview.</li>
+        <li><strong>Make writes idempotent:</strong> retries after a timeout should not create duplicate emails, tickets, purchases, or database mutations.</li>
+        <li><strong>Constrain observations:</strong> strip secrets, huge payloads, and prompt-injection text from tool results before the model sees them.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What does a valid tool-call schema not guarantee?</summary>
+        <p>It does not prove the action is authorized, safe, useful, idempotent, or semantically correct. It only narrows the shape of the proposed arguments, so runtime policy and result validation remain required.</p>
+      </details>
       <p>
         Sources:
         <a href="https://developers.openai.com/api/docs/guides/agents">OpenAI Agents SDK guide</a>,
+        <a href="https://developers.openai.com/api/docs/guides/function-calling">OpenAI function calling guide</a>,
         <a href="https://openai.github.io/openai-agents-python/tracing/">OpenAI Agents SDK tracing</a>,
         <a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK guardrails</a>,
         <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol introduction</a>,
+        <a href="https://modelcontextprotocol.io/specification/2025-03-26/server/tools">MCP tools specification</a>,
         <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a>.
       </p>
     </section>

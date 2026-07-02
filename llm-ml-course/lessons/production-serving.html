@@ -107,6 +107,42 @@
         <summary>Question: Why is decode-first scheduling not the same as ignoring prefill?</summary>
         <p>Prefill still enters every iteration when there is token budget left, but it is chunked so long prompts share the device with active streams instead of blocking their next token.</p>
       </details>
+      <h3>Batching Drill: Keep The Active Batch Shape Honest</h3>
+      <p>
+        ORCA introduced iteration-level scheduling and selective batching to
+        avoid treating a whole generation request as one indivisible batch
+        item. Current serving engines expose the same operational lesson:
+        TensorRT-LLM describes in-flight batching as adding newly arrived
+        requests and returning completed ones at each generation-loop
+        iteration, while Hugging Face TGI advertises continuous batching with
+        streaming. A practical scheduler should therefore account for each
+        request phase, current cache length, promised output budget, and
+        adapter or prefix-cache constraints before it packs the next step.
+      </p>
+      <pre><code>def build_iteration_batch(waiting, running, limits):
+    candidates = [r for r in running if r.needs_next_token()]
+    candidates += pick_prefill_chunks(waiting, limits.prefill_token_budget)
+
+    batch = []
+    for request in sorted(candidates, key=batching_priority):
+        if not fits_kv_blocks(request, batch, limits.free_kv_blocks):
+            continue
+        if not compatible_adapter_set(request, batch, limits.max_loras):
+            continue
+        if not fits_token_budget(request, batch, limits.max_batched_tokens):
+            continue
+        batch.append(request)
+    return batch</code></pre>
+      <ol class="steps">
+        <li><strong>Schedule iterations:</strong> let completed streams leave and late arrivals enter between token steps instead of pinning one static batch until every request finishes.</li>
+        <li><strong>Batch by compatible work:</strong> group requests that can share model weights, adapter limits, cache policy, and kernel assumptions before chasing a larger batch size.</li>
+        <li><strong>Protect short streams:</strong> track whether long prompts, high max-output promises, or cache-heavy adapters are crowding out low-latency decode work.</li>
+        <li><strong>Report the shape:</strong> log active sequences, prefill tokens, decode tokens, KV blocks, adapter ids, and dropped candidates for each scheduler iteration.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a larger batch reduce user-visible throughput?</summary>
+        <p>If the batch mixes incompatible phases or overcommits KV/cache-adapter limits, it can increase queueing, stall streaming decode, or force retries even when raw tokens per forward pass look higher.</p>
+      </details>
     </section>
 
     <section id="disaggregation" class="band">

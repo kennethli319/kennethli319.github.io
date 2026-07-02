@@ -65,6 +65,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch torch.multinomial: https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - Grouped-Query Attention: https://arxiv.org/abs/2305.13245
+- ORCA iteration-level scheduling: https://www.usenix.org/conference/osdi22/presentation/yu
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
@@ -84,6 +85,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - Ray Serve multi-LoRA deployment: https://docs.ray.io/en/latest/serve/llm/user-guides/multi-lora.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- TensorRT-LLM in-flight batching overview: https://nvidia.github.io/TensorRT-LLM/overview.html
 - TensorRT-LLM quantization: https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html
 - TensorRT-LLM KV cache system: https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html
 - TensorRT-LLM KV cache reuse: https://nvidia.github.io/TensorRT-LLM/advanced/kv-cache-reuse.html

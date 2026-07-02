@@ -240,6 +240,34 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why is prefix-cache salting different from prompt caching?</summary>
         <p>Prompt caching describes reusing identical computed prefixes. Salting controls who is allowed to share that reuse; it can intentionally split identical token prefixes into separate cache namespaces.</p>
       </details>
+      <h3>Implementation Drill: Put Stable Prompt Parts First</h3>
+      <p>
+        Prefix reuse only helps when requests share the same initial token
+        sequence. OpenAI's prompt-caching guide recommends placing static
+        instructions, examples, images, and tools before user-specific content,
+        and reports cache-hit tokens through <code>cached_tokens</code>. vLLM's
+        automatic prefix caching works at the KV-cache block level, so partial
+        matches are rounded by block boundaries and by the server's cache
+        namespace. In both cases, prompt layout is a serving concern as much as
+        a prompting concern.
+      </p>
+      <pre><code>prompt = [
+    stable_system_instructions,
+    stable_tool_schemas,
+    stable_few_shot_examples,
+    tenant_or_task_context,
+    latest_user_request,
+]</code></pre>
+      <ol class="steps">
+        <li><strong>Stabilize the prefix:</strong> keep shared instructions and schemas byte-for-byte stable across requests before appending volatile user data.</li>
+        <li><strong>Track hits:</strong> log provider cache fields such as <code>cached_tokens</code> or engine metrics such as prefix-cache hit rate alongside TTFT.</li>
+        <li><strong>Do not overpromise:</strong> caching can reduce prefill cost and latency, but it does not reduce output-token work or fix slow decode.</li>
+        <li><strong>Guard privacy:</strong> combine prompt layout with cache namespace or salt policy when identical prefixes should not be shared across tenants.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can moving user-specific text earlier make serving slower?</summary>
+        <p>It breaks the exact shared prefix, so later requests may miss the prompt or KV prefix cache even when most of the prompt template is the same.</p>
+      </details>
     </section>
 
     <section id="speculation" class="band">
@@ -369,6 +397,7 @@ active_token_budget = estimate_decode_capacity(
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM prefix caching design</a>,
         <a href="https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html">vLLM automatic prefix caching</a>,
+        <a href="https://developers.openai.com/api/docs/guides/prompt-caching">OpenAI prompt caching</a>,
         <a href="https://docs.vllm.ai/en/stable/design/metrics/">vLLM metrics</a>,
         <a href="https://github.com/vllm-project/vllm/issues/16016">vLLM cache salting design discussion</a>,
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,

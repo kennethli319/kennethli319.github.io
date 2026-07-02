@@ -56,6 +56,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
+- OpenAI prompt caching: https://developers.openai.com/api/docs/guides/prompt-caching
 - vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html

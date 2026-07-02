@@ -131,6 +131,44 @@ out = torch.nn.functional.scaled_dot_product_attention(
         <summary>Question: Why not just reduce the number of query heads too?</summary>
         <p>GQA keeps multiple query heads while sharing fewer key/value heads, so it aims for a middle ground: lower KV cache bandwidth and memory than MHA while preserving more attention capacity than MQA.</p>
       </details>
+      <h3>Reading Note: Treat <code>enable_gqa</code> As A Kernel Contract</h3>
+      <p>
+        PyTorch's SDPA API can repeat key and value heads internally when
+        <code>enable_gqa=True</code>, but the flag is not a license to pass any
+        head layout. The public contract is the same one the GQA paper makes
+        visible: query heads are grouped over fewer key/value heads. Keep the
+        slow repeated-KV path as a reference test, then use the fused path only
+        after the shape and backend constraints are explicit.
+      </p>
+      <pre><code class="language-python">def assert_gqa_contract(q, k, v):
+    q_heads = q.size(-3)
+    k_heads = k.size(-3)
+    v_heads = v.size(-3)
+    assert k_heads == v_heads
+    assert q_heads % k_heads == 0
+
+ref = F.scaled_dot_product_attention(
+    q,
+    repeat_kv_for_gqa(k, q.size(-3)),
+    repeat_kv_for_gqa(v, q.size(-3)),
+    dropout_p=0.0,
+    is_causal=True,
+)
+
+assert_gqa_contract(q, k, v)
+fused = F.scaled_dot_product_attention(
+    q, k, v, dropout_p=0.0, is_causal=True, enable_gqa=True
+)
+torch.testing.assert_close(fused, ref, rtol=1e-5, atol=1e-5)</code></pre>
+      <ol class="steps">
+        <li><strong>Use the flag for production shape:</strong> pass fewer KV heads to the kernel so the cache layout matches the model, not an expanded debugging tensor.</li>
+        <li><strong>Keep the reference path:</strong> explicit repetition is easier to inspect in unit tests and catches accidental head-order changes.</li>
+        <li><strong>Check backend support:</strong> PyTorch documents GQA support as backend-limited, so benchmark the exact dtype, device, head dimension, and sequence shape you plan to serve.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What mistake does the repeated-KV reference prevent?</summary>
+        <p>It catches implementations that reduce memory by using fewer KV heads but accidentally map query heads to the wrong shared key/value head.</p>
+      </details>
       <h3>Implementation Drill: Build The Head-Layout Memory Ledger</h3>
       <p>
         MQA was proposed for faster incremental decoding because decode steps

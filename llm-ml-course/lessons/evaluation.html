@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#record">Eval Record</a>
+      <a href="#slices">Slices</a>
       <a href="#rag-eval">RAG Eval</a>
       <a href="#rubrics">Rubrics</a>
       <a href="#judges">Judges</a>
@@ -53,6 +54,54 @@
         <summary>Question: Why is a single aggregate score dangerous?</summary>
         <p>It can hide which capability failed, whether the failure is high risk, and whether the fix belongs in retrieval, prompting, model choice, decoding, or product policy.</p>
       </details>
+    </section>
+
+    <section id="slices" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Comparison Discipline</p>
+        <h2>Compare Candidates By Paired Case Deltas</h2>
+      </div>
+      <p>
+        OpenAI's eval guidance emphasizes testing expected production behavior,
+        and HELM frames evaluation as scenarios plus multiple metrics. Combine
+        those ideas in local launch gates: score the current baseline and the
+        candidate on the same cases, compute per-case deltas, and report the
+        slices that matter before looking at the aggregate. This catches
+        changes such as a model improving easy chat answers while regressing on
+        long RAG, tool arguments, or safety refusals.
+      </p>
+      <pre><code>def paired_slice_report(rows):
+    # rows: case_id, slice, baseline_score, candidate_score
+    by_slice = {}
+    for row in rows:
+        delta = row["candidate_score"] - row["baseline_score"]
+        by_slice.setdefault(row["slice"], []).append(delta)
+
+    return {
+        name: {
+            "cases": len(deltas),
+            "mean_delta": sum(deltas) / len(deltas),
+            "regressions": sum(d < 0 for d in deltas),
+            "worst_delta": min(deltas),
+        }
+        for name, deltas in by_slice.items()
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Pair the cases:</strong> run baseline and candidate on the same prompts, tools, retrieved context, sampling profile, and scorer version.</li>
+        <li><strong>Slice first:</strong> report deltas for retrieval, coding, structured output, safety, long context, and latency-sensitive cases before merging scores.</li>
+        <li><strong>Inspect tails:</strong> a small positive mean should not hide a severe regression on a high-risk case or product-critical slice.</li>
+        <li><strong>Keep uncertainty visible:</strong> when the slice is small or judge noise is high, repeat or human-review borderline cases instead of overfitting a threshold.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why compare per-case deltas instead of two independent averages?</summary>
+        <p>The paired comparison controls for case difficulty. It shows which exact prompts improved or regressed, making the launch decision easier to audit and debug.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
+        <a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals guide</a>,
+        <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>.
+      </p>
     </section>
 
     <section id="rag-eval" class="band">

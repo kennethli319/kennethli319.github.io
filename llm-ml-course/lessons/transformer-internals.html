@@ -286,13 +286,46 @@ except RuntimeError as exc:
         <summary>Question: What should you still understand if PyTorch provides the kernel?</summary>
         <p>You still need to reason about tensor layout, causal and padding masks, dropout behavior, dtype, sequence length, memory use, and whether your input shape can use the optimized backend.</p>
       </details>
+      <h3>Implementation Checklist: Make <code>nn.MultiheadAttention</code> Hit The Fast Path</h3>
+      <p>
+        PyTorch's reference <code>nn.MultiheadAttention</code> can call
+        <code>scaled_dot_product_attention</code> when possible, but the
+        highest-speed inference path is a contract between module settings,
+        tensor layout, masks, and autograd state. Treat it as something to
+        assert in a benchmark harness, not something to assume from the layer
+        name alone.
+      </p>
+      <pre><code class="language-python">mha = torch.nn.MultiheadAttention(
+    embed_dim=768,
+    num_heads=12,
+    batch_first=True,
+).eval()
+
+with torch.inference_mode():
+    # Self-attention: query, key, and value are the same batched tensor.
+    y, _ = mha(
+        x, x, x,
+        need_weights=False,  # allows the optimized SDPA path
+    )</code></pre>
+      <ol class="steps">
+        <li><strong>Prefer batch-first self-attention:</strong> the documented inference fastpath expects 3D batched inputs with <code>batch_first=True</code> and <code>query</code>, <code>key</code>, and <code>value</code> as the same tensor.</li>
+        <li><strong>Disable training overhead:</strong> run under <code>.eval()</code> and <code>torch.inference_mode()</code> or otherwise ensure no tensor argument requires gradients.</li>
+        <li><strong>Request no weights:</strong> pass <code>need_weights=False</code> when attention maps are not part of the product requirement, because returning weights can block the optimized SDPA route.</li>
+        <li><strong>Keep projection shapes simple:</strong> leave <code>add_bias_kv</code> and <code>add_zero_attn</code> off, and keep <code>kdim</code> and <code>vdim</code> equal to <code>embed_dim</code> for the fast inference conditions.</li>
+        <li><strong>Benchmark mask choices:</strong> padding and attention masks change eligibility and backend behavior; measure the exact shape, dtype, mask, and autocast setting used in serving.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a correct MHA layer still miss the fastest inference path?</summary>
+        <p>Correctness and dispatch eligibility are different contracts. A layer can compute the right attention while still returning weights, tracking gradients, using unsupported masks, or using projection settings that make PyTorch choose a slower path.</p>
+      </details>
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
         <a href="https://arxiv.org/abs/1911.02150">Multi-Query Attention</a>,
         <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
-        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>.
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">PyTorch MultiheadAttention docs</a>.
       </p>
     </section>
   </main>

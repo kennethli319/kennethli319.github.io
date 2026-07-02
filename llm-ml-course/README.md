@@ -69,6 +69,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM documentation: https://docs.vllm.ai/
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
+- Hugging Face Text Generation Inference overview: https://huggingface.co/docs/text-generation-inference/en/index
+- Hugging Face TGI serving engine notes: https://huggingface.co/docs/inference-endpoints/en/engines/tgi
 - vLLM prefix caching design: https://docs.vllm.ai/en/stable/design/prefix_caching/
 - OpenAI prompt caching: https://developers.openai.com/api/docs/guides/prompt-caching
 - vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/

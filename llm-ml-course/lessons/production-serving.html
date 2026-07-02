@@ -68,6 +68,45 @@
         <summary>Question: Why can a setting improve TTFT but hurt ITL?</summary>
         <p>Letting the scheduler admit more prefill tokens per iteration can reduce how long new prompts wait for their first forward pass, but those prefill chunks can interrupt decode iterations for already-streaming requests.</p>
       </details>
+      <h3>Scheduler Drill: Decode-First Continuous Batching</h3>
+      <p>
+        A serving scheduler is choosing which token work enters each forward
+        pass. PagedAttention makes variable-length requests cheaper to pack by
+        storing KV blocks non-contiguously, while continuous batching lets
+        completed streams leave and new streams enter between decode steps.
+        vLLM's optimization guide adds chunked prefill so long prompts can be
+        split into smaller token chunks and batched with decode work; Hugging
+        Face TGI exposes the same production goal by combining continuous
+        batching, streaming, Flash Attention, Paged Attention, and KV caching.
+        A practical policy is to protect streaming decode first, then spend
+        remaining token budget on prefill chunks.
+      </p>
+      <pre><code>def schedule_step(waiting_prefills, running_decodes, token_budget):
+    batch = []
+    for request in running_decodes:
+        if token_budget == 0:
+            break
+        batch.append(("decode_one_token", request))
+        token_budget -= 1
+
+    for request in waiting_prefills:
+        if token_budget == 0:
+            break
+        chunk = min(request.remaining_prompt_tokens, token_budget)
+        batch.append(("prefill_chunk", request, chunk))
+        token_budget -= chunk
+
+    return batch</code></pre>
+      <ol class="steps">
+        <li><strong>Preserve streams:</strong> reserve decode slots for already-streaming requests before admitting large prompt chunks.</li>
+        <li><strong>Bound prompt chunks:</strong> tune the batched-token budget so one long context improves TTFT without starving ITL for active users.</li>
+        <li><strong>Pair with paged cache:</strong> admission still needs enough free KV blocks for each promised prompt and output token after block rounding.</li>
+        <li><strong>Watch both counters:</strong> a scheduler win should show prompt-token throughput without a p95 ITL regression for running streams.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is decode-first scheduling not the same as ignoring prefill?</summary>
+        <p>Prefill still enters every iteration when there is token budget left, but it is chunked so long prompts share the device with active streams instead of blocking their next token.</p>
+      </details>
     </section>
 
     <section id="disaggregation" class="band">
@@ -670,6 +709,8 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://docs.vllm.ai/">vLLM documentation</a>,
         <a href="https://docs.vllm.ai/en/latest/design/paged_attention/">vLLM paged attention design</a>,
         <a href="https://docs.vllm.ai/en/stable/configuration/optimization/">vLLM optimization and chunked prefill</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/index">Hugging Face TGI overview</a>,
+        <a href="https://huggingface.co/docs/inference-endpoints/en/engines/tgi">Hugging Face TGI serving engine notes</a>,
         <a href="https://docs.vllm.ai/en/latest/features/quantization/">vLLM quantization</a>,
         <a href="https://docs.vllm.ai/en/stable/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,
         <a href="https://docs.vllm.ai/en/v0.4.2/models/performance.html">vLLM performance and chunked prefill tuning</a>,

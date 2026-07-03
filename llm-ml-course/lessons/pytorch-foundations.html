@@ -166,6 +166,56 @@ class CheckpointedBlock(torch.nn.Module):
         <summary>Question: Why can checkpointing fix OOM but slow training?</summary>
         <p>It saves activation memory during forward, but backward must rerun the checkpointed forward computation. The right checkpoint boundary is therefore a memory-compute tradeoff, not a pure optimization.</p>
       </details>
+      <h3>Policy Drill: Save Expensive Ops, Recompute Cheap Ops</h3>
+      <p>
+        Plain checkpointing recomputes the whole wrapped region. Selective
+        activation checkpointing lets the policy keep expensive operations,
+        such as matrix multiplies, while still recomputing cheaper pointwise
+        work. In transformer training, this gives a more useful knob than
+        "checkpoint this block or not": keep attention and MLP matmuls from
+        being replayed first, then measure whether the remaining recompute
+        saves enough activation memory to justify the complexity.
+      </p>
+      <pre><code class="language-python">import functools
+from torch.utils.checkpoint import (
+    CheckpointPolicy,
+    checkpoint,
+    create_selective_checkpoint_contexts,
+)
+
+ops_to_save = [
+    torch.ops.aten.mm.default,
+    torch.ops.aten.bmm.default,
+    torch.ops.aten.addmm.default,
+]
+
+def checkpoint_policy(ctx, op, *args, **kwargs):
+    if op in ops_to_save:
+        return CheckpointPolicy.MUST_SAVE
+    return CheckpointPolicy.PREFER_RECOMPUTE
+
+context_fn = functools.partial(
+    create_selective_checkpoint_contexts,
+    checkpoint_policy,
+)
+
+hidden_states = checkpoint(
+    run_transformer_block,
+    hidden_states,
+    attention_mask,
+    use_reentrant=False,
+    context_fn=context_fn,
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Start from the profiler:</strong> save the ops that dominate recompute time before adding a broad policy.</li>
+        <li><strong>Keep the policy small:</strong> document which ops are saved and why, because every saved tensor gives back some memory.</li>
+        <li><strong>Check mutation errors:</strong> PyTorch raises by default if tensors cached by selective checkpointing are mutated, which is usually a correctness signal.</li>
+        <li><strong>Compare three runs:</strong> benchmark eager, plain checkpointing, and selective checkpointing on the same batch shape and sequence length.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not mark every expensive op as <code>MUST_SAVE</code> immediately?</summary>
+        <p>Saving too much collapses back toward eager activation memory. The goal is to save the few recomputations that dominate runtime while still discarding enough intermediate state to fit the training batch.</p>
+      </details>
       <p class="source-note">
         Sources: <a href="https://docs.pytorch.org/docs/stable/checkpoint.html">PyTorch activation checkpointing reference</a>,
         <a href="https://pytorch.org/blog/activation-checkpointing-techniques/">PyTorch activation checkpointing techniques</a>.

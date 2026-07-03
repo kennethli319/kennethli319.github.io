@@ -474,6 +474,39 @@ out = F.scaled_dot_product_attention(
         <summary>Question: Why can universal assisted decoding be slower than a same-tokenizer assistant?</summary>
         <p>It adds token re-encoding and alignment work. That cost can be worth paying when no small same-family assistant exists, but it belongs in the latency and acceptance report.</p>
       </details>
+      <h3>Benchmark Drill: Tune Lookahead From Acceptance, Not Hope</h3>
+      <p>
+        The original speculative decoding algorithm uses a fixed number of
+        draft tokens, but current assisted-generation implementations can vary
+        the speculation length during generation. Hugging Face describes
+        dynamic speculation as the default assisted-decoding mode in recent
+        Transformers releases, with knobs such as
+        <code>assistant_confidence_threshold</code>,
+        <code>num_assistant_tokens_schedule</code>, and
+        <code>num_assistant_tokens</code>. Treat those as benchmark variables:
+        more draft tokens help only when they are cheap and likely to be
+        accepted by the target verifier.
+      </p>
+      <pre><code class="language-python">def report_speculation_run(run):
+    accepted = run.accepted_draft_tokens
+    verified = run.target_verify_steps
+    produced = run.output_tokens
+    return {
+        "accepted_per_verify": accepted / max(verified, 1),
+        "target_forwards_per_token": verified / max(produced, 1),
+        "assistant_tokens_wasted": run.rejected_draft_tokens,
+        "p95_itl_ms": percentile(run.inter_token_latency_ms, 95),
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Sweep lookahead:</strong> compare constant, heuristic, and dynamic schedules on the same prompts before changing the assistant model.</li>
+        <li><strong>Cap bad guesses:</strong> lower confidence or shorter draft limits can win when the assistant is uncertain and rejections are frequent.</li>
+        <li><strong>Separate costs:</strong> report assistant forward time, target verification time, retokenization time, and queueing time separately.</li>
+        <li><strong>Keep a rollback profile:</strong> disable speculation when traffic, prompts, or sampling settings push acceptance below the break-even point.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a longer speculation window make latency worse?</summary>
+        <p>The assistant may spend extra time drafting tokens that the target rejects. Past the acceptance sweet spot, extra lookahead adds assistant work without reducing enough target-model verification steps.</p>
+      </details>
     </section>
 
     <section id="serving" class="band">
@@ -494,6 +527,7 @@ out = F.scaled_dot_product_attention(
         <a href="https://huggingface.co/docs/transformers/en/generation_strategies">Hugging Face generation strategies</a>,
         <a href="https://arxiv.org/abs/2211.17192">Fast Inference from Transformers via Speculative Decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
+        <a href="https://huggingface.co/blog/dynamic_speculation_lookahead">Hugging Face dynamic speculation lookahead</a>,
         <a href="https://huggingface.co/blog/universal_assisted_generation">Hugging Face universal assisted generation</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,

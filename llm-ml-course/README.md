@@ -111,6 +111,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch torch.compile: https://docs.pytorch.org/docs/2.12/generated/torch.compile.html
 - PyTorch AMP reference: https://docs.pytorch.org/docs/2.12/amp.html
 - PyTorch AMP examples: https://docs.pytorch.org/docs/2.12/notes/amp_examples.html
+- PyTorch zeroing gradients recipe: https://docs.pytorch.org/tutorials/recipes/recipes/zeroing_out_gradients.html
+- PyTorch clip_grad_norm_ reference: https://docs.pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html
+- Hugging Face Accelerate gradient accumulation guide: https://huggingface.co/docs/accelerate/en/usage_guides/gradient_accumulation
 - OpenTelemetry GenAI semantic conventions: https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/
 - PyTorch autograd grad modes: https://docs.pytorch.org/docs/stable/notes/autograd.html#locally-disable-grad-doc
 - PyTorch inference_mode: https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html

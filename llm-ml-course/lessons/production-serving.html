@@ -176,6 +176,40 @@
         <summary>Question: Why can disaggregation improve p95 latency but hurt a small deployment?</summary>
         <p>It can isolate prefill spikes from decode streams at scale, but a small or steady workload may pay extra routing and KV-transfer overhead without enough queueing reduction to offset it.</p>
       </details>
+      <h3>Readiness Drill: Prove KV Transfer Is Faster Than Waiting</h3>
+      <p>
+        Disaggregated serving should be justified by phase-specific evidence,
+        not by topology fashion. vLLM's disaggregated prefill docs describe
+        separate prefill and decode instances with KV-cache transfer between
+        them; Ray Serve frames the same split as a way to scale prefill-heavy
+        and decode-heavy workers independently; TensorRT-LLM's writeup calls
+        out direct KV-cache movement and layout mapping when the two phases use
+        different parallel strategies. Before launch, benchmark the transfer
+        path as a first-class dependency.
+      </p>
+      <pre><code>disagg_readiness = {
+    "baseline": "single_pool_continuous_batching",
+    "candidate": "prefill_pool + decode_pool + kv_transfer",
+    "required_win": p95_ttft_saved_ms > p95_kv_transfer_ms + routing_ms,
+    "guardrail": p95_itl_candidate <= p95_itl_baseline,
+    "fallback": "route all traffic back to aggregated workers",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Measure the link:</strong> log KV-transfer bytes, transfer latency, connector errors, and decode wait time after prefill completes.</li>
+        <li><strong>Test mixed load:</strong> replay short chat, long RAG, and streaming-heavy traffic together so the candidate proves it reduces phase interference.</li>
+        <li><strong>Match parallel plans:</strong> record tensor and pipeline parallelism for each pool because cache layout conversion can become part of the critical path.</li>
+        <li><strong>Keep routing reversible:</strong> a failed connector, cold prefill pool, or bad cache hit pattern should have a tested aggregated fallback profile.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the simplest sign that disaggregation is premature?</summary>
+        <p>The single-pool baseline has acceptable TTFT and ITL under the real prompt mix, while the split deployment spends more time routing or moving KV blocks than it saves in queueing.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
+        <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>.
+      </p>
     </section>
 
     <section id="admission" class="band">

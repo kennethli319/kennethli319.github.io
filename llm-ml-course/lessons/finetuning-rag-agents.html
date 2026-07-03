@@ -446,6 +446,42 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <summary>Question: Why can adding more retrieved chunks reduce answer quality?</summary>
         <p>Extra chunks can bury the decisive evidence, introduce contradictions, consume attention budget, and make citation discipline harder. More context is useful only when the packer keeps the right evidence salient.</p>
       </details>
+      <h3>Lab Prompt: Run A Position-Sensitivity Ablation</h3>
+      <p>
+        The Lost in the Middle paper tested whether models use relevant
+        information equally well across long contexts and found that position
+        can change performance. Turn that into a RAG regression test by holding
+        the retrieved chunks fixed, moving the gold chunk to different prompt
+        positions, and grading the same answer contract each time. If the answer
+        only succeeds when evidence is first or last, the packer needs a
+        salience policy instead of a larger top-k.
+      </p>
+      <pre><code class="language-python">def pack_with_gold_position(chunks, gold_id, position):
+    gold = next(chunk for chunk in chunks if chunk.id == gold_id)
+    distractors = [chunk for chunk in chunks if chunk.id != gold_id]
+    if position == "front":
+        ordered = [gold] + distractors
+    elif position == "middle":
+        midpoint = len(distractors) // 2
+        ordered = distractors[:midpoint] + [gold] + distractors[midpoint:]
+    elif position == "end":
+        ordered = distractors + [gold]
+    else:
+        raise ValueError("position must be front, middle, or end")
+    return render_context(ordered)
+
+for position in ["front", "middle", "end"]:
+    prompt = build_rag_prompt(query, pack_with_gold_position(chunks, gold_id, position))
+    grade(position, model.generate(prompt), expected_citation=gold_id)</code></pre>
+      <ol class="steps">
+        <li><strong>Hold retrieval constant:</strong> use the same chunks and source ids so the test isolates packing position, not recall.</li>
+        <li><strong>Grade citations:</strong> require the answer to cite the gold chunk, because a plausible answer without evidence can hide position failure.</li>
+        <li><strong>Promote salient evidence:</strong> put decisive, recent, or high-confidence chunks in stable prompt slots instead of relying on arbitrary rank order.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What does a position ablation catch that recall@k misses?</summary>
+        <p>Recall@k only says the evidence was retrieved. The ablation shows whether the generator can still use that evidence after the packer surrounds it with other chunks.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a>,

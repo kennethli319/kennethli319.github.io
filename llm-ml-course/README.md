@@ -125,6 +125,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Direct Preference Optimization: https://arxiv.org/abs/2305.18290
 - Hugging Face TRL DPOTrainer: https://huggingface.co/docs/trl/en/dpo_trainer
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401
+- Lost in the Middle: https://arxiv.org/abs/2307.03172
 - Qdrant hybrid queries and RRF: https://qdrant.tech/documentation/search/hybrid-queries/
 - Sentence Transformers retrieve and rerank: https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html
 - Hypothetical Document Embeddings (HyDE): https://arxiv.org/abs/2212.10496

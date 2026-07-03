@@ -686,6 +686,41 @@ for profile in quantization_matrix:
         <summary>Question: What should a quantized-cache launch report include besides memory saved?</summary>
         <p>It should include cache dtype, scale source, hardware and engine support, prompt buckets tested, quality deltas, TTFT, ITL, OOM or eviction rate, and the rollback profile that restores the previous cache dtype.</p>
       </details>
+      <h3>Smoke Test: Make The Cache Backend Observable</h3>
+      <p>
+        A cache-quantization experiment should leave an audit trail before it
+        changes service limits. Hugging Face Transformers exposes quantized KV
+        cache through <code>cache_implementation="quantized"</code> with backend
+        choices such as <code>quanto</code> and <code>hqq</code>, while the KIVI
+        paper motivates why keys and values may need different quantization
+        treatment. Keep those details in the benchmark output so a future
+        regression can be traced to backend, bit width, residual window, or
+        workload rather than a vague "quantization changed" note.
+      </p>
+      <pre><code class="language-python">cache_profile = {
+    "cache_implementation": "quantized",
+    "backend": "quanto",
+    "nbits": 4,
+    "residual_length": 128,
+    "axis_key": 0,
+    "axis_value": 0,
+}
+
+report = run_generation_probe(
+    model_id=model_id,
+    cache_profile=cache_profile,
+    prompts=load_prompt_bucket("long_rag_and_exact_copy"),
+    metrics=["peak_memory", "ttft", "itl", "tokens_per_second", "quality_delta"],
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Log the backend:</strong> record cache implementation, backend, bit width, axis choices, residual length, model revision, and tokenizer revision with every benchmark run.</li>
+        <li><strong>Compare one change:</strong> hold weights, sampling, prompt bucket, and max tokens fixed while changing only the cache profile.</li>
+        <li><strong>Include rollback evidence:</strong> save the baseline memory and latency counters beside the candidate so disabling cache quantization is a known path, not a guess.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is backend metadata part of correctness?</summary>
+        <p>Different cache backends, axes, bit widths, and residual windows can store different approximations of the same K/V states. Without that metadata, a quality or latency change cannot be reproduced or rolled back cleanly.</p>
+      </details>
       <h3>Validation Drill: Test The Cache Where Attention Is Fragile</h3>
       <p>
         KV-cache quantization changes the stored keys and values that every

@@ -294,6 +294,33 @@
         <li><strong>Use anchors:</strong> include known-pass, known-fail, and borderline examples in every judge calibration run.</li>
         <li><strong>Escalate drift:</strong> when judge disagreement rises, inspect examples before changing the model, prompt, or rubric threshold.</li>
       </ol>
+      <h3>Scorer Drill: Use The Cheapest Reliable Grader</h3>
+      <p>
+        Pick the scorer from the failure mode, not from habit. OpenAI's grader
+        docs separate deterministic string checks, text-similarity checks, model
+        graders, and multigraders; the eval best-practices guide makes the same
+        operational point by separating metric-based evals, human review, and
+        LLM-as-judge. A good launch gate starts with exact checks for crisp
+        contracts, then adds model judges only for behavior that cannot be
+        measured reliably with code.
+      </p>
+      <pre><code>scorer_plan = {
+    "tool_name": "string_check:eq",
+    "json_schema": "deterministic_validator",
+    "reference_answer_overlap": "text_similarity",
+    "grounded_helpfulness": "score_model_with_human_anchors",
+    "overall_gate": "multi_scorer_formula_with_required_hard_checks",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start deterministic:</strong> exact tool names, enums, schema fields, citations, and executable code tests should fail without asking a judge.</li>
+        <li><strong>Use similarity carefully:</strong> fuzzy or embedding similarity can help with paraphrases, but it should not replace claim-level checks when factual support matters.</li>
+        <li><strong>Add a model judge for nuance:</strong> open-ended helpfulness, faithfulness, and policy fit need rubric examples, human anchors, and bias audits before becoming hard gates.</li>
+        <li><strong>Compose explicitly:</strong> multigrader-style formulas are useful when one case must satisfy several requirements, but hard safety or schema failures should not be averaged away.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why not use an LLM judge for every eval?</summary>
+        <p>Judges are slower, costlier, and noisier than deterministic checks. Use them where judgment is actually needed, and keep crisp product contracts in code so failures are reproducible.</p>
+      </details>
       <h3>Implementation Drill: Make Pairwise Grading Auditable</h3>
       <p>
         Official eval guidance recommends pairwise or pass/fail grading for
@@ -439,6 +466,7 @@
       <p>
         Sources:
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
+        <a href="https://developers.openai.com/api/docs/guides/graders">OpenAI graders guide</a>,
         <a href="https://github.com/openai/evals/blob/main/docs/eval-templates.md">OpenAI Evals templates</a>,
         <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
         <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,

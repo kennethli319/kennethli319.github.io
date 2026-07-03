@@ -135,6 +135,16 @@
           <p>Learn the tool-use contract as a modeling target: decide when to call an API, what arguments to pass, and how the returned value should condition later tokens.</p>
           <p class="lab">Implementation check: label five examples where a tool call is useful, then write the acceptance test that decides whether the tool result improved next-token likelihood or final-task accuracy.</p>
         </article>
+        <article class="problem-card">
+          <h4><a href="https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices">MCP Security Best Practices</a></h4>
+          <p>Read agent tool use as a security boundary: untrusted prompts, retrieved text, tool outputs, and connector metadata should not become authority to read, write, send, delete, or publish.</p>
+          <p class="lab">Implementation check: design a tool-call policy that records the data source, required permission, user approval state, and a denial reason for prompt-injection attempts.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP LLM01 Prompt Injection</a></h4>
+          <p>Learn why prompt injection is an application risk, not just a bad prompt: external content can try to override instructions, exfiltrate secrets, or trigger unauthorized tools.</p>
+          <p class="lab">Implementation check: add three regression cases where a retrieved page or tool result contains malicious instructions, then verify the agent treats that text as data only.</p>
+        </article>
       </div>
     </section>
   </main>

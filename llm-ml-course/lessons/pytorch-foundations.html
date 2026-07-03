@@ -322,6 +322,46 @@ compiled_model = torch.compile(model, dynamic=True)
         <summary>Question: Why can <code>torch.compile</code> look slower in a tiny benchmark?</summary>
         <p>The first call may pay compilation overhead, and changing shapes can trigger new compiled graphs. Benchmark after warmup and report whether the workload uses fixed or variable sequence lengths.</p>
       </details>
+      <h3>Implementation Drill: Keep AMP Clipping On Real Gradients</h3>
+      <p>
+        Mixed precision changes the training loop's state machine. PyTorch's
+        AMP examples show that gradient clipping should happen after
+        <code>scaler.unscale_(optimizer)</code>, because the norm threshold is
+        defined for the real gradients, not the temporarily scaled gradients.
+        Treat the scaler as the owner of the optimizer step: call
+        <code>scaler.step(optimizer)</code>, then <code>scaler.update()</code>,
+        and log skipped updates when overflow makes the step a no-op.
+      </p>
+      <pre><code class="language-python">def amp_step_with_clip(model, batch, optimizer, scaler, max_norm=1.0):
+    optimizer.zero_grad(set_to_none=True)
+
+    with torch.amp.autocast("cuda", dtype=torch.float16):
+        loss = model(**batch).loss
+
+    scaler.scale(loss).backward()
+    scaler.unscale_(optimizer)  # Gradients are now in their real scale.
+    grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+
+    scale_before = scaler.get_scale()
+    scaler.step(optimizer)
+    scaler.update()
+    skipped = scaler.get_scale() < scale_before
+
+    return {
+        "loss": float(loss.detach()),
+        "grad_norm": float(grad_norm),
+        "amp_step_skipped": skipped,
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Never double step:</strong> do not call <code>optimizer.step()</code> after <code>scaler.step(optimizer)</code>; the scaler already delegates to the optimizer when gradients are finite.</li>
+        <li><strong>Clip once:</strong> unscale once per optimizer per step, then clip the accumulated gradients immediately before the scaler step.</li>
+        <li><strong>Log skips:</strong> a falling scale or skipped update can explain flat loss curves even when the forward pass looks healthy.</li>
+        <li><strong>Compare fp32:</strong> run a tiny deterministic batch in fp32 and AMP to verify loss direction and gradient norm scale before a long training job.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What bug appears if you clip before <code>unscale_</code>?</summary>
+        <p>The clipping threshold is applied to inflated scaled gradients, so the later unscale can leave gradients far smaller than intended and slow or stall learning.</p>
+      </details>
       <p class="source-note">
         Sources: <a href="https://docs.pytorch.org/docs/2.12/amp.html">PyTorch AMP reference</a>,
         <a href="https://docs.pytorch.org/docs/2.12/notes/amp_examples.html">PyTorch AMP examples</a>,

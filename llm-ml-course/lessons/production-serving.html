@@ -239,6 +239,37 @@
         <summary>Question: Why is max context length not the same as safe concurrency?</summary>
         <p>Max context length describes one sequence limit. Safe concurrency depends on the sum of active prompt tokens, generated tokens, promised future tokens, cache block rounding, dtype, layers, KV heads, and GPU memory left for non-cache work.</p>
       </details>
+      <h3>Admission Drill: Round Each Sequence Before Summing</h3>
+      <p>
+        Paged KV caches allocate fixed-size blocks to each live sequence, so
+        tail slack is paid per request. The vLLM PagedAttention design
+        describes KV cache as blocks with a fixed number of tokens, and
+        TensorRT-LLM exposes paged-cache settings and token-block reuse. A
+        scheduler that sums raw promised tokens first and rounds once can
+        undercount many short requests; round every request's current and
+        promised length to blocks before comparing against free capacity.
+      </p>
+      <pre><code>def blocks_needed(tokens, block_size):
+    return (tokens + block_size - 1) // block_size
+
+def promised_blocks(request, block_size):
+    promised_tokens = request.cache_len + request.remaining_prompt + request.max_new_tokens
+    return blocks_needed(promised_tokens, block_size)
+
+def can_admit_by_blocks(candidate, active, free_blocks, block_size):
+    needed = promised_blocks(candidate, block_size)
+    needed += sum(promised_blocks(r, block_size) for r in active)
+    return needed <= free_blocks</code></pre>
+      <ol class="steps">
+        <li><strong>Round per sequence:</strong> ten requests with one promised token can consume ten final blocks, not one shared block.</li>
+        <li><strong>Reserve future output:</strong> count admitted maximum-new-token promises so a stream does not OOM after users are already receiving tokens.</li>
+        <li><strong>Release on finish:</strong> return unused promised blocks when a request stops early, then let the scheduler admit queued work.</li>
+        <li><strong>Report slack:</strong> log raw tokens, allocated blocks, and unused tail slots so short-request traffic does not hide wasted capacity.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is per-request rounding stricter than rounding the total token count?</summary>
+        <p>Cache blocks cannot be shared between unrelated sequence tails. Rounding only the total assumes all tail slack can be packed together, which is exactly what a block-table cache does not allow for independent live requests.</p>
+      </details>
       <h3>Implementation Drill: Account For Memory Before Load Testing</h3>
       <p>
         A serving profile should reserve GPU memory in buckets before the first

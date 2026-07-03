@@ -789,6 +789,35 @@ rollout_gate = (
         <summary>Question: Why pin the draft model revision if the target model is unchanged?</summary>
         <p>The draft model controls proposal quality. A changed draft checkpoint can lower acceptance, alter memory pressure, or trigger compatibility differences even though the verified target model remains the same.</p>
       </details>
+      <h3>Control Drill: Let Lookahead Shrink When Confidence Drops</h3>
+      <p>
+        A fixed number of draft tokens is easy to benchmark, but it can waste
+        work on prompts where the assistant becomes uncertain after one or two
+        tokens. Hugging Face's dynamic speculation notes stop drafting when
+        assistant confidence falls below a threshold, while vLLM lists dynamic
+        speculative decoding alongside fixed draft-model, n-gram, suffix, MTP,
+        and EAGLE-style methods. Treat draft length as a controller output,
+        not a constant, and log why each speculative step stopped.
+      </p>
+      <pre><code>def choose_draft_budget(recent, config):
+    if recent.queue_depth > config.queue_guard:
+        return 0
+    if recent.accepted_tokens_per_verify < config.min_accept:
+        return max(1, recent.draft_tokens - 1)
+    if recent.assistant_confidence_p10 < config.confidence_floor:
+        return max(1, recent.draft_tokens - 1)
+    if recent.p95_itl_ms <= recent.baseline_p95_itl_ms:
+        return min(config.max_draft_tokens, recent.draft_tokens + 1)
+    return 0</code></pre>
+      <ol class="steps">
+        <li><strong>Bound both sides:</strong> set a maximum draft length and a confidence floor so the assistant can stop early instead of forcing low-quality proposals.</li>
+        <li><strong>Track stop reasons:</strong> count verifier rejection, confidence stop, max-lookahead stop, queue-pressure stop, and tail-latency fallback separately.</li>
+        <li><strong>Compare schedules:</strong> benchmark constant, heuristic, and dynamic lookahead on the same prompt slices before changing the draft model.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can dynamic lookahead help even when the average acceptance rate is high?</summary>
+        <p>The average can hide bursty hard spans. Shrinking draft length on uncertain spans avoids paying for proposals that are likely to be rejected, while easy spans can still use a longer lookahead.</p>
+      </details>
     </section>
 
     <section id="quantization" class="band">
@@ -1150,6 +1179,7 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/">vLLM EAGLE speculative decoding example</a>,
         <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a>,
+        <a href="https://huggingface.co/blog/dynamic_speculation_lookahead">Hugging Face dynamic speculation lookahead</a>,
         <a href="https://arxiv.org/abs/2402.01528">Decoding Speculative Decoding</a>.
       </p>
     </section>

@@ -275,6 +275,36 @@
         <li><strong>Then swap order:</strong> a candidate that wins in A/B should still win when presented as B/A unless the answers are truly tied.</li>
         <li><strong>Report by slice:</strong> judge reliability can differ for coding, retrieval, safety, summarization, and reasoning cases, so do not promote a single global score into a hard gate.</li>
       </ol>
+      <h3>Audit Drill: Log Bias Metrics Before Launch</h3>
+      <p>
+        Position bias is not only an aggregate nuisance. The systematic
+        position-bias study evaluates repetition stability, position
+        consistency, and preference fairness across tasks and judge models, and
+        finds that bias varies by judge, task, and answer quality gap. Before a
+        judge becomes a hard gate, build an audit table that can show whether
+        disagreements come from unstable sampling, answer order, verbosity, or
+        genuinely close candidates.
+      </p>
+      <pre><code>judge_bias_audit_row = {
+    "case_id": "refund_policy_012",
+    "slice": "rag_groundedness",
+    "judge_model": "fixed_model_version",
+    "rubric_version": "groundedness-v3",
+    "ab_winner": "candidate_a",
+    "ba_winner": "candidate_a",
+    "repeat_winner": "candidate_a",
+    "answer_token_delta": tokens_a - tokens_b,
+    "quality_gap_from_human_review": "clear | close | unknown",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Separate failure modes:</strong> repeated-run flips suggest judge instability, while swapped-order flips suggest position sensitivity.</li>
+        <li><strong>Track close calls:</strong> position effects are most launch-relevant when the answer quality gap is small enough that a noisy judge can reverse the decision.</li>
+        <li><strong>Slice the audit:</strong> report bias metrics by task type and judge model before setting one global pass threshold.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why store answer length and quality-gap notes in a position-bias audit?</summary>
+        <p>They help distinguish order sensitivity from other causes. A judge may prefer a position, a longer answer, or a clearly better answer; the mitigation differs for each failure mode.</p>
+      </details>
       <h3>Calibration Drill: Let The Judge Say Tie Or Escalate</h3>
       <p>
         Pairwise judges become brittle when every close comparison must pick a
@@ -309,7 +339,9 @@
       </details>
       <p>
         Sources:
+        <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
         <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
+        <a href="https://arxiv.org/abs/2406.07791">Judging the Judges position-bias study</a>,
         <a href="https://arxiv.org/abs/2305.17926">FairEval / Large Language Models are not Fair Evaluators</a>,
         <a href="https://arxiv.org/abs/2303.16634">G-Eval paper</a>.
       </p>

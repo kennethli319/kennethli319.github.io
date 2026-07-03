@@ -230,6 +230,39 @@ torch.testing.assert_close(fast, slow, rtol=2e-3, atol=2e-3)</code></pre>
         <summary>Question: Why does PagedAttention help serving systems?</summary>
         <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>
       </details>
+      <h3>Implementation Drill: Think In Logical Tokens And Physical Blocks</h3>
+      <p>
+        PagedAttention separates a request's logical token positions from the
+        physical memory blocks that store its K/V tensors. The vLLM paper and
+        design docs describe fixed-size KV blocks plus a block table, which lets
+        the server allocate cache on demand, reuse shared prefixes, and avoid
+        moving a whole request when a generation grows. When debugging a serving
+        engine, inspect the mapping first: wrong block ids or stale prefix
+        references can look like random attention quality bugs.
+      </p>
+      <pre><code class="language-python">def logical_to_block(token_pos, block_size):
+    block_index = token_pos // block_size
+    offset = token_pos % block_size
+    return block_index, offset
+
+request = {
+    "block_size": 16,
+    "block_table": [42, 87, 91],  # logical block -> physical KV block id
+}
+
+logical_block, offset = logical_to_block(token_pos=33, block_size=request["block_size"])
+physical_block = request["block_table"][logical_block]
+assert physical_block == 91 and offset == 1</code></pre>
+      <ol class="steps">
+        <li><strong>Allocation invariant:</strong> a request with <code>n</code> cached tokens should own or reference exactly <code>ceil(n / block_size)</code> logical blocks.</li>
+        <li><strong>Append invariant:</strong> decoding one token only changes the final block until it fills, then appends one new block-table entry.</li>
+        <li><strong>Prefix invariant:</strong> shared prompt blocks need reference counts or equivalent ownership tracking before multiple requests can reuse them safely.</li>
+        <li><strong>Scheduler invariant:</strong> admission control should count allocated and soon-needed KV blocks, not just request count or prompt length.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What does the block table buy over one contiguous KV tensor per request?</summary>
+        <p>It lets logical sequence positions map to non-contiguous physical blocks, so variable-length requests can grow, finish, and share prefixes without forcing large contiguous allocations or cache copies.</p>
+      </details>
       <h3>Implementation Drill: Cache Correctness Before Cache Speed</h3>
       <p>
         Start with a tiny decode loop that compares cached and uncached logits
@@ -455,6 +488,7 @@ out = F.scaled_dot_product_attention(
       </p>
       <p>
         Sources: <a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a>,
+        <a href="https://docs.vllm.ai/en/latest/design/paged_attention/">vLLM paged attention design</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
         <a href="https://arxiv.org/abs/1904.09751">The Curious Case of Neural Text Degeneration</a>,
         <a href="https://huggingface.co/docs/transformers/en/generation_strategies">Hugging Face generation strategies</a>,

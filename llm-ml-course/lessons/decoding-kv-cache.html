@@ -291,6 +291,40 @@ torch.testing.assert_close(cached_logits, full_logits, rtol=1e-3, atol=1e-3)</co
         <summary>Question: What should you test before trusting a hand-written KV cache?</summary>
         <p>Compare cached and uncached logits, vary prompt length and batch size, test left/right padding if supported, confirm RoPE positions, and run with deterministic sampling so generation noise does not hide cache errors.</p>
       </details>
+      <h3>Implementation Drill: Grow The Attention Mask With The Cache</h3>
+      <p>
+        In a custom generation loop, the model sees current tokens plus cached
+        past K/V tensors. Hugging Face's cache docs call out the shape contract:
+        the attention mask must cover <code>past_kv_length + new_tokens_length</code>,
+        even when the next model call only passes one new token id. If cached
+        and uncached logits diverge after the first decode step, check this
+        mask length before blaming sampling or numerical precision.
+      </p>
+      <pre><code class="language-python">def extend_attention_mask(attention_mask, new_tokens=1):
+    batch = attention_mask.size(0)
+    extra = attention_mask.new_ones((batch, new_tokens))
+    return torch.cat([attention_mask, extra], dim=-1)
+
+prefill = model(input_ids, attention_mask=attention_mask, use_cache=True)
+next_ids = prefill.logits[:, -1:].argmax(dim=-1)
+next_mask = extend_attention_mask(attention_mask, new_tokens=1)
+
+step = model(
+    next_ids,
+    attention_mask=next_mask,
+    past_key_values=prefill.past_key_values,
+    use_cache=True,
+)
+assert next_mask.size(-1) == input_ids.size(-1) + 1</code></pre>
+      <ol class="steps">
+        <li><strong>Mask invariant:</strong> at every decode call, the mask length should equal cached token count plus the number of new input tokens.</li>
+        <li><strong>Batch invariant:</strong> append one visible position for every active sequence; finished sequences need an explicit stopping policy, not a shorter mask.</li>
+        <li><strong>Debug invariant:</strong> log <code>input_ids.shape</code>, mask shape, and per-layer cache length together so off-by-one bugs are visible in one line.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why does the mask keep the old prompt positions if only one new token is passed?</summary>
+        <p>The old prompt tokens are no longer in <code>input_ids</code>, but their K/V tensors are still part of attention. The mask must therefore describe both cached past positions and the current token.</p>
+      </details>
       <h3>Implementation Drill: Keep KV Cache Out Of Training Graphs</h3>
       <p>
         A decode cache is an inference-time shortcut, not a replacement for

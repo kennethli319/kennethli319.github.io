@@ -24,7 +24,7 @@ Open `index.html` locally to read the course without a build step.
 - Decoding: greedy, beam search, temperature, top-k, top-p, repetition penalty,
   no-repeat n-gram checks, KV cache, and serving-time tradeoffs.
 - Systems: batching, continuous batching, memory/cost math, fine-tuning,
-  RAG, agents, evaluation, monitoring, and launch gates.
+  RAG, tool-using agents, human review, evaluation, monitoring, and launch gates.
 - Interview practice: explain-first coding prompts with complexity, edge cases,
   and common implementation bugs.
 - Research reading map: primary papers and official docs for Transformer,
@@ -131,10 +131,15 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Sentence Transformers retrieve and rerank: https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html
 - Hypothetical Document Embeddings (HyDE): https://arxiv.org/abs/2212.10496
 - LlamaIndex retrieval evaluation: https://developers.llamaindex.ai/python/examples/evaluation/retrieval/retriever_eval/
+- OpenAI Agents SDK guide: https://developers.openai.com/api/docs/guides/agents
 - OpenAI function calling: https://developers.openai.com/api/docs/guides/function-calling
 - OpenAI Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
+- OpenAI guardrails and human review: https://developers.openai.com/api/docs/guides/agents/guardrails-approvals
 - Model Context Protocol tools: https://modelcontextprotocol.io/specification/2025-11-25/server/tools
+- Model Context Protocol authorization: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+- Model Context Protocol security best practices: https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices
 - LangGraph interrupts: https://docs.langchain.com/oss/python/langgraph/interrupts
+- NSA MCP security design considerations: https://www.nsa.gov/Portals/75/documents/Cybersecurity/CSI_MCP_SECURITY.pdf
 - OpenAI Evals: https://github.com/openai/evals
 - OpenAI Evals API guide: https://developers.openai.com/api/docs/guides/evals
 - OpenAI evaluation best practices: https://developers.openai.com/api/docs/guides/evaluation-best-practices

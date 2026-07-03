@@ -397,6 +397,50 @@ out = compiled_flex_attention(q, k, v, block_mask=block_mask)</code></pre>
         <summary>Question: Why is FlexAttention not just a faster SDPA replacement?</summary>
         <p>Its main value is expressing custom score and mask rules in a fused kernel. That extra flexibility adds contracts around mask functions, block masks, compilation, and shape stability that standard SDPA users may not need.</p>
       </details>
+      <h3>Implementation Drill: Pack Documents Without Cross-Document Attention</h3>
+      <p>
+        Packed training and retrieval batches often concatenate several short
+        documents into one sequence to reduce padding. The attention rule then
+        needs two constraints at the same time: causal order and same-document
+        visibility. PyTorch's FlexAttention docs define a <code>mask_mod</code>
+        as returning <code>True</code> for positions that participate in
+        attention, and the FlexAttention paper explains that
+        <code>BlockMask</code> lets fully masked score blocks be skipped. Before
+        trusting the fused path, compare the mask function against a dense
+        boolean reference for the exact packed layout.
+      </p>
+      <pre><code class="language-python">from torch.nn.attention.flex_attention import create_block_mask
+
+doc_ids = torch.tensor([0, 0, 0, 1, 1, 2, 2, 2], device="cuda")
+
+def packed_causal_mask(b, h, q_idx, kv_idx):
+    same_doc = doc_ids[q_idx] == doc_ids[kv_idx]
+    causal = kv_idx <= q_idx
+    return same_doc & causal
+
+block_mask = create_block_mask(
+    packed_causal_mask,
+    B=None,
+    H=None,
+    Q_LEN=doc_ids.numel(),
+    KV_LEN=doc_ids.numel(),
+    device="cuda",
+)
+
+q_idx = torch.arange(doc_ids.numel(), device="cuda")[:, None]
+kv_idx = torch.arange(doc_ids.numel(), device="cuda")[None, :]
+dense = (doc_ids[:, None] == doc_ids[None, :]) & (kv_idx <= q_idx)
+assert not dense[3, 2]  # first token of doc 1 cannot attend to doc 0</code></pre>
+      <ol class="steps">
+        <li><strong>Define ownership:</strong> keep a token-to-document vector next to the packed sequence so the mask rule is data-driven, not inferred from padding.</li>
+        <li><strong>Test boundaries:</strong> assert that the first token of every packed document cannot attend to the previous document's final token.</li>
+        <li><strong>Cache by shape:</strong> build reusable block masks for repeated packed layouts or length buckets; creating sparse structure inside the hot path can erase the kernel win.</li>
+        <li><strong>Compare semantics:</strong> verify a small dense mask before benchmarking, because a fast block-sparse mask that leaks documents trains on the wrong objective.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is packed-document masking different from a normal causal mask?</summary>
+        <p>A normal causal mask lets each token attend to all earlier tokens. In a packed batch, earlier tokens may belong to a different document, so the mask must also enforce document boundaries.</p>
+      </details>
       <p>
         Sources: <a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>,
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,

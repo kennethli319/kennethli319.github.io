@@ -79,6 +79,43 @@ torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-5)</code></pre>
         <summary>Question: Why test against a slow reference if SDPA is the production path?</summary>
         <p>The reference makes the intended score shape, scale, mask polarity, and dropout behavior explicit. Once those match, any fused-kernel issue is easier to diagnose as a backend or input-layout problem.</p>
       </details>
+      <h3>Debugging Drill: Convert Boolean Mask Polarity At API Boundaries</h3>
+      <p>
+        PyTorch's boolean mask conventions are easy to mix up. In
+        <code>torch.nn.functional.scaled_dot_product_attention</code>, a boolean
+        <code>attn_mask</code> uses <code>True</code> for positions that are
+        allowed to participate in attention. In <code>torch.nn.Transformer</code>
+        masks and key-padding masks, <code>True</code> means a position is not
+        allowed or should be ignored. Convert the mask at the wrapper boundary
+        instead of letting both meanings leak through the model code.
+      </p>
+      <pre><code class="language-python">def blocked_to_sdpa_keep_mask(blocked):
+    # blocked: True means "do not attend" in many nn.Transformer-style masks.
+    # SDPA bool attn_mask: True means "keep this attention score."
+    return ~blocked
+
+blocked = torch.tensor([
+    [False, True, True],
+    [False, False, True],
+    [False, False, False],
+])
+keep = blocked_to_sdpa_keep_mask(blocked)
+assert keep[0, 0] and not keep[0, 1]
+
+out = F.scaled_dot_product_attention(
+    q, k, v,
+    attn_mask=keep[None, None, :, :],
+    dropout_p=0.0,
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Name the mask by meaning:</strong> use names such as <code>blocked</code>, <code>padding_ignored</code>, or <code>sdpa_keep</code> instead of generic <code>mask</code>.</li>
+        <li><strong>Keep one conversion point:</strong> invert the boolean mask when calling SDPA, then test the wrapper rather than sprinkling <code>~mask</code> across attention code.</li>
+        <li><strong>Do not mix hints casually:</strong> SDPA documents <code>is_causal</code> and <code>attn_mask</code> as separate contracts, so use an explicit keep mask when you need padding, packing, or document-boundary rules.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the symptom of an inverted attention mask?</summary>
+        <p>The model may attend only to padding or future tokens while blocking the valid context. On tiny deterministic tensors, the attention output will disagree sharply with the reference even though shapes and dtypes look correct.</p>
+      </details>
     </section>
 
     <section id="heads" class="band">
@@ -488,6 +525,7 @@ assert not dense[3, 2]  # first token of doc 1 cannot attend to doc 0</code></pr
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://arxiv.org/abs/2407.08608">FlashAttention-3</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Transformer.html">PyTorch Transformer docs</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.sdpa_kernel.html">PyTorch SDPA backend selector</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">PyTorch MultiheadAttention docs</a>,
         <a href="https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html">PyTorch FlexAttention docs</a>,

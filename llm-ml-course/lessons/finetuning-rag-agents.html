@@ -187,7 +187,41 @@ dpo_record = {
         <summary>Question: When should you use RAG instead of fine-tuning?</summary>
         <p>Use RAG when facts change, provenance matters, or the model should answer from a bounded document set. Use fine-tuning when the desired behavior or style should generalize across many requests.</p>
       </details>
-      <p>Source: <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>.</p>
+      <h3>Implementation Drill: Chunk For Retrieval, Not Storage</h3>
+      <p>
+        A chunk is a retrieval unit, citation unit, and prompt-packing unit at
+        the same time. LangChain's recursive splitter starts from larger
+        separators such as paragraphs and lines before falling back to smaller
+        ones, while LlamaIndex's semantic splitter chooses sentence breakpoints
+        from embedding similarity. Treat both as hypotheses to evaluate: fixed
+        windows are easy to reproduce, recursive splitting preserves simple
+        structure, and semantic splitting can keep topic shifts cleaner but
+        adds embedding cost and more moving parts.
+      </p>
+      <pre><code>chunk_eval_case = {
+    "question": "What timeout does the upload API use?",
+    "gold_source_id": "manual.md#upload-timeouts",
+    "splitter": "recursive | sentence | semantic",
+    "chunk_size": 800,
+    "overlap": 120,
+    "metrics": ["recall_at_20", "citation_hit", "answer_supported"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Keep metadata attached:</strong> every chunk should carry source id, section path, offsets, and version so retrieval results can become stable citations.</li>
+        <li><strong>Evaluate boundaries:</strong> inspect misses where the answer spans two chunks, because more overlap may help more than a larger top-k.</li>
+        <li><strong>Compare splitters:</strong> run the same labeled questions through fixed, recursive, and semantic splits before standardizing on one corpus policy.</li>
+        <li><strong>Re-index deliberately:</strong> changing chunk size, overlap, parser, or embedding model creates a new retrieval dataset that needs its own eval report.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can smaller chunks improve retrieval but hurt answers?</summary>
+        <p>They can make the retriever find the exact sentence more easily, but the generator may lose surrounding definitions, constraints, or table context needed to produce a supported answer.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>,
+        <a href="https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter">LangChain recursive text splitter</a>,
+        <a href="https://developers.llamaindex.ai/python/examples/node_parsers/semantic_chunking/">LlamaIndex semantic chunking</a>.
+      </p>
     </section>
 
     <section id="hybrid-retrieval" class="band">

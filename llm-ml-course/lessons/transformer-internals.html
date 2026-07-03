@@ -206,6 +206,43 @@ def head_layout_report(query_heads, kv_heads):
         <summary>Question: What is the fastest way to catch a wrong GQA implementation?</summary>
         <p>Run a tiny deterministic case where the expanded-KV reference and the fused GQA path produce matching outputs, then vary the ratio between query heads and KV heads.</p>
       </details>
+      <h3>Reading Drill: MLA Caches Latents, Not Full K/V Heads</h3>
+      <p>
+        Multi-head latent attention is a model-architecture change, not just a
+        serving flag. DeepSeek-V2 introduces MLA as low-rank joint compression
+        for keys and values, so the decode cache stores a compact latent state
+        that can reconstruct per-head K/V when attention runs. DeepSeek-V3 keeps
+        the same MLA direction after validating it in V2. Compare it with GQA
+        carefully: GQA reduces the number of stored KV heads, while MLA changes
+        what the cache stores.
+      </p>
+      <pre><code class="language-python">def cache_items_per_token_mha(query_heads, head_dim):
+    # K and V for every query head.
+    return 2 * query_heads * head_dim
+
+def cache_items_per_token_gqa(kv_heads, head_dim):
+    # K and V for fewer shared KV heads.
+    return 2 * kv_heads * head_dim
+
+def cache_items_per_token_mla(latent_dim, rope_dim):
+    # Simplified ledger: compressed KV latent plus decoupled positional part.
+    return latent_dim + rope_dim
+
+ledger = {
+    "mha": cache_items_per_token_mha(query_heads=32, head_dim=128),
+    "gqa": cache_items_per_token_gqa(kv_heads=8, head_dim=128),
+    "mla": cache_items_per_token_mla(latent_dim=512, rope_dim=64),
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Name the cached tensor:</strong> in MHA/GQA, cache entries are keys and values; in MLA-style designs, cache entries are compressed latent states plus any positional components the architecture keeps separate.</li>
+        <li><strong>Do not retrofit blindly:</strong> changing a trained MHA model into MLA changes projections and usually requires architecture-aware training, conversion, or fine-tuning evidence.</li>
+        <li><strong>Track decode cost:</strong> a smaller cache can reduce memory bandwidth, but reconstructing K/V adds compute, so benchmark tokens per second and quality together.</li>
+        <li><strong>Keep the contract testable:</strong> record latent dimension, positional dimension, reconstruction projections, model revision, and cache dtype in the serving profile.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is MLA more invasive than GQA?</summary>
+        <p>GQA keeps the usual K/V cache but stores fewer KV heads. MLA changes the attention projections and cache representation, so the model must be trained or adapted for that latent-cache contract.</p>
+      </details>
     </section>
 
     <section id="rope" class="band">
@@ -446,6 +483,8 @@ assert not dense[3, 2]  # first token of doc 1 cannot attend to doc 0</code></pr
         <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
         <a href="https://arxiv.org/abs/1911.02150">Multi-Query Attention</a>,
         <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
+        <a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2 / Multi-head Latent Attention</a>,
+        <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 Technical Report</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
         <a href="https://arxiv.org/abs/2407.08608">FlashAttention-3</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>,

@@ -69,6 +69,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch torch.multinomial: https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html
 - Multi-Query Attention: https://arxiv.org/abs/1911.02150
 - Grouped-Query Attention: https://arxiv.org/abs/2305.13245
+- DeepSeek-V2 / Multi-head Latent Attention: https://arxiv.org/abs/2405.04434
+- DeepSeek-V3 Technical Report: https://arxiv.org/abs/2412.19437
 - ORCA iteration-level scheduling: https://www.usenix.org/conference/osdi22/presentation/yu
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/

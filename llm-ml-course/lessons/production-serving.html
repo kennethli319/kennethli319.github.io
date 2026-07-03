@@ -547,6 +547,35 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why estimate block-level reuse instead of counting repeated strings?</summary>
         <p>Serving engines reuse cached KV blocks after tokenization and block partitioning. String repetition can overestimate hits when chat templates, tokenizer versions, salts, adapter ids, or partial block boundaries differ.</p>
       </details>
+      <h3>Readiness Drill: Prove Prefix Reuse Is Reachable</h3>
+      <p>
+        Enabling prefix caching is not the same as getting cache hits. vLLM's
+        automatic prefix caching speeds requests that share an existing prefix,
+        but its documented limit is that it only saves prefill work and does
+        not help decode-heavy requests. TensorRT-LLM's KV cache reuse docs add
+        practical reachability constraints: reusable state may not be available
+        until the earlier request terminates, LRU eviction can remove blocks
+        under memory pressure, and only full cache blocks are shared. A launch
+        test should therefore prove that repeated prompts arrive after reusable
+        blocks exist and before those blocks are evicted.
+      </p>
+      <pre><code>prefix_reuse_gate = {
+    "shared_prefix_tokens": count_stable_prefix_tokens(trace),
+    "full_blocks": shared_prefix_tokens // cache_block_size,
+    "producer_finished_before_consumer": first_request_done_at < second_request_start_at,
+    "blocks_survive": evicted_reusable_blocks == 0,
+    "win": p95_ttft_with_cache < p95_ttft_without_cache,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Replay timing:</strong> run back-to-back, simultaneous, and delayed repeated-prefix traffic because scheduler timing changes when blocks become reusable.</li>
+        <li><strong>Vary block size:</strong> smaller blocks can expose more reusable prefixes, while larger blocks can improve kernel efficiency but reduce match granularity.</li>
+        <li><strong>Separate phases:</strong> report saved prefill tokens and TTFT, then keep decode ITL as a separate guardrail because prefix reuse does not shorten generated-token work.</li>
+        <li><strong>Stress eviction:</strong> repeat the test with long outputs and high concurrency so the cache policy proves useful under memory pressure, not only in an empty worker.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can simultaneous repeated prompts miss a reusable prefix?</summary>
+        <p>If every request starts before any one finishes producing reusable cache blocks, the service may compute the shared prefix multiple times even though later requests with the same prefix would hit.</p>
+      </details>
       <h3>Policy Drill: Give Valuable Cache Blocks A Retention Budget</h3>
       <p>
         KV reuse is only useful if the blocks survive long enough to be hit.

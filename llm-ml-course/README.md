@@ -159,10 +159,12 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - OpenAI Evals: https://github.com/openai/evals
 - OpenAI Evals API guide: https://developers.openai.com/api/docs/guides/evals
 - OpenAI evaluation best practices: https://developers.openai.com/api/docs/guides/evaluation-best-practices
+- OpenAI graders guide: https://developers.openai.com/api/docs/guides/graders
 - NIST AI 600-1 Generative AI Profile: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf
 - Stanford HELM: https://crfm.stanford.edu/helm/
 - Holistic Evaluation of Language Models: https://arxiv.org/abs/2211.09110
 - RAGAS: https://arxiv.org/abs/2309.15217
 - Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena: https://arxiv.org/abs/2306.05685
+- G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment: https://arxiv.org/abs/2303.16634
 - Judging the Judges, position bias in LLM-as-a-Judge: https://arxiv.org/abs/2406.07791
 - OWASP LLM01 prompt injection: https://genai.owasp.org/llmrisk/llm01-prompt-injection/

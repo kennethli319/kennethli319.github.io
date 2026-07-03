@@ -321,6 +321,34 @@
         <summary>Question: Why not use an LLM judge for every eval?</summary>
         <p>Judges are slower, costlier, and noisier than deterministic checks. Use them where judgment is actually needed, and keep crisp product contracts in code so failures are reproducible.</p>
       </details>
+      <h3>Rubric Drill: Make Judge Outputs Parseable</h3>
+      <p>
+        G-Eval frames LLM judging as a structured rubric plus form-filling
+        task, and OpenAI's grader guidance similarly treats the grader prompt,
+        labels, and pass criteria as an explicit scorer contract. For course
+        labs, require the judge to emit a small record with one label, criterion
+        scores, cited evidence spans, and a review flag. That makes calibration
+        possible: human reviewers can inspect the same fields the launch gate
+        will consume.
+      </p>
+      <pre><code>judge_form = {
+    "case_id": "summarization_041",
+    "rubric_version": "summary_quality_v2",
+    "scores": {"faithfulness": 4, "coverage": 3, "conciseness": 5},
+    "label": "pass | fail | review",
+    "evidence_spans": ["source sentence id or output span"],
+    "review_reason": "missing_evidence | close_call | policy_risk | none",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Constrain labels:</strong> use a fixed enum so score aggregation does not depend on parsing free-form prose.</li>
+        <li><strong>Separate criteria:</strong> faithfulness, completeness, style, and safety should not be averaged until each score has been inspected by slice.</li>
+        <li><strong>Ask for evidence:</strong> require source ids or output spans for low scores so reviewers can debug the rubric instead of rereading every answer.</li>
+        <li><strong>Keep review explicit:</strong> borderline or high-risk cases should flow to human review instead of forcing a confident-looking pass/fail label.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is form-filling useful for LLM judges?</summary>
+        <p>It turns a judge response into a reproducible scorer artifact. The team can compare fields against human labels, slice the failure modes, and replay the same contract after a model or rubric change.</p>
+      </details>
       <h3>Implementation Drill: Make Pairwise Grading Auditable</h3>
       <p>
         Official eval guidance recommends pairwise or pass/fail grading for

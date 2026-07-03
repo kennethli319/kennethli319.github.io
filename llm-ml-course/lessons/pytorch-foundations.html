@@ -266,8 +266,41 @@ loss.backward()</code></pre>
         <summary>Question: Why is <code>model.eval()</code> not enough for efficient validation?</summary>
         <p>It changes layer behavior, but it does not by itself disable autograd recording. Without a grad-disabled context, validation can still waste memory building graphs that will never be backpropagated.</p>
       </details>
+      <h3>Bug Drill: Grad Mode Does Not Rewrite Parameter Intent</h3>
+      <p>
+        Grad-disabled contexts affect operation recording, not every tensor's
+        long-term role. PyTorch documents that factory functions which accept
+        <code>requires_grad</code> are not affected by <code>torch.no_grad()</code>,
+        so creating a <code>Parameter</code> inside validation can still produce
+        trainable state. Conversely, tensors created inside
+        <code>torch.inference_mode()</code> are intentionally restricted from
+        later autograd-recorded use. Keep parameter construction, frozen feature
+        extraction, and read-only serving paths separate in tests.
+      </p>
+      <pre><code class="language-python">with torch.no_grad():
+    probe = torch.nn.Parameter(torch.randn(8))
+assert probe.requires_grad
+
+with torch.no_grad():
+    frozen_features = encoder(input_ids)
+loss = classifier(frozen_features).loss(labels)
+loss.backward()  # OK: no_grad skipped encoder recording only.
+
+with torch.inference_mode():
+    serving_features = encoder(input_ids)
+# Do not feed serving_features into a later training loss.</code></pre>
+      <ol class="steps">
+        <li><strong>Construct modules outside eval:</strong> validation should not create new trainable parameters as a side effect.</li>
+        <li><strong>Choose the weaker mode when needed:</strong> use <code>no_grad</code> for frozen-feature workflows that still feed trainable heads.</li>
+        <li><strong>Reserve inference mode:</strong> use <code>inference_mode</code> for pure read-only evaluation, export checks, and serving code paths.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What test catches accidental parameter creation during validation?</summary>
+        <p>Snapshot parameter names and counts before validation, run the validation path under a grad-disabled context, then assert the model has the same parameters afterward.</p>
+      </details>
       <p class="source-note">
         Sources: <a href="https://docs.pytorch.org/docs/stable/notes/autograd.html#locally-disable-grad-doc">PyTorch locally disabling gradient computation</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html">PyTorch no_grad reference</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html">PyTorch inference_mode reference</a>.
       </p>
     </section>

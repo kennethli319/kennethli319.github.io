@@ -138,3 +138,4 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - RAGAS: https://arxiv.org/abs/2309.15217
 - Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena: https://arxiv.org/abs/2306.05685
 - Judging the Judges, position bias in LLM-as-a-Judge: https://arxiv.org/abs/2406.07791
+- OWASP LLM01 prompt injection: https://genai.owasp.org/llmrisk/llm01-prompt-injection/

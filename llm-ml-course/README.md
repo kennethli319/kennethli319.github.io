@@ -101,6 +101,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - TensorRT-LLM paged KV cache notes: https://github.com/NVIDIA/TensorRT-LLM/blob/main/docs/source/legacy/advanced/gpt-attention.md
 - Hugging Face cache strategies: https://huggingface.co/docs/transformers/en/kv_cache
 - Hugging Face cache explanation: https://huggingface.co/docs/transformers/en/cache_explanation
+- KIVI KV-cache quantization: https://arxiv.org/abs/2402.02750
 - Hugging Face bitsandbytes quantization: https://huggingface.co/docs/transformers/en/quantization/bitsandbytes
 - vLLM quantized KV cache: https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/
 - vLLM llm-compressor KV cache quantization example: https://github.com/vllm-project/llm-compressor/blob/main/examples/quantization_kv_cache/README.md

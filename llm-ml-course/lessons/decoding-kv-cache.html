@@ -456,6 +456,35 @@ out = F.scaled_dot_product_attention(
         <summary>Question: Why should cache selection start from a measured bottleneck?</summary>
         <p>Each cache class trades a different resource. Static cache can help compile but wastes fixed slots, offloading saves GPU memory but moves tensors, and quantized cache saves memory but may slow short generations.</p>
       </details>
+      <h3>Benchmark Drill: Quantized KV Cache Needs A Quality Gate</h3>
+      <p>
+        KV-cache quantization targets the memory term that grows with active
+        batch and context length. Hugging Face documents quantized cache as the
+        low-memory cache option and cautions that it can hurt latency on short
+        contexts. KIVI shows why keys and values may want different grouping
+        rules, while vLLM's FP8 cache docs make scale calibration an explicit
+        serving choice. Treat cache quantization like a deployment profile:
+        prove it fits more useful work, then prove it keeps answers stable.
+      </p>
+      <pre><code class="language-python">def kv_cache_gib(layers, batch, kv_heads, seq_len, head_dim, bytes_per_value):
+    return 2 * layers * batch * kv_heads * seq_len * head_dim * bytes_per_value / 2**30
+
+baseline = kv_cache_gib(32, 8, 8, 32768, 128, 2)   # bf16 cache
+fp8 = kv_cache_gib(32, 8, 8, 32768, 128, 1)        # FP8 cache
+int4 = kv_cache_gib(32, 8, 8, 32768, 128, 0.5)     # idealized 4-bit cache
+
+print(round(baseline, 1), round(fp8, 1), round(int4, 1))
+# 16.0 GiB, 8.0 GiB, 4.0 GiB before metadata, scales, and residual buffers</code></pre>
+      <ol class="steps">
+        <li><strong>Fit test:</strong> report max admitted batch, prompt length, and generated tokens under the same GPU memory cap.</li>
+        <li><strong>Latency test:</strong> measure time to first token and inter-token latency separately; dequantization or scale handling can erase wins on short contexts.</li>
+        <li><strong>Quality test:</strong> compare exact-match retrieval prompts, long-context QA, code completion, and regression golden cases against the unquantized cache.</li>
+        <li><strong>Calibration test:</strong> record whether scales are default, random-token, or dataset-calibrated, because that choice changes the accuracy and portability story.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is quantized cache not the same as weight quantization?</summary>
+        <p>Weight quantization compresses fixed model parameters. KV-cache quantization compresses request-specific attention state that changes every token, so the main tradeoff is long-context memory versus dequantization overhead and possible attention-score drift.</p>
+      </details>
       <h3>Implementation Drill: Static Cache Is A Compile Contract</h3>
       <p>
         A dynamic KV cache is convenient because it grows with generation, but
@@ -605,6 +634,8 @@ out = F.scaled_dot_product_attention(
         <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face KV cache strategies</a>,
         <a href="https://huggingface.co/docs/transformers/en/cache_explanation">Hugging Face cache explanation</a>,
+        <a href="https://arxiv.org/abs/2402.02750">KIVI KV-cache quantization</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/">vLLM quantized KV cache</a>,
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.compile.html">PyTorch torch.compile</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.multinomial.html">PyTorch torch.multinomial</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,

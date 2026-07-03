@@ -465,6 +465,46 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why should generated tokens usually have lower cache priority than a shared system prompt?</summary>
         <p>A shared prefix can be reused by many future requests, while a generated tail is often specific to one stream. Keeping both at the same priority lets low-reuse tail blocks evict high-value prompt blocks.</p>
       </details>
+      <h3>Observability Drill: Separate Cache Correctness From Cache Value</h3>
+      <p>
+        A KV cache rollout has two different questions. Correctness asks whether
+        reused state is valid for the same model, tokenizer, adapter, multimodal
+        inputs, and security namespace. Value asks whether the retained blocks
+        actually reduce TTFT, prefill tokens, memory pressure, or GPU work.
+        vLLM's prefix-cache design includes parent hashes, block tokens, extra
+        hash fields, and optional cache salts; TensorRT-LLM exposes reuse,
+        prioritized eviction, offload, salting, and cache events; Hugging Face
+        shows the smaller single-process version by pre-filling a cache for a
+        stable prefix. Treat those as the minimum logging contract for a
+        production cache experiment.
+      </p>
+      <pre><code>cache_observability = {
+    "correctness_keys": [
+        "model_revision", "tokenizer_revision", "adapter_id",
+        "cache_namespace", "multimodal_ids", "block_hash_algo",
+    ],
+    "value_metrics": [
+        "prefix_hit_tokens", "requested_prefill_tokens", "ttft_ms",
+        "gpu_cache_free_blocks", "evictions_by_priority", "offload_reads",
+    ],
+    "rollback_trigger": "hit_rate_low or p95_ttft_regressed or collision_risk_changed",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Log the namespace:</strong> every cache hit should be explainable from model, tokenizer, adapter, salt, and prompt-template versions.</li>
+        <li><strong>Count tokens, not just hits:</strong> a hit on one tiny block is not worth the same as reusing a long shared system prompt.</li>
+        <li><strong>Watch eviction cause:</strong> low hit rate can come from unstable prompts, over-tight salting, too little GPU cache, or priority rules that keep low-value blocks.</li>
+        <li><strong>Keep an off switch:</strong> cache reuse should be disableable without changing the target model or generation contract when observability shows no value.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is cache hit rate alone an incomplete launch metric?</summary>
+        <p>It does not show whether the reused blocks were large enough to improve TTFT, whether useful blocks were evicted, or whether the cache namespace accidentally allowed reuse across incompatible requests.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM automatic prefix caching design</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
+        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
+      </p>
     </section>
 
     <section id="speculation" class="band">

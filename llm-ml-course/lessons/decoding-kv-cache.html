@@ -265,6 +265,32 @@ torch.testing.assert_close(fast, slow, rtol=2e-3, atol=2e-3)</code></pre>
         <summary>Question: Why does the slow reference repeat K/V heads instead of query heads?</summary>
         <p>GQA preserves the model's query-head count and shares fewer K/V heads across groups. Repeating K/V heads only for the attention computation matches that contract while keeping the cache compact.</p>
       </details>
+      <h3>Reading Note: MLA Compresses What The Cache Stores</h3>
+      <p>
+        Multi-head latent attention is another answer to the same decode-time
+        bottleneck that motivates MQA and GQA. DeepSeek-V2 describes MLA as
+        low-rank joint compression of keys and values so inference can cache a
+        compact latent state instead of every expanded per-head K/V tensor;
+        DeepSeek-V3 keeps that architecture for efficient inference. When you
+        compare attention variants, separate three questions: what the model
+        computes per head, what gets stored between decode steps, and what
+        extra projection work is needed when a new token attends to the cache.
+      </p>
+      <pre><code class="language-python">attention_cache_ledger = [
+    {"layout": "MHA", "stored": "K/V per query head", "decode_tradeoff": "largest cache"},
+    {"layout": "GQA", "stored": "K/V per KV group", "decode_tradeoff": "smaller cache"},
+    {"layout": "MQA", "stored": "one K/V head", "decode_tradeoff": "smallest simple head cache"},
+    {"layout": "MLA", "stored": "compressed latent K/V state", "decode_tradeoff": "projection work plus compact cache"},
+]</code></pre>
+      <ol class="steps">
+        <li><strong>Track stored state:</strong> cache estimates should count the tensors that persist across decode steps, not only the attention vectors after projection.</li>
+        <li><strong>Keep RoPE explicit:</strong> MLA-style designs may treat positional components differently from compressed content components, so position tests still belong in cache correctness.</li>
+        <li><strong>Benchmark the full path:</strong> a smaller cache can improve memory pressure, but the projection, kernel support, and model quality need their own measurements.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: How is MLA different from simply using fewer KV heads?</summary>
+        <p>GQA and MQA reduce the number of stored KV heads. MLA changes the stored representation itself by caching a compressed latent state that later reconstructs the K/V information needed by attention.</p>
+      </details>
       <details class="qa">
         <summary>Question: Why does PagedAttention help serving systems?</summary>
         <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>
@@ -641,6 +667,8 @@ print(round(baseline, 1), round(fp8, 1), round(int4, 1))
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA</a>,
         <a href="https://docs.pytorch.org/docs/2.12/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA causal mask notes</a>,
         <a href="https://arxiv.org/abs/2305.13245">Grouped-query attention</a>,
+        <a href="https://arxiv.org/abs/2405.04434">DeepSeek-V2 / Multi-head Latent Attention</a>,
+        <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 technical report</a>,
         <a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/">vLLM automatic prefix caching</a>,
         <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs</a>,
         <a href="https://huggingface.co/blog/constrained-beam-search">Hugging Face constrained beam search</a>,

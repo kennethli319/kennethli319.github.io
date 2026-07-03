@@ -152,6 +152,45 @@ while not done:
         dimension, and bytes per element. GQA and MQA reduce the KV-head term.
       </p>
       <pre><code>kv_bytes = 2 * layers * batch * kv_heads * seq_len * head_dim * bytes_per_element</code></pre>
+      <h3>Worked Example: Size The Cache Before Picking A Policy</h3>
+      <p>
+        Do the memory math before reaching for offloading, quantization, or a
+        static cache. The GQA paper motivates sharing K/V heads as an inference
+        efficiency tradeoff, and Hugging Face's cache strategy docs frame cache
+        classes as memory-versus-latency choices. A quick estimate often shows
+        whether the bottleneck is architecture, context length, batch size, or
+        cache policy.
+      </p>
+      <pre><code class="language-python">def gib(n_bytes):
+    return n_bytes / (1024 ** 3)
+
+def kv_cache_gib(layers, batch, kv_heads, seq_len, head_dim, dtype_bytes):
+    return gib(2 * layers * batch * kv_heads * seq_len * head_dim * dtype_bytes)
+
+case = {
+    "layers": 32,
+    "batch": 8,
+    "query_heads": 32,
+    "gqa_kv_heads": 8,
+    "seq_len": 16_384,
+    "head_dim": 128,
+    "dtype_bytes": 2,  # fp16 or bf16
+}
+
+mha = kv_cache_gib(case["layers"], case["batch"], case["query_heads"],
+                   case["seq_len"], case["head_dim"], case["dtype_bytes"])
+gqa = kv_cache_gib(case["layers"], case["batch"], case["gqa_kv_heads"],
+                   case["seq_len"], case["head_dim"], case["dtype_bytes"])
+print(round(mha, 2), round(gqa, 2))  # 32.0 GiB vs 8.0 GiB</code></pre>
+      <ol class="steps">
+        <li><strong>Architecture lever:</strong> if KV heads dominate memory, GQA/MQA reduces the cache footprint before any serving-layer trick is applied.</li>
+        <li><strong>Policy lever:</strong> if the model architecture is fixed, compare dynamic, static, offloaded, and quantized cache choices against the measured bottleneck.</li>
+        <li><strong>Batch lever:</strong> continuous batching multiplies cache memory by active sequences, so admission control needs a KV budget, not just a request count.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why does the worked example compare query heads to KV heads?</summary>
+        <p>Standard multi-head attention stores one K/V set per query head. GQA keeps the query-head count but stores fewer K/V heads, so long-context cache memory drops in proportion to the head-sharing ratio.</p>
+      </details>
       <h3>Implementation Drill: GQA Reduces Stored KV Heads</h3>
       <p>
         Grouped-query attention keeps many query heads but shares fewer key and

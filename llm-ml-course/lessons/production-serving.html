@@ -534,8 +534,37 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why is cache hit rate alone an incomplete launch metric?</summary>
         <p>It does not show whether the reused blocks were large enough to improve TTFT, whether useful blocks were evicted, or whether the cache namespace accidentally allowed reuse across incompatible requests.</p>
       </details>
+      <h3>Kernel Drill: Prove The Fast Attention Path Is Still The Same Contract</h3>
+      <p>
+        FlashAttention and PyTorch SDPA can make attention faster by changing
+        the memory schedule or backend dispatch, not by changing the attention
+        equation. PagedAttention changes where cached keys and values live, not
+        which logical tokens a decode step may attend to. Before launching a
+        new kernel, cache layout, or GQA path, run a tiny equivalence test and
+        record the backend context that made the result true.
+      </p>
+      <pre><code>kernel_launch_note = {
+    "math_contract": "same logits as reference within tolerance",
+    "backend_context": ["gpu", "dtype", "head_dim", "mask", "seq_lens"],
+    "cache_context": ["block_size", "kv_heads", "cache_dtype", "prefix_reuse"],
+    "metrics": ["ttft_ms", "itl_ms", "tokens_per_second", "peak_kv_blocks"],
+    "rollback": "return to previous backend or cache profile",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Separate correctness from speed:</strong> first compare fused attention with a slow reference on deterministic inputs, then benchmark realistic prefill and decode lengths.</li>
+        <li><strong>Name the backend:</strong> log whether SDPA used FlashAttention, memory-efficient attention, or a math fallback instead of assuming one API call means one kernel.</li>
+        <li><strong>Keep logical positions stable:</strong> paged cache block ids may move, but causal masks, RoPE positions, and prefix-cache keys must still describe the same token history.</li>
+        <li><strong>Watch phase metrics:</strong> an attention kernel can improve prefill throughput while decode remains limited by KV-cache reads, batching policy, or admission control.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a faster attention backend fail a serving rollout?</summary>
+        <p>If the backend silently changes because of dtype, mask shape, GQA support, or cache layout, the benchmark may measure a different path than production. Correctness and dispatch evidence should travel with the latency numbers.</p>
+      </details>
       <p>
         Sources:
+        <a href="https://arxiv.org/abs/2205.14135">FlashAttention</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch scaled dot-product attention</a>,
+        <a href="https://arxiv.org/abs/2309.06180">PagedAttention paper</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM automatic prefix caching design</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.

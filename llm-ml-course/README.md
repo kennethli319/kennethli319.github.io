@@ -63,6 +63,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- PyTorch CrossEntropyLoss docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
 - PyTorch FlexAttention docs: https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html
 - PyTorch FlexAttention inference note: https://pytorch.org/blog/flexattention-for-inference/
 - FlexAttention paper: https://arxiv.org/abs/2412.05496
@@ -121,6 +122,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - vLLM EAGLE speculative decoding example: https://docs.vllm.ai/en/latest/features/speculative_decoding/eagle/
 - Hugging Face assisted decoding: https://huggingface.co/docs/transformers/en/assisted_decoding
 - Hugging Face universal assisted generation: https://huggingface.co/blog/universal_assisted_generation
+- Hugging Face causal language modeling guide: https://huggingface.co/docs/transformers/en/tasks/language_modeling
 - Decoding Speculative Decoding: https://arxiv.org/abs/2402.01528
 - LoRA: https://arxiv.org/abs/2106.09685
 - QLoRA: https://arxiv.org/abs/2305.14314

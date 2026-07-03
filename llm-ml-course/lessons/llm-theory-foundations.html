@@ -11,6 +11,7 @@
     <nav>
       <a href="../index.html">Course Home</a>
       <a href="#likelihood">Likelihood</a>
+      <a href="#pretraining">Pretraining</a>
       <a href="#entropy">Entropy</a>
       <a href="#optimization">Optimization</a>
     </nav>
@@ -50,6 +51,49 @@ log p(sequence) = sum_t log p(x_t | prefix)</code></pre>
         <summary>Question: Why is teacher forcing useful during training?</summary>
         <p>The model can train every position in parallel because each prediction receives the true prefix, not a sampled prefix from the model.</p>
       </details>
+    </section>
+
+    <section id="pretraining" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Pretraining Objective</p>
+        <h2>Causal LM Loss Is A Shifted Classification Test</h2>
+      </div>
+      <p>
+        The model reads tokens up to position <code>t</code> and is trained to
+        predict token <code>t + 1</code>. A hand-written PyTorch loop usually
+        shifts logits and labels explicitly before flattening into
+        <code>cross_entropy</code>. In many Hugging Face causal-LM model classes,
+        passing <code>labels=input_ids</code> delegates that shift to the model,
+        while ignored labels such as <code>-100</code> remove padding or prompt
+        tokens from the loss.
+      </p>
+      <pre><code class="language-python">import torch.nn.functional as F
+
+def causal_lm_loss(logits, input_ids, ignore_index=-100):
+    # logits: [batch, time, vocab], input_ids: [batch, time]
+    # Predict token t+1 from the hidden state at token t.
+    shift_logits = logits[:, :-1, :].contiguous()
+    shift_labels = input_ids[:, 1:].contiguous()
+
+    return F.cross_entropy(
+        shift_logits.view(-1, shift_logits.size(-1)),
+        shift_labels.view(-1),
+        ignore_index=ignore_index,
+    )</code></pre>
+      <ol class="steps">
+        <li><strong>Align once:</strong> either shift in your custom loss or let a library model do it, but do not shift both in the dataset and inside the model.</li>
+        <li><strong>Mask deliberately:</strong> set labels to <code>-100</code> for padding, system prompts, or examples that should condition the model without contributing loss.</li>
+        <li><strong>Flatten correctly:</strong> <code>cross_entropy</code> expects class logits over the vocabulary and integer class-index labels, so preserve the vocab dimension as the last dimension before reshaping.</li>
+        <li><strong>Test with a toy batch:</strong> make a two-sequence batch with known labels, one ignored token, and verify the averaged loss only counts the intended positions.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What bug makes a causal LM learn the next-next token?</summary>
+        <p>Shifting labels in the dataset and then using a model that shifts labels internally can move the target two positions ahead, so the loss no longer matches the intended next-token objective.</p>
+      </details>
+      <p>
+        Sources: <a href="https://huggingface.co/docs/transformers/en/tasks/language_modeling">Hugging Face causal language modeling guide</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html">PyTorch CrossEntropyLoss docs</a>.
+      </p>
     </section>
 
     <section id="entropy" class="band">

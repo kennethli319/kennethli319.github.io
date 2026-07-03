@@ -286,6 +286,44 @@ except RuntimeError as exc:
         <summary>Question: What should you still understand if PyTorch provides the kernel?</summary>
         <p>You still need to reason about tensor layout, causal and padding masks, dropout behavior, dtype, sequence length, memory use, and whether your input shape can use the optimized backend.</p>
       </details>
+      <h3>Benchmark Drill: Prove Which Attention Backend Ran</h3>
+      <p>
+        FlashAttention-style kernels keep attention exact while changing the
+        memory schedule, but the best backend is conditional on hardware,
+        dtype, head dimension, masks, and sequence shape. FlashAttention-3
+        adds Hopper-specific asynchronous execution and FP8-oriented techniques,
+        while PyTorch's SDPA dispatcher can choose among several backends or
+        fall back when the requested one is unsupported. A useful benchmark
+        therefore records both latency and dispatch evidence.
+      </p>
+      <pre><code class="language-python">from torch.nn.attention import SDPBackend, sdpa_kernel
+
+def time_attention_backend(q, k, v, backend):
+    torch.cuda.synchronize()
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+
+    with sdpa_kernel(backend):
+        start.record()
+        out = F.scaled_dot_product_attention(
+            q, k, v, is_causal=True, dropout_p=0.0
+        )
+        end.record()
+
+    torch.cuda.synchronize()
+    return out, start.elapsed_time(end)
+
+out, ms = time_attention_backend(q, k, v, SDPBackend.FLASH_ATTENTION)</code></pre>
+      <ol class="steps">
+        <li><strong>Record the shape:</strong> log batch, heads, query length, KV length, head dimension, dtype, mask type, device, and PyTorch version with every timing.</li>
+        <li><strong>Force and catch:</strong> use <code>sdpa_kernel</code> in a probe so unsupported FlashAttention inputs fail loudly instead of silently measuring a different backend.</li>
+        <li><strong>Compare numerics:</strong> check the selected backend against a math or reference path with tolerances appropriate for fp16, bf16, or FP8 experiments.</li>
+        <li><strong>Do not generalize across hardware:</strong> a result from an H100, A100, consumer GPU, or CPU says little about another deployment target.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is "uses FlashAttention" an incomplete benchmark note?</summary>
+        <p>It omits the dispatch contract. The same code can run different kernels when hardware, dtype, head dimension, masks, or sequence lengths change, so the note must include the measured backend context.</p>
+      </details>
       <h3>Implementation Checklist: Make <code>nn.MultiheadAttention</code> Hit The Fast Path</h3>
       <p>
         PyTorch's reference <code>nn.MultiheadAttention</code> can call
@@ -365,7 +403,9 @@ out = compiled_flex_attention(q, k, v, block_mask=block_mask)</code></pre>
         <a href="https://arxiv.org/abs/1911.02150">Multi-Query Attention</a>,
         <a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a>,
         <a href="https://arxiv.org/abs/2307.08691">FlashAttention-2</a>,
+        <a href="https://arxiv.org/abs/2407.08608">FlashAttention-3</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch SDPA docs</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.sdpa_kernel.html">PyTorch SDPA backend selector</a>,
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html">PyTorch MultiheadAttention docs</a>,
         <a href="https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html">PyTorch FlexAttention docs</a>,
         <a href="https://pytorch.org/blog/flexattention-for-inference/">PyTorch FlexAttention inference note</a>,

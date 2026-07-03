@@ -14,6 +14,7 @@
       <a href="#inference">Inference</a>
       <a href="#adaptation">Adaptation</a>
       <a href="#rag">RAG</a>
+      <a href="#evaluation">Evaluation</a>
       <a href="#agents">Agents</a>
     </nav>
     <p class="eyebrow">Module 15</p>
@@ -122,6 +123,30 @@
         <p>Learn the distinction between parametric memory in model weights and non-parametric memory in a retrievable index. For applied LLM systems, RAG is often a provenance, freshness, and evaluation design problem as much as a modeling problem.</p>
         <p class="lab">Implementation check: build a tiny retrieval eval with query, retrieved passages, answer, citation, and groundedness fields.</p>
       </article>
+    </section>
+
+    <section id="evaluation" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Evaluation</p>
+        <h2>Read Evals As Product Contracts, Not Leaderboards</h2>
+      </div>
+      <div class="problem-group">
+        <article class="problem-card">
+          <h4><a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI Evaluation Best Practices</a></h4>
+          <p>Learn the core eval loop: define the production behavior, collect representative cases, choose metrics that match the failure mode, compare candidates, and keep evaluating as the app changes. Note that OpenAI's hosted Evals platform is being deprecated, so treat the guide as design advice and keep your durable cases portable.</p>
+          <p class="lab">Implementation check: write five eval rows with case id, expected behavior, scorer, slice, severity, and baseline/candidate outputs.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2211.09110">HELM</a></h4>
+          <p>Learn why model evaluation should report scenarios and multiple metrics together. Accuracy alone can hide tradeoffs in calibration, robustness, fairness, bias, toxicity, and efficiency.</p>
+          <p class="lab">Implementation check: make a slice report that shows quality, latency, cost, and safety deltas separately before computing any aggregate score.</p>
+        </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2309.15217">RAGAS</a></h4>
+          <p>Learn to split a RAG failure into retrieval quality, context usefulness, answer relevance, and faithfulness. This keeps a retrieval miss from being hidden by a fluent generator, and keeps a generator hallucination from being blamed on the index.</p>
+          <p class="lab">Implementation check: score one RAG case with retrieved source ids, expected source ids, answer claims, citation support, and a faithfulness verdict.</p>
+        </article>
+      </div>
     </section>
 
     <section id="agents" class="band">

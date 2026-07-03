@@ -340,9 +340,40 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <summary>Question: Why not collapse RAG eval into one final answer score?</summary>
         <p>A single score hides whether to fix the retriever, reranker, context packer, prompt, or generator. Stage-level metrics make regressions actionable.</p>
       </details>
+      <h3>Implementation Drill: Compute Hit Rate And MRR Before Judging Answers</h3>
+      <p>
+        Before asking an LLM judge whether the final answer is faithful, check
+        whether retrieval put the gold evidence in front of the generator.
+        LlamaIndex's retrieval-evaluation docs use ranking metrics such as hit
+        rate and mean reciprocal rank, while RAGAS separates context recall and
+        context precision from answer-level faithfulness. That separation keeps
+        a weak retriever from being hidden by a lucky generator.
+      </p>
+      <pre><code class="language-python">def retrieval_metrics(retrieved_ids, expected_ids):
+    expected = set(expected_ids)
+    first_hit_rank = None
+    for rank, doc_id in enumerate(retrieved_ids, start=1):
+        if doc_id in expected:
+            first_hit_rank = rank
+            break
+
+    return {
+        "hit_rate": 1.0 if first_hit_rank is not None else 0.0,
+        "mrr": 0.0 if first_hit_rank is None else 1.0 / first_hit_rank,
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Evaluate retrieval alone:</strong> run hit rate, MRR, recall, or nDCG against expected chunk ids before adding the generator.</li>
+        <li><strong>Keep ids stable:</strong> store document id, chunk id, source URL, and tokenizer/chunker version so metric changes can be traced to a pipeline change.</li>
+        <li><strong>Slice hard cases:</strong> report exact-id, acronym, paraphrase, multi-hop, and stale-document queries separately instead of averaging them away.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can answer faithfulness look good while retrieval is still broken?</summary>
+        <p>The model may answer a common question from prior knowledge or use a partially relevant chunk. Retrieval metrics reveal whether the system can reliably surface the required evidence, not just whether one answer sounded grounded.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>,
+        <a href="https://developers.llamaindex.ai/python/examples/evaluation/retrieval/retriever_eval/">LlamaIndex retrieval evaluation</a>,
         <a href="https://github.com/openai/evals">OpenAI Evals</a>.
       </p>
     </section>

@@ -122,6 +122,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Qdrant hybrid queries and RRF: https://qdrant.tech/documentation/search/hybrid-queries/
 - Sentence Transformers retrieve and rerank: https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html
 - Hypothetical Document Embeddings (HyDE): https://arxiv.org/abs/2212.10496
+- LlamaIndex retrieval evaluation: https://developers.llamaindex.ai/python/examples/evaluation/retrieval/retriever_eval/
 - OpenAI function calling: https://developers.openai.com/api/docs/guides/function-calling
 - Model Context Protocol tools: https://modelcontextprotocol.io/specification/2025-03-26/server/tools
 - LangGraph interrupts: https://docs.langchain.com/oss/python/langgraph/interrupts

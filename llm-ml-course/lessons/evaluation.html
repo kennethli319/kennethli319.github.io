@@ -307,10 +307,40 @@
         <summary>Question: What should be in the rollback note?</summary>
         <p>The production profile to restore, the config flag or deployment action, the eval evidence that triggered rollback, and the owner who verifies recovery.</p>
       </details>
+      <h3>Portability Drill: Own The Eval Contract Outside The Runner</h3>
+      <p>
+        Hosted eval tools are useful, but the durable asset is the case schema,
+        scorer definition, rubric examples, and baseline comparison record.
+        OpenAI's Evals docs now list the Evals platform under legacy APIs and
+        state that the dashboard and API are scheduled to shut down on November
+        30, 2026, so a course-quality launch gate should be portable across a
+        hosted eval tool, a CI job, or a local replay harness. Keep provider
+        fields as adapters around a stable eval record instead of making the
+        provider export the only source of truth.
+      </p>
+      <pre><code>portable_eval_bundle = {
+    "cases": "eval_cases.jsonl",
+    "scorers": ["schema_check.py", "groundedness_rubric.md"],
+    "runner_adapter": "openai_evals | promptfoo | pytest | custom_ci",
+    "baseline_run": "runs/prod-2026-07-02.json",
+    "candidate_run": "runs/candidate-2026-07-02.json",
+    "gate": "paired_delta_by_slice.py",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Version the contract:</strong> store case ids, prompts, tool schemas, expected behavior, scorer versions, and rubric anchors in source control or a reviewed eval dataset.</li>
+        <li><strong>Separate adapters:</strong> translate the stable bundle into each hosted runner's format at execution time rather than editing the canonical cases for one platform.</li>
+        <li><strong>Export every run:</strong> keep raw outputs, scores, model revisions, sampling settings, and judge versions so a migration can replay the same gate.</li>
+        <li><strong>Practice migration:</strong> run a small smoke subset in two runners and compare case-level deltas before depending on a new tool for launch decisions.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What breaks when the eval runner owns the only copy of the test set?</summary>
+        <p>A platform change can turn a model-quality problem into an availability problem. Owning the eval contract separately lets the team move runners while preserving baselines, rubrics, and regression history.</p>
+      </details>
       <p>
         Sources:
         <a href="https://github.com/openai/evals">OpenAI Evals</a>,
         <a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals API guide</a>,
+        <a href="https://developers.openai.com/api/docs/deprecations">OpenAI deprecations</a>,
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
         <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
         <a href="https://arxiv.org/abs/2211.09110">HELM paper</a>,

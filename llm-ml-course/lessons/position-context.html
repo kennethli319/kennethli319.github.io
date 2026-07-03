@@ -126,6 +126,39 @@ scores = scores + causal_alibi_bias(q.size(1), q_len, k_len, slopes, q.device)</
         <summary>Question: Why can a longer configured context still fail a product eval?</summary>
         <p>The runtime may accept more tokens, but the model may not reliably use evidence at that distance, and the larger KV cache may force lower concurrency or higher latency.</p>
       </details>
+      <h3>Config Drill: Version The RoPE Scaling Contract</h3>
+      <p>
+        Context extension is more than changing <code>max_position_embeddings</code>.
+        YaRN and LongRoPE both extend RoPE-based models by changing how positions
+        map to rotary frequencies, while Hugging Face documents multiple RoPE
+        variants such as <code>linear</code>, <code>dynamic</code>,
+        <code>yarn</code>, <code>longrope</code>, and <code>llama3</code>.
+        vLLM's context-extension guidance points back to those RoPE parameters
+        because the serving engine must load the same positional contract the
+        model was trained or adapted with.
+      </p>
+      <pre><code>rope_extension_record = {
+    "base_model": "repo/name@revision",
+    "tokenizer": "repo/name@revision",
+    "rope": {
+        "rope_type": "yarn | longrope | llama3 | linear | dynamic",
+        "factor": 8,
+        "original_max_position_embeddings": 8192,
+        "rope_theta": 500000.0,
+    },
+    "validated_lengths": [8192, 32768, 65536],
+    "serving_limit": {"max_model_len": 65536, "kv_cache_budget_checked": True},
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Pin the original length:</strong> record the pre-extension context length separately from the new serving limit.</li>
+        <li><strong>Pin the variant:</strong> do not treat all RoPE scaling methods as interchangeable; their frequency schedules and short-context behavior can differ.</li>
+        <li><strong>Replay short tests:</strong> LongRoPE explicitly targets preserving original-window quality, so short-context regressions belong in the launch gate.</li>
+        <li><strong>Keep runtime aligned:</strong> model config, tokenizer/chat template, serving engine, cache positions, and KV budget must agree before long-context evals mean anything.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why version RoPE scaling like a model change?</summary>
+        <p>The same weights with different rotary parameters can attend differently across positions, so the scaling type, factor, original length, and runtime limit are part of the model contract.</p>
+      </details>
       <h3>Evaluation Drill: Sweep Evidence Position, Not Just Length</h3>
       <p>
         A long-context smoke test should vary where the needed evidence appears
@@ -165,8 +198,11 @@ scores = scores + causal_alibi_bias(q.size(1), q_len, k_len, slopes, q.device)</
         <a href="https://arxiv.org/abs/2307.03172">Lost in the Middle</a>,
         <a href="https://arxiv.org/abs/2308.14508">LongBench</a>,
         <a href="https://arxiv.org/abs/2412.15204">LongBench v2</a>,
+        <a href="https://arxiv.org/abs/2309.00071">YaRN</a>,
+        <a href="https://arxiv.org/abs/2402.13753">LongRoPE</a>,
         <a href="https://huggingface.co/docs/transformers/en/internal/rope_utils">Hugging Face RoPE utilities</a>,
-        <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model">Hugging Face TGI model preparation and RoPE scaling</a>.
+        <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model">Hugging Face TGI model preparation and RoPE scaling</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/context_extension/">vLLM context extension</a>.
       </p>
     </section>
   </main>

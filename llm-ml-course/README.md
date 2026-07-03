@@ -53,8 +53,11 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Attention Is All You Need: https://arxiv.org/abs/1706.03762
 - RoFormer / RoPE: https://arxiv.org/abs/2104.09864
 - ALiBi: https://arxiv.org/abs/2108.12409
+- YaRN: https://arxiv.org/abs/2309.00071
+- LongRoPE: https://arxiv.org/abs/2402.13753
 - Hugging Face RoPE utilities: https://huggingface.co/docs/transformers/en/internal/rope_utils
 - Hugging Face TGI RoPE scaling notes: https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/preparing_model
+- vLLM context extension: https://docs.vllm.ai/en/latest/features/context_extension/
 - FlashAttention: https://arxiv.org/abs/2205.14135
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3

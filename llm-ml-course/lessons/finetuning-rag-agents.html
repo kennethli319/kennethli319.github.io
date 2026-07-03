@@ -14,6 +14,7 @@
       <a href="#qlora">QLoRA</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
+      <a href="#embedding-contract">Embedding Contract</a>
       <a href="#contextual-retrieval">Contextual Retrieval</a>
       <a href="#hybrid-retrieval">Hybrid Retrieval</a>
       <a href="#dense-index">Dense Index</a>
@@ -254,6 +255,48 @@ assert chosen_completion_mask.sum() > 0 and rejected_completion_mask.sum() > 0</
         <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>,
         <a href="https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter">LangChain recursive text splitter</a>,
         <a href="https://developers.llamaindex.ai/python/examples/node_parsers/semantic_chunking/">LlamaIndex semantic chunking</a>.
+      </p>
+    </section>
+
+    <section id="embedding-contract" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Embedding Contract</p>
+        <h2>Version Embeddings Like Training Data</h2>
+      </div>
+      <p>
+        A retriever is only comparable across runs when the embedding contract
+        is explicit. Record the embedding model, output dimension, normalization
+        policy, distance metric, chunker version, metadata fields, and corpus
+        snapshot before indexing. OpenAI's embedding docs frame embeddings as
+        vectors for search and clustering, while the Retrieval API guide
+        emphasizes semantic search over application data; the production lesson
+        is that a changed embedding model or dimension is a new retrieval
+        dataset, not a harmless implementation detail.
+      </p>
+      <pre><code class="language-python">embedding_contract = {
+    "embedding_model": "text-embedding-3-small",
+    "dimensions": 1536,
+    "normalized": True,
+    "distance": "cosine",
+    "chunker_version": "recursive-v2:800:120",
+    "corpus_snapshot": "docs-2026-07-03",
+    "metadata": ["source_id", "section_path", "offsets", "updated_at"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Embed query and corpus consistently:</strong> do not compare vectors from different models, dimensions, tokenization policies, or normalization choices.</li>
+        <li><strong>Store source metadata beside vectors:</strong> retrieval ids should lead back to stable source text, offsets, and document versions for citation and debugging.</li>
+        <li><strong>Re-evaluate after reindexing:</strong> any change to model, chunking, dimensions, distance metric, or corpus parser should rerun recall and citation-hit checks.</li>
+        <li><strong>Keep raw text recoverable:</strong> vectors are retrieval features, not evidence; the answer should cite the underlying chunk or document.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can changing embedding dimensions break a RAG regression test?</summary>
+        <p>The index geometry changes, so neighbor ranks can move even if the source documents and prompt stay the same. Treat the dimension change as a new retrieval candidate and compare it against the previous index.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>,
+        <a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI embeddings guide</a>,
+        <a href="https://developers.openai.com/api/docs/guides/retrieval">OpenAI Retrieval API guide</a>.
       </p>
     </section>
 

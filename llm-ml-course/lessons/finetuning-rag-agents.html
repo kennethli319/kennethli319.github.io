@@ -84,10 +84,40 @@
         <summary>Question: Why is QLoRA not just "training a 4-bit model"?</summary>
         <p>The base model is quantized and frozen to save memory, while the learned change lives in trainable LoRA adapter weights. Gradients pass through the quantized base computation, but the base weights are not the parameters being optimized.</p>
       </details>
+      <h3>Memory Drill: Budget What QLoRA Does Not Remove</h3>
+      <p>
+        QLoRA reduces the resident base-weight footprint, but the run still
+        needs memory for activations, LoRA weights, adapter optimizer state,
+        gradients, temporary buffers, and the current batch. The QLoRA paper
+        introduces paged optimizers to smooth optimizer-state spikes, while
+        Hugging Face's PEFT quantization guide shows the practical contract:
+        load the base in 4-bit, prepare it for k-bit training, then attach LoRA
+        adapters as the only trainable weights. A good setup note should record
+        both the quantization recipe and the batch-shape recipe.
+      </p>
+      <pre><code class="language-python">qlora_memory_ledger = {
+    "frozen_base": "4-bit NF4 + double_quant + compute_dtype",
+    "trainable": ["lora_A", "lora_B"],
+    "still_scales_with_batch": ["activations", "attention_mask", "sequence_length"],
+    "optimizer": "paged_adamw_32bit_or_equivalent",
+    "fit_knobs": ["micro_batch", "gradient_accumulation", "checkpointing", "max_seq_len"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start from sequence length:</strong> long examples can OOM through activations even when the 4-bit base weights fit comfortably.</li>
+        <li><strong>Record effective batch:</strong> separate micro-batch size from gradient accumulation so quality changes are not blamed on quantization alone.</li>
+        <li><strong>Check trainable names:</strong> print adapter module names and trainable parameter counts before paying for a long run.</li>
+        <li><strong>Use a smoke batch:</strong> run one forward, backward, optimizer step, and save/load cycle before launching full fine-tuning.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a QLoRA run still OOM after the model loads?</summary>
+        <p>Loading the frozen 4-bit base is only one memory bucket. Backprop still creates activation, gradient, adapter, optimizer, and temporary-buffer pressure that grows with sequence length and micro-batch size.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2305.14314">QLoRA paper</a>,
         <a href="https://huggingface.co/docs/peft/package_reference/lora">Hugging Face PEFT LoRA docs</a>,
+        <a href="https://huggingface.co/docs/peft/en/developer_guides/quantization">Hugging Face PEFT quantization guide</a>,
+        <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face Transformers bitsandbytes docs</a>,
         <a href="https://huggingface.co/docs/bitsandbytes/en/optimizers">Hugging Face bitsandbytes optimizer docs</a>.
       </p>
     </section>

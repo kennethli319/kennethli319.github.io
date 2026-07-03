@@ -76,6 +76,11 @@
           <p class="lab">Implementation check: replace a handwritten attention function with <code>F.scaled_dot_product_attention</code> and keep tests identical.</p>
         </article>
         <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2305.13245">Grouped-Query Attention</a></h4>
+          <p>Read GQA after <a href="https://arxiv.org/abs/1911.02150">multi-query attention</a>: MQA shares one K/V head to reduce incremental-decoding memory bandwidth, while GQA keeps an intermediate number of K/V heads to recover more quality while preserving much of the serving win.</p>
+          <p class="lab">Implementation check: compute KV cache bytes for MHA, MQA, and GQA, then write the shape test that repeats compact K/V heads to match query heads only inside attention.</p>
+        </article>
+        <article class="problem-card">
           <h4><a href="https://arxiv.org/abs/2309.06180">vLLM / PagedAttention</a></h4>
           <p>Learn why KV cache memory management determines serving throughput for variable-length requests and how block-based cache paging reduces waste.</p>
           <p class="lab">Implementation check: estimate KV cache bytes and sketch a continuous batching admission rule.</p>

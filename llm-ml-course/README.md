@@ -28,7 +28,8 @@ Open `index.html` locally to read the course without a build step.
 - Interview practice: explain-first coding prompts with complexity, edge cases,
   and common implementation bugs.
 - Research reading map: primary papers and official docs for Transformer,
-  RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, LoRA, DPO, and RAG.
+  RoPE, FlashAttention, PyTorch SDPA, PagedAttention/vLLM, speculative
+  decoding, LoRA, DPO, and RAG.
 - Production serving lesson: scheduler budgets, prefill/decode disaggregation,
   KV cache policy, prefix caching, chunked prefill, admission control,
   speculative decoding gates, launch gates, metrics, and rollback checks.

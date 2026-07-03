@@ -85,6 +85,11 @@
           <p>Learn why KV cache memory management determines serving throughput for variable-length requests and how block-based cache paging reduces waste.</p>
           <p class="lab">Implementation check: estimate KV cache bytes and sketch a continuous batching admission rule.</p>
         </article>
+        <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2211.17192">Speculative Decoding</a></h4>
+          <p>Read speculative decoding as a latency method, not a new model objective: a cheaper drafter proposes several tokens, the target model verifies them in parallel, and the acceptance rule preserves the target distribution when its assumptions hold. Pair the paper with <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a> and <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a> to see how the idea turns into serving knobs such as assistant models, n-gram proposals, speculation length, and rollback profiles.</p>
+          <p class="lab">Implementation check: benchmark baseline decoding against one speculative profile while holding the target model, prompt set, sampling parameters, max tokens, and output-quality checks constant.</p>
+        </article>
       </div>
     </section>
 

@@ -370,6 +370,40 @@
         <summary>Question: Why store answer length and quality-gap notes in a position-bias audit?</summary>
         <p>They help distinguish order sensitivity from other causes. A judge may prefer a position, a longer answer, or a clearly better answer; the mitigation differs for each failure mode.</p>
       </details>
+      <h3>Calibration Drill: Compare Judge Errors To Human Labels</h3>
+      <p>
+        A judge agreement number is only useful when the error pattern is
+        visible. OpenAI's model-graded eval examples treat rubrics and grader
+        prompts as explicit scorer definitions, while MT-Bench compares judge
+        decisions against human preferences and HELM emphasizes transparent
+        scenario-level reporting. For a product gate, keep a small
+        human-labeled calibration set and report where the judge creates false
+        passes, false blocks, ties, and review cases instead of hiding them in
+        one average.
+      </p>
+      <pre><code class="language-python">def judge_confusion(rows):
+    # rows: human_label and judge_label are "pass", "fail", "tie", or "review"
+    table = {}
+    for row in rows:
+        key = (row["human_label"], row["judge_label"])
+        table[key] = table.get(key, 0) + 1
+    false_passes = table.get(("fail", "pass"), 0)
+    false_blocks = table.get(("pass", "fail"), 0)
+    return {
+        "confusion": table,
+        "hard_gate_ready": false_passes == 0 and false_blocks <= 1,
+        "review_load": sum(v for (h, j), v in table.items() if j == "review"),
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Keep human anchors:</strong> include clear pass, clear fail, borderline, and high-risk examples in every judge prompt or model change.</li>
+        <li><strong>Prioritize false passes:</strong> a judge that lets human-labeled failures through should stay advisory for that slice until the rubric is repaired.</li>
+        <li><strong>Track review load:</strong> a cautious judge can be safe but unusable if too many cases require manual review.</li>
+        <li><strong>Recalibrate after changes:</strong> rerun the anchors when the judge model, rubric wording, answer format, or product policy changes.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a confusion table better than one judge-human agreement score?</summary>
+        <p>It shows the operational cost of each error type. False passes risk shipping bad behavior, false blocks slow launches, and review-heavy outputs may be too expensive for routine regression gates.</p>
+      </details>
       <h3>Calibration Drill: Let The Judge Say Tie Or Escalate</h3>
       <p>
         Pairwise judges become brittle when every close comparison must pick a
@@ -405,7 +439,9 @@
       <p>
         Sources:
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
+        <a href="https://github.com/openai/evals/blob/main/docs/eval-templates.md">OpenAI Evals templates</a>,
         <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
+        <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
         <a href="https://arxiv.org/abs/2406.07791">Judging the Judges position-bias study</a>,
         <a href="https://arxiv.org/abs/2305.17926">FairEval / Large Language Models are not Fair Evaluators</a>,
         <a href="https://arxiv.org/abs/2303.16634">G-Eval paper</a>.

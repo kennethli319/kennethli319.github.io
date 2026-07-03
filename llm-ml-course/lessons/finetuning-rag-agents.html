@@ -15,6 +15,7 @@
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
       <a href="#hybrid-retrieval">Hybrid Retrieval</a>
+      <a href="#dense-index">Dense Index</a>
       <a href="#reranking">Reranking</a>
       <a href="#context-packing">Context Packing</a>
       <a href="#rag-eval">RAG Eval</a>
@@ -264,6 +265,50 @@ context = cross_encoder.rerank(query, candidates)[:6]</code></pre>
         <a href="https://qdrant.tech/documentation/search/hybrid-queries/">Qdrant hybrid queries</a>,
         <a href="https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html">Sentence Transformers retrieve and rerank</a>,
         <a href="https://arxiv.org/abs/2212.10496">HyDE paper</a>.
+      </p>
+    </section>
+
+    <section id="dense-index" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Dense Retrieval</p>
+        <h2>Use Exact Search As The Recall Baseline</h2>
+      </div>
+      <p>
+        Dense retrieval turns questions and passages into vectors, then asks an
+        index for nearest neighbors. DPR showed that a dual-encoder retriever
+        can be a strong first stage for open-domain QA, while the original RAG
+        recipe combined a neural retriever with a non-parametric passage index.
+        In production, the index choice is an engineering contract: exact flat
+        search is the quality baseline, and approximate indexes earn their keep
+        only if they preserve enough recall at the latency and memory budget.
+      </p>
+      <pre><code class="language-python">def recall_at_k(exact_ids, candidate_ids, k):
+    gold = set(exact_ids[:k])
+    found = set(candidate_ids[:k])
+    return len(gold &amp; found) / max(1, len(gold))
+
+index_eval = {
+    "baseline": "IndexFlatIP or IndexFlatL2",
+    "candidate": "IVF, HNSW, PQ, or a managed vector index",
+    "metrics": ["recall@10_vs_flat", "p95_search_ms", "bytes_per_vector"],
+    "slices": ["exact_id", "acronym", "paraphrase", "long_question"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Normalize deliberately:</strong> inner product and cosine search are only equivalent when embeddings are normalized.</li>
+        <li><strong>Train approximate indexes:</strong> IVF and product-quantized indexes need representative data before their latency numbers mean much.</li>
+        <li><strong>Measure against flat:</strong> tune index parameters by recall relative to exact search, not just by faster p95 latency.</li>
+        <li><strong>Keep the reranker honest:</strong> a reranker cannot recover evidence that the first-stage index never returns.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why keep an exact index around after choosing an approximate one?</summary>
+        <p>It gives you a regression oracle. When embeddings, chunking, index type, or search parameters change, exact search tells you whether lost answers came from retrieval quality or from the approximate index.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2004.04906">Dense Passage Retrieval</a>,
+        <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>,
+        <a href="https://faiss.ai/index.html">Faiss documentation</a>,
+        <a href="https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index">Faiss index guidelines</a>.
       </p>
     </section>
 

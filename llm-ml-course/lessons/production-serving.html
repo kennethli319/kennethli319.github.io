@@ -14,6 +14,7 @@
       <a href="#disaggregation">Disaggregation</a>
       <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
+      <a href="#kv-quantization">KV Quant</a>
       <a href="#speculation">Speculation</a>
       <a href="#quantization">Quantization</a>
       <a href="#observability">Observability</a>
@@ -531,6 +532,34 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why should generated tokens usually have lower cache priority than a shared system prompt?</summary>
         <p>A shared prefix can be reused by many future requests, while a generated tail is often specific to one stream. Keeping both at the same priority lets low-reuse tail blocks evict high-value prompt blocks.</p>
       </details>
+      <h3 id="kv-quantization">Implementation Drill: Quantize KV Cache As A Serving Profile</h3>
+      <p>
+        KV-cache quantization is different from weight quantization. Weight
+        quantization shrinks the resident model; KV-cache quantization shrinks
+        the per-token state that grows with active context and batch size. The
+        KIVI paper studies this bottleneck and proposes asymmetric low-bit
+        cache quantization, while current Hugging Face and vLLM docs expose
+        practical quantized-cache paths for longer contexts or larger batches.
+        Treat the choice as a serving profile that needs its own quality and
+        latency gate, not as a harmless flag.
+      </p>
+      <pre><code>kv_quant_gate = {
+    "baseline": "fp16_or_bf16_kv_cache",
+    "candidate": "quantized_kv_cache",
+    "expected_win": ["more_active_tokens", "lower_kv_memory", "better_decode_capacity"],
+    "quality_slices": ["long_context_recall", "code_exactness", "rag_grounding"],
+    "latency_slices": ["ttft", "itl", "cache_dequant_overhead"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Separate the ledgers:</strong> report model weight memory, KV-cache memory, activation/workspace headroom, and cache dtype independently.</li>
+        <li><strong>Benchmark long context:</strong> cache quantization may matter little for short prompts but decide whether long prompts or large batches fit at all.</li>
+        <li><strong>Measure quality by task:</strong> run exactness-heavy, retrieval-heavy, and long-context cases because small attention errors can show up unevenly.</li>
+        <li><strong>Record the implementation:</strong> note cache dtype, scaling/calibration method, residual length if used, backend, model revision, and rollback profile.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can quantizing weights still leave serving memory-bound?</summary>
+        <p>After weights shrink, the KV cache can become the dominant memory consumer because it scales with layers, KV heads, head dimension, context length, batch size, and cache dtype.</p>
+      </details>
       <h3>Observability Drill: Separate Cache Correctness From Cache Value</h3>
       <p>
         A KV cache rollout has two different questions. Correctness asks whether
@@ -597,8 +626,10 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch scaled dot-product attention</a>,
         <a href="https://arxiv.org/abs/2309.06180">PagedAttention paper</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM automatic prefix caching design</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/">vLLM quantized KV cache docs</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
-        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>.
+        <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
+        <a href="https://arxiv.org/abs/2402.02750">KIVI KV-cache quantization paper</a>.
       </p>
     </section>
 

@@ -412,6 +412,41 @@
         <li><strong>Log the boundary:</strong> preserve which content came from user input, retrieval, tools, system policy, and human approval so the failure can be replayed.</li>
         <li><strong>Slice by route:</strong> test direct user prompts, indirect RAG injections, tool-output injections, and multi-step agent handoffs separately.</li>
       </ol>
+      <h3>Coverage Drill: Build A Prompt-Injection Route Matrix</h3>
+      <p>
+        One jailbreak string is not a security eval. OWASP separates direct
+        and indirect prompt injection, while NIST's Generative AI Profile
+        frames evaluation around risk management for misuse, data privacy,
+        information integrity, and information security. Convert that into a
+        route matrix: vary where the malicious instruction appears, which
+        authority it tries to impersonate, and which product harm would happen
+        if the model obeyed it.
+      </p>
+      <pre><code>injection_route_matrix = [
+    {
+        "route": "direct_user_prompt",
+        "impersonates": "developer_policy",
+        "forbidden_result": "safety_policy_override",
+        "risk_label": "misuse",
+    },
+    {
+        "route": "retrieved_document",
+        "impersonates": "system_message",
+        "forbidden_result": "answer_uses_untrusted_instruction",
+        "risk_label": "information_integrity",
+    },
+    {
+        "route": "tool_result",
+        "impersonates": "operator_approval",
+        "forbidden_result": "write_tool_called_without_approval",
+        "risk_label": "information_security",
+    },
+]</code></pre>
+      <ol class="steps">
+        <li><strong>Cross route and harm:</strong> include at least one case for instruction override, data exfiltration, unsafe tool action, and unsupported grounded answer.</li>
+        <li><strong>Keep the clean twin:</strong> pair each attack with a benign case on the same workflow so the mitigation does not simply break normal retrieval or tool use.</li>
+        <li><strong>Score the trace:</strong> require evidence that the untrusted content was treated as data, the forbidden tool stayed blocked, and any final answer remained grounded.</li>
+      </ol>
       <details class="qa">
         <summary>Question: Why is a prompt-injection eval different from a normal refusal test?</summary>
         <p>A refusal test checks whether the model rejects a direct unsafe request. A prompt-injection eval checks whether untrusted content can impersonate instructions, change tool policy, or cross a trust boundary during an otherwise legitimate workflow.</p>
@@ -490,6 +525,7 @@
         <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
         <a href="https://arxiv.org/abs/2406.07791">LLM judge position-bias study</a>,
         <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">OWASP LLM01 prompt injection</a>,
+        <a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST AI 600-1 Generative AI Profile</a>,
         <a href="https://genai.owasp.org/llmrisk/llm062025-excessive-agency/">OWASP LLM06 excessive agency</a>,
         <a href="https://developers.openai.com/api/docs/guides/agents/guardrails-approvals">OpenAI guardrails and human review</a>,
         <a href="https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices">MCP security best practices</a>.

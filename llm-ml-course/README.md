@@ -136,6 +136,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - OpenAI Evals: https://github.com/openai/evals
 - OpenAI Evals API guide: https://developers.openai.com/api/docs/guides/evals
 - OpenAI evaluation best practices: https://developers.openai.com/api/docs/guides/evaluation-best-practices
+- NIST AI 600-1 Generative AI Profile: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf
 - Stanford HELM: https://crfm.stanford.edu/helm/
 - Holistic Evaluation of Language Models: https://arxiv.org/abs/2211.09110
 - RAGAS: https://arxiv.org/abs/2309.15217

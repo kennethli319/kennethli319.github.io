@@ -584,9 +584,48 @@ for position in ["front", "middle", "end"]:
         <summary>Question: Why can answer faithfulness look good while retrieval is still broken?</summary>
         <p>The model may answer a common question from prior knowledge or use a partially relevant chunk. Retrieval metrics reveal whether the system can reliably surface the required evidence, not just whether one answer sounded grounded.</p>
       </details>
+      <h3>Evaluation Drill: Calibrate The RAG Judge</h3>
+      <p>
+        Automated RAG judges are useful only when their contract is explicit.
+        Ragas decomposes the task into retriever-facing context precision and
+        context recall plus generator-facing faithfulness, while ARES evaluates
+        context relevance, answer faithfulness, and answer relevance with
+        lightweight judges calibrated by a small human-labeled set. For a course
+        project or production launch, keep a tiny audited slice beside the
+        automated scores so judge drift does not become a hidden regression.
+      </p>
+      <pre><code class="language-python">judge_audit = {
+    "case_id": "rag-042",
+    "query_type": "multi-hop",
+    "expected_context_ids": ["policy:7", "faq:3"],
+    "retrieved_context_ids": ["faq:3", "blog:9", "policy:7"],
+    "answer_claims": [
+        {"text": "Refunds require approval after 30 days.", "supported": True},
+        {"text": "Enterprise plans always bypass approval.", "supported": False},
+    ],
+    "human_grade": {
+        "context_recall": 1.0,
+        "context_precision": 2 / 3,
+        "faithfulness": 0.5,
+    },
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Pin the rubric:</strong> define relevance, support, and answer usefulness before collecting judge scores.</li>
+        <li><strong>Audit by slice:</strong> inspect single-hop, multi-hop, stale-document, and adversarial queries separately because average faithfulness can hide one broken category.</li>
+        <li><strong>Compare to humans:</strong> sample automated passes and failures each release, then track judge agreement before trusting a score movement.</li>
+        <li><strong>Keep evidence ids:</strong> store stable chunk ids with the answer so a later reviewer can reproduce whether each claim was actually grounded.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should trigger a manual review even when automated RAG scores pass?</summary>
+        <p>Review cases where retrieval changed, a new corpus was ingested, the judge model or prompt changed, or high-risk queries pass faithfulness while citing weak or stale evidence.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2309.15217">RAGAS</a>,
+        <a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/">Ragas context precision</a>,
+        <a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_recall/">Ragas context recall</a>,
+        <a href="https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/">Ragas faithfulness</a>,
+        <a href="https://arxiv.org/abs/2311.09476">ARES</a>,
         <a href="https://developers.llamaindex.ai/python/examples/evaluation/retrieval/retriever_eval/">LlamaIndex retrieval evaluation</a>,
         <a href="https://github.com/openai/evals">OpenAI Evals</a>.
       </p>

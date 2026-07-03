@@ -13,6 +13,7 @@
       <a href="#softmax">Softmax</a>
       <a href="#norm">Norms</a>
       <a href="#training">Training</a>
+      <a href="#checkpointing">Checkpointing</a>
       <a href="#amp-compile">AMP + Compile</a>
       <a href="#eval-mode">Eval Mode</a>
     </nav>
@@ -123,6 +124,52 @@ def rms_norm(x, weight, eps=1e-6):
         <summary>Question: Why does gradient accumulation divide the loss?</summary>
         <p>Dividing by accumulation steps keeps the effective gradient scale close to a single larger batch instead of making the learning rate implicitly larger.</p>
       </details>
+    </section>
+
+    <section id="checkpointing" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Memory Tradeoff</p>
+        <h2>Use Activation Checkpointing Only Where Recompute Is Worth It</h2>
+      </div>
+      <p>
+        Activation checkpointing reduces training memory by not saving every
+        intermediate activation during the forward pass. During backward,
+        PyTorch recomputes the checkpointed region so gradients can still be
+        calculated. That tradeoff is useful for deep transformer blocks when
+        activation memory is the bottleneck, but it spends extra compute and can
+        hide bugs if the recomputed forward is not deterministic.
+      </p>
+      <pre><code class="language-python">from torch.utils.checkpoint import checkpoint
+
+class CheckpointedBlock(torch.nn.Module):
+    def __init__(self, block):
+        super().__init__()
+        self.block = block
+
+    def forward(self, hidden_states, attention_mask):
+        def run_block(x, mask):
+            return self.block(x, attention_mask=mask)
+
+        return checkpoint(
+            run_block,
+            hidden_states,
+            attention_mask,
+            use_reentrant=False,
+        )</code></pre>
+      <ol class="steps">
+        <li><strong>Checkpoint large regions:</strong> wrap transformer blocks or groups of blocks, not tiny cheap ops whose recompute overhead dominates the saved memory.</li>
+        <li><strong>Prefer the explicit API:</strong> pass <code>use_reentrant=False</code> deliberately and keep the choice in the experiment config because PyTorch documents behavioral differences between variants.</li>
+        <li><strong>Preserve determinism:</strong> dropout, random sampling, and global state changes inside the checkpointed region can make recomputation disagree with the original forward.</li>
+        <li><strong>Measure both sides:</strong> report peak memory, tokens per second, and loss parity against the non-checkpointed run before treating the change as a win.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can checkpointing fix OOM but slow training?</summary>
+        <p>It saves activation memory during forward, but backward must rerun the checkpointed forward computation. The right checkpoint boundary is therefore a memory-compute tradeoff, not a pure optimization.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://docs.pytorch.org/docs/stable/checkpoint.html">PyTorch activation checkpointing reference</a>,
+        <a href="https://pytorch.org/blog/activation-checkpointing-techniques/">PyTorch activation checkpointing techniques</a>.
+      </p>
     </section>
 
     <section id="amp-compile" class="band">

@@ -83,8 +83,11 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - LMSYS SGLang and RadixAttention blog: https://www.lmsys.org/blog/2024-01-17-sglang/
 - SGLang / RadixAttention paper: https://arxiv.org/abs/2312.07104
 - OpenAI prompt caching: https://developers.openai.com/api/docs/guides/prompt-caching
+- OpenAI structured outputs: https://developers.openai.com/api/docs/guides/structured-outputs
 - vLLM metrics: https://docs.vllm.ai/en/stable/design/metrics/
 - vLLM disaggregated prefilling: https://docs.vllm.ai/en/latest/features/disagg_prefill/
+- vLLM structured outputs: https://docs.vllm.ai/en/latest/features/structured_outputs/
+- Hugging Face TGI guidance: https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/using_guidance
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - Ray Serve multi-LoRA deployment: https://docs.ray.io/en/latest/serve/llm/user-guides/multi-lora.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/

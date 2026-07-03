@@ -17,6 +17,7 @@
       <a href="#speculation">Speculation</a>
       <a href="#quantization">Quantization</a>
       <a href="#observability">Observability</a>
+      <a href="#structured-outputs">Structured Outputs</a>
       <a href="#launch">Launch Gates</a>
     </nav>
     <p class="eyebrow">Module 13</p>
@@ -913,6 +914,47 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
       </details>
     </section>
 
+    <section id="structured-outputs" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Output Contracts</p>
+        <h2>Make Structured Outputs A Versioned Serving Contract</h2>
+      </div>
+      <p>
+        JSON mode, grammar guidance, and structured outputs are production
+        controls, not just prompt style. OpenAI documents schema-backed
+        structured outputs with strict JSON Schema, vLLM exposes structured
+        output constraints for choices, regexes, JSON schemas, grammars, and
+        structural tags, and Hugging Face TGI supports JSON and regex grammar
+        guidance. Treat the schema, refusal path, max-token behavior, and
+        backend support as part of the endpoint contract before downstream
+        code parses the response.
+      </p>
+      <pre><code>structured_output_contract = {
+    "schema_name": "citation_answer_v3",
+    "schema_revision": "2026-07-02",
+    "strict": True,
+    "fields": ["answer", "citations", "confidence"],
+    "edge_cases": ["refusal", "truncated_output", "schema_unsupported"],
+    "metrics": ["parse_success_rate", "schema_error_rate", "ttft_ms", "itl_ms"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Version the schema:</strong> include schema name, revision, model revision, and serving backend in traces so parser failures can be tied to a contract change.</li>
+        <li><strong>Test edge cases:</strong> refusals, content filters, max-token truncation, unsupported schema features, and stream cancellation need separate counters from ordinary parse failures.</li>
+        <li><strong>Benchmark the constraint:</strong> constrained decoding can change latency and token choices, so compare TTFT, ITL, completion length, and task quality against the unconstrained baseline.</li>
+        <li><strong>Parse after validation:</strong> downstream services should only consume typed objects after the response has matched the promised schema or entered a documented fallback path.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a schema change a serving change?</summary>
+        <p>It can alter decoding constraints, parser expectations, refusal handling, latency, and downstream validation. Versioning the schema makes rollbacks and regressions traceable even when the model checkpoint is unchanged.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs guide</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/structured_outputs/">vLLM structured outputs</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/using_guidance">Hugging Face TGI guidance</a>.
+      </p>
+    </section>
+
     <section id="launch" class="band">
       <div class="section-head">
         <p class="eyebrow">Launch Gates</p>
@@ -973,6 +1015,9 @@ e2e = events["completed_at"] - events["received_at"]</code></pre>
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,
         <a href="https://huggingface.co/blog/kv-cache-quantization">Hugging Face KV cache quantization</a>,
         <a href="https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/">OpenTelemetry GenAI semantic conventions</a>,
+        <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI structured outputs guide</a>,
+        <a href="https://docs.vllm.ai/en/latest/features/structured_outputs/">vLLM structured outputs</a>,
+        <a href="https://huggingface.co/docs/text-generation-inference/en/basic_tutorials/using_guidance">Hugging Face TGI guidance</a>,
         <a href="https://huggingface.co/docs/transformers/en/quantization/bitsandbytes">Hugging Face bitsandbytes quantization</a>,
         <a href="https://arxiv.org/abs/2402.02750">KIVI KV-cache quantization</a>,
         <a href="https://arxiv.org/abs/2302.01318">Accelerating Large Language Model Decoding with Speculative Sampling</a>,

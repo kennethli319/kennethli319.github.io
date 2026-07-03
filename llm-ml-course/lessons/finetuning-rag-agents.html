@@ -336,6 +336,40 @@ index_eval = {
         <summary>Question: Why keep an exact index around after choosing an approximate one?</summary>
         <p>It gives you a regression oracle. When embeddings, chunking, index type, or search parameters change, exact search tells you whether lost answers came from retrieval quality or from the approximate index.</p>
       </details>
+      <h3>Implementation Drill: Tune ANN Parameters Against A Flat Oracle</h3>
+      <p>
+        Approximate nearest-neighbor indexes are not a one-time infrastructure
+        choice; their knobs are part of retrieval quality. Faiss documents flat
+        indexes as the exact-result baseline, while index families such as IVF,
+        HNSW, and PQ trade recall, memory, build time, and search latency. Keep
+        a small labeled query set and sweep the index parameters against
+        <code>IndexFlatIP</code> or <code>IndexFlatL2</code> before blaming the
+        embedding model or reranker.
+      </p>
+      <pre><code class="language-python">ann_sweep = [
+    {"index": "IVF4096,Flat", "params": {"nprobe": 8}},
+    {"index": "IVF4096,Flat", "params": {"nprobe": 32}},
+    {"index": "HNSW32,Flat", "params": {"efSearch": 64}},
+    {"index": "HNSW32,Flat", "params": {"efSearch": 128}},
+]
+
+for candidate in ann_sweep:
+    ids, latency_ms = search_with(candidate, queries, top_k=20)
+    report(candidate, {
+        "recall_vs_flat@20": recall_against_flat(ids, flat_ids, k=20),
+        "p95_search_ms": percentile(latency_ms, 95),
+        "index_bytes": measure_index_bytes(candidate),
+    })</code></pre>
+      <ol class="steps">
+        <li><strong>Sweep one family at a time:</strong> tune IVF's <code>nprobe</code>, HNSW's search breadth, or PQ compression while holding embeddings, chunks, and top-k fixed.</li>
+        <li><strong>Use real slices:</strong> include exact ids, rare terms, paraphrases, and long questions so a fast average does not hide hard-query recall loss.</li>
+        <li><strong>Report the Pareto point:</strong> choose the smallest latency and memory profile that still meets the recall target against the flat oracle.</li>
+        <li><strong>Re-run on index changes:</strong> retraining IVF, changing normalization, adding PQ, or switching embedding models invalidates old recall numbers.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why tune ANN search before changing the generator?</summary>
+        <p>If the approximate index drops the gold chunk before reranking or generation, no prompt or model change can reliably recover it. The flat index tells you whether the miss came from approximate search.</p>
+      </details>
       <p>
         Sources:
         <a href="https://arxiv.org/abs/2004.04906">Dense Passage Retrieval</a>,

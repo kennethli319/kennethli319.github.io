@@ -130,6 +130,9 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Hugging Face TRL DPOTrainer: https://huggingface.co/docs/trl/en/dpo_trainer
 - Retrieval-Augmented Generation: https://arxiv.org/abs/2005.11401
 - Lost in the Middle: https://arxiv.org/abs/2307.03172
+- Anthropic contextual retrieval: https://www.anthropic.com/engineering/contextual-retrieval
+- Claude contextual embeddings cookbook: https://platform.claude.com/cookbook/capabilities-contextual-embeddings-guide
+- LangSmith RAG evaluation tutorial: https://docs.langchain.com/langsmith/evaluate-rag-tutorial
 - Qdrant hybrid queries and RRF: https://qdrant.tech/documentation/search/hybrid-queries/
 - Sentence Transformers retrieve and rerank: https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html
 - Hypothetical Document Embeddings (HyDE): https://arxiv.org/abs/2212.10496

@@ -14,6 +14,7 @@
       <a href="#qlora">QLoRA</a>
       <a href="#preference">Preference</a>
       <a href="#rag">RAG</a>
+      <a href="#contextual-retrieval">Contextual Retrieval</a>
       <a href="#hybrid-retrieval">Hybrid Retrieval</a>
       <a href="#dense-index">Dense Index</a>
       <a href="#reranking">Reranking</a>
@@ -253,6 +254,46 @@ assert chosen_completion_mask.sum() > 0 and rejected_completion_mask.sum() > 0</
         <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a>,
         <a href="https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter">LangChain recursive text splitter</a>,
         <a href="https://developers.llamaindex.ai/python/examples/node_parsers/semantic_chunking/">LlamaIndex semantic chunking</a>.
+      </p>
+    </section>
+
+    <section id="contextual-retrieval" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Contextual Retrieval</p>
+        <h2>Add Chunk Context Only When It Improves Retrieval Metrics</h2>
+      </div>
+      <p>
+        Small chunks can lose the surrounding section, product, date, or entity
+        that made them meaningful. Contextual retrieval fixes that by prepending
+        a short document-aware note to each chunk before embedding and indexing.
+        Anthropic describes pairing this with contextual BM25 and reranking;
+        the important engineering rule is to evaluate it as a new index, not as
+        harmless metadata. The added context changes both sparse terms and dense
+        vectors, so it can improve recall while also introducing misleading
+        boilerplate if the context generator is sloppy.
+      </p>
+      <pre><code class="language-python">contextual_chunk = {
+    "source_id": "handbook.md#pto-rollover",
+    "raw_chunk": "Unused days roll over until March 31.",
+    "context_note": "This chunk is from the PTO policy for US full-time employees.",
+    "indexed_text": context_note + "\n\n" + raw_chunk,
+    "visible_citation": raw_chunk,
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Keep provenance clean:</strong> store generated context separately from source text so citations quote the original document, not the enrichment note.</li>
+        <li><strong>Compare indexes:</strong> run raw chunks, contextual chunks, contextual BM25, and reranked candidates against the same gold evidence ids.</li>
+        <li><strong>Inspect regressions:</strong> look for cases where a generic section note makes many chunks look relevant or where stale document summaries contaminate fresh chunks.</li>
+        <li><strong>Cache deliberately:</strong> context generation can be expensive at ingest time, so version the prompt, model, source document hash, and generated note.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why should the citation usually show raw chunk text instead of contextualized text?</summary>
+        <p>The generated context is an indexing aid, not the authoritative source. Showing raw source text keeps attribution auditable and prevents a generated note from becoming unsupported evidence.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://www.anthropic.com/engineering/contextual-retrieval">Anthropic contextual retrieval</a>,
+        <a href="https://platform.claude.com/cookbook/capabilities-contextual-embeddings-guide">Claude contextual embeddings cookbook</a>,
+        <a href="https://docs.langchain.com/langsmith/evaluate-rag-tutorial">LangSmith RAG evaluation tutorial</a>.
       </p>
     </section>
 

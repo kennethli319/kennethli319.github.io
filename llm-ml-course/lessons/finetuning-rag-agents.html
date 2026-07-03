@@ -260,10 +260,43 @@ context = cross_encoder.rerank(query, candidates)[:6]</code></pre>
         <summary>Question: Why can hybrid search beat dense retrieval on technical RAG?</summary>
         <p>Technical questions often depend on exact strings such as function names, error codes, product ids, and citations. Dense embeddings can blur those details, while lexical search keeps them visible for the reranker.</p>
       </details>
+      <h3>Lab Prompt: Run A Retrieval Ablation Before Changing The Generator</h3>
+      <p>
+        Treat each retrieval stage as a candidate system with the same labeled
+        questions and gold chunk ids. LlamaIndex's retrieval-evaluation docs
+        call out ranking metrics such as hit rate, MRR, precision, recall, AP,
+        and NDCG; Qdrant's hybrid query docs show fusion as a first-stage
+        retrieval pattern; Sentence Transformers frames reranking as a second
+        stage after fast retrieval. Put those together before blaming the LLM:
+        measure whether dense search, sparse search, rank fusion, or reranking
+        actually moves the gold evidence closer to the top.
+      </p>
+      <pre><code class="language-python">rrf_ids = reciprocal_rank_fusion([sparse_ids, dense_ids])[:50]
+retrieval_runs = {
+    "dense_top_50": dense_ids,
+    "sparse_top_50": sparse_ids,
+    "rrf_top_50": rrf_ids,
+    "reranked_top_10": rerank(query, rrf_ids[:50])[:10],
+}
+
+report = {
+    name: retrieval_metrics(ids, gold_ids)
+    for name, ids in retrieval_runs.items()
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Hold the corpus fixed:</strong> use the same chunks, metadata, and gold ids for every candidate retriever.</li>
+        <li><strong>Compare ranks, not anecdotes:</strong> report hit rate and MRR for each stage, then inspect only the cases that changed.</li>
+        <li><strong>Gate rerank cost:</strong> promote a reranker only when its quality lift is worth the added candidate-pair latency.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What does a retrieval ablation tell you that a final-answer eval cannot?</summary>
+        <p>It shows which retrieval stage moved the required evidence into or out of the prompt, even before the generator has a chance to hide the miss with prior knowledge or fluent unsupported text.</p>
+      </details>
       <p>
         Sources:
         <a href="https://qdrant.tech/documentation/search/hybrid-queries/">Qdrant hybrid queries</a>,
-        <a href="https://sbert.net/examples/sparse_encoder/applications/retrieve_rerank/README.html">Sentence Transformers retrieve and rerank</a>,
+        <a href="https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html">Sentence Transformers retrieve and rerank</a>,
+        <a href="https://developers.llamaindex.ai/python/examples/evaluation/retrieval/retriever_eval/">LlamaIndex retrieval evaluation</a>,
         <a href="https://arxiv.org/abs/2212.10496">HyDE paper</a>.
       </p>
     </section>

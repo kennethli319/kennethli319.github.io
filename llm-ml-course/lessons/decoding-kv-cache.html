@@ -406,6 +406,42 @@ assert physical_block == 91 and offset == 1</code></pre>
         <summary>Question: What does the block table buy over one contiguous KV tensor per request?</summary>
         <p>It lets logical sequence positions map to non-contiguous physical blocks, so variable-length requests can grow, finish, and share prefixes without forcing large contiguous allocations or cache copies.</p>
       </details>
+      <h3>Implementation Drill: Admit Requests By KV Blocks, Not Prompt Count</h3>
+      <p>
+        A paged cache makes scheduling look like a small memory-accounting
+        problem. vLLM's design docs define each KV block as a fixed number of
+        tokens at one head, and the PagedAttention paper frames the block table
+        as the indirection that keeps logical sequence positions separate from
+        physical GPU memory. For a serving interview, turn that into an
+        admission test: reserve enough blocks for the prompt plus the promised
+        generation budget before adding a request to the active batch.
+      </p>
+      <pre><code class="language-python">import math
+
+def required_kv_blocks(prompt_tokens, max_new_tokens, block_size):
+    return math.ceil((prompt_tokens + max_new_tokens) / block_size)
+
+def can_admit(active_block_counts, request, free_blocks, block_size):
+    already_reserved = sum(active_block_counts)
+    needed = required_kv_blocks(
+        request["prompt_tokens"],
+        request["max_new_tokens"],
+        block_size,
+    )
+    return already_reserved + needed <= free_blocks
+
+request = {"prompt_tokens": 900, "max_new_tokens": 300}
+assert required_kv_blocks(900, 300, block_size=16) == 75</code></pre>
+      <ol class="steps">
+        <li><strong>Reserve decode room:</strong> a request that fits at prefill can still OOM later if the scheduler ignores its maximum generation budget.</li>
+        <li><strong>Update on completion:</strong> release blocks when a sequence stops, and decrement prefix-reference counts only when every sharer is done.</li>
+        <li><strong>Track internal waste:</strong> each active request can waste up to <code>block_size - 1</code> token slots in its final block, so smaller blocks reduce waste but increase metadata and scheduling overhead.</li>
+        <li><strong>Report the unit:</strong> dashboards should show allocated KV blocks and token slots, not only number of active requests.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why reserve <code>max_new_tokens</code> before decoding starts?</summary>
+        <p>Because admission control is a promise. If the server admits requests using only prompt length, later decode steps can exhaust the KV pool and force cancellations, evictions, or severe tail-latency spikes.</p>
+      </details>
       <h3>Implementation Drill: Cache Correctness Before Cache Speed</h3>
       <p>
         Start with a tiny decode loop that compares cached and uncached logits

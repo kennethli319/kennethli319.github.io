@@ -63,6 +63,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
 - FlashAttention-3 implementation notes: https://github.com/togethercomputer/flash-attention-3
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
+- FlashAttention implementation notes: https://github.com/Dao-AILab/flash-attention
 - PyTorch CrossEntropyLoss docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
 - PyTorch FlexAttention docs: https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html
 - PyTorch FlexAttention inference note: https://pytorch.org/blog/flexattention-for-inference/
@@ -95,6 +96,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - Ray Serve prefill/decode disaggregation: https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html
 - Ray Serve multi-LoRA deployment: https://docs.ray.io/en/latest/serve/llm/user-guides/multi-lora.html
 - TensorRT-LLM documentation: https://nvidia.github.io/TensorRT-LLM/
+- TensorRT-LLM MHA/MQA/GQA attention: https://nvidia.github.io/TensorRT-LLM/advanced/gpt-attention.html
 - TensorRT-LLM in-flight batching overview: https://nvidia.github.io/TensorRT-LLM/overview.html
 - TensorRT-LLM quantization: https://nvidia.github.io/TensorRT-LLM/latest/features/quantization.html
 - TensorRT-LLM KV cache system: https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html

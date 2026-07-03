@@ -265,6 +265,43 @@ torch.testing.assert_close(fast, slow, rtol=2e-3, atol=2e-3)</code></pre>
         <summary>Question: Why does the slow reference repeat K/V heads instead of query heads?</summary>
         <p>GQA preserves the model's query-head count and shares fewer K/V heads across groups. Repeating K/V heads only for the attention computation matches that contract while keeping the cache compact.</p>
       </details>
+      <h3>Implementation Checklist: Trust But Pin The GQA Backend</h3>
+      <p>
+        Treat fused GQA as an implementation detail that must match the model's
+        trained attention contract. PyTorch's SDPA docs mark
+        <code>enable_gqa=True</code> as experimental, restrict it to CUDA Flash
+        attention and math backends, and require query heads to divide evenly
+        by K/V heads. FlashAttention and TensorRT-LLM use the same practical
+        contract: pass fewer K/V heads than query heads, keep the divisibility
+        invariant, then benchmark the actual generation kernel and cache layout
+        instead of assuming the fused path is always selected.
+      </p>
+      <pre><code class="language-python">from torch.nn.attention import SDPBackend, sdpa_kernel
+
+def gqa_decode_smoke_test(q, k, v):
+    assert q.size(1) % k.size(1) == 0
+    assert k.size(1) == v.size(1)
+    assert q.is_cuda and k.is_cuda and v.is_cuda
+
+    with sdpa_kernel(backends=[SDPBackend.FLASH_ATTENTION]):
+        return F.scaled_dot_product_attention(
+            q, k, v,
+            dropout_p=0.0,
+            enable_gqa=True,
+        )
+
+# If this falls back, warns, or fails, keep the repeat-KV reference path
+# for correctness and investigate dtype, mask, shape, and backend support.</code></pre>
+      <ol class="steps">
+        <li><strong>Pin the kernel during tests:</strong> use <code>sdpa_kernel</code> when you need to prove that Flash attention, not a silent math fallback, is running.</li>
+        <li><strong>Measure both phases:</strong> prefill and one-token decode can dispatch different kernels, so record time-to-first-token and inter-token latency separately.</li>
+        <li><strong>Check cache metadata:</strong> fused cache-update APIs still need correct sequence lengths, block tables, RoPE positions, and enough pre-allocated space for appended K/V.</li>
+        <li><strong>Keep a fallback:</strong> a slow repeat-KV path is useful for CPU tests, unsupported devices, numerical debugging, and explaining the grouping rule in interviews.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why pin a backend if SDPA can choose one automatically?</summary>
+        <p>Automatic dispatch is convenient for production baselines, but a course or regression test should reveal when grouped attention is using the intended fused kernel versus falling back to a slower or numerically different implementation.</p>
+      </details>
       <h3>Reading Note: MLA Compresses What The Cache Stores</h3>
       <p>
         Multi-head latent attention is another answer to the same decode-time

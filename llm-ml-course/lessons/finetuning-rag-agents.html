@@ -138,6 +138,37 @@ dpo_record = {
         <summary>Question: What quick smoke test catches a reversed DPO dataset?</summary>
         <p>Run a tiny batch with known-good and known-bad answers, then check whether the update increases the chosen-minus-rejected margin. If it moves the wrong way, inspect column mapping and chat formatting before tuning beta.</p>
       </details>
+      <h3>Implementation Drill: Score The Completion, Not The Prompt</h3>
+      <p>
+        DPO compares two completions for the same prompt. The prompt tokens are
+        conditioning context, so their log probabilities should not dominate
+        the chosen-versus-rejected margin. TRL's DPO docs make the dataset
+        contract explicit as <code>prompt</code>, <code>chosen</code>, and
+        <code>rejected</code>, and define the loss over
+        <code>pi(y | x)</code>: the completion <code>y</code> given prompt
+        <code>x</code>. In a hand-written trainer, build a completion mask and
+        reduce only over answer tokens after the chat template has been applied.
+      </p>
+      <pre><code class="language-python">def sequence_logprob(logits, labels, completion_mask):
+    # logits: batch, seq, vocab; labels: batch, seq
+    token_logps = torch.log_softmax(logits[:, :-1], dim=-1)
+    next_labels = labels[:, 1:]
+    next_mask = completion_mask[:, 1:].to(token_logps.dtype)
+    gathered = token_logps.gather(-1, next_labels[..., None]).squeeze(-1)
+    return (gathered * next_mask).sum(dim=-1)
+
+chosen_logp = sequence_logprob(chosen_logits, chosen_ids, chosen_completion_mask)
+rejected_logp = sequence_logprob(rejected_logits, rejected_ids, rejected_completion_mask)
+assert chosen_completion_mask.sum() > 0 and rejected_completion_mask.sum() > 0</code></pre>
+      <ol class="steps">
+        <li><strong>Mask after templating:</strong> chat roles, separators, and assistant prefixes can add tokens, so derive the completion mask from tokenized examples, not raw string length.</li>
+        <li><strong>Keep prompts paired:</strong> chosen and rejected examples should share the same prompt tokens; a prompt mismatch turns DPO into a formatting comparison.</li>
+        <li><strong>Choose the reduction deliberately:</strong> summed log-probability matches the usual sequence likelihood, while length-normalized variants are separate loss choices that need their own eval.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can including prompt log-probs hide a bad DPO run?</summary>
+        <p>The prompt is identical or nearly identical across the pair, so it can swamp the smaller answer-specific signal and make margins look stable even when the model is not learning the preferred completion behavior.</p>
+      </details>
       <h3>Reasoning Drill: GRPO Needs A Reward Contract</h3>
       <p>
         Group Relative Policy Optimization is useful when the training signal

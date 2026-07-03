@@ -65,6 +65,8 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - PyTorch scaled dot-product attention docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html
 - FlashAttention implementation notes: https://github.com/Dao-AILab/flash-attention
 - PyTorch CrossEntropyLoss docs: https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
+- Hugging Face causal language modeling guide: https://huggingface.co/docs/transformers/en/tasks/language_modeling
+- Hugging Face LLM course causal language modeling note: https://huggingface.co/learn/llm-course/en/chapter7/6
 - PyTorch FlexAttention docs: https://docs.pytorch.org/docs/2.12/nn.attention.flex_attention.html
 - PyTorch FlexAttention inference note: https://pytorch.org/blog/flexattention-for-inference/
 - FlexAttention paper: https://arxiv.org/abs/2412.05496

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pretraining Objective</title>
+  <link rel="stylesheet" href="../styles.css?v=20260701a">
+</head>
+<body>
+  <header class="lesson-hero">
+    <nav>
+      <a href="../index.html">Course Home</a>
+      <a href="#causal-loss">Causal Loss</a>
+      <a href="#masking">Masking</a>
+      <a href="#drill">PyTorch Drill</a>
+    </nav>
+    <p class="eyebrow">Module 06</p>
+    <h1>Pretraining Objective</h1>
+    <p class="lede">Turn next-token prediction into a tested loss with correct shifting, padding masks, and batch accounting.</p>
+  </header>
+
+  <main>
+    <section id="causal-loss" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Objective</p>
+        <h2>Causal LM Loss Predicts The Next Token, Not The Current Token</h2>
+      </div>
+      <p>
+        A decoder-only language model consumes tokens from the left context and
+        predicts the next token at each position. The common implementation
+        pattern is to produce logits with shape <code>[batch, time, vocab]</code>,
+        then compare <code>logits[:, :-1]</code> with
+        <code>labels[:, 1:]</code>. Hugging Face's causal language modeling
+        guide notes that its data collator can copy <code>input_ids</code> into
+        <code>labels</code> because the alignment shift is handled by the model
+        path. In hand-written PyTorch, make the shift explicit so tests can
+        catch off-by-one errors.
+      </p>
+      <pre><code class="language-python">def shift_for_causal_lm(logits, labels):
+    # logits: [batch, time, vocab], labels: [batch, time]
+    return logits[:, :-1, :].contiguous(), labels[:, 1:].contiguous()</code></pre>
+      <ol class="steps">
+        <li><strong>One-token shift:</strong> position <code>t</code> predicts the label at <code>t + 1</code>; the final logit has no next token target in the same sequence.</li>
+        <li><strong>Do not double shift:</strong> if a framework model shifts internally, pass unshifted labels; if you own the loss function, shift exactly once.</li>
+        <li><strong>Teacher forcing:</strong> training sees the true previous tokens, while generation feeds back sampled tokens one step at a time.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What is the symptom of shifting labels twice?</summary>
+        <p>The model is trained to predict a token two positions ahead, so loss can stall even though shapes, dtype, and optimizer code all look valid.</p>
+      </details>
+    </section>
+
+    <section id="masking" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Masking</p>
+        <h2>Padding And Prompt Tokens Need An Explicit Loss Contract</h2>
+      </div>
+      <p>
+        PyTorch <code>CrossEntropyLoss</code> supports
+        <code>ignore_index</code>: ignored targets do not contribute to the loss
+        or input gradients. For language modeling, that is the clean way to
+        exclude padding tokens and any prompt positions that should condition
+        the model without being scored. Keep the attention mask and loss mask
+        separate: attention controls what the model can read, while
+        <code>ignore_index</code> controls which predictions count toward the
+        objective.
+      </p>
+      <pre><code class="language-python">IGNORE_INDEX = -100
+
+labels = input_ids.clone()
+labels[attention_mask == 0] = IGNORE_INDEX
+labels[:, :prompt_len] = IGNORE_INDEX  # Optional for completion-only SFT.</code></pre>
+      <ol class="steps">
+        <li><strong>Mask padding:</strong> padded positions should not teach the model to emit pad tokens unless that is a deliberate objective.</li>
+        <li><strong>Mask prompts deliberately:</strong> for instruction tuning, score only the assistant/completion span when the prompt is context rather than target text.</li>
+        <li><strong>Average honestly:</strong> report loss over non-ignored targets, not over padded sequence length.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is an attention mask not enough to ignore padding in the loss?</summary>
+        <p>The attention mask can stop the model from reading padding, but the loss function will still score padded target positions unless their labels are set to the ignore index.</p>
+      </details>
+    </section>
+
+    <section id="drill" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Implementation Drill</p>
+        <h2>Write A Causal LM Loss That Fails Loudly</h2>
+      </div>
+      <p>
+        The interview-safe version is small but strict: assert shapes, shift
+        once, flatten only after alignment, and pass <code>ignore_index</code>
+        through to cross entropy. This mirrors the math while keeping the batch
+        and time dimensions inspectable until the final loss call.
+      </p>
+      <pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+IGNORE_INDEX = -100
+
+def causal_lm_loss(logits, labels, ignore_index=IGNORE_INDEX):
+    if logits.ndim != 3 or labels.ndim != 2:
+        raise ValueError("expected logits [batch, time, vocab] and labels [batch, time]")
+    if logits.shape[:2] != labels.shape:
+        raise ValueError("logits and labels must share batch/time dimensions")
+
+    shift_logits = logits[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
+    vocab = shift_logits.size(-1)
+
+    return F.cross_entropy(
+        shift_logits.view(-1, vocab),
+        shift_labels.view(-1),
+        ignore_index=ignore_index,
+    )
+
+def test_causal_lm_loss_ignores_padding():
+    torch.manual_seed(0)
+    logits = torch.randn(2, 5, 11, requires_grad=True)
+    labels = torch.randint(0, 11, (2, 5))
+    labels[0, -2:] = IGNORE_INDEX
+
+    loss = causal_lm_loss(logits, labels)
+    assert torch.isfinite(loss)
+    loss.backward()
+    assert torch.isfinite(logits.grad).all()</code></pre>
+      <ol class="steps">
+        <li><strong>Test the alignment:</strong> create a tiny batch where the correct next token is obvious and prove the loss uses <code>labels[:, 1:]</code>.</li>
+        <li><strong>Test ignored rows:</strong> include padding or prompt-masked labels and confirm gradients remain finite.</li>
+        <li><strong>Test framework parity:</strong> if you switch to <code>AutoModelForCausalLM</code>, verify whether the model shifts labels internally before reusing this helper.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why flatten after shifting instead of before?</summary>
+        <p>Flattening first hides the time alignment. Shifting while tensors still have batch and time axes makes the next-token contract visible and easier to test.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://huggingface.co/docs/transformers/en/tasks/language_modeling">Hugging Face causal language modeling guide</a>,
+        <a href="https://huggingface.co/learn/llm-course/en/chapter7/6">Hugging Face LLM course causal LM note</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html">PyTorch CrossEntropyLoss reference</a>.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="../index.html">Back to course home</a></p>
+  </footer>
+</body>
+</html>

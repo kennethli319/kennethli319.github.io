@@ -19,6 +19,7 @@
       <a href="#context-packing">Context Packing</a>
       <a href="#rag-eval">RAG Eval</a>
       <a href="#agents">Agents</a>
+      <a href="#tool-contracts">Tool Contracts</a>
       <a href="#agent-security">Agent Security</a>
       <a href="#tool-traces">Tool Traces</a>
     </nav>
@@ -454,6 +455,47 @@ context = [chunk for score, chunk in sorted(scored, reverse=True)[:6]]</code></p
         <a href="https://openai.github.io/openai-agents-python/guardrails/">OpenAI Agents SDK guardrails</a>,
         <a href="https://modelcontextprotocol.io/docs/getting-started/intro">Model Context Protocol introduction</a>,
         <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">MCP tools specification</a>,
+        <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a>.
+      </p>
+    </section>
+
+    <section id="tool-contracts" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Tool Contracts</p>
+        <h2>Make Tool Metadata Testable Before The Agent Sees It</h2>
+      </div>
+      <p>
+        Tool descriptions are part of the agent's control surface. MCP tool
+        definitions expose names, descriptions, input schemas, optional output
+        schemas, annotations, and execution metadata, while OpenAI Structured
+        Outputs distinguishes valid JSON from schema-adherent JSON. Treat those
+        contracts as test fixtures: the model may propose a call, but the
+        client should still validate arguments, policy, outputs, and trace
+        identity before continuing the run.
+      </p>
+      <pre><code>tool_contract = {
+    "name": "tickets.create",
+    "input_schema": {"type": "object", "required": ["title", "priority"]},
+    "output_schema": {"type": "object", "required": ["ticket_id", "status"]},
+    "side_effect": "write",
+    "approval_policy": "human_required",
+    "trusted_metadata_source": "internal_tool_registry",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Schema test:</strong> reject missing required fields, extra fields when disallowed, unsupported enum values, and malformed empty-argument tools.</li>
+        <li><strong>Metadata test:</strong> verify tool names are stable, unique, and routeable; do not let untrusted descriptions or annotations become authorization policy.</li>
+        <li><strong>Policy test:</strong> map read-only, reversible write, external communication, and irreversible write tools to separate approval and retry rules.</li>
+        <li><strong>Output test:</strong> validate structured tool results against the output schema before summarizing them back into model-visible state.</li>
+        <li><strong>Resume test:</strong> if a call pauses for review, persist the pending call id, validated arguments, policy decision, and exact resume point.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why are tool annotations not enough for safety?</summary>
+        <p>Annotations can help route and display a tool, but they are metadata. The client still needs a trusted registry, runtime permission checks, output validation, and human review for sensitive actions.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">MCP tools specification</a>,
+        <a href="https://developers.openai.com/api/docs/guides/structured-outputs">OpenAI Structured Outputs guide</a>,
         <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a>.
       </p>
     </section>

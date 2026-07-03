@@ -454,6 +454,34 @@ active_token_budget = estimate_decode_capacity(
         <summary>Question: Why is prefix-cache salting different from prompt caching?</summary>
         <p>Prompt caching describes reusing identical computed prefixes. Salting controls who is allowed to share that reuse; it can intentionally split identical token prefixes into separate cache namespaces.</p>
       </details>
+      <h3>Security Drill: Pick The Prefix-Cache Hash Mode Deliberately</h3>
+      <p>
+        Prefix-cache keys are not just performance metadata. vLLM's current
+        design uses block hashes that include parent hash, block token ids, and
+        extra fields such as LoRA ids, multimodal hashes, and cache salts; its
+        docs also call out <code>sha256</code> as the default hash algorithm in
+        v0.11, with <code>sha256_cbor</code> available when deterministic
+        cross-environment serialization matters. The earlier vLLM advisory on
+        predictable Python hash collisions is a good interview reminder:
+        untrusted multi-tenant cache reuse needs an explicit collision and
+        namespace policy, not just a fast hash table.
+      </p>
+      <pre><code>prefix_hash_policy = {
+    "single_tenant_lab": "fast_hash_ok_with_collision_tests",
+    "shared_service": "sha256_plus_cache_salt",
+    "multi_runtime_fleet": "sha256_cbor_for_reproducible_keys",
+    "log": ["hash_algo", "cache_salt_present", "model_revision", "adapter_id"],
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Choose by trust boundary:</strong> use collision-resistant hashing and cache salts when one tenant could influence another tenant's reusable prefix space.</li>
+        <li><strong>Choose by reproducibility:</strong> prefer canonical serialization when cache keys must be compared across processes, languages, or service versions.</li>
+        <li><strong>Measure the cost:</strong> benchmark hash time against saved prefill time; a small hashing overhead can be worth it when it prevents unsafe reuse.</li>
+        <li><strong>Audit the key fields:</strong> every field that changes hidden model state, including multimodal inputs and adapters, belongs in the cache key or namespace.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is a hash collision worse than a simple cache miss?</summary>
+        <p>A miss only recomputes the prefix. A collision can reuse KV blocks for the wrong token history or namespace, which can corrupt output behavior and may leak cross-request information through timing or content effects.</p>
+      </details>
       <h3>Implementation Drill: Put Stable Prompt Parts First</h3>
       <p>
         Prefix reuse only helps when requests share the same initial token
@@ -724,6 +752,7 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">PyTorch scaled dot-product attention</a>,
         <a href="https://arxiv.org/abs/2309.06180">PagedAttention paper</a>,
         <a href="https://docs.vllm.ai/en/stable/design/prefix_caching/">vLLM automatic prefix caching design</a>,
+        <a href="https://github.com/vllm-project/vllm/security/advisories/GHSA-rm76-4mrf-v9r8">vLLM prefix-cache hash collision advisory</a>,
         <a href="https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/">vLLM quantized KV cache docs</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/latest/features/kvcache.html">TensorRT-LLM KV cache system</a>,
         <a href="https://huggingface.co/docs/transformers/en/kv_cache">Hugging Face cache strategies</a>,

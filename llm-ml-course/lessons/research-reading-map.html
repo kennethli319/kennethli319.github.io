@@ -87,6 +87,11 @@
           <p class="lab">Implementation check: estimate KV cache bytes and sketch a continuous batching admission rule.</p>
         </article>
         <article class="problem-card">
+          <h4><a href="https://arxiv.org/abs/2401.09670">DistServe / Prefill-Decode Disaggregation</a></h4>
+          <p>Read this after PagedAttention: prefill and decode stress different resources, so a serving system can scale and schedule them separately when TTFT and time-per-output-token SLOs conflict. Pair it with <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a> and <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a> to see the production version of the idea.</p>
+          <p class="lab">Implementation check: replay one mixed workload and report TTFT, TPOT/ITL, KV-transfer time, and the fallback condition where one pooled deployment is still better.</p>
+        </article>
+        <article class="problem-card">
           <h4><a href="https://arxiv.org/abs/2211.17192">Speculative Decoding</a></h4>
           <p>Read speculative decoding as a latency method, not a new model objective: a cheaper drafter proposes several tokens, the target model verifies them in parallel, and the acceptance rule preserves the target distribution when its assumptions hold. Pair the paper with <a href="https://huggingface.co/docs/transformers/en/assisted_decoding">Hugging Face assisted decoding</a> and <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM speculative decoding</a> to see how the idea turns into serving knobs such as assistant models, n-gram proposals, speculation length, and rollback profiles.</p>
           <p class="lab">Implementation check: benchmark baseline decoding against one speculative profile while holding the target model, prompt set, sampling parameters, max tokens, and output-quality checks constant.</p>

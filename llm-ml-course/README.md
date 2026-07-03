@@ -76,6 +76,7 @@ proprietary eval data. Keep local-only work under ignored private folders.
 - ORCA iteration-level scheduling: https://www.usenix.org/conference/osdi22/presentation/yu
 - vLLM / PagedAttention paper: https://arxiv.org/abs/2309.06180
 - vLLM documentation: https://docs.vllm.ai/
+- DistServe / prefill-decode disaggregation: https://arxiv.org/abs/2401.09670
 - vLLM paged attention design: https://docs.vllm.ai/en/latest/design/paged_attention/
 - vLLM optimization and chunked prefill: https://docs.vllm.ai/en/stable/configuration/optimization/
 - vLLM LoRA adapters: https://docs.vllm.ai/en/stable/features/lora/

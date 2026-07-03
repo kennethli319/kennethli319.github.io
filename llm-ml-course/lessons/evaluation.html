@@ -97,11 +97,47 @@
         <summary>Question: Why compare per-case deltas instead of two independent averages?</summary>
         <p>The paired comparison controls for case difficulty. It shows which exact prompts improved or regressed, making the launch decision easier to audit and debug.</p>
       </details>
+      <h3>Gate Drill: Measure Coverage When The System Can Abstain</h3>
+      <p>
+        Some production assistants should escalate, ask a clarifying question,
+        or refuse when confidence is low. Treat that as selective prediction:
+        the system trades coverage for lower accepted-answer risk. OpenAI's
+        eval guidance recommends designing cases around expected production
+        behavior, while calibration work shows that confidence scores must be
+        checked against empirical correctness before they become launch gates.
+        A useful report therefore tracks both accuracy on answered cases and
+        the fraction of cases the system was willing to answer.
+      </p>
+      <pre><code>def selective_report(rows, threshold):
+    answered = [r for r in rows if r["confidence"] >= threshold]
+    if not answered:
+        return {"coverage": 0.0, "accepted_accuracy": None}
+    return {
+        "coverage": len(answered) / len(rows),
+        "accepted_accuracy": sum(r["correct"] for r in answered) / len(answered),
+        "wrong_but_answered": [r["case_id"] for r in answered if not r["correct"]],
+        "abstained_correct": [
+            r["case_id"] for r in rows
+            if r["confidence"] < threshold and r["correct"]
+        ],
+    }</code></pre>
+      <ol class="steps">
+        <li><strong>Pick the action first:</strong> decide whether low-confidence cases should ask for clarification, route to a human, search again, or refuse.</li>
+        <li><strong>Report coverage:</strong> a higher threshold can improve accepted accuracy while making the product useless by abstaining too often.</li>
+        <li><strong>Audit false confidence:</strong> wrong-but-answered cases are the highest-risk bucket and should be reviewed before launch.</li>
+        <li><strong>Recalibrate by slice:</strong> thresholds can behave differently for RAG, code, safety, math, and multilingual prompts, so avoid one global number without slice evidence.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is self-reported confidence not enough for an abstention gate?</summary>
+        <p>A confidence number is useful only after it predicts correctness on held-out cases. Otherwise the system can sound certain on hard failures or abstain from easy cases that users expected it to handle.</p>
+      </details>
       <p>
         Sources:
         <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>,
         <a href="https://developers.openai.com/api/docs/guides/evals">OpenAI Evals guide</a>,
-        <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>.
+        <a href="https://crfm.stanford.edu/helm/">Stanford HELM</a>,
+        <a href="https://arxiv.org/abs/1706.04599">On Calibration of Modern Neural Networks</a>,
+        <a href="https://arxiv.org/abs/2208.12084">Calibrated Selective Classification</a>.
       </p>
     </section>
 

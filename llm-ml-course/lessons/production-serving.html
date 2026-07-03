@@ -12,6 +12,7 @@
       <a href="../index.html">Course Home</a>
       <a href="#scheduler">Scheduler</a>
       <a href="#disaggregation">Disaggregation</a>
+      <a href="#moe-serving">MoE</a>
       <a href="#admission">Admission</a>
       <a href="#cache-policy">Cache Policy</a>
       <a href="#kv-quantization">KV Quant</a>
@@ -210,6 +211,46 @@
         <a href="https://docs.vllm.ai/en/latest/features/disagg_prefill/">vLLM disaggregated prefilling</a>,
         <a href="https://docs.ray.io/en/latest/serve/llm/user-guides/prefill-decode.html">Ray Serve prefill/decode disaggregation</a>,
         <a href="https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog5_Disaggregated_Serving_in_TensorRT-LLM.html">TensorRT-LLM disaggregated serving</a>.
+      </p>
+    </section>
+
+    <section id="moe-serving" class="band">
+      <div class="section-head">
+        <p class="eyebrow">MoE Serving</p>
+        <h2>Route Experts Like A Distributed System</h2>
+      </div>
+      <p>
+        Mixture-of-experts models activate only a subset of expert weights per
+        token, but serving them is not just dense-model serving with fewer FLOPs.
+        The router creates per-token expert traffic, expert parallelism spreads
+        expert weights across devices, and all-to-all communication can become
+        the new bottleneck when routing is skewed. DeepSeek-V3 reports a large
+        MoE model with far fewer activated parameters per token than total
+        parameters, while vLLM and TensorRT-LLM both treat expert parallelism as
+        a first-class deployment strategy for MoE inference.
+      </p>
+      <pre><code>moe_serving_gate = {
+    "model": "moe_checkpoint@revision",
+    "parallelism": ["data_parallel_attention", "expert_parallel_mlp"],
+    "routing_metrics": ["tokens_per_expert", "dropped_tokens", "expert_queue_ms"],
+    "communication_metrics": ["all_to_all_ms", "bytes_per_step"],
+    "rollback": "dense_or_smaller_moe_profile",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Measure expert skew:</strong> log routed tokens per expert and per layer; average activation count can hide one hot expert stalling a step.</li>
+        <li><strong>Account for communication:</strong> expert parallelism saves local weight bandwidth only if all-to-all transfer and synchronization stay inside the latency budget.</li>
+        <li><strong>Batch by compatibility:</strong> model revision, adapter state, context length, and expert-parallel group all affect whether requests can share an efficient iteration.</li>
+        <li><strong>Keep load balance visible:</strong> compare throughput, p95 TTFT, p95 ITL, and expert utilization before changing router settings or parallel topology.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is activated parameter count not enough to size an MoE service?</summary>
+        <p>Activated parameters estimate compute per token, but the service also pays for router skew, expert placement, interconnect bandwidth, KV cache, batching limits, and tail latency from overloaded experts.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3 technical report</a>,
+        <a href="https://docs.vllm.ai/en/latest/serving/expert_parallel_deployment/">vLLM expert parallel deployment</a>,
+        <a href="https://nvidia.github.io/TensorRT-LLM/advanced/expert-parallelism.html">TensorRT-LLM expert parallelism</a>.
       </p>
     </section>
 

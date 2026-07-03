@@ -664,6 +664,34 @@ hit_rate = reused_complete_blocks / requested_complete_blocks</code></pre>
         <summary>Question: Why is cache hit rate alone an incomplete launch metric?</summary>
         <p>It does not show whether the reused blocks were large enough to improve TTFT, whether useful blocks were evicted, or whether the cache namespace accidentally allowed reuse across incompatible requests.</p>
       </details>
+      <h3>Concept Check: Do Not Confuse Kernel IO With Cache Allocation</h3>
+      <p>
+        FlashAttention, PyTorch SDPA backends, and PagedAttention all appear in
+        serving conversations, but they answer different questions. FlashAttention
+        reduces attention memory traffic by tiling exact attention through fast
+        on-chip memory. PyTorch SDPA is the API that may dispatch to different
+        attention kernels depending on dtype, mask, device, and shape. vLLM's
+        PagedAttention work treats the KV cache as blocks so variable-length
+        requests can be admitted and scheduled without one contiguous cache
+        allocation per sequence. A good design note should name which layer is
+        being optimized before claiming a latency or memory win.
+      </p>
+      <pre><code>serving_bottleneck_map = {
+    "slow_long_prefill": "attention kernel and prompt batching",
+    "oom_at_high_concurrency": "KV cache budget, block slack, and admission",
+    "decode_itl_regression": "KV reads, active streams, scheduler policy",
+    "unexpected_math_fallback": "SDPA backend constraints and logging",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Kernel question:</strong> which exact attention backend ran, and does it preserve logits within tolerance against a reference?</li>
+        <li><strong>Cache question:</strong> how many KV blocks are allocated, wasted in tails, reused as prefixes, evicted, or offloaded?</li>
+        <li><strong>Scheduler question:</strong> which prefill and decode tokens entered each iteration, and did the policy protect p95 TTFT and ITL?</li>
+        <li><strong>Claim narrowly:</strong> report whether the improvement came from lower HBM traffic, better block allocation, more cache reuse, or safer admission.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can FlashAttention and PagedAttention both matter in the same service?</summary>
+        <p>FlashAttention can make the attention computation more memory efficient, while PagedAttention-style cache management can admit and pack many variable-length requests more efficiently. They optimize different parts of the serving stack.</p>
+      </details>
       <h3>Kernel Drill: Prove The Fast Attention Path Is Still The Same Contract</h3>
       <p>
         FlashAttention and PyTorch SDPA can make attention faster by changing

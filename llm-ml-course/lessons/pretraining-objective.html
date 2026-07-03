@@ -12,6 +12,7 @@
       <a href="../index.html">Course Home</a>
       <a href="#causal-loss">Causal Loss</a>
       <a href="#masking">Masking</a>
+      <a href="#packing">Packing</a>
       <a href="#drill">PyTorch Drill</a>
     </nav>
     <p class="eyebrow">Module 06</p>
@@ -79,6 +80,53 @@ labels[:, :prompt_len] = IGNORE_INDEX  # Optional for completion-only SFT.</code
         <summary>Question: Why is an attention mask not enough to ignore padding in the loss?</summary>
         <p>The attention mask can stop the model from reading padding, but the loss function will still score padded target positions unless their labels are set to the ignore index.</p>
       </details>
+    </section>
+
+    <section id="packing" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Sequence Packing</p>
+        <h2>Pack Short Examples Without Letting Them Read Each Other</h2>
+      </div>
+      <p>
+        Packing improves token utilization by concatenating multiple short
+        examples into one fixed-length training sequence. The contract is
+        stricter than simple concatenation: labels must still predict the next
+        token within the intended example, and the attention mask must prevent a
+        later packed sample from using tokens from an unrelated earlier sample
+        unless that boundary was deliberately bridged with an EOS objective.
+        Hugging Face's CLM guide shows concatenating text into blocks for
+        next-token training, while TRL and NVIDIA NeMo document packing as an
+        efficiency feature that needs explicit packing metadata and masks.
+      </p>
+      <pre><code class="language-python">import torch
+
+def packed_causal_keep_mask(segment_ids):
+    # segment_ids: [time], same id means tokens belong to one packed example.
+    time = segment_ids.numel()
+    causal = torch.ones(time, time, dtype=torch.bool).tril()
+    same_segment = segment_ids[:, None] == segment_ids[None, :]
+    return causal &amp; same_segment
+
+segment_ids = torch.tensor([0, 0, 0, 1, 1, 2])
+keep = packed_causal_keep_mask(segment_ids)
+assert keep[4, 3]        # sample 1 can read its own previous token
+assert not keep[4, 2]    # sample 1 cannot read sample 0</code></pre>
+      <ol class="steps">
+        <li><strong>Track segment ids:</strong> keep enough metadata to know which packed tokens came from the same source example or conversation.</li>
+        <li><strong>Mask attention boundaries:</strong> a plain lower-triangular mask allows cross-example leakage inside the same packed row.</li>
+        <li><strong>Mask loss boundaries:</strong> ignore boundary targets when the next token would come from a different example and should not be learned as a continuation.</li>
+        <li><strong>Test one tiny pack:</strong> assert allowed and blocked positions before trusting a fused attention backend or trainer packing flag.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is EOS not a complete substitute for a packed attention mask?</summary>
+        <p>EOS can teach the model that one document ended, but a later sample can still attend to earlier unrelated tokens unless the attention mask or packed-sequence backend blocks that path.</p>
+      </details>
+      <p class="source-note">
+        Sources: <a href="https://huggingface.co/docs/transformers/tasks/language_modeling">Hugging Face causal language modeling guide</a>,
+        <a href="https://huggingface.co/docs/trl/sft_trainer">Hugging Face TRL SFTTrainer packing docs</a>,
+        <a href="https://docs.nvidia.com/nemo/megatron-bridge/0.2.0/training/packed-sequences.html">NVIDIA NeMo Megatron Bridge packed sequences</a>,
+        <a href="https://huggingface.co/blog/sirluk/llm-sequence-packing">Hugging Face sequence packing note</a>.
+      </p>
     </section>
 
     <section id="drill" class="band">

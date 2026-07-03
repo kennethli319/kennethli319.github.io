@@ -12,6 +12,7 @@
       <a href="../index.html">Course Home</a>
       <a href="#subwords">Subwords</a>
       <a href="#bpe">BPE Drill</a>
+      <a href="#chat">Chat Templates</a>
       <a href="#embeddings">Embeddings</a>
       <a href="#checks">Checks</a>
     </nav>
@@ -96,6 +97,43 @@ def learn_bpe_merges(words, num_merges):
       </details>
     </section>
 
+    <section id="chat" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Chat Formatting</p>
+        <h2>Role Messages Need The Model's Template</h2>
+      </div>
+      <p>
+        Chat models are still next-token models. The role list
+        <code>[system, user, assistant]</code> must be rendered into the exact
+        control tokens, separators, and generation prompt expected by the
+        checkpoint. Hugging Face treats the chat template as part of the
+        tokenizer via <code>apply_chat_template</code>, and OpenAI's token
+        counting guidance makes the same production point: message wrappers,
+        tool schemas, and model-specific formatting count toward the prompt
+        budget.
+      </p>
+      <pre><code class="language-python">messages = [
+    {"role": "system", "content": "Answer from the provided sources."},
+    {"role": "user", "content": "Summarize the KV cache tradeoff."},
+]
+
+input_ids = tokenizer.apply_chat_template(
+    messages,
+    add_generation_prompt=True,
+    tokenize=True,
+    return_tensors="pt",
+)</code></pre>
+      <ol class="steps">
+        <li><strong>Pin the template:</strong> log tokenizer revision, chat template, special token ids, and whether a generation prompt was added.</li>
+        <li><strong>Count the rendered prompt:</strong> measure tokens after chat formatting and tool/schema insertion, not from raw message text.</li>
+        <li><strong>Test stop behavior:</strong> verify assistant turns stop at the model's expected end token instead of leaking into the next role marker.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a correct user prompt fail after switching instruct models?</summary>
+        <p>The text may be the same, but the target model can expect different role markers, special tokens, or assistant-start tokens. A mismatched chat template changes the actual token sequence the model sees.</p>
+      </details>
+    </section>
+
     <section id="embeddings" class="band">
       <div class="section-head">
         <p class="eyebrow">Embeddings</p>
@@ -149,6 +187,8 @@ def learn_bpe_merges(words, num_merges):
         <a href="https://arxiv.org/abs/1808.06226">SentencePiece</a>,
         <a href="https://github.com/openai/tiktoken">OpenAI tiktoken</a>,
         <a href="https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb">OpenAI Cookbook token counting</a>,
+        <a href="https://huggingface.co/docs/transformers/en/chat_templating">Hugging Face chat templates</a>,
+        <a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">OpenAI token counting cookbook</a>,
         <a href="https://aclanthology.org/E17-2025/">Press and Wolf on tied embeddings</a>.
       </p>
     </section>

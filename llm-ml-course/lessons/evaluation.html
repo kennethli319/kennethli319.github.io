@@ -97,6 +97,35 @@
         <summary>Question: Why compare per-case deltas instead of two independent averages?</summary>
         <p>The paired comparison controls for case difficulty. It shows which exact prompts improved or regressed, making the launch decision easier to audit and debug.</p>
       </details>
+      <h3>Tooling Drill: Keep Eval Design Portable</h3>
+      <p>
+        Eval methodology should survive tooling changes. OpenAI's evaluation
+        guidance defines evals as structured tests for production behavior and
+        recommends task-specific cases, logging, automation, continuous
+        evaluation, and human agreement checks. The same docs also note that
+        the hosted Evals platform is being deprecated, with existing evals
+        becoming read-only on October 31, 2026 and the platform scheduled to
+        shut down on November 30, 2026. Treat the platform as an execution
+        layer, not the source of truth for the dataset, scorer contract, or
+        launch threshold.
+      </p>
+      <pre><code>portable_eval_spec = {
+    "dataset_uri": "versioned_cases.jsonl",
+    "scorer_contract": "rag_groundedness_v4",
+    "baseline_run_id": "prod-2026-07-01",
+    "candidate_run_id": "model-upgrade-042",
+    "gate": "no high-risk regression and p95 latency within budget",
+    "runner": "replaceable_eval_backend",
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Own the cases:</strong> keep prompts, references, slice labels, and expected behavior in a versioned format outside any transient dashboard.</li>
+        <li><strong>Own the scorer:</strong> record rubric text, deterministic checks, judge model, thresholds, and calibration examples so results can be replayed elsewhere.</li>
+        <li><strong>Own the decision:</strong> store the baseline, candidate, paired deltas, and launch rationale with the code or release record, not only inside a vendor UI.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: What should change when an eval platform is deprecated?</summary>
+        <p>The runner can change, but the eval contract should not. Migrate the dataset, scorer definitions, calibration cases, and historical baselines before relying on a new dashboard's aggregate score.</p>
+      </details>
       <h3>Gate Drill: Measure Coverage When The System Can Abstain</h3>
       <p>
         Some production assistants should escalate, ask a clarifying question,

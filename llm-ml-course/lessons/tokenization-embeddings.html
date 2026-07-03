@@ -13,6 +13,7 @@
       <a href="#subwords">Subwords</a>
       <a href="#bpe">BPE Drill</a>
       <a href="#chat">Chat Templates</a>
+      <a href="#special-tokens">Special Tokens</a>
       <a href="#embeddings">Embeddings</a>
       <a href="#checks">Checks</a>
     </nav>
@@ -134,6 +135,44 @@ input_ids = tokenizer.apply_chat_template(
       </details>
     </section>
 
+    <section id="special-tokens" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Vocabulary Changes</p>
+        <h2>Adding Tokens Changes The Model Contract</h2>
+      </div>
+      <p>
+        Adding a special token is more than editing a tokenizer file. Hugging
+        Face's tokenizer docs expose special tokens as tokenizer-level
+        metadata, while the model docs expose <code>resize_token_embeddings</code>
+        for changing the embedding table after vocabulary growth. In a
+        decoder-only LM with tied embeddings, the input lookup and output
+        projection often share weights, so a new row must be initialized,
+        trained, saved with the tokenizer, and tested before the model can
+        reliably read or generate that token.
+      </p>
+      <pre><code class="language-python">special = {"additional_special_tokens": ["&lt;tool_call&gt;", "&lt;/tool_call&gt;"]}
+added = tokenizer.add_special_tokens(special)
+if added:
+    model.resize_token_embeddings(len(tokenizer))
+
+tool_id = tokenizer.convert_tokens_to_ids("&lt;tool_call&gt;")
+assert tool_id != tokenizer.unk_token_id
+assert model.get_input_embeddings().weight.size(0) == len(tokenizer)
+
+if model.get_output_embeddings() is not None:
+    assert model.get_output_embeddings().weight.size(0) == len(tokenizer)</code></pre>
+      <ol class="steps">
+        <li><strong>Resize immediately:</strong> call the model resize method after tokenizer growth so every new token id has an embedding row and, for LM heads, a logit row.</li>
+        <li><strong>Initialize deliberately:</strong> newly added rows start untrained, so they need fine-tuning data or a documented initialization policy before they carry meaning.</li>
+        <li><strong>Save together:</strong> publish or checkpoint tokenizer files, special-token config, model weights, and chat template as one versioned bundle.</li>
+        <li><strong>Test generation:</strong> verify the model can both consume the new marker in prompts and assign finite logits to it when it is allowed as an output token.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a new special token crash or silently fail after fine-tuning starts?</summary>
+        <p>If the tokenizer emits an id beyond the model's embedding table, the forward pass can fail. If the row exists but stays untrained or the tokenizer is not saved with the checkpoint, the model may run while treating the marker as meaningless or inconsistent across machines.</p>
+      </details>
+    </section>
+
     <section id="embeddings" class="band">
       <div class="section-head">
         <p class="eyebrow">Embeddings</p>
@@ -188,6 +227,9 @@ input_ids = tokenizer.apply_chat_template(
         <a href="https://github.com/openai/tiktoken">OpenAI tiktoken</a>,
         <a href="https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb">OpenAI Cookbook token counting</a>,
         <a href="https://huggingface.co/docs/transformers/en/chat_templating">Hugging Face chat templates</a>,
+        <a href="https://huggingface.co/docs/transformers/en/main_classes/tokenizer">Hugging Face tokenizer docs</a>,
+        <a href="https://huggingface.co/docs/transformers/en/main_classes/model">Hugging Face model resize docs</a>,
+        <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Embedding.html">PyTorch Embedding docs</a>,
         <a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">OpenAI token counting cookbook</a>,
         <a href="https://aclanthology.org/E17-2025/">Press and Wolf on tied embeddings</a>.
       </p>

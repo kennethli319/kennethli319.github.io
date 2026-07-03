@@ -15,6 +15,7 @@
       <a href="#rag-eval">RAG Eval</a>
       <a href="#rubrics">Rubrics</a>
       <a href="#judges">Judges</a>
+      <a href="#agent-traces">Agent Traces</a>
       <a href="#gates">Gates</a>
     </nav>
     <p class="eyebrow">Module 12</p>
@@ -278,6 +279,53 @@
         <summary>Question: When should a judge score be a warning instead of a hard block?</summary>
         <p>Use warnings while the rubric is new, human agreement is low, or the failure is low risk. Promote to a hard block only after calibration shows the judge reliably catches product-relevant regressions.</p>
       </details>
+    </section>
+
+    <section id="agent-traces" class="band">
+      <div class="section-head">
+        <p class="eyebrow">Agent Evaluation</p>
+        <h2>Grade The Trace, Not Only The Final Answer</h2>
+      </div>
+      <p>
+        Agent failures often happen before the final response: a wrong tool is
+        chosen, a handoff is skipped, a guardrail is bypassed, or a retry hides
+        the real failure. OpenAI's agent-eval guidance recommends starting with
+        traces while debugging, then promoting stable criteria into repeatable
+        datasets and eval runs. LangSmith's agent-evaluation docs make the same
+        split practical: grade the final answer, the full trajectory, and
+        single steps such as first-tool selection separately.
+      </p>
+      <pre><code>agent_trace_eval = {
+    "case_id": "refund_lookup_017",
+    "expected_steps": [
+        "classify_intent",
+        "lookup_order",
+        "request_approval_before_refund",
+        "summarize_result",
+    ],
+    "observed_steps": trace.tool_and_handoff_events,
+    "step_scores": {
+        "tool_choice": trajectory_subsequence(expected_steps, observed_steps),
+        "approval_gate": saw_required_human_review(trace),
+        "final_answer": rubric_grade(trace.final_response),
+    },
+}</code></pre>
+      <ol class="steps">
+        <li><strong>Start with traces:</strong> inspect model calls, tool calls, guardrails, handoffs, and custom events before writing a broad judge rubric.</li>
+        <li><strong>Promote stable failures:</strong> once a trace pattern repeats, turn it into a dataset case with expected steps and forbidden steps.</li>
+        <li><strong>Score components:</strong> keep first-tool choice, tool arguments, approval path, final answer, latency, and cost as separate fields.</li>
+        <li><strong>Replay after changes:</strong> run the same trace-shaped cases when prompts, tool schemas, guardrails, routing, or model versions change.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why can a final-answer eval miss an agent regression?</summary>
+        <p>The agent may eventually answer correctly after calling the wrong tool, skipping an approval gate, leaking a tool error into context, or taking an expensive retry path. Trace-level scores catch the broken workflow before it becomes a user-visible incident.</p>
+      </details>
+      <p>
+        Sources:
+        <a href="https://developers.openai.com/api/docs/guides/agent-evals">OpenAI agent evals guide</a>,
+        <a href="https://github.com/openai/openai-agents-python/blob/main/docs/tracing.md">OpenAI Agents SDK tracing docs</a>,
+        <a href="https://docs.langchain.com/langsmith/evaluate-complex-agent">LangSmith complex-agent evaluation docs</a>.
+      </p>
     </section>
 
     <section id="gates" class="band">

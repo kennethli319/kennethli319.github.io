@@ -275,10 +275,44 @@
         <li><strong>Then swap order:</strong> a candidate that wins in A/B should still win when presented as B/A unless the answers are truly tied.</li>
         <li><strong>Report by slice:</strong> judge reliability can differ for coding, retrieval, safety, summarization, and reasoning cases, so do not promote a single global score into a hard gate.</li>
       </ol>
+      <h3>Calibration Drill: Let The Judge Say Tie Or Escalate</h3>
+      <p>
+        Pairwise judges become brittle when every close comparison must pick a
+        winner. The MT-Bench judge study calls out position, verbosity, and
+        self-enhancement biases, while FairEval shows that response ordering
+        alone can change the apparent winner and proposes balanced-position
+        calibration plus human review for hard cases. A launch gate should
+        therefore treat swap disagreement, tiny score margins, and high-risk
+        slices as reasons to mark a tie or request review instead of converting
+        noise into a product decision.
+      </p>
+      <pre><code>def calibrated_pairwise_decision(ab, ba, margin=0.1):
+    same_winner = ab["winner"] == ba["winner"]
+    close = min(ab["score_margin"], ba["score_margin"]) < margin
+    if not same_winner:
+        return "human_review"
+    if close or ab["winner"] == "tie" or ba["winner"] == "tie":
+        return "tie"
+    return ab["winner"]</code></pre>
+      <ol class="steps">
+        <li><strong>Allow ties:</strong> a non-regression decision can be safer than claiming one candidate is better on an indistinguishable answer pair.</li>
+        <li><strong>Escalate unstable pairs:</strong> when A/B and B/A disagree, send the case to human review or keep the score advisory.</li>
+        <li><strong>Record the reason:</strong> store whether the final label came from agreement, tie margin, position conflict, verbosity concern, or human review.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why is forced choice risky in judge evals?</summary>
+        <p>It can turn position bias or rubric noise into an apparent model win. Ties and review queues preserve uncertainty so launch gates block clear regressions without overreacting to unstable comparisons.</p>
+      </details>
       <details class="qa">
         <summary>Question: When should a judge score be a warning instead of a hard block?</summary>
         <p>Use warnings while the rubric is new, human agreement is low, or the failure is low risk. Promote to a hard block only after calibration shows the judge reliably catches product-relevant regressions.</p>
       </details>
+      <p>
+        Sources:
+        <a href="https://arxiv.org/abs/2306.05685">MT-Bench and Chatbot Arena judge paper</a>,
+        <a href="https://arxiv.org/abs/2305.17926">FairEval / Large Language Models are not Fair Evaluators</a>,
+        <a href="https://arxiv.org/abs/2303.16634">G-Eval paper</a>.
+      </p>
     </section>
 
     <section id="agent-traces" class="band">

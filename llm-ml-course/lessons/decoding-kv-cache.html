@@ -189,6 +189,43 @@ assert out.shape == q.shape</code></pre>
         <summary>Question: Why does GQA help long-context serving?</summary>
         <p>Long prompts make the KV cache large. Sharing fewer K/V heads reduces the cache memory read and storage terms while keeping multiple query heads for representation capacity.</p>
       </details>
+      <h3>Implementation Drill: Test GQA Against A Slow Repeat-KV Reference</h3>
+      <p>
+        GQA implementations usually expose compact K/V tensors, then repeat
+        each K/V head across a group of query heads inside the attention path.
+        The GQA paper frames this as the middle point between MHA and MQA, and
+        PyTorch's SDPA docs require query heads to be divisible by K/V heads
+        when <code>enable_gqa=True</code>. Before benchmarking a fused backend,
+        compare it to an explicit <code>repeat_interleave</code> reference on a
+        tiny tensor so shape mistakes cannot hide inside throughput numbers.
+      </p>
+      <pre><code class="language-python">def repeat_kv_for_gqa(x, query_heads):
+    # x: batch, kv_heads, seq_len, head_dim
+    batch, kv_heads, seq_len, head_dim = x.shape
+    assert query_heads % kv_heads == 0
+    groups = query_heads // kv_heads
+    return x.repeat_interleave(groups, dim=1)
+
+torch.manual_seed(0)
+q = torch.randn(2, 8, 3, 16, device="cuda", dtype=torch.float16)
+k = torch.randn(2, 2, 5, 16, device="cuda", dtype=torch.float16)
+v = torch.randn(2, 2, 5, 16, device="cuda", dtype=torch.float16)
+
+slow = F.scaled_dot_product_attention(
+    q, repeat_kv_for_gqa(k, q.size(1)), repeat_kv_for_gqa(v, q.size(1)),
+    dropout_p=0.0,
+)
+fast = F.scaled_dot_product_attention(q, k, v, dropout_p=0.0, enable_gqa=True)
+torch.testing.assert_close(fast, slow, rtol=2e-3, atol=2e-3)</code></pre>
+      <ol class="steps">
+        <li><strong>Reference first:</strong> write the repeat-KV path in the same tensor layout your cache uses.</li>
+        <li><strong>Disable dropout:</strong> SDPA always applies dropout according to <code>dropout_p</code>, so set it to zero for inference and equivalence tests.</li>
+        <li><strong>Then benchmark:</strong> after the outputs match, test the production backend, dtype, sequence lengths, and cache layout.</li>
+      </ol>
+      <details class="qa">
+        <summary>Question: Why does the slow reference repeat K/V heads instead of query heads?</summary>
+        <p>GQA preserves the model's query-head count and shares fewer K/V heads across groups. Repeating K/V heads only for the attention computation matches that contract while keeping the cache compact.</p>
+      </details>
       <details class="qa">
         <summary>Question: Why does PagedAttention help serving systems?</summary>
         <p>It manages KV cache in blocks instead of requiring each request to reserve one large contiguous cache region, which reduces waste from variable-length prompts and generations.</p>

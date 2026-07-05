@@ -100,9 +100,10 @@ title: Speech Timeline
 </style>
 
 <p class="speech-intro">
-  A compact timeline of milestones that shaped automatic speech recognition,
-  text-to-speech, and modern speech-to-speech systems. Each entry highlights
-  the proposed idea, the practical achievement, and why it still matters.
+  A compact timeline of milestones and key concepts that shaped automatic
+  speech recognition, text-to-speech, and modern speech-to-speech systems.
+  Each entry highlights the proposed idea, the practical achievement, and why
+  it still matters.
 </p>
 
 <nav class="speech-nav" aria-label="Timeline eras">
@@ -190,6 +191,21 @@ title: Speech Timeline
     <p><strong>Achievement:</strong> DTW made isolated-word recognition more robust by aligning acoustic sequences rather than comparing them frame by frame.</p>
     <p><strong>Why it matters:</strong> The alignment problem never disappeared; CTC, attention, transducers, and forced alignment all solve descendants of the same issue.</p>
     <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1163055">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    1980
+    <div class="speech-kicker">Feature representation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Mel-Frequency Cepstral Coefficients</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> Represent short speech frames with cepstral coefficients on a mel-spaced frequency scale, approximating human perceptual frequency resolution.</p>
+    <p><strong>Achievement:</strong> MFCCs became a standard front-end for template, HMM/GMM, and early neural ASR systems because they compactly captured phonetic information while reducing raw waveform variability.</p>
+    <p><strong>Why it matters:</strong> Even when modern models learn features directly from waveforms or spectrograms, MFCCs remain the reference point for speech feature engineering, diagnostics, and lightweight baselines.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1163420">paper</a></p>
   </div>
 </section>
 

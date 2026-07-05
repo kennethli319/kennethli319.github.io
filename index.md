@@ -2,7 +2,7 @@
 layout: default
 ---
 
-[Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Audio ML Course](./audio-text-ml-course/) · [Notes](./notes.md)
+[Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Audio ML Course](./audio-text-ml-course/) · [Notes](./notes.md) · [Speech Timeline](./speech-timeline.md)
 
 # About
 

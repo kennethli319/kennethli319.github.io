@@ -195,6 +195,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1982
+    <div class="speech-kicker">Rule-based TTS</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Klattalk Text-To-Speech</h2>
+    <div class="speech-meta"><span class="speech-tag">TTS</span><span class="speech-tag">Formant Synthesis</span></div>
+    <p><strong>Proposed:</strong> A real-time English text-to-speech system that converted ordinary spelling into linguistic controls for a formant synthesizer.</p>
+    <p><strong>Achievement:</strong> Klattalk connected text analysis, pronunciation rules, prosody, and acoustic generation in an integrated system that later influenced DECtalk.</p>
+    <p><strong>Why it matters:</strong> It made TTS an end-to-end engineering pipeline, not only a speech-synthesis problem, and set expectations for intelligible machine voices before large recorded databases.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1171431/">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1989
     <div class="speech-kicker">Probabilistic decoding</div>
   </aside>

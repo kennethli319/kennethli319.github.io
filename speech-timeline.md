@@ -302,6 +302,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2015
+    <div class="speech-kicker">Attention-based ASR</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Listen, Attend and Spell</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">Attention</span><span class="speech-tag">Seq2seq</span></div>
+    <p><strong>Proposed:</strong> A pyramidal recurrent encoder and attention decoder that transcribes speech into characters without a pronunciation lexicon.</p>
+    <p><strong>Achievement:</strong> LAS showed that attention-based sequence-to-sequence modeling could learn acoustic modeling, alignment, and character prediction jointly.</p>
+    <p><strong>Why it matters:</strong> It made attention a serious ASR architecture, complementing CTC and influencing later contextual, multilingual, and encoder-decoder recognizers.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1508.01211">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2016
     <div class="speech-kicker">Neural waveform generation</div>
   </aside>

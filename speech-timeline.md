@@ -254,6 +254,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1965
+    <div class="speech-kicker">Fast spectral analysis</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Cooley-Tukey Fast Fourier Transform</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> A divide-and-conquer algorithm for computing discrete Fourier transforms far faster than direct summation for composite sequence lengths.</p>
+    <p><strong>Achievement:</strong> The FFT made routine spectral analysis practical on digital computers, turning time-domain speech into frequency-domain frames at scale.</p>
+    <p><strong>Why it matters:</strong> Spectrograms, filterbanks, MFCCs, phase reconstruction, classical vocoders, and neural mel-feature pipelines all depend on fast transforms being cheap enough to run constantly.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech research needed frequency analysis that could keep pace with real signals instead of remaining a slow offline calculation. The FFT shows how an algorithmic efficiency breakthrough can reshape a field: once spectra became cheap, later recognition and synthesis systems could treat time-frequency features as everyday infrastructure.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1090/S0025-5718-1965-0178586-1">paper</a> <a href="https://web.stanford.edu/class/cme324/classics/cooley-tukey.pdf">pdf</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1968
     <div class="speech-kicker">Speech coding</div>
   </aside>

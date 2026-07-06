@@ -394,6 +394,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2012
+    <div class="speech-kicker">Alignment-free transduction</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Recurrent Neural Network Transducer</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Transducer</span></div>
+    <p><strong>Proposed:</strong> Learn a probabilistic mapping from an input sequence to an output sequence without requiring a predefined frame-level alignment.</p>
+    <p><strong>Achievement:</strong> RNN-T extended the CTC idea with a prediction network, letting recognition depend on both acoustic history and emitted label history.</p>
+    <p><strong>Why it matters:</strong> The transducer objective became a core foundation for streaming end-to-end ASR, where low latency and incremental decoding matter as much as accuracy.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1211.3711">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2014
     <div class="speech-kicker">End-to-end scale</div>
   </aside>

@@ -820,6 +820,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2023
+    <div class="speech-kicker">Speech infilling</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Voicebox</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech Editing</span><span class="speech-tag">Flow Matching</span></div>
+    <p><strong>Proposed:</strong> Train a non-autoregressive flow-matching model to infill masked speech from surrounding audio context and text guidance.</p>
+    <p><strong>Achievement:</strong> It generalized one speech generation model across zero-shot TTS, cross-lingual style transfer, denoising, content editing, and diverse sample generation.</p>
+    <p><strong>Why it matters:</strong> Voicebox made speech generation look less like a single-purpose synthesizer and more like a general text-guided audio editing and creation model.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Codec-token models showed that prompting could clone voices, but many speech tasks also need local editing, future context, and fast non-autoregressive generation. Voicebox turned infilling into the training problem, revealing why a generative speech model could become useful across synthesis, repair, and style transfer rather than only text-to-speech.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2306.15687">paper</a> <a href="https://voicebox.metademolab.com/">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2023
     <div class="speech-kicker">Multilingual speech translation</div>
   </aside>
   <div class="speech-body">

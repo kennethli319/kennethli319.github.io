@@ -495,6 +495,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2005
+    <div class="speech-kicker">Shared TTS challenge</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Blizzard Challenge</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Compare corpus-based speech synthesis systems by giving participants common speech databases, hidden test sentences, and shared listening-test protocols.</p>
+    <p><strong>Achievement:</strong> The first Blizzard Challenge created a public benchmark culture for TTS, letting unit-selection, statistical parametric, and later neural systems be judged on comparable data and listener ratings.</p>
+    <p><strong>Why it matters:</strong> It made synthetic-speech progress more measurable across labs, complementing MOS-style subjective scoring with recurring shared tasks and public system comparisons.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> As corpus-based voices improved, isolated demos could no longer explain which methods generalized across speakers, prompts, and listening conditions. Blizzard showed that TTS needed benchmark discipline too: common data and hidden evaluations made quality claims easier to compare, and later neural systems inherited that expectation of public listening-test evidence.</p>
+    <p class="speech-source"><a href="https://www.isca-archive.org/interspeech_2005/black05_interspeech.html">paper</a> <a href="https://festvox.org/blizzard/blizzard2005.html">challenge</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2006
     <div class="speech-kicker">Sequence learning</div>
   </aside>

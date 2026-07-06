@@ -379,6 +379,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2011
+    <div class="speech-kicker">Open ASR recipes</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Kaldi Speech Recognition Toolkit</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Toolkit</span><span class="speech-tag">WFST</span></div>
+    <p><strong>Proposed:</strong> A flexible open-source ASR toolkit built around finite-state decoding, modular recipes, and extensible acoustic modeling.</p>
+    <p><strong>Achievement:</strong> Kaldi made strong HMM/GMM, DNN-HMM, speaker adaptation, lattice, and language-model workflows reproducible across research labs and production teams.</p>
+    <p><strong>Why it matters:</strong> It became the common engineering language for a decade of ASR work, and many modern neural, streaming, and contextual-biasing systems still inherit its decoding and evaluation habits.</p>
+    <p class="speech-source"><a href="https://www.isca-speech.org/archive/asru_2011/povey11_asru.html">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2012
     <div class="speech-kicker">Deep acoustic models</div>
   </aside>

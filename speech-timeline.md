@@ -853,6 +853,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2017
+    <div class="speech-kicker">Learned discrete codes</div>
+  </aside>
+  <div class="speech-body">
+    <h2>VQ-VAE And Neural Discrete Representations</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Discrete Units</span></div>
+    <p><strong>Proposed:</strong> Learn a latent codebook with vector quantization so neural models can encode continuous signals into discrete symbols while training an encoder and decoder end to end.</p>
+    <p><strong>Achievement:</strong> VQ-VAE made learned discrete representations practical for high-dimensional data, including speech experiments that separated phoneme-like content from speaker variation.</p>
+    <p><strong>Why it matters:</strong> It helped establish the modeling pattern behind later discrete speech units, neural codec tokens, and audio language models: turn audio into tokens that sequence models can predict, edit, and regenerate.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Neural generative models needed a way to combine the flexibility of continuous encoders with the compositional advantages of symbols. Later speech systems reveal why that compromise was powerful: once speech could be discretized by a learned codebook, language-model machinery could operate on audio without reducing everything to text.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1711.00937">paper</a> <a href="https://papers.neurips.cc/paper_files/paper/2017/hash/7a98af17e63a0ac09ce2e96d03992fbc-Abstract.html">NeurIPS</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2017
     <div class="speech-kicker">Neural TTS stack</div>
   </aside>
   <div class="speech-body">

@@ -367,6 +367,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1997
+    <div class="speech-kicker">Recurrent memory</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Long Short-Term Memory</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Sequence Modeling</span></div>
+    <p><strong>Proposed:</strong> Add gated memory cells to recurrent neural networks so sequence models could preserve information over longer spans without unstable gradients.</p>
+    <p><strong>Achievement:</strong> LSTM made recurrent modeling more practical for long temporal dependencies, later becoming a standard building block in acoustic models, CTC systems, RNN-T, attention ASR, and neural TTS.</p>
+    <p><strong>Why it matters:</strong> Before Transformers dominated, LSTMs gave speech systems a trainable way to connect local acoustic frames with wider phonetic, lexical, and prosodic context.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech is sequential, but early recurrent networks could not reliably learn dependencies across many frames. LSTM solved a training bottleneck, and later speech systems revealed why memory mattered: recognition and synthesis both depend on context that extends beyond the current sound.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1162/neco.1997.9.8.1735">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2000
     <div class="speech-kicker">ASR evaluation</div>
   </aside>

@@ -150,6 +150,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1937
+    <div class="speech-kicker">Perceptual frequency</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Mel Scale For Pitch Perception</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> A psychophysical pitch scale that maps physical frequency to perceived pitch magnitude rather than treating Hertz as perceptually uniform.</p>
+    <p><strong>Achievement:</strong> The mel scale gave speech engineers a practical way to weight spectral analysis toward human auditory resolution.</p>
+    <p><strong>Why it matters:</strong> Mel-spaced filterbanks became the bridge from raw spectra to MFCCs, log-mel ASR inputs, mel-spectrogram TTS targets, and neural vocoder conditioning.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1121/1.1901999">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1939
     <div class="speech-kicker">Manual synthesis</div>
   </aside>

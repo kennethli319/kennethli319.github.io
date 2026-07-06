@@ -900,6 +900,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2021
+    <div class="speech-kicker">Representation evaluation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>SUPERB Benchmark</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Pretraining</span></div>
+    <p><strong>Proposed:</strong> A shared benchmark for evaluating pretrained speech representations across recognition, speaker, paralinguistic, and semantic tasks.</p>
+    <p><strong>Achievement:</strong> SUPERB made it easier to compare wav2vec-style, HuBERT-style, and later representation models beyond a single downstream ASR score.</p>
+    <p><strong>Why it matters:</strong> It helped shift speech pretraining from isolated task wins toward broad representation quality, a habit that later speech foundation-model evaluations kept expanding.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Self-supervised models were improving quickly, but the field needed a common way to ask what their hidden representations actually captured. SUPERB made breadth part of the evaluation culture, showing that a useful speech model should support more than transcription.</p>
+    <p class="speech-source"><a href="https://www.isca-archive.org/interspeech_2021/yang21c_interspeech.html">paper</a> <a href="https://arxiv.org/abs/2105.01051">arXiv</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2021
     <div class="speech-kicker">Neural audio codecs</div>
   </aside>
   <div class="speech-body">

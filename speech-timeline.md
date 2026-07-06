@@ -660,6 +660,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2020
+    <div class="speech-kicker">Diffusion vocoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>DiffWave And Diffusion Speech Generation</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">Diffusion</span></div>
+    <p><strong>Proposed:</strong> Generate speech waveforms by reversing a gradual noise process, conditioning the denoising model on acoustic features such as mel-spectrograms.</p>
+    <p><strong>Achievement:</strong> DiffWave showed that diffusion models could synthesize high-quality speech with a non-autoregressive generative process.</p>
+    <p><strong>Why it matters:</strong> Diffusion became a major alternative to autoregressive and adversarial vocoders, later influencing controllable TTS, zero-shot voice generation, and speech editing systems.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Diffusion vocoding followed the search for generators that were stable to train, high quality, and less sequential than autoregressive waveform models. Later TTS systems show why this mattered: denoising models give speech generation a flexible way to trade speed, quality, and control.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2009.09761">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2020
     <div class="speech-kicker">Self-supervision</div>
   </aside>
   <div class="speech-body">

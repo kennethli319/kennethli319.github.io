@@ -17,7 +17,8 @@ title: Speech Timeline
 .speech-podcast {
   border: 1px solid #e1e1e1;
   border-radius: 8px;
-  margin: 1.35rem 0 1.55rem;
+  display: flow-root;
+  margin: 1.35rem 0 1.9rem;
   padding: 1rem;
 }
 .speech-podcast h2 {
@@ -31,6 +32,8 @@ title: Speech Timeline
 }
 .speech-podcast audio {
   display: block;
+  height: 42px;
+  margin-top: 0.8rem;
   width: 100%;
 }
 .speech-nav {
@@ -102,10 +105,11 @@ title: Speech Timeline
   font-weight: 700;
 }
 .speech-legend {
+  clear: both;
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin: 1rem 0 0;
+  margin: 1.25rem 0 0;
 }
 .speech-tag-note {
   color: #777;

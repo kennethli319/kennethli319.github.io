@@ -304,6 +304,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1967
+    <div class="speech-kicker">Trellis decoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Viterbi Algorithm For Sequence Search</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Search</span><span class="speech-tag">HMM</span></div>
+    <p><strong>Proposed:</strong> A dynamic programming decoder for finding the most likely path through a trellis of hidden states and observations.</p>
+    <p><strong>Achievement:</strong> The Viterbi algorithm gave later HMM-based ASR a tractable way to infer word, phone, and state sequences without enumerating every possible alignment.</p>
+    <p><strong>Why it matters:</strong> It became the decoding backbone behind classical HMM recognizers, forced alignment, lattice generation, and the broader habit of treating speech recognition as efficient search over many competing paths.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech recognition needed a way to keep sequence uncertainty without letting the number of hypotheses explode. Viterbi decoding showed how local dynamic-programming choices could recover a best global path, and later ASR systems reveal why that mattered: better acoustic and language models are only useful when the decoder can search their combined space efficiently.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1054010">paper</a> <a href="https://doi.org/10.1109/TIT.1967.1054010">doi</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1976
     <div class="speech-kicker">Search and knowledge integration</div>
   </aside>

@@ -1355,11 +1355,11 @@ title: Speech Timeline
   <div class="speech-body">
     <h2>Kimi-Audio</h2>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">Audio LLM</span><span class="speech-tag">Streaming</span><span class="speech-tag">Tokenizer</span></div>
-    <p><strong>Proposed:</strong> An open-source audio foundation model for understanding, generation, and conversation, using a 12.5 Hz audio tokenizer and streaming detokenizer.</p>
-    <p><strong>Achievement:</strong> It combined audio understanding, ASR, audio question answering, and speech conversation in one released model family.</p>
-    <p><strong>Why it matters:</strong> Kimi-Audio shows the modern convergence of speech recognition, audio understanding, and speech generation around shared audio-token interfaces.</p>
-    <p class="speech-reflection"><strong>Why this emerged:</strong> Kimi-Audio follows the trend of using shared audio tokens for recognition, understanding, and generation. Looking back, it is part of the move from specialized speech models toward audio foundation models with one interface for many tasks.</p>
-    <p class="speech-source"><a href="https://arxiv.org/abs/2504.18425">paper</a></p>
+    <p><strong>Proposed:</strong> An open-source audio foundation model for understanding, generation, and conversation, using a 12.5 Hz audio tokenizer, continuous audio features, discrete output tokens, and a streaming detokenizer.</p>
+    <p><strong>Achievement:</strong> It combined audio understanding, ASR, audio question answering, and speech conversation in one released model family with public code and checkpoints.</p>
+    <p><strong>Why it matters:</strong> Kimi-Audio shows the modern convergence of speech recognition, audio understanding, and speech generation around shared audio-token interfaces that can be inspected, reproduced, and adapted.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Kimi-Audio follows the trend of using shared audio tokens for recognition, understanding, and generation, but its open release made that pattern easier to study outside a closed demo. Looking back, it marks the move from specialized speech models toward audio foundation models with one interface for many tasks.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2504.18425">paper</a> <a href="https://github.com/MoonshotAI/Kimi-Audio">source</a></p>
   </div>
 </section>
 

@@ -111,6 +111,7 @@ title: Speech Timeline
   <a href="#statistical">Statistical Speech</a>
   <a href="#neural">Neural Turn</a>
   <a href="#foundation">Foundation Models</a>
+  <a href="#speech-foundation">Speech Foundation Models</a>
 </nav>
 
 <div class="speech-timeline">
@@ -510,6 +511,98 @@ title: Speech Timeline
     <p><strong>Achievement:</strong> It connected ASR, speech translation, text translation, and TTS in one research system across many languages.</p>
     <p><strong>Why it matters:</strong> It marks the field's shift from isolated ASR/TTS modules toward integrated speech-to-speech communication systems.</p>
     <p class="speech-source"><a href="https://arxiv.org/abs/2308.11596">paper</a></p>
+  </div>
+</section>
+
+<h2 id="speech-foundation" class="speech-era">Speech Foundation Models</h2>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
+    <div class="speech-kicker">Factorized zero-shot TTS</div>
+  </aside>
+  <div class="speech-body">
+    <h2>NaturalSpeech 3</h2>
+    <div class="speech-meta"><span class="speech-tag">TTS</span><span class="speech-tag">Diffusion</span><span class="speech-tag">Codec</span></div>
+    <p><strong>Proposed:</strong> Factorize speech into content, prosody, timbre, and acoustic-detail subspaces, then generate them with diffusion models conditioned on a prompt.</p>
+    <p><strong>Achievement:</strong> It pushed zero-shot TTS quality, similarity, prosody, and intelligibility by combining factorized codec representations with diffusion generation.</p>
+    <p><strong>Why it matters:</strong> NaturalSpeech 3 is a clear example of modern TTS moving from monolithic acoustic prediction toward disentangled, controllable speech generation.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2403.03100">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
+    <div class="speech-kicker">Audio instruction following</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Qwen2-Audio</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">Audio LLM</span><span class="speech-tag">Instruction Following</span></div>
+    <p><strong>Proposed:</strong> A large audio-language model that accepts audio inputs and follows natural language or voice instructions for analysis and conversation.</p>
+    <p><strong>Achievement:</strong> It unified voice chat and audio analysis modes without relying on explicit mode-switching prompts.</p>
+    <p><strong>Why it matters:</strong> Qwen2-Audio marks the shift from ASR as transcription alone toward models that directly understand and act on audio instructions.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2407.10759">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
+    <div class="speech-kicker">Full-duplex dialogue</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Moshi</h2>
+    <div class="speech-meta"><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Full Duplex</span><span class="speech-tag">Codec LM</span></div>
+    <p><strong>Proposed:</strong> A real-time speech-text foundation model that generates speech-to-speech dialogue with parallel streams for the user and the model.</p>
+    <p><strong>Achievement:</strong> Moshi demonstrated low-latency full-duplex spoken interaction, including interruptions and overlapping conversational dynamics.</p>
+    <p><strong>Why it matters:</strong> It made turn-taking, latency, and paralinguistic information central architecture questions rather than pipeline afterthoughts.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2410.00037">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2025
+    <div class="speech-kicker">Streaming omni model</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Qwen2.5-Omni</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Thinker-Talker</span></div>
+    <p><strong>Proposed:</strong> An end-to-end multimodal model that perceives text, images, audio, and video while generating text and natural speech responses in a streaming manner.</p>
+    <p><strong>Achievement:</strong> It introduced the Thinker-Talker split, using a language model for text reasoning and a speech generator for audio-token output.</p>
+    <p><strong>Why it matters:</strong> The architecture captures a practical pattern for speech agents: keep text reasoning inspectable while generating speech directly and incrementally.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2503.20215">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2025
+    <div class="speech-kicker">Open audio foundation model</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Kimi-Audio</h2>
+    <div class="speech-meta"><span class="speech-tag">Audio LLM</span><span class="speech-tag">Streaming</span><span class="speech-tag">Tokenizer</span></div>
+    <p><strong>Proposed:</strong> An open-source audio foundation model for understanding, generation, and conversation, using a 12.5 Hz audio tokenizer and streaming detokenizer.</p>
+    <p><strong>Achievement:</strong> It combined audio understanding, ASR, audio question answering, and speech conversation in one released model family.</p>
+    <p><strong>Why it matters:</strong> Kimi-Audio shows the modern convergence of speech recognition, audio understanding, and speech generation around shared audio-token interfaces.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2504.18425">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2026
+    <div class="speech-kicker">Long-context omni speech</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Qwen3.5-Omni</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Omnimodal</span></div>
+    <p><strong>Proposed:</strong> A large omnimodal model with long-context audio-visual understanding, multilingual speech generation, and a Thinker/Talker mixture-of-experts design.</p>
+    <p><strong>Achievement:</strong> It reports broad audio and audio-visual benchmark coverage, long audio understanding, and improved streaming speech stability through dynamic text-speech unit alignment.</p>
+    <p><strong>Why it matters:</strong> It represents the 2026 direction: speech is no longer a side channel, but one modality inside long-context, real-time, multimodal agents.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2604.15804">paper</a></p>
   </div>
 </section>
 

@@ -260,6 +260,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1994
+    <div class="speech-kicker">TTS evaluation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Mean Opinion Score For Synthetic Speech</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Rate speech output with listener panels and average their judgments across quality scales such as naturalness, intelligibility, effort, and pleasantness.</p>
+    <p><strong>Achievement:</strong> ITU-T P.85 gave voice-output systems a shared subjective evaluation procedure, complementing broader speech-quality methods such as P.800.</p>
+    <p><strong>Why it matters:</strong> MOS remains the default human-facing TTS metric because synthetic speech quality depends on perception, not only waveform loss or text accuracy.</p>
+    <p class="speech-source"><a href="https://www.itu.int/rec/T-REC-P.85/en">standard</a> <a href="https://www.itu.int/rec/T-REC-P.800-199608-I/en">related</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1996
     <div class="speech-kicker">Data-driven voices</div>
   </aside>

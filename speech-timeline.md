@@ -1449,6 +1449,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Open flow-matching TTS</div>
+  </aside>
+  <div class="speech-body">
+    <h2>F5-TTS</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Flow Matching</span><span class="speech-tag">Open Model</span></div>
+    <p><strong>Proposed:</strong> A fully non-autoregressive zero-shot TTS system using flow matching with a Diffusion Transformer, ConvNeXt text refinement, filler-token alignment, and Sway Sampling for faster inference.</p>
+    <p><strong>Achievement:</strong> F5-TTS made E2-style flow-matching voice generation more reproducible and practical by releasing code and checkpoints while improving convergence, robustness, and multilingual zero-shot speech quality.</p>
+    <p><strong>Why it matters:</strong> It helped turn simple flow-matching TTS from a research idea into a community baseline, making open prompt-based voice generation easier to study, compare, and adapt.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> E2 TTS showed that elaborate alignment machinery could be removed, but researchers still needed an implementation that trained reliably and ran efficiently. F5-TTS reflects the next pressure in modern TTS: once the architecture is simplified, open reproducibility and practical sampling become the levers that let the idea spread.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2410.06885">paper</a> <a href="https://aclanthology.org/2025.acl-long.313/">ACL</a> <a href="https://github.com/SWivid/F5-TTS">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Audio instruction following</div>
   </aside>
   <div class="speech-body">

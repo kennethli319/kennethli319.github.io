@@ -514,6 +514,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2017
+    <div class="speech-kicker">Attention backbone</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Transformer Sequence Modeling</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Attention</span></div>
+    <p><strong>Proposed:</strong> Replace recurrent sequence modeling with stacked self-attention and feed-forward layers, making long-context token interactions easier to learn in parallel.</p>
+    <p><strong>Achievement:</strong> Although introduced for machine translation, the Transformer quickly became the backbone pattern behind Conformer ASR, Whisper-style encoder-decoders, speech LMs, and codec-token generators.</p>
+    <p><strong>Why it matters:</strong> It gave speech systems a scalable architecture for combining acoustic context, text context, and token generation, which later foundation models adapted across recognition, synthesis, and speech-to-speech dialogue.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech models had long balanced sequence order, alignment, and context with recurrent networks and convolutional shortcuts. The Transformer showed that attention itself could carry much of that burden, and later speech systems revealed why that mattered: audio is sequential, but strong models also need flexible access to distant context and parallel training.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1706.03762">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2017
     <div class="speech-kicker">Neural TTS stack</div>
   </aside>
   <div class="speech-body">

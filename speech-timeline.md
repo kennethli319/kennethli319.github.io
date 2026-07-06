@@ -653,6 +653,22 @@ title: Speech Timeline
   </div>
 </section>
 
+<section class="speech-row">
+  <aside class="speech-year">
+    2007
+    <div class="speech-kicker">Parametric TTS toolkit</div>
+  </aside>
+  <div class="speech-body">
+    <h2>HTS HMM-Based Speech Synthesis Toolkit</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Toolkit</span><span class="speech-tag">HMM</span></div>
+    <p><strong>Proposed:</strong> Release a shared HMM-based synthesis toolkit that models spectrum, excitation, and duration with context-dependent statistical models.</p>
+    <p><strong>Achievement:</strong> HTS gave researchers and developers a reproducible platform for building compact statistical parametric voices, adapting speakers, and comparing synthesis techniques.</p>
+    <p><strong>Why it matters:</strong> It made HMM-based TTS easier to study and deploy, and it helped establish the recipe culture later inherited by neural TTS toolkits and voice-building pipelines.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> HMM synthesis promised smaller, more controllable voices than unit selection, but the field needed common tooling to make results reproducible. HTS shows why speech progress often depends on shared infrastructure: once a modeling recipe becomes easy to run, researchers can focus on adaptation, duration, vocoding, and evaluation rather than rebuilding the full stack.</p>
+    <p class="speech-source"><a href="https://www.isca-archive.org/ssw_2007/zen07_ssw.html">paper</a> <a href="https://hts.sp.nitech.ac.jp/">toolkit</a></p>
+  </div>
+</section>
+
 <h2 id="neural" class="speech-era">Neural Turn</h2>
 
 <section class="speech-row">

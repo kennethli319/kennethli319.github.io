@@ -189,6 +189,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1940
+    <div class="speech-kicker">Analysis-synthesis coding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Dudley Vocoder</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
+    <p><strong>Proposed:</strong> Analyze speech into slowly varying control signals for spectral bands and excitation, then resynthesize intelligible speech from that compact representation.</p>
+    <p><strong>Achievement:</strong> The vocoder showed that speech could be transmitted, transformed, and reconstructed through an analysis-synthesis model rather than preserving every waveform sample.</p>
+    <p><strong>Why it matters:</strong> It established the core speech-coding idea behind channel vocoders, parametric TTS, neural vocoders, and modern codec tokens: separate the information needed to describe speech from the waveform used to play it.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Telephone networks needed speech to travel efficiently over limited channels, so Dudley's work treated the voice as a carrier-like signal whose essential controls could be encoded separately. Later systems reveal why that abstraction endured: every generation of speech synthesis still depends on choosing the right compact representation before reconstructing sound.</p>
+    <p class="speech-source"><a href="https://www.worldradiohistory.com/Archive-Bell-System-Technical-Journal/40s/Bell-1940d.o.pdf">paper</a> <a href="https://ptolemy.berkeley.edu/eecs20/speech/voder.html">context</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1946
     <div class="speech-kicker">Time-frequency analysis</div>
   </aside>

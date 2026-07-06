@@ -1461,6 +1461,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2025
+    <div class="speech-kicker">Native omni speech model</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Qwen3-Omni</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Omnimodal</span><span class="speech-tag">Streaming</span></div>
+    <p><strong>Proposed:</strong> A native omnimodal model that processes text, images, audio, and video while generating both text and real-time speech through a Thinker-Talker architecture.</p>
+    <p><strong>Achievement:</strong> Qwen3-Omni reported strong audio and audio-visual benchmark results, public Apache-2.0 model releases, and a low first-packet-latency speech path based on discrete codec prediction.</p>
+    <p><strong>Why it matters:</strong> It made open, end-to-end speech interaction a serious foundation-model target, connecting audio understanding, speech generation, and streaming latency in one released model family.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Voice agents needed more than a better ASR front end or a smoother TTS back end; they needed one architecture that could preserve timing, perception, and response generation together. Qwen3-Omni shows why native speech modeling became important: once audio and video are first-class inputs, streaming speech output has to be designed into the model rather than attached after text reasoning.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2509.17765">paper</a> <a href="https://qwen.ai/blog?from=research.research-list&id=fdfbaf2907a36b7659a470c77fb135e381302028">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2026
     <div class="speech-kicker">Long-context omni speech</div>
   </aside>

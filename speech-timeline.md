@@ -303,6 +303,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1984
+    <div class="speech-kicker">Phase reconstruction</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Griffin-Lim Spectrogram Inversion</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
+    <p><strong>Proposed:</strong> Reconstruct a time-domain signal from a modified short-time Fourier transform by iteratively estimating phase consistent with the target magnitude spectrogram.</p>
+    <p><strong>Achievement:</strong> Griffin-Lim gave speech and audio systems a practical baseline for turning magnitude spectrograms back into waveforms when phase was missing or altered.</p>
+    <p><strong>Why it matters:</strong> Neural TTS systems later used spectrograms as intermediate targets, and Griffin-Lim remained the simple reference point that neural vocoders had to surpass in quality and speed.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Spectrogram features were useful because they made speech easier to analyze and model, but synthesis needed a path back to sound. Griffin-Lim exposed the missing-phase problem directly, showing why waveform generation would become a distinct component rather than a trivial inverse transform.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1164317/">paper</a> <a href="https://doi.org/10.1109/TASSP.1984.1164317">doi</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1989
     <div class="speech-kicker">Probabilistic decoding</div>
   </aside>

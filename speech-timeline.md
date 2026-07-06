@@ -546,6 +546,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2016
+    <div class="speech-kicker">Real-time vocoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>WORLD Vocoder</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
+    <p><strong>Proposed:</strong> A high-quality speech analysis-synthesis system that estimates F0, spectral envelope, and aperiodicity, then resynthesizes speech quickly enough for real-time use.</p>
+    <p><strong>Achievement:</strong> WORLD made controllable vocoder-based synthesis practical for statistical parametric TTS, singing synthesis, voice conversion, and speech research tooling.</p>
+    <p><strong>Why it matters:</strong> Even after neural vocoders improved naturalness, WORLD remained a common reference and preprocessing tool because its interpretable parameters expose pitch, timbre, and noise structure explicitly.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Statistical and conversion-based speech systems needed a vocoder that was both high quality and fast, without hiding every acoustic factor inside a waveform model. WORLD shows why interpretable signal parameters stayed useful: later neural systems could outperform classical resynthesis, but still benefited from pitch, spectral, and aperiodicity concepts that WORLD made easy to manipulate.</p>
+    <p class="speech-source"><a href="https://www.jstage.jst.go.jp/article/transinf/E99.D/7/E99.D_2015EDP7457/_article">paper</a> <a href="https://github.com/mmorise/World">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2016
     <div class="speech-kicker">Neural waveform generation</div>
   </aside>
   <div class="speech-body">

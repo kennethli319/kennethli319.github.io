@@ -1110,6 +1110,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Speech generation foundation model</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Seed-TTS</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech Foundation Model</span><span class="speech-tag">Zero-Shot</span></div>
+    <p><strong>Proposed:</strong> A family of large-scale autoregressive speech generation models for zero-shot voice generation, controllable speech synthesis, speech editing, and evaluation of speaker similarity and naturalness.</p>
+    <p><strong>Achievement:</strong> Seed-TTS showed that prompt-based TTS could approach human-recorded speech in subjective quality and speaker similarity while supporting versatile speech generation tasks.</p>
+    <p><strong>Why it matters:</strong> It made speech-generation scale, in-context voice prompting, and rigorous TTS evaluation part of the modern foundation-model conversation rather than separate synthesis engineering concerns.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> By 2024, zero-shot TTS had moved beyond proving that a cloned voice was possible; the harder question was whether a speech model could be broad, expressive, controllable, and measurable at near-human quality. Seed-TTS reflects that shift from individual voice-cloning demos toward large speech-generation systems evaluated like foundation models.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2406.02430">paper</a> <a href="https://github.com/BytedanceSpeech/seed-tts-eval">evaluation</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Simple flow-matching TTS</div>
   </aside>
   <div class="speech-body">

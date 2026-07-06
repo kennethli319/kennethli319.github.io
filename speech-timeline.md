@@ -109,9 +109,8 @@ title: Speech Timeline
 .speech-reflection {
   border-left: 2px solid #e2e2e2;
   color: #666;
-  font-size: 0.95rem;
   line-height: 1.55;
-  margin: 0.7rem 0;
+  margin: 0.45rem 0;
   padding-left: 0.75rem;
 }
 .back-link {

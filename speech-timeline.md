@@ -473,7 +473,7 @@ title: Speech Timeline
     <p><strong>Achievement:</strong> Unit selection greatly improved naturalness compared with heavily rule-based synthesis in constrained domains.</p>
     <p><strong>Why it matters:</strong> It shifted TTS toward data-driven voice building and exposed a lasting tradeoff between naturalness, coverage, and controllability.</p>
     <p class="speech-reflection"><strong>Why this emerged:</strong> Concatenative TTS became attractive because recorded human speech already had natural prosody and timbre that rules could not easily synthesize. The insight was to search a large database for good pieces rather than generate every detail from first principles.</p>
-    <p class="speech-source"><a href="https://www.cstr.ed.ac.uk/projects/festival/manual/festival_16.html">source</a></p>
+    <p class="speech-source"><a href="https://aclanthology.org/C94-2158/">CHATR paper</a> <a href="https://www.ee.columbia.edu/~dpwe/e6820/papers/HuntB96-speechsynth.pdf">unit selection paper</a></p>
   </div>
 </section>
 

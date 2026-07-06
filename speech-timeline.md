@@ -1174,6 +1174,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Low-frame-rate audio tokens</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Mimi And Streaming Codec Tokens</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
+    <p><strong>Proposed:</strong> Use a streaming neural audio codec with a low token rate and semantically useful codebooks as the audio interface for real-time speech language models.</p>
+    <p><strong>Achievement:</strong> Mimi made high-quality speech tokenization practical for systems such as Moshi, reducing the number of autoregressive audio steps while preserving enough detail for natural dialogue.</p>
+    <p><strong>Why it matters:</strong> Low-frame-rate codec tokens became a central efficiency lever for speech agents: fewer tokens mean lower latency, cheaper generation, and a cleaner bridge between waveform audio and language-model-style prediction.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Early codec-LM systems proved that audio tokens could drive speech generation, but real-time dialogue exposed a harsher bottleneck: too many audio tokens made interaction slow. Mimi reflects the next design pressure, where the codec is not only a compressor but the vocabulary and clock rate that determine whether a speech agent can respond naturally.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2410.00037">paper</a> <a href="https://kyutai.org/codec-explainer/">explainer</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Full-duplex dialogue</div>
   </aside>
   <div class="speech-body">

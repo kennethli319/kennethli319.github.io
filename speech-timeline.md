@@ -562,6 +562,21 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2020
+    <div class="speech-kicker">Fast neural vocoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>HiFi-GAN</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">GAN</span></div>
+    <p><strong>Proposed:</strong> Generate high-fidelity speech waveforms from mel-spectrograms with a generative adversarial network designed for fast inference.</p>
+    <p><strong>Achievement:</strong> HiFi-GAN delivered strong perceptual quality while running far faster than autoregressive neural vocoders.</p>
+    <p><strong>Why it matters:</strong> It made neural vocoding a practical default in open-source and production TTS pipelines, bridging Tacotron-style acoustic models, VITS, and later codec-token systems.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2010.05646">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2020
     <div class="speech-kicker">Self-supervision</div>
   </aside>
   <div class="speech-body">

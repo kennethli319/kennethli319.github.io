@@ -754,6 +754,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2003
+    <div class="speech-kicker">Diarization metric</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Diarization Error Rate</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Measure speaker diarization by the share of reference speech time affected by missed speech, false alarms, or speaker-confusion errors after mapping system speaker labels to reference speakers.</p>
+    <p><strong>Achievement:</strong> NIST Rich Transcription evaluations and MD-eval-style tooling made DER the common score for comparing diarization systems across meetings, broadcast speech, telephone speech, and later speaker-attributed transcription tasks.</p>
+    <p><strong>Why it matters:</strong> DER gave diarization the same kind of shared regression target that WER gave ASR, while also exposing why overlap, speech activity detection, and speaker clustering remain hard.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Once transcripts had to preserve conversational structure, researchers needed a metric for timing and speaker identity, not only recognized words. DER became important because it turned a messy annotation problem into measurable components, and later meeting assistants show why those components still matter whenever users need to know who said what.</p>
+    <p class="speech-source"><a href="https://www.nist.gov/itl/iad/mltg/rich-transcription-evaluation">source</a> <a href="https://www.isca-archive.org/interspeech_2017/bredin17_interspeech.html">toolkit</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2005
     <div class="speech-kicker">Shared TTS challenge</div>
   </aside>

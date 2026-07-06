@@ -1028,6 +1028,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2023
+    <div class="speech-kicker">Speech-text LLM fusion</div>
+  </aside>
+  <div class="speech-body">
+    <h2>AudioPaLM</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Audio LLM</span></div>
+    <p><strong>Proposed:</strong> Fuse a text large language model with an audio language model so one decoder-style system can process and generate both text and speech tokens.</p>
+    <p><strong>Achievement:</strong> It improved speech translation and zero-shot speech-to-text translation while preserving voice cues such as speaker identity and intonation in speech-to-speech settings.</p>
+    <p><strong>Why it matters:</strong> AudioPaLM made the handoff between text LLMs and speech token models explicit, foreshadowing later speech agents that combine linguistic reasoning with native audio generation.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> AudioLM showed that speech could be modeled as tokens, while PaLM-style LLMs showed the value of text-scale linguistic knowledge. AudioPaLM joined those strengths, revealing that speech foundation models needed both acoustic continuity and the abstractions learned from massive text corpora.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2306.12925">paper</a> <a href="https://google-research.github.io/seanet/audiopalm/examples/">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2023
     <div class="speech-kicker">Multilingual speech translation</div>
   </aside>
   <div class="speech-body">

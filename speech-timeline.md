@@ -834,6 +834,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2019
+    <div class="speech-kicker">Unsupervised pretraining</div>
+  </aside>
+  <div class="speech-body">
+    <h2>wav2vec</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span></div>
+    <p><strong>Proposed:</strong> Learn speech representations directly from raw audio by training a convolutional model to distinguish true future latent samples from distractors.</p>
+    <p><strong>Achievement:</strong> wav2vec showed that unsupervised pretraining on unlabeled speech could improve downstream ASR when only limited transcribed data was available.</p>
+    <p><strong>Why it matters:</strong> It connected contrastive representation learning to practical speech recognition and set up the larger masked-pretraining step taken by wav2vec 2.0.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> ASR had become hungry for labeled audio, but unlabeled speech was much easier to collect. wav2vec made that mismatch useful by turning raw waveforms into a pretraining signal, revealing why later speech foundation models would treat unlabeled audio as infrastructure rather than leftover data.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1904.05862">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2019
     <div class="speech-kicker">Fast synthesis</div>
   </aside>
   <div class="speech-body">

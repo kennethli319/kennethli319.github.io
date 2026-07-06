@@ -1206,6 +1206,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Native realtime audio</div>
+  </aside>
+  <div class="speech-body">
+    <h2>GPT-4o Realtime Speech Interaction</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Audio LLM</span></div>
+    <p><strong>Proposed:</strong> A single omnimodal model interface that can reason across audio, vision, and text in real time, reducing reliance on separate transcription, text reasoning, and speech-synthesis stages.</p>
+    <p><strong>Achievement:</strong> GPT-4o demonstrated low-latency spoken interaction with interruption handling, expressive speech output, and native audio understanding as part of a general assistant model.</p>
+    <p><strong>Why it matters:</strong> It made realtime speech interaction a foundation-model capability rather than a pipeline assembled from ASR, LLM, and TTS components.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Cascaded voice assistants had become useful but still lost timing, emotion, and turn-taking information at each module boundary. GPT-4o made the architectural pressure visible: natural spoken agents need speech to be modeled as an interactive modality, not only converted into text before reasoning begins.</p>
+    <p class="speech-source"><a href="https://openai.com/index/hello-gpt-4o/">announcement</a> <a href="https://arxiv.org/abs/2410.21276">system card</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Low-frame-rate audio tokens</div>
   </aside>
   <div class="speech-body">

@@ -498,6 +498,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2015
+    <div class="speech-kicker">Open benchmark data</div>
+  </aside>
+  <div class="speech-body">
+    <h2>LibriSpeech</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span></div>
+    <p><strong>Proposed:</strong> Build a large, freely available corpus of read English speech derived from public-domain audiobooks, with standardized train, development, and test splits.</p>
+    <p><strong>Achievement:</strong> LibriSpeech gave ASR researchers about 1,000 hours of labeled speech and became a shared benchmark for conventional, end-to-end, and self-supervised recognizers.</p>
+    <p><strong>Why it matters:</strong> It made strong public ASR comparison easier, helping labs measure progress without relying only on proprietary speech collections.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Modern ASR needed more than clever models; it needed accessible data large enough to expose scaling behavior. LibriSpeech turned public audiobook recordings into a durable benchmark, and later systems revealed its importance by using it to compare CTC, attention, transducer, and self-supervised pretraining recipes.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1512.04467">paper</a> <a href="https://www.openslr.org/12/">dataset</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2015
     <div class="speech-kicker">Attention-based ASR</div>
   </aside>
   <div class="speech-body">

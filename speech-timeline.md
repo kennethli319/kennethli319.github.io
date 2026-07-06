@@ -916,6 +916,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2022
+    <div class="speech-kicker">Unified speech-text pretraining</div>
+  </aside>
+  <div class="speech-body">
+    <h2>SpeechT5</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-Text</span><span class="speech-tag">Pretraining</span></div>
+    <p><strong>Proposed:</strong> A shared encoder-decoder framework with speech and text pre/post-nets, trained to connect speech and text representations in a unified semantic space.</p>
+    <p><strong>Achievement:</strong> SpeechT5 showed that one pretrained speech-text model could be adapted across ASR, TTS, speech translation, voice conversion, speech enhancement, and speaker identification.</p>
+    <p><strong>Why it matters:</strong> It helped bridge encoder-only speech representation learning and later multimodal speech foundation models by treating spoken-language tasks as speech/text-to-speech/text transformations.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> wav2vec 2.0 and HuBERT made unlabeled speech useful, but many speech products also depend on text generation, text conditioning, and cross-modal transfer. SpeechT5 made that pressure explicit: a foundation speech model needed a shared space where recognition and synthesis could inform each other rather than remain separate pipelines.</p>
+    <p class="speech-source"><a href="https://aclanthology.org/2022.acl-long.393/">paper</a> <a href="https://arxiv.org/abs/2110.07205">arXiv</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2022
     <div class="speech-kicker">Audio token compression</div>
   </aside>
   <div class="speech-body">

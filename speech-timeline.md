@@ -610,6 +610,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2018
+    <div class="speech-kicker">Speaker embeddings</div>
+  </aside>
+  <div class="speech-body">
+    <h2>X-Vectors For Speaker Representation</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Train a deep neural network to map variable-length utterances into fixed-dimensional speaker embeddings, with augmentation to improve robustness.</p>
+    <p><strong>Achievement:</strong> X-vectors became a practical speaker representation for verification, diarization, adaptation, and downstream speech-system conditioning.</p>
+    <p><strong>Why it matters:</strong> Modern voice cloning, speaker-aware ASR, diarization, and personalized TTS all rely on the same idea: separate who is speaking from what is being said well enough to condition another model.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech systems needed compact speaker identity signals that were easier to reuse than whole enrollment recordings or hand-built adaptation statistics. X-vectors showed that neural embeddings could carry speaker information across variable speech segments, and later voice-generation systems revealed how central that representation layer would become for controllable personalized speech.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/8461375/">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2018
     <div class="speech-kicker">Transducer revival</div>
   </aside>
   <div class="speech-body">

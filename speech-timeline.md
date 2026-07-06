@@ -804,6 +804,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2023
+    <div class="speech-kicker">Low-resource scale</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Massively Multilingual Speech</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Multilingual</span></div>
+    <p><strong>Proposed:</strong> Scale speech recognition, synthesis, and language identification across far more languages by combining self-supervised wav2vec 2.0 pretraining with broad public speech data.</p>
+    <p><strong>Achievement:</strong> MMS reported ASR and TTS models for 1,107 languages, pretrained representations across 1,406 languages, and language identification for 4,017 languages.</p>
+    <p><strong>Why it matters:</strong> It made language coverage itself a major speech milestone, showing that foundation-style pretraining could reach communities far outside the usual high-resource benchmark set.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Multilingual speech systems had improved, but most still served only a small fraction of spoken languages. MMS arose from the mismatch between abundant unlabeled speech, scarce transcriptions, and the social value of supporting low-resource languages; later speech foundation models keep returning to this lesson that coverage is a capability, not just a dataset statistic.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2305.13516">paper</a> <a href="https://ai.meta.com/blog/multilingual-model-speech-recognition/">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2023
     <div class="speech-kicker">Multilingual speech translation</div>
   </aside>
   <div class="speech-body">

@@ -511,6 +511,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2003
+    <div class="speech-kicker">Who spoke when</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Speaker Diarization In Rich Transcription</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Segment long recordings into speaker-homogeneous regions and cluster them so transcripts can answer who spoke when, not only what words were said.</p>
+    <p><strong>Achievement:</strong> NIST Rich Transcription evaluations made speaker diarization a recurring shared task across broadcast, telephone, and meeting speech.</p>
+    <p><strong>Why it matters:</strong> Diarization became essential for meeting transcription, call analytics, speaker-attributed ASR, and later speaker-aware assistants because readable transcripts need turns and voices, not just words.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> As ASR moved from isolated utterances to long real recordings, plain word streams were not enough to navigate conversations. Diarization turned speaker change and clustering into measurable infrastructure, and later speech systems revealed its importance whenever recognition, summarization, or synthesis needed to preserve conversational structure.</p>
+    <p class="speech-source"><a href="https://www.nist.gov/itl/iad/mltg/rich-transcription-evaluation">source</a> <a href="https://catalog.ldc.upenn.edu/LDC2007S10">dataset</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2005
     <div class="speech-kicker">Shared TTS challenge</div>
   </aside>

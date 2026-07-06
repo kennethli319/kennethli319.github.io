@@ -496,6 +496,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2002
+    <div class="speech-kicker">Decoding graphs</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Weighted Finite-State Transducer Decoding</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">WFST</span><span class="speech-tag">Search</span></div>
+    <p><strong>Proposed:</strong> Represent acoustic context, pronunciation dictionaries, language models, and decoding alternatives with weighted finite-state transducers that can be composed, determinized, minimized, and searched.</p>
+    <p><strong>Achievement:</strong> WFSTs gave large-vocabulary ASR a mathematically clean way to combine many model components into optimized recognition graphs.</p>
+    <p><strong>Why it matters:</strong> They became core infrastructure for efficient decoding, lattice generation, keyword search, contextual biasing, and toolkits such as Kaldi, even as acoustic models shifted from HMM/GMMs to neural networks.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Statistical ASR had strong components, but composing acoustics, lexicons, language models, and pruning logic by hand was brittle. WFSTs turned decoding into graph algebra, showing that speech progress often depends on system representations that let better models be assembled and searched efficiently.</p>
+    <p class="speech-source"><a href="https://www.sciencedirect.com/science/article/pii/S0885230801901846">paper</a> <a href="https://cs.nyu.edu/~mohri/postscript/csl01.pdf">pdf</a> <a href="https://www.isca-archive.org/asr_2000/mohri00_asr.html">related</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2002
     <div class="speech-kicker">Parametric synthesis</div>
   </aside>
   <div class="speech-body">

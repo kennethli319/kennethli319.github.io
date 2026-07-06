@@ -257,6 +257,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2000
+    <div class="speech-kicker">ASR evaluation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Word Error Rate And NIST Scoring</h2>
+    <div class="speech-meta"><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Score ASR output by aligning a hypothesis transcript to a human reference and counting substitutions, deletions, and insertions.</p>
+    <p><strong>Achievement:</strong> NIST evaluation campaigns and the SCTK/SCLITE tooling made WER a shared benchmark language across conversational, broadcast, and later multilingual ASR tasks.</p>
+    <p><strong>Why it matters:</strong> WER is imperfect for meaning, fairness, and downstream utility, but it remains the default regression metric that lets ASR teams compare systems, slices, and releases.</p>
+    <p class="speech-source"><a href="https://github.com/usnistgov/SCTK/blob/master/doc/sclite.htm">tool</a> <a href="https://www.nist.gov/itl/iad/mltg/tools">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2002
     <div class="speech-kicker">Parametric synthesis</div>
   </aside>

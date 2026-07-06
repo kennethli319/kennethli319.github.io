@@ -714,10 +714,26 @@ title: Speech Timeline
     <h2>SoundStream And Codec Tokens</h2>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> Compress speech and general audio with an end-to-end neural encoder, residual vector quantizer, and decoder that can stream at low bitrate.</p>
-    <p><strong>Achievement:</strong> SoundStream made high-quality neural audio compression practical, and later codecs such as EnCodec turned quantized audio codes into reusable model tokens.</p>
-    <p><strong>Why it matters:</strong> Discrete codec tokens became the bridge between speech waveforms and language-model-style generation for VALL-E, AudioLM descendants, full-duplex agents, and modern speech foundation models.</p>
+    <p><strong>Achievement:</strong> SoundStream made high-quality neural audio compression practical with learned quantized representations that could run at low bitrate.</p>
+    <p><strong>Why it matters:</strong> It helped establish neural codecs as a reusable interface between waveforms, compression, synthesis, and later audio-token language models.</p>
     <p class="speech-reflection"><strong>Why this emerged:</strong> Neural codecs emerged from the need to compress audio into tokens that preserve perceptual quality while remaining model-friendly. Once speech could be represented as discrete codes, language-model ideas could move much more directly into speech generation.</p>
     <p class="speech-source"><a href="https://arxiv.org/abs/2107.03312">paper</a> <a href="https://arxiv.org/abs/2210.13438">related</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2022
+    <div class="speech-kicker">Audio token compression</div>
+  </aside>
+  <div class="speech-body">
+    <h2>EnCodec</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
+    <p><strong>Proposed:</strong> A neural audio codec with residual vector quantization, adversarial reconstruction, and an optional language model over discrete audio codes.</p>
+    <p><strong>Achievement:</strong> EnCodec produced high-quality audio compression at low bitrates and made codec streams easy to reuse as model tokens.</p>
+    <p><strong>Why it matters:</strong> Its token interface became a practical foundation for codec-language-model TTS, including VALL-E-style voice cloning and later speech-to-speech systems.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> EnCodec came from the same compression pressure as SoundStream, but its impact widened when discrete audio codes became convenient training targets. Later speech LMs showed that a good codec is not just a storage format; it can define the vocabulary that generative speech models learn to speak.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2210.13438">paper</a></p>
   </div>
 </section>
 

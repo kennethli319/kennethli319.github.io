@@ -165,6 +165,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1946
+    <div class="speech-kicker">Time-frequency analysis</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Sound Spectrograph And Spectrogram Features</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> Analyze speech as a changing distribution of frequency energy over time, producing a visible spectrogram rather than a single waveform trace.</p>
+    <p><strong>Achievement:</strong> The sound spectrograph made formants, transitions, voicing, bursts, and noise patterns inspectable for speech science and engineering.</p>
+    <p><strong>Why it matters:</strong> Spectrogram thinking became the foundation for filterbanks, MFCCs, mel-spectrogram TTS targets, neural vocoder conditioning, and modern audio model inputs.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1121/1.1916342">paper</a> <a href="https://books.google.com/books/about/Visible_Speech.html?id=j3Q0AAAAIAAJ">related</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1952
     <div class="speech-kicker">Digit recognition</div>
   </aside>

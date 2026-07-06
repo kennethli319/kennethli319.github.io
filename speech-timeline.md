@@ -470,6 +470,21 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2019
+    <div class="speech-kicker">Acoustic augmentation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>SpecAugment</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Regularization</span></div>
+    <p><strong>Proposed:</strong> Improve ASR training by masking blocks of time and frequency directly on log-mel spectrogram inputs, plus simple time warping.</p>
+    <p><strong>Achievement:</strong> SpecAugment gave end-to-end recognizers a strong, architecture-independent regularizer without requiring extra labeled speech.</p>
+    <p><strong>Why it matters:</strong> It made acoustic data augmentation a default part of modern ASR recipes, especially for CTC, attention, transducer, and self-supervised fine-tuning pipelines.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1904.08779">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2019
     <div class="speech-kicker">Fast synthesis</div>
   </aside>
   <div class="speech-body">

@@ -367,6 +367,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1993
+    <div class="speech-kicker">Phonetic benchmark data</div>
+  </aside>
+  <div class="speech-body">
+    <h2>TIMIT Acoustic-Phonetic Corpus</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Release a carefully transcribed corpus of phonetically rich American English speech with time-aligned word and phone labels.</p>
+    <p><strong>Achievement:</strong> TIMIT gave researchers a shared small-scale benchmark for acoustic-phonetic modeling, phone recognition, feature analysis, and early neural ASR experiments.</p>
+    <p><strong>Why it matters:</strong> It made detailed phonetic evaluation easier before web-scale corpora existed, and it remained a diagnostic dataset for comparing features, acoustic models, and low-resource recipes.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> ASR needed common speech data with labels detailed enough to study sounds, not only words. TIMIT shows why benchmarks shape research: its scale was modest, but its careful phonetic annotation made it a durable test bed for feature engineering, HMMs, neural acoustic models, and later low-resource comparisons.</p>
+    <p class="speech-source"><a href="https://catalog.ldc.upenn.edu/LDC93S1">dataset</a> <a href="https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir4930.pdf">report</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1994
     <div class="speech-kicker">TTS evaluation</div>
   </aside>

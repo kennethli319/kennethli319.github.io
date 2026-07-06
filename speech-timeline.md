@@ -964,6 +964,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2020
+    <div class="speech-kicker">Speaker embedding backbone</div>
+  </aside>
+  <div class="speech-body">
+    <h2>ECAPA-TDNN Speaker Embeddings</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Improve TDNN speaker embeddings with Res2Net-style temporal blocks, squeeze-and-excitation channel attention, multi-layer feature aggregation, and attentive statistics pooling.</p>
+    <p><strong>Achievement:</strong> ECAPA-TDNN substantially improved x-vector-style speaker verification and became a common compact backbone for extracting reusable speaker embeddings.</p>
+    <p><strong>Why it matters:</strong> Better speaker embeddings strengthened diarization, speaker verification, speaker-aware ASR, and voice-conditioned synthesis by making speaker identity easier to represent apart from linguistic content.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> X-vectors made neural speaker embeddings practical, but production speech systems needed embeddings that were more discriminative, robust, and compact. ECAPA-TDNN shows how ideas from attention and deep residual aggregation reshaped speaker modeling, and later voice cloning and diarization systems reveal why this speaker representation layer became infrastructure rather than a side task.</p>
+    <p class="speech-source"><a href="https://www.isca-archive.org/interspeech_2020/desplanques20_interspeech.html">paper</a> <a href="https://arxiv.org/abs/2005.07143">arXiv</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2020
     <div class="speech-kicker">Diffusion vocoding</div>
   </aside>
   <div class="speech-body">

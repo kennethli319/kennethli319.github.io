@@ -222,6 +222,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1946
+    <div class="speech-kicker">Windowed spectra</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Gabor Time-Frequency Analysis</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> Describe signals with localized time-frequency elements instead of choosing only a time-domain waveform or a full-duration Fourier spectrum.</p>
+    <p><strong>Achievement:</strong> Gabor's analysis gave engineers a formal way to think about windowed spectra, time-frequency resolution, and the tradeoff between precise timing and precise frequency.</p>
+    <p><strong>Why it matters:</strong> Short-time Fourier analysis became the everyday machinery behind spectrogram features, mel filterbanks, MFCC extraction, phase reconstruction, neural TTS acoustic targets, and vocoder conditioning.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech and communication signals change over time, so a single global spectrum hides the structure that listeners and recognizers need. Gabor's framing explains why later speech systems kept returning to frame-based representations: they preserve enough timing to follow phonetic events while exposing enough frequency structure to model resonance, noise, and pitch.</p>
+    <p class="speech-source"><a href="https://digital-library.theiet.org/doi/abs/10.1049/ji-3-2.1946.0074">paper</a> <a href="https://jcsphysics.net/lit/gabor1946.pdf">pdf</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1952
     <div class="speech-kicker">Digit recognition</div>
   </aside>

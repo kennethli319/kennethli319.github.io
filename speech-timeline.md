@@ -319,6 +319,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1990
+    <div class="speech-kicker">Auditory features</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Perceptual Linear Prediction</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> Analyze speech with critical-band resolution, equal-loudness weighting, and intensity-loudness compression before fitting a compact all-pole spectral model.</p>
+    <p><strong>Achievement:</strong> PLP gave ASR systems a low-dimensional auditory feature representation that blended perceptual modeling with linear-predictive analysis.</p>
+    <p><strong>Why it matters:</strong> It reinforced the idea that robust speech features should suppress speaker and channel detail while preserving perceptually meaningful phonetic structure.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> PLP followed the same pressure that produced MFCCs: recognizers needed compact features shaped by hearing rather than raw signal geometry. Later learned front ends changed the implementation, but the historical lesson remained that useful speech representations often build in invariances before the model sees the data.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1121/1.399423">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1994
     <div class="speech-kicker">TTS evaluation</div>
   </aside>

@@ -319,6 +319,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1988
+    <div class="speech-kicker">Large-vocabulary ASR</div>
+  </aside>
+  <div class="speech-body">
+    <h2>CMU SPHINX</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">HMM</span><span class="speech-tag">Language Model</span></div>
+    <p><strong>Proposed:</strong> A speaker-independent continuous speech recognizer that combined HMM acoustic modeling with statistical language modeling for a roughly thousand-word task.</p>
+    <p><strong>Achievement:</strong> SPHINX demonstrated that large-vocabulary continuous speech recognition by previously unseen speakers was practical, not only a laboratory aspiration.</p>
+    <p><strong>Why it matters:</strong> It helped turn ASR into an integrated systems problem: acoustic models, pronunciation dictionaries, language models, search, and training data had to improve together.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> After isolated-word recognizers and small command systems, the field needed proof that statistical methods could handle ordinary continuous speech without per-speaker enrollment. SPHINX made the scaling target concrete, and later ASR stacks kept its lesson that recognition quality comes from coordinating many probabilistic components rather than optimizing one model in isolation.</p>
+    <p class="speech-source"><a href="https://publications.ri.cmu.edu/storage/publications/pub_files/pub2/lee_k_f_1989_1/lee_k_f_1989_1.pdf">paper</a> <a href="https://aclanthology.org/H89-1014.pdf">context</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1989
     <div class="speech-kicker">Probabilistic decoding</div>
   </aside>

@@ -319,6 +319,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1989
+    <div class="speech-kicker">Temporal neural features</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Time-Delay Neural Networks</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Neural Network</span><span class="speech-tag">Temporal Context</span></div>
+    <p><strong>Proposed:</strong> Use shifted local time windows and shared neural weights so a recognizer could learn acoustic-phonetic patterns and their temporal relationships.</p>
+    <p><strong>Achievement:</strong> TDNNs improved phoneme recognition by making early neural acoustic models less sensitive to small timing shifts.</p>
+    <p><strong>Why it matters:</strong> They foreshadowed convolutional and context-splicing ideas that later reappeared in hybrid DNN-HMM systems, Kaldi recipes, and modern streaming encoders.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> HMMs handled sequence structure, but acoustic features still needed stronger local pattern learning. TDNNs showed that neural networks could discover time-shift-tolerant speech cues, a lesson that later models generalized through convolution, subsampling, and learned front ends.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/21701/">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1990
     <div class="speech-kicker">Auditory features</div>
   </aside>

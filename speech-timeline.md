@@ -1094,6 +1094,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Simple flow-matching TTS</div>
+  </aside>
+  <div class="speech-body">
+    <h2>E2 TTS</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Flow Matching</span><span class="speech-tag">Zero-Shot</span></div>
+    <p><strong>Proposed:</strong> A fully non-autoregressive zero-shot TTS system that pads text with filler tokens, trains a flow-matching mel-spectrogram generator with audio infilling, and avoids duration models, phoneme conversion, and monotonic alignment search.</p>
+    <p><strong>Achievement:</strong> It showed that a much simpler architecture could reach strong naturalness, speaker similarity, and intelligibility in prompt-based voice generation.</p>
+    <p><strong>Why it matters:</strong> E2 TTS made architectural simplicity itself a milestone, influencing later flow-matching TTS systems such as F5-TTS and shifting attention from elaborate alignment machinery toward scalable infilling objectives.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Zero-shot TTS had become powerful but increasingly complex, with separate aligners, duration predictors, tokenizers, and vocoders competing for control. E2 TTS revealed that once flow matching and infilling were strong enough, much of that machinery could be collapsed, making later systems easier to train, compare, and adapt.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2406.18009">paper</a> <a href="https://www.microsoft.com/en-us/research/project/e2-tts/">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Audio instruction following</div>
   </aside>
   <div class="speech-body">

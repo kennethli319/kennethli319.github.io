@@ -577,6 +577,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2011
+    <div class="speech-kicker">Speaker embeddings</div>
+  </aside>
+  <div class="speech-body">
+    <h2>I-Vectors And Total Variability Modeling</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Represent an utterance with a low-dimensional vector in a total-variability space that captures speaker and channel variation together.</p>
+    <p><strong>Achievement:</strong> I-vectors became a standard compact representation for speaker verification, language recognition, diarization, and speaker adaptation workflows.</p>
+    <p><strong>Why it matters:</strong> They made speaker identity easier to store, compare, normalize, and condition on, setting up the embedding mindset later inherited by x-vectors, speaker-aware ASR, and prompt-based voice cloning.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speaker systems needed a fixed-size representation that could summarize variable-length speech without carrying every acoustic detail. I-vectors show why embeddings became so powerful in speech: once identity and channel variation could be compressed into a reusable vector, recognition, diarization, adaptation, and synthesis could all treat speaker information as a portable conditioning signal.</p>
+    <p class="speech-source"><a href="https://dl.acm.org/doi/10.1109/TASL.2010.2064307">paper</a> <a href="https://sls.csail.mit.edu/publications/2010/Dehak_IEEE_Transactions.pdf">pdf</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2012
     <div class="speech-kicker">Deep acoustic models</div>
   </aside>

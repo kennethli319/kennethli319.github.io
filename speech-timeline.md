@@ -610,6 +610,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2001
+    <div class="speech-kicker">Comparative listening tests</div>
+  </aside>
+  <div class="speech-body">
+    <h2>MUSHRA Listening Evaluation</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Evaluate intermediate-quality audio systems with a multi-stimulus listening test that includes a visible reference, hidden reference, and anchor conditions on a 0-100 scale.</p>
+    <p><strong>Achievement:</strong> ITU-R BS.1534 made MUSHRA a standardized way to compare codecs, enhancement systems, neural vocoders, and TTS outputs with finer discrimination than a single absolute rating.</p>
+    <p><strong>Why it matters:</strong> MUSHRA helped speech and audio teams compare quality improvements that are audible but subtle, especially when systems are too good for simple intelligibility tests yet still differ in artifacts, naturalness, or compression damage.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> As codecs and synthesis systems improved, evaluation needed listeners to compare several candidate outputs against the same reference instead of judging each clip in isolation. Later neural vocoder and TTS work reveals why the anchor-and-reference design mattered: progress often depends on detecting small perceptual artifacts that objective losses and coarse MOS averages can hide.</p>
+    <p class="speech-source"><a href="https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1534-3-201510-I!!PDF-E.pdf">standard</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2002
     <div class="speech-kicker">Decoding graphs</div>
   </aside>

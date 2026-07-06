@@ -254,6 +254,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1963
+    <div class="speech-kicker">Cepstral features</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Cepstral Analysis</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
+    <p><strong>Proposed:</strong> Analyze the spectrum of a log spectrum so periodic structure in frequency can be separated from the smoother spectral envelope.</p>
+    <p><strong>Achievement:</strong> Cepstral analysis gave speech engineers a compact way to describe spectral shape while reducing sensitivity to raw waveform phase and fine harmonic detail.</p>
+    <p><strong>Why it matters:</strong> Cepstral thinking became the conceptual bridge from spectrograms and filterbanks to MFCCs, speaker features, pitch-related analysis, and many classical ASR front ends.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Researchers needed tools that could separate slowly varying vocal-tract structure from excitation and echo-like detail in spectra. Later MFCC pipelines reveal why cepstral analysis mattered: it turned speech features into compact coefficients that models could compare frame by frame without carrying every waveform fluctuation.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1328092">history</a> <a href="https://cir.nii.ac.jp/crid/1573387450438200448?lang=en">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1965
     <div class="speech-kicker">Fast spectral analysis</div>
   </aside>

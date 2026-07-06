@@ -368,6 +368,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1980
+    <div class="speech-kicker">Codebook representations</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Vector Quantization For Speech Coding</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
+    <p><strong>Proposed:</strong> Represent blocks of speech parameters by the nearest entry in a learned codebook rather than quantizing each scalar independently.</p>
+    <p><strong>Achievement:</strong> Vector quantization made compact codebook-based speech coding practical, especially for LPC-derived parameters and other low-bitrate representations.</p>
+    <p><strong>Why it matters:</strong> The codebook idea runs from classical speech compression through residual vector quantization in neural codecs, where discrete audio tokens now serve as the vocabulary for speech language models.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Low-bitrate speech coding needed a way to preserve correlated acoustic structure while sending fewer bits. Vector quantization showed that a learned inventory of representative patterns could carry more speech information than isolated scalar decisions, and modern codec-token systems reveal the same lesson at larger scale: the quality of the codebook shapes what later models can generate.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1094577/">LBG paper</a> <a href="https://ieeexplore.ieee.org/document/1163445/">speech coding paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1982
     <div class="speech-kicker">Rule-based TTS</div>
   </aside>

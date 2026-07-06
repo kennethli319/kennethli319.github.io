@@ -352,6 +352,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     1989
+    <div class="speech-kicker">Prosody modification</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Pitch-Synchronous Overlap-Add</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Prosody</span></div>
+    <p><strong>Proposed:</strong> Modify pitch, duration, and concatenation of speech waveforms by cutting around pitch periods and recombining segments with overlap-add processing.</p>
+    <p><strong>Achievement:</strong> PSOLA improved diphone and concatenative synthesis by making prosody changes more natural without requiring a full source-filter resynthesis model.</p>
+    <p><strong>Why it matters:</strong> It made pitch and time control a practical TTS component, influencing voice conversion, prosody editing, unit selection, and later neural systems that still need controllable duration and pitch behavior.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Recorded speech units sounded more natural than rule-based formant synthesis, but they needed flexible prosody to fit new sentences. PSOLA showed that careful waveform manipulation could bridge natural recordings and controllable synthesis, a tension that later neural TTS continued to solve with learned alignments, duration models, and pitch conditioning.</p>
+    <p class="speech-source"><a href="https://www.isca-archive.org/eurospeech_1989/charpentier89_eurospeech.html">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    1989
     <div class="speech-kicker">Probabilistic decoding</div>
   </aside>
   <div class="speech-body">

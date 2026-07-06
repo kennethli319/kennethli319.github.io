@@ -996,6 +996,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2021
+    <div class="speech-kicker">Full-stack speech pretraining</div>
+  </aside>
+  <div class="speech-body">
+    <h2>WavLM</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span><span class="speech-tag">Speaker Modeling</span></div>
+    <p><strong>Proposed:</strong> Extend masked speech pretraining toward full-stack speech processing by combining HuBERT-style prediction with denoising, utterance mixing, and gated relative position bias.</p>
+    <p><strong>Achievement:</strong> WavLM improved pretrained speech representations across recognition, speaker, separation, and other downstream tasks instead of optimizing only ASR transfer.</p>
+    <p><strong>Why it matters:</strong> It helped make universal speech representation a practical target, bridging self-supervised ASR pretraining with speaker-aware and multi-task speech foundation models.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> wav2vec 2.0 and HuBERT made unlabeled audio valuable for recognition, but real speech systems also need speaker identity, noise robustness, and paralinguistic cues. WavLM reflects the shift from learning content-only features toward representations broad enough to support the whole speech stack.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2110.13900">paper</a> <a href="https://github.com/microsoft/UniSpeech/tree/main/WavLM">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2021
     <div class="speech-kicker">Neural audio codecs</div>
   </aside>
   <div class="speech-body">

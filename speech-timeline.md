@@ -495,6 +495,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1995
+    <div class="speech-kicker">Speaker adaptation</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Maximum Likelihood Linear Regression</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Adaptation</span></div>
+    <p><strong>Proposed:</strong> Adapt continuous-density HMM acoustic models to a new speaker or environment by estimating linear transforms from limited adaptation data.</p>
+    <p><strong>Achievement:</strong> MLLR made speaker adaptation practical for large-vocabulary recognizers without retraining full acoustic models for every user.</p>
+    <p><strong>Why it matters:</strong> It became a standard ASR robustness tool and established a durable pattern: keep a strong shared model, then cheaply specialize it to the current speaker, channel, or domain.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speaker-independent HMM systems scaled well, but they still suffered when a new voice or microphone drifted from the training distribution. MLLR showed that adaptation could be lightweight and statistical, foreshadowing later fine-tuning, personalization, and domain adaptation methods in neural speech systems.</p>
+    <p class="speech-source"><a href="https://doi.org/10.1006/csla.1995.0010">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1996
     <div class="speech-kicker">Data-driven voices</div>
   </aside>

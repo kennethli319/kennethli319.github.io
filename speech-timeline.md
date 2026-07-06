@@ -145,7 +145,7 @@ title: Speech Timeline
 
 <nav class="speech-nav" aria-label="Timeline eras">
   <a href="#mechanical">Mechanical & Early Electronic</a>
-  <a href="#statistical">Statistical Speech</a>
+  <a href="#statistical">Signal Processing & Statistical Speech</a>
   <a href="#evaluation-tooling">Evaluation & Tooling</a>
   <a href="#neural">Neural Turn</a>
   <a href="#foundation">Foundation Models</a>
@@ -284,23 +284,7 @@ title: Speech Timeline
   </div>
 </section>
 
-<section class="speech-row">
-  <aside class="speech-year">
-    1968
-    <div class="speech-kicker">Speech coding</div>
-  </aside>
-  <div class="speech-body">
-    <h2>Linear Predictive Coding</h2>
-    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Signal Processing</span></div>
-    <p><strong>Proposed:</strong> A source-filter model that predicts each speech sample from previous samples and compactly represents the vocal tract filter.</p>
-    <p><strong>Achievement:</strong> LPC made low-bitrate speech coding and controllable parametric synthesis practical.</p>
-    <p><strong>Why it matters:</strong> It became a bridge between speech science and engineering: a compact representation useful for coding, synthesis, and later feature extraction.</p>
-    <p class="speech-reflection"><strong>Why this emerged:</strong> LPC emerged from the need to transmit and synthesize speech compactly by modeling the vocal tract rather than every waveform detail. It reflects a recurring speech insight: preserve the structure that matters perceptually and linguistically, then throw away redundancy.</p>
-    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1162030">paper</a></p>
-  </div>
-</section>
-
-<h2 id="statistical" class="speech-era">Statistical Speech</h2>
+<h2 id="statistical" class="speech-era">Signal Processing & Statistical Speech</h2>
 
 <section class="speech-row">
   <aside class="speech-year">
@@ -315,6 +299,22 @@ title: Speech Timeline
     <p><strong>Why it matters:</strong> It became the decoding backbone behind classical HMM recognizers, forced alignment, lattice generation, and the broader habit of treating speech recognition as efficient search over many competing paths.</p>
     <p class="speech-reflection"><strong>Why this emerged:</strong> Speech recognition needed a way to keep sequence uncertainty without letting the number of hypotheses explode. Viterbi decoding showed how local dynamic-programming choices could recover a best global path, and later ASR systems reveal why that mattered: better acoustic and language models are only useful when the decoder can search their combined space efficiently.</p>
     <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1054010">paper</a> <a href="https://doi.org/10.1109/TIT.1967.1054010">doi</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    1968
+    <div class="speech-kicker">Speech coding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Linear Predictive Coding</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Signal Processing</span></div>
+    <p><strong>Proposed:</strong> A source-filter model that predicts each speech sample from previous samples and compactly represents the vocal tract filter.</p>
+    <p><strong>Achievement:</strong> LPC made low-bitrate speech coding and controllable parametric synthesis practical.</p>
+    <p><strong>Why it matters:</strong> It became a bridge between speech science and engineering: a compact representation useful for coding, synthesis, and later feature extraction.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> LPC emerged from the need to transmit and synthesize speech compactly by modeling the vocal tract rather than every waveform detail. It reflects a recurring speech insight: preserve the structure that matters perceptually and linguistically, then throw away redundancy.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1162030">paper</a></p>
   </div>
 </section>
 

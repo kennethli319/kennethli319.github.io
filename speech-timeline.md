@@ -999,6 +999,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2020
+    <div class="speech-kicker">Variance control</div>
+  </aside>
+  <div class="speech-body">
+    <h2>FastSpeech 2</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Non-Autoregressive</span><span class="speech-tag">Prosody</span></div>
+    <p><strong>Proposed:</strong> Train non-autoregressive TTS directly on ground-truth mel-spectrograms while conditioning on duration, pitch, and energy instead of relying on teacher-student distillation.</p>
+    <p><strong>Achievement:</strong> FastSpeech 2 simplified the training pipeline, improved quality over FastSpeech, and made explicit variance prediction a practical way to control speech rhythm and expressiveness.</p>
+    <p><strong>Why it matters:</strong> It made speed, alignment, and prosody control part of the acoustic model itself, influencing later fast TTS, voice conversion, and speech-to-speech generation systems.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> FastSpeech proved that parallel TTS could be fast and stable, but its dependence on a teacher model hid useful variation and complicated training. FastSpeech 2 showed why prosody variables should be modeled directly: later synthesis systems keep returning to duration, pitch, and energy as controls that make generated speech feel intentional rather than merely fluent.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2006.04558">paper</a> <a href="https://speechresearch.github.io/fastspeech2/">samples</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2020
     <div class="speech-kicker">Convolution + attention</div>
   </aside>
   <div class="speech-body">

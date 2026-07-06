@@ -689,6 +689,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2018
+    <div class="speech-kicker">Contrastive pretraining</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Contrastive Predictive Coding</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span></div>
+    <p><strong>Proposed:</strong> Learn useful representations by predicting future latent observations with a contrastive objective, including experiments on raw speech.</p>
+    <p><strong>Achievement:</strong> CPC showed that unlabeled audio could train speech features that transfer to phoneme recognition and other downstream tasks.</p>
+    <p><strong>Why it matters:</strong> It helped define the contrastive self-supervised recipe that influenced wav2vec, wav2vec 2.0, and later speech foundation-model pretraining.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech had far more raw audio than labels, so the field needed training signals that came from the signal itself. CPC made future prediction and contrastive negatives feel like a practical substitute for annotation, revealing why pretraining could become a data-efficiency engine for ASR.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1807.03748">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2019
     <div class="speech-kicker">Acoustic augmentation</div>
   </aside>

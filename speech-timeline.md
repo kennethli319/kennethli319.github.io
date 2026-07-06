@@ -516,6 +516,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2021
+    <div class="speech-kicker">Neural audio codecs</div>
+  </aside>
+  <div class="speech-body">
+    <h2>SoundStream And Codec Tokens</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
+    <p><strong>Proposed:</strong> Compress speech and general audio with an end-to-end neural encoder, residual vector quantizer, and decoder that can stream at low bitrate.</p>
+    <p><strong>Achievement:</strong> SoundStream made high-quality neural audio compression practical, and later codecs such as EnCodec turned quantized audio codes into reusable model tokens.</p>
+    <p><strong>Why it matters:</strong> Discrete codec tokens became the bridge between speech waveforms and language-model-style generation for VALL-E, AudioLM descendants, full-duplex agents, and modern speech foundation models.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2107.03312">paper</a> <a href="https://arxiv.org/abs/2210.13438">related</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2022
     <div class="speech-kicker">Web-scale robustness</div>
   </aside>

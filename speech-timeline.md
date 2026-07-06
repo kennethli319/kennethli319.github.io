@@ -531,6 +531,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2018
+    <div class="speech-kicker">Parallel vocoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Parallel WaveNet</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">Distillation</span></div>
+    <p><strong>Proposed:</strong> Distill an autoregressive WaveNet teacher into a parallel feed-forward student using probability density distillation.</p>
+    <p><strong>Achievement:</strong> It preserved high-fidelity neural waveform quality while generating speech more than 20 times faster than real time and serving production voices.</p>
+    <p><strong>Why it matters:</strong> Parallel WaveNet turned neural vocoding from an impressive but slow research result into a deployable TTS component, setting up later fast flow, GAN, and diffusion vocoders.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> WaveNet proved that neural waveform models could sound natural, but sample-by-sample generation was too slow for real assistants. Parallel WaveNet shows a recurring deployment pattern in speech: first prove quality with a costly model, then redesign the generator so the same idea fits latency and serving constraints.</p>
+    <p class="speech-source"><a href="https://proceedings.mlr.press/v80/oord18a.html">paper</a> <a href="https://arxiv.org/abs/1711.10433">arXiv</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2018
     <div class="speech-kicker">Transducer revival</div>
   </aside>
   <div class="speech-body">

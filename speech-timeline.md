@@ -336,6 +336,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1975
+    <div class="speech-kicker">Endpoint detection</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Voice Activity Detection And Utterance Endpoints</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Segmentation</span></div>
+    <p><strong>Proposed:</strong> Use short-time energy, zero-crossing behavior, and duration rules to detect the beginning and end of isolated spoken utterances.</p>
+    <p><strong>Achievement:</strong> Endpoint detection made small-vocabulary recognition more practical by trimming silence and reducing the search space before matching or decoding.</p>
+    <p><strong>Why it matters:</strong> VAD became a quiet dependency of speech systems: it gates ASR, saves bandwidth in codecs, drives turn-taking in assistants, and still shapes latency in streaming speech models.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Early recognizers did not only need better acoustic models; they needed to know which frames were speech at all. VAD shows why segmentation became infrastructure: later systems could be neural, multilingual, or full duplex, but they still depended on reliable decisions about when a person has started, paused, or finished speaking.</p>
+    <p class="speech-source"><a href="https://web.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/078_endpoint%20detection.pdf">paper</a> <a href="https://www.itu.int/rec/T-REC-G.729">standard</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1976
     <div class="speech-kicker">Search and knowledge integration</div>
   </aside>

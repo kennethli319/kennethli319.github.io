@@ -383,6 +383,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1993
+    <div class="speech-kicker">Conversational ASR data</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Switchboard Telephone Speech Corpus</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span><span class="speech-tag">Evaluation</span></div>
+    <p><strong>Proposed:</strong> Collect large-scale spontaneous telephone conversations with transcripts so speech systems could be trained and tested on natural conversational speech rather than read prompts alone.</p>
+    <p><strong>Achievement:</strong> Switchboard provided roughly 260 hours of two-sided telephone conversations from hundreds of speakers, becoming a durable benchmark for conversational ASR, speaker recognition, and dialogue research.</p>
+    <p><strong>Why it matters:</strong> It moved ASR evaluation toward disfluencies, overlap, channel limits, topic shifts, and real conversation timing, setting up later NIST Hub5 tests and the long-running Switchboard WER comparisons.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> After TIMIT and read-speech tasks, ASR needed data that exposed how people actually talk when they are not reading scripts. Switchboard shows why corpora can redirect a field: conversational errors became measurable, and models had to handle hesitation, turn-taking, and telephone acoustics instead of only clean phonetic coverage.</p>
+    <p class="speech-source"><a href="https://catalog.ldc.upenn.edu/LDC97S62">dataset</a> <a href="https://ieeexplore.ieee.org/document/225858">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1994
     <div class="speech-kicker">TTS evaluation</div>
   </aside>

@@ -1044,6 +1044,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2021
+    <div class="speech-kicker">Textless speech modeling</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Generative Spoken Language Modeling</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech LM</span><span class="speech-tag">Discrete Units</span></div>
+    <p><strong>Proposed:</strong> Learn acoustic and linguistic structure from raw speech without text labels by encoding speech into discrete pseudo-text units, modeling those units, and decoding them back to audio.</p>
+    <p><strong>Achievement:</strong> GSLM made textless spoken language modeling concrete, with automatic and human evaluations for unit quality, language modeling, and resynthesis.</p>
+    <p><strong>Why it matters:</strong> It connected self-supervised speech units to generative language modeling before codec LMs became mainstream, helping frame speech as a learnable token sequence rather than only a transcription problem.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Self-supervised encoders were discovering useful speech structure, but most systems still converted speech back into text before doing language modeling. GSLM asked what could be learned when that text bottleneck was removed, and later audio-token systems revealed why this mattered: speech models need tokens that preserve both linguistic content and acoustic identity.</p>
+    <p class="speech-source"><a href="https://aclanthology.org/2021.tacl-1.79/">paper</a> <a href="https://arxiv.org/abs/2102.01192">arXiv</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2021
     <div class="speech-kicker">Representation evaluation</div>
   </aside>
   <div class="speech-body">

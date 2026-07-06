@@ -14,6 +14,25 @@ title: Speech Timeline
   font-size: 0.98rem;
   line-height: 1.65;
 }
+.speech-podcast {
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  margin: 1.35rem 0 1.55rem;
+  padding: 1rem;
+}
+.speech-podcast h2 {
+  font-size: 1rem;
+  margin: 0 0 0.35rem;
+}
+.speech-podcast p {
+  color: #666;
+  line-height: 1.55;
+  margin: 0.35rem 0 0.75rem;
+}
+.speech-podcast audio {
+  display: block;
+  width: 100%;
+}
 .speech-nav {
   display: flex;
   flex-wrap: wrap;
@@ -130,6 +149,14 @@ title: Speech Timeline
   Each entry highlights the proposed idea, the practical achievement, and why
   it still matters.
 </p>
+
+<section class="speech-podcast" aria-label="Speech timeline audio podcast">
+  <h2>Audio Podcast: From Foot Pedals To Omni Models</h2>
+  <p>A narrated companion to the speech timeline, covering the arc from early speech machines to modern omni-modal speech systems.</p>
+  <audio controls preload="metadata" src="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">
+    <a href="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">Download the audio podcast</a>
+  </audio>
+</section>
 
 <p class="speech-legend" aria-label="Milestone groups">
   <span class="speech-impact">new capability</span>

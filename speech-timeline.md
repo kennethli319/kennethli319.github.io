@@ -1263,7 +1263,7 @@ title: Speech Timeline
     <p><strong>Achievement:</strong> It reports broad audio and audio-visual benchmark coverage, long audio understanding, and improved streaming speech stability through dynamic text-speech unit alignment.</p>
     <p><strong>Why it matters:</strong> It represents the 2026 direction: speech is no longer a side channel, but one modality inside long-context, real-time, multimodal agents.</p>
     <p class="speech-reflection"><strong>Why this emerged:</strong> Qwen3.5-Omni points to speech as part of long-context multimodal agents rather than a separate add-on. The motivation is no longer only transcription or synthesis, but sustained audio-visual interaction with stable streaming speech output.</p>
-    <p class="speech-source"><a href="https://arxiv.org/abs/2604.15804">paper</a></p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2604.15804">paper</a> <a href="https://qwen.ai/blog?id=qwen3.5-omni">project</a></p>
   </div>
 </section>
 

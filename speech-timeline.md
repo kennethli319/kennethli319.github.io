@@ -495,6 +495,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1999
+    <div class="speech-kicker">High-quality vocoding</div>
+  </aside>
+  <div class="speech-body">
+    <h2>STRAIGHT Speech Analysis-Synthesis</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
+    <p><strong>Proposed:</strong> Decompose speech with pitch-adaptive time-frequency smoothing and instantaneous-frequency-based F0 extraction so spectral envelope, pitch, and aperiodicity could be modified with fewer periodicity artifacts.</p>
+    <p><strong>Achievement:</strong> STRAIGHT became a high-quality analysis-modification-resynthesis tool for speech transformation, voice conversion, morphing, and statistical parametric synthesis research.</p>
+    <p><strong>Why it matters:</strong> It helped make interpretable vocoder parameters a serious modeling interface before neural vocoders, and it influenced later systems that still separate content, pitch, timbre, and noise structure for controllable generation.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Earlier vocoders were compact and useful but often exposed buzziness or artifacts when speech was modified. STRAIGHT shows the field's recurring need for representations that are not only efficient, but editable: later neural TTS and voice-conversion systems kept rediscovering the value of disentangling pitch, spectrum, and excitation before generating waveform detail.</p>
+    <p class="speech-source"><a href="https://www.sciencedirect.com/science/article/abs/pii/S0167639398000855">paper</a> <a href="https://web.wakayama-u.ac.jp/~kawahara/index_e.html">source</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2000
     <div class="speech-kicker">ASR evaluation</div>
   </aside>

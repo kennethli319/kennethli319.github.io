@@ -255,6 +255,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1976
+    <div class="speech-kicker">Search and knowledge integration</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Harpy Speech Understanding System</h2>
+    <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Search</span><span class="speech-tag">Knowledge Sources</span></div>
+    <p><strong>Proposed:</strong> A connected-speech recognizer that compiled acoustic, lexical, syntactic, and task knowledge into a unified network searched with a best-few beam strategy.</p>
+    <p><strong>Achievement:</strong> Harpy met the ARPA speech-understanding goals for a restricted thousand-word task and showed that large-vocabulary connected speech recognition could be made computationally practical.</p>
+    <p><strong>Why it matters:</strong> It made search and knowledge integration central ASR problems, foreshadowing the decoding graphs, pruning strategies, and constrained hypothesis search used by later statistical and neural recognizers.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Early recognizers could work only when vocabulary, speakers, and grammar were tightly controlled, but expanding the task made brute-force search impossible. Harpy revealed that recognition quality depended not just on acoustic matching, but on organizing many knowledge sources so the system could keep plausible hypotheses while discarding the rest.</p>
+    <p class="speech-source"><a href="https://iiif.library.cmu.edu/file/Newell_box00092_fld06359_doc0001/Newell_box00092_fld06359_doc0001.pdf">paper</a> <a href="https://stacks.stanford.edu/file/druid%3Arq916rn6924/rq916rn6924.pdf">thesis</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1978
     <div class="speech-kicker">Time alignment</div>
   </aside>

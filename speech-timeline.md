@@ -454,6 +454,21 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    2017
+    <div class="speech-kicker">Neural TTS stack</div>
+  </aside>
+  <div class="speech-body">
+    <h2>Tacotron 2</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Attention</span><span class="speech-tag">Neural Vocoder</span></div>
+    <p><strong>Proposed:</strong> Pair an attention-based spectrogram predictor with a modified WaveNet vocoder to synthesize waveform audio from characters.</p>
+    <p><strong>Achievement:</strong> Tacotron 2 produced highly natural single-speaker TTS and made the acoustic-model-plus-neural-vocoder recipe a dominant neural synthesis pattern.</p>
+    <p><strong>Why it matters:</strong> It connected sequence-to-sequence text modeling with high-fidelity waveform generation, setting the baseline that later non-autoregressive, diffusion, and codec-token TTS systems tried to improve.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/1712.05884">paper</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     2018
     <div class="speech-kicker">Transducer revival</div>
   </aside>

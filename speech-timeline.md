@@ -918,6 +918,22 @@ title: Speech Timeline
 <section class="speech-row">
   <aside class="speech-year">
     2024
+    <div class="speech-kicker">Supervised speech tokens</div>
+  </aside>
+  <div class="speech-body">
+    <h2>CosyVoice</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Codec LM</span><span class="speech-tag">Zero-Shot</span></div>
+    <p><strong>Proposed:</strong> Use supervised semantic speech tokens from a multilingual ASR encoder as the intermediate representation for large-language-model-based zero-shot TTS.</p>
+    <p><strong>Achievement:</strong> CosyVoice combined a text-to-token language model with conditional flow matching for token-to-speech synthesis, improving content consistency and speaker similarity in multilingual voice cloning.</p>
+    <p><strong>Why it matters:</strong> It made token quality a central design choice for codec-LM TTS, showing that speech tokens can carry explicit text-aligned semantics rather than only unsupervised acoustic structure.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Early codec-language-model TTS proved that discrete audio tokens could generate convincing speech, but content errors and weak text alignment remained painful. CosyVoice reflects the next step: make the token vocabulary itself more semantic so the generator has an easier path from text intent to speaker-conditioned audio.</p>
+    <p class="speech-source"><a href="https://arxiv.org/abs/2407.05407">paper</a> <a href="https://funaudiollm.github.io/cosyvoice/">project</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
+    2024
     <div class="speech-kicker">Full-duplex dialogue</div>
   </aside>
   <div class="speech-body">

@@ -400,6 +400,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1984
+    <div class="speech-kicker">Statistical denoising</div>
+  </aside>
+  <div class="speech-body">
+    <h2>MMSE-STSA Speech Enhancement</h2>
+    <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Enhancement</span></div>
+    <p><strong>Proposed:</strong> Estimate clean-speech short-time spectral amplitudes from noisy observations with a minimum mean-square error statistical model.</p>
+    <p><strong>Achievement:</strong> Ephraim and Malah gave single-channel speech enhancement a durable probabilistic baseline, including explicit treatment of speech-presence uncertainty and noisy phase reconstruction.</p>
+    <p><strong>Why it matters:</strong> Noise suppression became a core front-end problem for recognition, telephony, hearing devices, voice conversion, and later neural speech enhancement, where models still often predict masks or cleaned spectral structure.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> Speech systems were leaving clean laboratories and entering noisy channels, so recognition and synthesis pipelines needed a way to separate speech from background without destroying intelligibility. MMSE-STSA shows why enhancement became its own speech discipline: later neural denoisers changed the model class, but kept the same goal of estimating perceptually important spectral content under uncertainty.</p>
+    <p class="speech-source"><a href="https://ieeexplore.ieee.org/document/1164453">paper</a> <a href="https://malah.net.technion.ac.il/files/2017/08/Ephraim_Speech_Enhancement_ASSP84.pdf">pdf</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1988
     <div class="speech-kicker">Large-vocabulary ASR</div>
   </aside>

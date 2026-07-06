@@ -88,6 +88,12 @@ title: Speech Timeline
   gap: 0.45rem;
   margin: 1rem 0 0;
 }
+.speech-tag-note {
+  color: #777;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0.65rem 0 0;
+}
 .speech-body p {
   margin: 0.45rem 0;
 }
@@ -122,6 +128,12 @@ title: Speech Timeline
   <span class="speech-impact">new capability</span>
   <span class="speech-impact">optimize existing component</span>
   <span class="speech-impact">efficiency</span>
+</p>
+
+<p class="speech-tag-note">
+  The first tag groups each milestone by the kind of progress it represents:
+  a new capability, an improvement to an existing component, or better
+  efficiency. The smaller tags name the speech area, architecture, or concept.
 </p>
 
 <nav class="speech-nav" aria-label="Timeline eras">

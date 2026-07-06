@@ -447,6 +447,22 @@ title: Speech Timeline
 
 <section class="speech-row">
   <aside class="speech-year">
+    1993
+    <div class="speech-kicker">Pronunciation lexicons</div>
+  </aside>
+  <div class="speech-body">
+    <h2>CMU Pronouncing Dictionary</h2>
+    <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Lexicon</span></div>
+    <p><strong>Proposed:</strong> Provide a machine-readable mapping from English words to ARPAbet phoneme sequences, including stress markings and alternate pronunciations.</p>
+    <p><strong>Achievement:</strong> CMUdict became a widely reused open pronunciation lexicon for speech recognition, speech synthesis, language teaching tools, and grapheme-to-phoneme training.</p>
+    <p><strong>Why it matters:</strong> Pronunciation dictionaries made the text-to-sound boundary explicit, giving ASR systems lexicon support and TTS systems a practical bridge from spelling to phones before end-to-end neural front ends became common.</p>
+    <p class="speech-reflection"><strong>Why this emerged:</strong> English spelling is too irregular for speech systems to treat letters as sounds directly, and early recognizers and synthesizers needed a shared phonetic interface. CMUdict shows why durable speech infrastructure often looks simple: a good lexicon quietly coordinates acoustic models, language models, TTS front ends, and later learned G2P systems.</p>
+    <p class="speech-source"><a href="https://www.speech.cs.cmu.edu/cgi-bin/cmudict">source</a> <a href="https://github.com/cmusphinx/cmudict">repository</a></p>
+  </div>
+</section>
+
+<section class="speech-row">
+  <aside class="speech-year">
     1994
     <div class="speech-kicker">TTS evaluation</div>
   </aside>

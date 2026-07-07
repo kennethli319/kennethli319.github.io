@@ -334,6 +334,48 @@
           <option value="speaker_voice_consistency">Speaker voice consistency</option>
           <option value="multilingual_code_switching">Multilingual code switching</option>
           <option value="long_form_discourse">Long-form discourse</option>
+          <option value="text_normalization">Text normalization</option>
+          <option value="acoustic_contexts">Acoustic contexts</option>
+          <option value="spontaneous_conversation">Spontaneous conversation</option>
+          <option value="affective_transitions">Affective transitions</option>
+          <option value="punctuation_prosody">Punctuation prosody</option>
+          <option value="domain_terminology">Domain terminology</option>
+          <option value="heteronym_disambiguation">Heteronym disambiguation</option>
+          <option value="formatting_markup_robustness">Formatting markup robustness</option>
+          <option value="nonverbal_paralinguistic_cues">Nonverbal paralinguistic cues</option>
+          <option value="voice_conversion_similarity">Voice conversion similarity</option>
+          <option value="accent_dialect_handling">Accent dialect handling</option>
+          <option value="artifact_suppression">Artifact suppression</option>
+          <option value="temporal_rhythm_control">Temporal rhythm control</option>
+          <option value="safety_privacy_delivery">Safety privacy delivery</option>
+          <option value="semantic_contrast_focus">Semantic contrast focus</option>
+          <option value="dialogue_turn_management">Dialogue turn management</option>
+          <option value="compositional_style_control">Compositional style control</option>
+          <option value="named_entity_pronunciation">Named entity pronunciation</option>
+          <option value="disfluency_repair_control">Disfluency repair control</option>
+          <option value="lexical_stress_disambiguation">Lexical stress disambiguation</option>
+          <option value="pragmatic_intent_delivery">Pragmatic intent delivery</option>
+          <option value="symbolic_math_reading">Symbolic math reading</option>
+          <option value="multi_speaker_attribution">Multi speaker attribution</option>
+          <option value="structured_enumeration_delivery">Structured enumeration delivery</option>
+          <option value="phonetic_confusability">Phonetic confusability</option>
+          <option value="referential_cohesion">Referential cohesion</option>
+          <option value="measurement_unit_disambiguation">Measurement unit disambiguation</option>
+          <option value="contextual_abbreviation_expansion">Contextual abbreviation expansion</option>
+          <option value="noise_resilience_delivery">Noise resilience delivery</option>
+          <option value="audience_register_adaptation">Audience register adaptation</option>
+          <option value="uncertainty_calibration_delivery">Uncertainty calibration delivery</option>
+          <option value="real_time_streaming_delivery">Real-time streaming delivery</option>
+          <option value="numeric_identifier_delivery">Numeric identifier delivery</option>
+          <option value="sentence_boundary_inference">Sentence boundary inference</option>
+          <option value="cross_lingual_name_pronunciation">Cross-lingual name pronunciation</option>
+          <option value="speech_mode_stability">Speech mode stability</option>
+          <option value="dialogue_act_prosody">Dialogue act prosody</option>
+          <option value="address_wayfinding_delivery">Address wayfinding delivery</option>
+          <option value="repair_sensitive_delivery">Repair sensitive delivery</option>
+          <option value="pause_breath_control">Pause breath control</option>
+          <option value="citation_reference_delivery">Citation reference delivery</option>
+          <option value="digital_locator_delivery">Digital locator delivery</option>
         </select>
         <select id="label-filter" aria-label="Filter by label">
           <option value="">All labels</option>
@@ -378,7 +420,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 45 \
+  --limit 255 \
   --out runs/leaderboard/chatterbox</code></pre>
 
     <pre><code>oaj autojudge-local-tts \
@@ -387,7 +429,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 45 \
+  --limit 255 \
   --out runs/leaderboard/kokoro</code></pre>
 
     <pre><code>oaj autojudge-local-tts \
@@ -396,7 +438,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 45 \
+  --limit 255 \
   --out runs/leaderboard/qwen3-tts</code></pre>
 
     <p>
@@ -408,7 +450,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 45 \
+  --limit 255 \
   --out runs/leaderboard/chatterbox</code></pre>
 
     <p>
@@ -453,16 +495,16 @@
     <h2>Sample Report Preview</h2>
     <section class="grid" aria-label="Sample report metrics">
       <div class="metric"><span>Models</span><strong>3</strong></div>
-      <div class="metric"><span>Shared Eval Cases</span><strong>45</strong></div>
+      <div class="metric"><span>Shared Eval Cases</span><strong>255</strong></div>
       <div class="metric"><span>Judge Samples</span><strong>3x</strong></div>
       <div class="metric"><span>Top Avg</span><strong>91.2</strong></div>
       <div class="metric"><span>Lowest Avg</span><strong>84.7</strong></div>
-      <div class="metric"><span>Total Judgments</span><strong>405</strong></div>
+      <div class="metric"><span>Total Judgments</span><strong>2295</strong></div>
     </section>
 
     <h2>Eval Set Samples</h2>
     <p>
-      The public demo eval set contains 45 synthetic, public-safe cases grouped into research-backed
+      The public demo eval set contains 255 synthetic, public-safe cases grouped into research-backed
       TTS dimensions. Each category below contributes five shared cases that every model synthesizes
       before Gemini judges the generated audio.
     </p>
@@ -782,6 +824,1476 @@
           </article>
         </div>
       </details>
+      <details class="sample-group" data-category="text_normalization">
+        <summary><span>Text Normalization</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-text-normalization-currency-001</code></h3>
+            <p><strong>Slice:</strong> <code>currency_percentages</code></p>
+            <p><strong>Prompt:</strong> Read this billing update with the currency, percentage, and comparison easy to catch.</p>
+            <p><strong>Target:</strong> The monthly plan changes from $19.99 to $24.50, while the annual discount stays at 18 percent.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-text-normalization-url-email-001</code></h3>
+            <p><strong>Slice:</strong> <code>url_email_punctuation</code></p>
+            <p><strong>Prompt:</strong> Read the support contact carefully, spelling punctuation verbally where needed.</p>
+            <p><strong>Target:</strong> Send the log to qa-team@example dot org, then open status dot example slash incident seven.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-text-normalization-version-001</code></h3>
+            <p><strong>Slice:</strong> <code>versions_ordinals</code></p>
+            <p><strong>Prompt:</strong> Read this release note so version numbers and ordinal labels stay distinct.</p>
+            <p><strong>Target:</strong> Install version 2.10.3 after the fourth database patch, not version 2.1.3.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-text-normalization-symbols-001</code></h3>
+            <p><strong>Slice:</strong> <code>symbols_math</code></p>
+            <p><strong>Prompt:</strong> Read this formula-like instruction naturally while verbalizing the symbols.</p>
+            <p><strong>Target:</strong> Set A plus B greater than C, then mark the result as pass slash review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-text-normalization-address-001</code></h3>
+            <p><strong>Slice:</strong> <code>addresses_abbreviations</code></p>
+            <p><strong>Prompt:</strong> Read this delivery address with abbreviations expanded clearly but not awkwardly.</p>
+            <p><strong>Target:</strong> Bring the sample to 405 North Pine Street, Suite 8B, before 5 PM.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="acoustic_contexts">
+        <summary><span>Acoustic Contexts</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-acoustic-contexts-phone-001</code></h3>
+            <p><strong>Slice:</strong> <code>telephone_support_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this as a phone support agent, compact but still fully intelligible.</p>
+            <p><strong>Target:</strong> I found the ticket, and the replacement unit should ship after the warehouse scan finishes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acoustic-contexts-pa-001</code></h3>
+            <p><strong>Slice:</strong> <code>public_address_projection</code></p>
+            <p><strong>Prompt:</strong> Read this as a public address announcement with firm projection and clean timing.</p>
+            <p><strong>Target:</strong> Train twelve is now boarding on platform three; please keep bags clear of the yellow line.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acoustic-contexts-soft-001</code></h3>
+            <p><strong>Slice:</strong> <code>quiet_audible_reminder</code></p>
+            <p><strong>Prompt:</strong> Read this as a quiet late-night reminder that remains audible and articulate.</p>
+            <p><strong>Target:</strong> Your alarm is set for six fifteen, and the kitchen lights will stay off until sunrise.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acoustic-contexts-mobile-001</code></h3>
+            <p><strong>Slice:</strong> <code>mobile_navigation_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this navigation prompt for a moving listener, with the turn and distance easy to catch.</p>
+            <p><strong>Target:</strong> In half a mile, use the right lane, then turn onto Harbor Drive after the second light.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acoustic-contexts-radio-001</code></h3>
+            <p><strong>Slice:</strong> <code>radio_dispatch_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this as a clean radio dispatch, clipped enough for urgency but not robotic.</p>
+            <p><strong>Target:</strong> Unit four, hold at the west entrance until the loading bay is clear.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="spontaneous_conversation">
+        <summary><span>Spontaneous Conversation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-spontaneous-conversation-hesitation-001</code></h3>
+            <p><strong>Slice:</strong> <code>spoken_hesitation</code></p>
+            <p><strong>Prompt:</strong> Read this like a natural support conversation with mild hesitation, but do not add any extra filler words.</p>
+            <p><strong>Target:</strong> I, uh, I think we should restart the router first, then check whether the status light comes back.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spontaneous-conversation-repair-001</code></h3>
+            <p><strong>Slice:</strong> <code>self_correction_repair</code></p>
+            <p><strong>Prompt:</strong> Read this as a quick self-correction in conversation, with the correction easy to notice.</p>
+            <p><strong>Target:</strong> The pickup is at gate fourteen, sorry, gate forty, near the blue kiosk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spontaneous-conversation-backchannel-001</code></h3>
+            <p><strong>Slice:</strong> <code>backchannel_acknowledgment</code></p>
+            <p><strong>Prompt:</strong> Read this as a helpful agent acknowledging the caller before giving the action.</p>
+            <p><strong>Target:</strong> Mm-hmm, I see the issue now; you were charged twice, and I can reverse the duplicate today.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spontaneous-conversation-pause-001</code></h3>
+            <p><strong>Slice:</strong> <code>thinking_pause_resume</code></p>
+            <p><strong>Prompt:</strong> Read this with a natural thinking pause at the three dots, then continue cleanly.</p>
+            <p><strong>Target:</strong> Let me check the schedule... okay, the earliest opening is Wednesday afternoon.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spontaneous-conversation-restart-001</code></h3>
+            <p><strong>Slice:</strong> <code>conversational_restart</code></p>
+            <p><strong>Prompt:</strong> Read this as a conversational restart that is firm but not alarming.</p>
+            <p><strong>Target:</strong> Wait, no, keep the charger plugged in until the update finishes.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="affective_transitions">
+        <summary><span>Affective Transitions</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-affective-transitions-relief-001</code></h3>
+            <p><strong>Slice:</strong> <code>concern_to_relief</code></p>
+            <p><strong>Prompt:</strong> Read this with a clear shift from concern to relief, without sounding theatrical.</p>
+            <p><strong>Target:</strong> I was worried when the alert fired, but the backup completed and the service is stable again.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-affective-transitions-apology-001</code></h3>
+            <p><strong>Slice:</strong> <code>apology_to_confidence</code></p>
+            <p><strong>Prompt:</strong> Read this as a sincere apology followed by calm confidence.</p>
+            <p><strong>Target:</strong> I am sorry for the delay; your replacement has shipped, and the tracking link is active now.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-affective-transitions-warning-001</code></h3>
+            <p><strong>Slice:</strong> <code>friendly_to_warning</code></p>
+            <p><strong>Prompt:</strong> Read this with friendly setup that becomes a firm warning on the final clause.</p>
+            <p><strong>Target:</strong> You can keep editing the draft, but do not close the tab until the upload finishes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-affective-transitions-surprise-001</code></h3>
+            <p><strong>Slice:</strong> <code>surprise_to_neutral</code></p>
+            <p><strong>Prompt:</strong> Read this with brief surprise, then settle into a matter-of-fact update.</p>
+            <p><strong>Target:</strong> Oh, that changed quickly; the new room is 214, and the host will meet you there.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-affective-transitions-empathy-001</code></h3>
+            <p><strong>Slice:</strong> <code>empathy_to_instruction</code></p>
+            <p><strong>Prompt:</strong> Read this with empathy first, then move into concise practical guidance.</p>
+            <p><strong>Target:</strong> That sounds frustrating, and the fastest fix is to reset the password from the signed-in device.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="punctuation_prosody">
+        <summary><span>Punctuation Prosody</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-punctuation-prosody-quotation-001</code></h3>
+            <p><strong>Slice:</strong> <code>quoted_speech_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this with clear quoted-speech framing while keeping one narrator voice.</p>
+            <p><strong>Target:</strong> Mina said, quote, the build is green, unquote, and then reopened the release checklist.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-punctuation-prosody-colon-001</code></h3>
+            <p><strong>Slice:</strong> <code>colon_semicolon_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this with the colon introducing a short list and the semicolon marking a stronger pause.</p>
+            <p><strong>Target:</strong> Bring three items: a badge, a charger, and a notebook; leave the spare laptop at home.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-punctuation-prosody-dash-001</code></h3>
+            <p><strong>Slice:</strong> <code>aside_phrase_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this with the dash as a quick aside, then return to the main sentence.</p>
+            <p><strong>Target:</strong> The sensor passed calibration - just barely - and the final reading stayed within tolerance.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-punctuation-prosody-question-001</code></h3>
+            <p><strong>Slice:</strong> <code>question_answer_contour</code></p>
+            <p><strong>Prompt:</strong> Read the first sentence as a real question and the second as a calm answer.</p>
+            <p><strong>Target:</strong> Can you hear the alert from the lobby? If not, move closer to the east speaker.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-punctuation-prosody-ellipsis-001</code></h3>
+            <p><strong>Slice:</strong> <code>ellipsis_pause_resume</code></p>
+            <p><strong>Prompt:</strong> Read this with a brief ellipsis pause, then resume without making the silence too long.</p>
+            <p><strong>Target:</strong> The lights flickered... then the backup power came on and the hallway signs returned.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="domain_terminology">
+        <summary><span>Domain Terminology</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-domain-terminology-clinical-001</code></h3>
+            <p><strong>Slice:</strong> <code>clinical_terms</code></p>
+            <p><strong>Prompt:</strong> Read this clinical handoff with the medication and lab terms clear but not overpronounced.</p>
+            <p><strong>Target:</strong> The patient tolerated metformin, reported mild nausea, and the hemoglobin A1C result is pending.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-domain-terminology-legal-001</code></h3>
+            <p><strong>Slice:</strong> <code>legal_clause_terms</code></p>
+            <p><strong>Prompt:</strong> Read this legal update with formal clarity and distinct clause boundaries.</p>
+            <p><strong>Target:</strong> The addendum supersedes section 4B, but the indemnity clause and audit provision remain unchanged.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-domain-terminology-engineering-001</code></h3>
+            <p><strong>Slice:</strong> <code>engineering_terms</code></p>
+            <p><strong>Prompt:</strong> Read this engineering status note so the technical nouns do not blur together.</p>
+            <p><strong>Target:</strong> The inverter firmware passed thermal cycling, but the telemetry parser still drops checksum warnings.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-domain-terminology-finance-001</code></h3>
+            <p><strong>Slice:</strong> <code>finance_terms</code></p>
+            <p><strong>Prompt:</strong> Read this finance brief with the market terms and abbreviations easy to distinguish.</p>
+            <p><strong>Target:</strong> EBITDA improved after the debt refinance, while basis-point spreads narrowed across the short-duration book.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-domain-terminology-science-001</code></h3>
+            <p><strong>Slice:</strong> <code>science_terms</code></p>
+            <p><strong>Prompt:</strong> Read this science summary with careful pronunciation of the specialized terms.</p>
+            <p><strong>Target:</strong> The perovskite sample showed photoluminescence quenching after the polymer electrolyte was added.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="heteronym_disambiguation">
+        <summary><span>Heteronym Disambiguation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-heteronym-disambiguation-read-001</code></h3>
+            <p><strong>Slice:</strong> <code>read_present_past</code></p>
+            <p><strong>Prompt:</strong> Read this sentence so the two forms of read are pronounced differently from context.</p>
+            <p><strong>Target:</strong> I will read the brief after I read the alert from yesterday.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-heteronym-disambiguation-wind-001</code></h3>
+            <p><strong>Slice:</strong> <code>wind_verb_noun</code></p>
+            <p><strong>Prompt:</strong> Read this operations note with the verb wind and noun wind clearly disambiguated.</p>
+            <p><strong>Target:</strong> Please wind the sample cable before the wind tunnel fan starts.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-heteronym-disambiguation-bass-001</code></h3>
+            <p><strong>Slice:</strong> <code>bass_music_fish</code></p>
+            <p><strong>Prompt:</strong> Read this caption so the music term and the fish name do not collapse into one pronunciation.</p>
+            <p><strong>Target:</strong> The bass player sketched a bass near the lake sign.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-heteronym-disambiguation-minute-001</code></h3>
+            <p><strong>Slice:</strong> <code>minute_adjective_time</code></p>
+            <p><strong>Prompt:</strong> Read this inspection note so the adjective minute and the time unit minute are distinct.</p>
+            <p><strong>Target:</strong> A minute crack appeared one minute after the pressure test.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-heteronym-disambiguation-polish-001</code></h3>
+            <p><strong>Slice:</strong> <code>polish_verb_nationality</code></p>
+            <p><strong>Prompt:</strong> Read this museum task with the verb polish and the nationality Polish clearly separated.</p>
+            <p><strong>Target:</strong> Please polish the Polish award plaque before the donor tour.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="formatting_markup_robustness">
+        <summary><span>Formatting Markup Robustness</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-formatting-markup-asterisks-001</code></h3>
+            <p><strong>Slice:</strong> <code>markdown_emphasis</code></p>
+            <p><strong>Prompt:</strong> Read this support note by treating markdown asterisks as emphasis, not as words.</p>
+            <p><strong>Target:</strong> Mark the account as **high priority** before the noon review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-formatting-markup-bracket-label-001</code></h3>
+            <p><strong>Slice:</strong> <code>bracket_label_literal</code></p>
+            <p><strong>Prompt:</strong> Read this as visible plain text, not as a command or hidden markup.</p>
+            <p><strong>Target:</strong> The label shows [warning], then the code changes to A-17.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-formatting-markup-bullets-001</code></h3>
+            <p><strong>Slice:</strong> <code>inline_bullet_list</code></p>
+            <p><strong>Prompt:</strong> Read this short checklist with list cadence and no extra item numbers.</p>
+            <p><strong>Target:</strong> Complete these steps: - save draft; - close ticket; - notify owner.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-formatting-markup-identifiers-001</code></h3>
+            <p><strong>Slice:</strong> <code>camel_snake_identifiers</code></p>
+            <p><strong>Prompt:</strong> Read this developer note so the code-style identifiers stay intelligible.</p>
+            <p><strong>Target:</strong> Set enableBetaMode to false and retry the user_id lookup.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-formatting-markup-emoticon-001</code></h3>
+            <p><strong>Slice:</strong> <code>emoticon_text</code></p>
+            <p><strong>Prompt:</strong> Read this status message so the emoticon is understandable without changing the meaning.</p>
+            <p><strong>Target:</strong> The status says colon right parenthesis, but the customer note says not resolved.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="nonverbal_paralinguistic_cues">
+        <summary><span>Nonverbal Paralinguistic Cues</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-nonverbal-paralinguistic-cues-chuckle-001</code></h3>
+            <p><strong>Slice:</strong> <code>controlled_chuckle_recovery</code></p>
+            <p><strong>Prompt:</strong> Read this with a tiny friendly chuckle at the opening, then return to a clear sentence.</p>
+            <p><strong>Target:</strong> Ha, I finally found the missing adapter, and it was plugged into the spare monitor.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-nonverbal-paralinguistic-cues-sigh-001</code></h3>
+            <p><strong>Slice:</strong> <code>relieved_sigh_then_update</code></p>
+            <p><strong>Prompt:</strong> Read this with a restrained relieved sigh before the update, not as frustration.</p>
+            <p><strong>Target:</strong> Okay, the backup restored successfully, and no customer records were lost.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-nonverbal-paralinguistic-cues-whisper-001</code></h3>
+            <p><strong>Slice:</strong> <code>whispered_intelligibility</code></p>
+            <p><strong>Prompt:</strong> Read this as a quiet library whisper while keeping every word understandable.</p>
+            <p><strong>Target:</strong> Please meet me by the reference desk, and keep your phone on silent until we leave.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-nonverbal-paralinguistic-cues-laugh-suppression-001</code></h3>
+            <p><strong>Slice:</strong> <code>suppressed_laugh_professional</code></p>
+            <p><strong>Prompt:</strong> Read this with amused restraint, as if holding back a laugh but staying professional.</p>
+            <p><strong>Target:</strong> The test robot waved at the empty hallway, then logged it as a successful greeting.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-nonverbal-paralinguistic-cues-breath-control-001</code></h3>
+            <p><strong>Slice:</strong> <code>breath_control_long_notice</code></p>
+            <p><strong>Prompt:</strong> Read this long notice with natural breath control and no audible gasp between clauses.</p>
+            <p><strong>Target:</strong> After the doors close, the shuttle will pause at the west gate, continue past the service road, and stop beside the visitor center.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="voice_conversion_similarity">
+        <summary><span>Voice Conversion Similarity</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-voice-conversion-similarity-reference-style-001</code></h3>
+            <p><strong>Slice:</strong> <code>reference_style_transfer</code></p>
+            <p><strong>Prompt:</strong> Read this as if matching a calm reference speaker: low energy, even timbre, and no theatrical emphasis.</p>
+            <p><strong>Target:</strong> The account review is complete, and the renewal packet is ready for signature.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-voice-conversion-similarity-content-preservation-001</code></h3>
+            <p><strong>Slice:</strong> <code>speaker_transfer_content_preservation</code></p>
+            <p><strong>Prompt:</strong> Read this in a converted-speaker style while preserving every number, unit, and condition exactly.</p>
+            <p><strong>Target:</strong> Set pump two to 1.8 liters per minute, then stop if the pressure rises above 42 PSI.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-voice-conversion-similarity-prosody-retention-001</code></h3>
+            <p><strong>Slice:</strong> <code>reference_prosody_retention</code></p>
+            <p><strong>Prompt:</strong> Read this with the same measured cadence a reference narrator would use across the whole sentence.</p>
+            <p><strong>Target:</strong> After the opening remarks, pause briefly, introduce the panel, and invite questions from the front row.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-voice-conversion-similarity-identity-leakage-001</code></h3>
+            <p><strong>Slice:</strong> <code>anti_generic_voice_leakage</code></p>
+            <p><strong>Prompt:</strong> Read this in the target voice only; avoid slipping into a generic assistant voice on the second sentence.</p>
+            <p><strong>Target:</strong> I can confirm the appointment for Friday morning. Please bring the printed form and a photo ID.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-voice-conversion-similarity-cross-style-001</code></h3>
+            <p><strong>Slice:</strong> <code>identity_preserved_style_shift</code></p>
+            <p><strong>Prompt:</strong> Read this with target-speaker similarity while shifting from neutral status to gentle reassurance.</p>
+            <p><strong>Target:</strong> The connection dropped during the upload, but the draft was saved and you can retry safely.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="accent_dialect_handling">
+        <summary><span>Accent Dialect Handling</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-accent-dialect-handling-southern-weather-001</code></h3>
+            <p><strong>Slice:</strong> <code>light_southern_weather_notice</code></p>
+            <p><strong>Prompt:</strong> Read this with a light Southern U.S. regional accent while keeping the weather details crisp and respectful.</p>
+            <p><strong>Target:</strong> The rain should clear by three, but the low bridge on County Road 12 may stay closed until dusk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accent-dialect-handling-london-museum-001</code></h3>
+            <p><strong>Slice:</strong> <code>london_museum_announcement</code></p>
+            <p><strong>Prompt:</strong> Read this in a light London English style, polished but not theatrical, with the exhibit names clear.</p>
+            <p><strong>Target:</strong> Gallery five closes at half past four, and the Turner sketch room reopens after the curator talk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accent-dialect-handling-australian-field-001</code></h3>
+            <p><strong>Slice:</strong> <code>australian_field_report</code></p>
+            <p><strong>Prompt:</strong> Read this with a light Australian English accent while preserving the measurement and location details.</p>
+            <p><strong>Target:</strong> The field team logged 18 millimeters of rain near the east ridge and moved the sensors inland.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accent-dialect-handling-indian-support-001</code></h3>
+            <p><strong>Slice:</strong> <code>indian_english_support_acronym</code></p>
+            <p><strong>Prompt:</strong> Read this in a clear Indian English support-agent style without flattening the acronym or ticket number.</p>
+            <p><strong>Target:</strong> Your VPN profile was reset, and ticket K F 2048 will remain open until you confirm access.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accent-dialect-handling-scottish-travel-001</code></h3>
+            <p><strong>Slice:</strong> <code>scottish_travel_routes</code></p>
+            <p><strong>Prompt:</strong> Read this with a light Scottish English accent and enough pacing for travelers to catch the route names.</p>
+            <p><strong>Target:</strong> The Glasgow service now boards from platform seven, with a connection to Inverness after Perth.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="artifact_suppression">
+        <summary><span>Artifact Suppression</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-artifact-suppression-plosive-clipping-001</code></h3>
+            <p><strong>Slice:</strong> <code>plosive_clipping_control</code></p>
+            <p><strong>Prompt:</strong> Read this close-mic sentence clearly, avoiding pops or clipping on the repeated P and B sounds.</p>
+            <p><strong>Target:</strong> Please pack the backup battery beside the portable printer before boarding begins.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-artifact-suppression-sibilance-001</code></h3>
+            <p><strong>Slice:</strong> <code>sibilance_harshness_control</code></p>
+            <p><strong>Prompt:</strong> Read this crisp safety line without harsh hiss, metallic buzzing, or swallowed S sounds.</p>
+            <p><strong>Target:</strong> Six stainless sensors stayed stable as the system switched to silent service mode.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-artifact-suppression-repeat-loop-001</code></h3>
+            <p><strong>Slice:</strong> <code>repeat_loop_resistance</code></p>
+            <p><strong>Prompt:</strong> Read the repeated word exactly as written, but do not fall into a stutter loop or add extra repeats.</p>
+            <p><strong>Target:</strong> The sync status says pending, pending, then complete after the final server check.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-artifact-suppression-silence-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>silence_boundary_stability</code></p>
+            <p><strong>Prompt:</strong> Read this with the short pause implied by the ellipsis, but avoid clicks, dead air, or a sudden restart.</p>
+            <p><strong>Target:</strong> Hold the line for one moment... now the secure channel is ready.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-artifact-suppression-tail-stability-001</code></h3>
+            <p><strong>Slice:</strong> <code>quiet_tail_noise_floor</code></p>
+            <p><strong>Prompt:</strong> Read this quiet final sentence so the ending remains audible and does not fade into noise.</p>
+            <p><strong>Target:</strong> The lobby lights are dimmed, the doors are locked, and the overnight desk is staffed.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="temporal_rhythm_control">
+        <summary><span>Temporal Rhythm Control</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-temporal-rhythm-control-countdown-001</code></h3>
+            <p><strong>Slice:</strong> <code>even_countdown_cadence</code></p>
+            <p><strong>Prompt:</strong> Read this launch-room countdown with even spacing between each number and no extra filler.</p>
+            <p><strong>Target:</strong> Stand by for launch in five, four, three, two, one, mark.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-rhythm-control-pause-duration-001</code></h3>
+            <p><strong>Slice:</strong> <code>relative_pause_duration</code></p>
+            <p><strong>Prompt:</strong> Read this meditation cue with a clearly longer pause after inhale than after exhale.</p>
+            <p><strong>Target:</strong> Inhale through the nose. Hold gently. Exhale slowly, and let your shoulders settle.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-rhythm-control-speed-ramp-001</code></h3>
+            <p><strong>Slice:</strong> <code>controlled_speed_ramp</code></p>
+            <p><strong>Prompt:</strong> Read this transit update starting brisk, then slowing down for the platform and connection details.</p>
+            <p><strong>Target:</strong> The express train is arriving now; please move back, then board from platform six for the airport connection.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-rhythm-control-rhythmic-emphasis-001</code></h3>
+            <p><strong>Slice:</strong> <code>three_beat_rhythmic_emphasis</code></p>
+            <p><strong>Prompt:</strong> Read this training slogan with a steady three-beat rhythm, but do not chant or sing it.</p>
+            <p><strong>Target:</strong> Check the door, check the latch, check the light before you leave.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-rhythm-control-clause-syncopation-001</code></h3>
+            <p><strong>Slice:</strong> <code>short_clause_to_settled_resolution</code></p>
+            <p><strong>Prompt:</strong> Read this status line with quick short clauses followed by a settled final clause.</p>
+            <p><strong>Target:</strong> Cache cleared, queue drained, workers restarted, and the dashboard is stable again.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="safety_privacy_delivery">
+        <summary><span>Safety Privacy Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-safety-privacy-delivery-consent-notice-001</code></h3>
+            <p><strong>Slice:</strong> <code>consent_notice_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this consent notice with neutral clarity and no rushed legal tone.</p>
+            <p><strong>Target:</strong> This call may be recorded for quality review, and you can ask to stop recording at any time.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-safety-privacy-delivery-secret-warning-001</code></h3>
+            <p><strong>Slice:</strong> <code>credential_warning_negation</code></p>
+            <p><strong>Prompt:</strong> Read this account-safety warning firmly, with the never clause unmistakable.</p>
+            <p><strong>Target:</strong> A support agent will never ask for your password, full card number, or one-time code.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-safety-privacy-delivery-redacted-id-001</code></h3>
+            <p><strong>Slice:</strong> <code>redacted_identifier_handling</code></p>
+            <p><strong>Prompt:</strong> Read this privacy-preserving case note without inventing the redacted identifier.</p>
+            <p><strong>Target:</strong> The case note says user ID redacted, followed by account ending in 4821.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-safety-privacy-delivery-location-choice-001</code></h3>
+            <p><strong>Slice:</strong> <code>location_consent_emergency</code></p>
+            <p><strong>Prompt:</strong> Read this sensitive safety guidance with care, preserving the user's choice and emergency condition.</p>
+            <p><strong>Target:</strong> Share your location only if you choose to, and call local emergency services if you are in immediate danger.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-safety-privacy-delivery-deletion-warning-001</code></h3>
+            <p><strong>Slice:</strong> <code>irreversible_action_warning</code></p>
+            <p><strong>Prompt:</strong> Read this irreversible-action warning with measured seriousness and clear consequence order.</p>
+            <p><strong>Target:</strong> Deleting this workspace removes shared files for everyone, so export your records before you continue.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="semantic_contrast_focus">
+        <summary><span>Semantic Contrast Focus</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-semantic-contrast-focus-negation-001</code></h3>
+            <p><strong>Slice:</strong> <code>negation_scope_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this triage note so the negation and contrast are unmistakable on first listen.</p>
+            <p><strong>Target:</strong> The payment failed, not the identity check, so ask the customer to update the card only.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-semantic-contrast-focus-exception-001</code></h3>
+            <p><strong>Slice:</strong> <code>exception_boundary_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this access rule with the exception separated clearly from the main rule.</p>
+            <p><strong>Target:</strong> Everyone may enter through the south gate except contractors, who must check in at the service desk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-semantic-contrast-focus-correction-001</code></h3>
+            <p><strong>Slice:</strong> <code>correction_date_time_focus</code></p>
+            <p><strong>Prompt:</strong> Read this correction politely, making the corrected value easy to hear.</p>
+            <p><strong>Target:</strong> The pickup is on Tuesday, not Thursday, and the window is 9 AM to 11 AM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-semantic-contrast-focus-either-or-001</code></h3>
+            <p><strong>Slice:</strong> <code>balanced_alternative_options</code></p>
+            <p><strong>Prompt:</strong> Read this choice prompt so the two options remain distinct and balanced.</p>
+            <p><strong>Target:</strong> You can either keep the monthly plan or switch to annual billing before the renewal date.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-semantic-contrast-focus-threshold-001</code></h3>
+            <p><strong>Slice:</strong> <code>conditional_threshold_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this threshold rule with precise emphasis on the condition and the consequence.</p>
+            <p><strong>Target:</strong> If the temperature stays below 2 degrees Celsius, delay loading; otherwise, start the route at 6:15.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="dialogue_turn_management">
+        <summary><span>Dialogue Turn Management</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-dialogue-turn-management-acknowledgment-001</code></h3>
+            <p><strong>Slice:</strong> <code>acknowledgment_to_first_question</code></p>
+            <p><strong>Prompt:</strong> Read this support reply with a brief acknowledgment, then a clear first question.</p>
+            <p><strong>Target:</strong> Yes, I can help with that. First, tell me which device is showing the red light.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-turn-management-clarification-001</code></h3>
+            <p><strong>Slice:</strong> <code>balanced_clarification_question</code></p>
+            <p><strong>Prompt:</strong> Read this clarification question so both alternatives are balanced and easy to distinguish.</p>
+            <p><strong>Target:</strong> Do you mean the invoice from May, or the receipt for the replacement charger?</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-turn-management-restart-001</code></h3>
+            <p><strong>Slice:</strong> <code>self_repair_restart_with_time</code></p>
+            <p><strong>Prompt:</strong> Read this repair turn as a concise restart after a confusing previous answer.</p>
+            <p><strong>Target:</strong> Sorry, let me restart that clearly: your train leaves from platform eight at 6:40.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-turn-management-handoff-001</code></h3>
+            <p><strong>Slice:</strong> <code>handoff_with_spelled_ticket</code></p>
+            <p><strong>Prompt:</strong> Read this handoff notice with the ticket code spelled clearly and no rushed ending.</p>
+            <p><strong>Target:</strong> I will transfer you to billing now; keep this ticket number handy: B L 319.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-turn-management-closure-001</code></h3>
+            <p><strong>Slice:</strong> <code>task_closure_next_action</code></p>
+            <p><strong>Prompt:</strong> Read this conversation-closing instruction as complete, calm, and not dismissive.</p>
+            <p><strong>Target:</strong> That completes the setup. You can close this window and restart the app when you are ready.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="compositional_style_control">
+        <summary><span>Compositional Style Control</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-compositional-style-control-quiet-urgent-clinic-001</code></h3>
+            <p><strong>Slice:</strong> <code>quiet_urgent_clinic_instruction</code></p>
+            <p><strong>Prompt:</strong> Read this quietly because it is in a clinic waiting room, but keep the instruction urgent and easy to act on.</p>
+            <p><strong>Target:</strong> Please step to desk two now, and bring the blue allergy card with your photo ID.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compositional-style-control-friendly-formal-billing-001</code></h3>
+            <p><strong>Slice:</strong> <code>friendly_formal_billing_notice</code></p>
+            <p><strong>Prompt:</strong> Read this as friendly and formal at the same time, with the date and amount clear.</p>
+            <p><strong>Target:</strong> Your renewal estimate is 42 dollars per month, and the review period ends on August 14.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compositional-style-control-upbeat-slow-onboarding-001</code></h3>
+            <p><strong>Slice:</strong> <code>upbeat_slow_onboarding_steps</code></p>
+            <p><strong>Prompt:</strong> Read this onboarding tip with upbeat energy, but slow enough for a first-time user to follow.</p>
+            <p><strong>Target:</strong> Tap Create Project, choose the starter template, then name the folder before you invite your team.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compositional-style-control-serious-reassuring-outage-001</code></h3>
+            <p><strong>Slice:</strong> <code>serious_reassuring_outage_update</code></p>
+            <p><strong>Prompt:</strong> Read this outage update with serious authority and reassurance, without sounding cheerful.</p>
+            <p><strong>Target:</strong> The payment service is paused while engineers verify recovery, and queued charges will not run twice.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compositional-style-control-conversational-precise-navigation-001</code></h3>
+            <p><strong>Slice:</strong> <code>conversational_precise_navigation</code></p>
+            <p><strong>Prompt:</strong> Read this navigation cue conversationally, but with precise timing and lane details.</p>
+            <p><strong>Target:</strong> In 900 feet, use the right two lanes to take exit 18B toward Lake Avenue.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="named_entity_pronunciation">
+        <summary><span>Named Entity Pronunciation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-named-entity-pronunciation-healthcare-schedule-001</code></h3>
+            <p><strong>Slice:</strong> <code>healthcare_person_place_names</code></p>
+            <p><strong>Prompt:</strong> Read this appointment notice with careful pronunciation of each person and place name.</p>
+            <p><strong>Target:</strong> Dr. Aisha Nguyen will meet Joaquin Alvarez at the Des Moines clinic on Fleur Drive.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-named-entity-pronunciation-product-ticket-001</code></h3>
+            <p><strong>Slice:</strong> <code>product_ticket_assignee_names</code></p>
+            <p><strong>Prompt:</strong> Read this engineering handoff with the product name, ticket id, and assignee pronounced clearly.</p>
+            <p><strong>Target:</strong> Open Audio Judge issue O A J 427 is assigned to Priya Natarajan for the Kokoro wrapper review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-named-entity-pronunciation-mixed-origin-panel-001</code></h3>
+            <p><strong>Slice:</strong> <code>mixed_origin_person_names</code></p>
+            <p><strong>Prompt:</strong> Read the speaker introduction warmly, with respectful pronunciation of mixed-origin names.</p>
+            <p><strong>Target:</strong> Please welcome Saoirse O'Connell, Xiaoyu Li, and Mateo Ibarra to the advisory panel.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-named-entity-pronunciation-place-route-001</code></h3>
+            <p><strong>Slice:</strong> <code>difficult_place_name_route</code></p>
+            <p><strong>Prompt:</strong> Read this route update naturally, but make the difficult place names distinct.</p>
+            <p><strong>Target:</strong> The route passes through Worcester, Boise, and La Jolla before the Santa Fe handoff.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-named-entity-pronunciation-acronym-briefing-001</code></h3>
+            <p><strong>Slice:</strong> <code>acronym_program_place_briefing</code></p>
+            <p><strong>Prompt:</strong> Read this briefing line with acronyms and names crisp, not rushed.</p>
+            <p><strong>Target:</strong> NASA and NOAA briefed Maya Chen about the Artemis weather window at Vandenberg.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="disfluency_repair_control">
+        <summary><span>Disfluency Repair Control</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-disfluency-repair-control-false-start-001</code></h3>
+            <p><strong>Slice:</strong> <code>false_start_time_repair</code></p>
+            <p><strong>Prompt:</strong> Read this false start naturally, preserving the correction and both pickup times exactly.</p>
+            <p><strong>Target:</strong> I, I mean, the pickup window opens at 7:30, not 7:15.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-disfluency-repair-control-filled-pause-001</code></h3>
+            <p><strong>Slice:</strong> <code>bounded_filled_pause_lookup</code></p>
+            <p><strong>Prompt:</strong> Read this lookup response with one mild filled pause, but keep the answer crisp.</p>
+            <p><strong>Target:</strong> Let me check, um, yes, the charger is in bin C 12.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-disfluency-repair-control-repeat-confirmation-001</code></h3>
+            <p><strong>Slice:</strong> <code>intentional_code_repetition</code></p>
+            <p><strong>Prompt:</strong> Read this access-code confirmation with intentional repetition for accuracy, not excitement.</p>
+            <p><strong>Target:</strong> The door code is 4 8 4 8, repeat, 4 8 4 8.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-disfluency-repair-control-restart-001</code></h3>
+            <p><strong>Slice:</strong> <code>restart_after_wrong_path</code></p>
+            <p><strong>Prompt:</strong> Read this restart after a mistaken path, making the new instruction sequence easy to follow.</p>
+            <p><strong>Target:</strong> Actually, start over: choose Settings, then Audio, then Calibrate Microphone.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-disfluency-repair-control-hesitation-001</code></h3>
+            <p><strong>Slice:</strong> <code>cautious_hesitation_safety_advice</code></p>
+            <p><strong>Prompt:</strong> Read this cautious recommendation with a small hesitation, not a dramatic pause.</p>
+            <p><strong>Target:</strong> The safest option is, well, to wait until the pressure gauge returns to zero.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="lexical_stress_disambiguation">
+        <summary><span>Lexical Stress Disambiguation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-lexical-stress-disambiguation-record-001</code></h3>
+            <p><strong>Slice:</strong> <code>record_verb_noun_stress</code></p>
+            <p><strong>Prompt:</strong> Read this workflow note so the verb record and noun record have different stress.</p>
+            <p><strong>Target:</strong> Please record the record ID before closing the intake form.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-lexical-stress-disambiguation-permit-001</code></h3>
+            <p><strong>Slice:</strong> <code>permit_verb_noun_stress</code></p>
+            <p><strong>Prompt:</strong> Read this city-services update with the two uses of permit clearly disambiguated.</p>
+            <p><strong>Target:</strong> The city will permit the permit review after the safety fee posts.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-lexical-stress-disambiguation-project-001</code></h3>
+            <p><strong>Slice:</strong> <code>project_verb_noun_stress</code></p>
+            <p><strong>Prompt:</strong> Read this board-update sentence so project as a verb and project as a noun do not sound identical.</p>
+            <p><strong>Target:</strong> The team will project the project timeline during the board update.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-lexical-stress-disambiguation-object-001</code></h3>
+            <p><strong>Slice:</strong> <code>object_verb_noun_stress</code></p>
+            <p><strong>Prompt:</strong> Read this audit sentence with object as a verb and object as a noun clearly separated by stress.</p>
+            <p><strong>Target:</strong> If auditors object, label the object as restricted until counsel responds.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-lexical-stress-disambiguation-conduct-001</code></h3>
+            <p><strong>Slice:</strong> <code>conduct_verb_noun_stress</code></p>
+            <p><strong>Prompt:</strong> Read this training notice so conduct the verb and conduct the noun have the right stress.</p>
+            <p><strong>Target:</strong> Supervisors will conduct the conduct review after the morning briefing.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="pragmatic_intent_delivery">
+        <summary><span>Pragmatic Intent Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-pragmatic-intent-delivery-pol-refusal-001</code></h3>
+            <p><strong>Slice:</strong> <code>polite_refusal_with_alternative</code></p>
+            <p><strong>Prompt:</strong> Read this as a polite refusal that stays warm, not apologetic or harsh.</p>
+            <p><strong>Target:</strong> I cannot approve the refund today, but I can escalate the case for a manager review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pragmatic-intent-delivery-soft-suggestion-001</code></h3>
+            <p><strong>Slice:</strong> <code>gentle_suggestion_not_command</code></p>
+            <p><strong>Prompt:</strong> Read this as a gentle suggestion, not a command.</p>
+            <p><strong>Target:</strong> You might try restarting the router first, then check whether the status light turns blue.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pragmatic-intent-delivery-deadline-reminder-001</code></h3>
+            <p><strong>Slice:</strong> <code>firm_deadline_consequence</code></p>
+            <p><strong>Prompt:</strong> Read this as a firm deadline reminder without sounding angry.</p>
+            <p><strong>Target:</strong> The form is due by 5 PM today, and late submissions move to next week's review queue.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pragmatic-intent-delivery-reassuring-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>supportive_boundary_privacy</code></p>
+            <p><strong>Prompt:</strong> Read this as reassuring boundary-setting, supportive but exact.</p>
+            <p><strong>Target:</strong> I can stay with you through the setup, but I cannot access your private recovery key.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pragmatic-intent-delivery-invitation-001</code></h3>
+            <p><strong>Slice:</strong> <code>invitation_with_opt_out</code></p>
+            <p><strong>Prompt:</strong> Read this as an invitation with a clear option to decline, not as pressure.</p>
+            <p><strong>Target:</strong> You are welcome to join the pilot group, or you can wait for the general release next month.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="symbolic_math_reading">
+        <summary><span>Symbolic Math Reading</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-symbolic-math-reading-geometry-formula-001</code></h3>
+            <p><strong>Slice:</strong> <code>geometry_formula_variables_units</code></p>
+            <p><strong>Prompt:</strong> Read this geometry formula so each variable, operation, and unit is easy to copy by ear.</p>
+            <p><strong>Target:</strong> Area equals pi r squared, where r is 3.5 centimeters.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-symbolic-math-reading-probability-order-001</code></h3>
+            <p><strong>Slice:</strong> <code>conditional_probability_order</code></p>
+            <p><strong>Prompt:</strong> Read this probability statement with the conditional order and contrast preserved exactly.</p>
+            <p><strong>Target:</strong> P of A given B equals 0.42, not P of B given A.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-symbolic-math-reading-polynomial-001</code></h3>
+            <p><strong>Slice:</strong> <code>polynomial_expression_terms</code></p>
+            <p><strong>Prompt:</strong> Read this polynomial exactly as a solve-for-x prompt, with signs and terms separated.</p>
+            <p><strong>Target:</strong> Solve for x: x squared minus 5 x plus 6 equals zero.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-symbolic-math-reading-coordinates-001</code></h3>
+            <p><strong>Slice:</strong> <code>coordinate_signs_order</code></p>
+            <p><strong>Prompt:</strong> Read these coordinate instructions so negative signs, commas, and point order are unambiguous.</p>
+            <p><strong>Target:</strong> Plot point negative 2 comma 7, then move to 4 comma negative 1.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-symbolic-math-reading-ratio-proportion-001</code></h3>
+            <p><strong>Slice:</strong> <code>ratio_proportion_counts</code></p>
+            <p><strong>Prompt:</strong> Read this ratio and count result as an exact quantitative explanation, not a casual estimate.</p>
+            <p><strong>Target:</strong> The ratio is 3 to 2, so 18 samples need 12 controls.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="multi_speaker_attribution">
+        <summary><span>Multi Speaker Attribution</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-multi-speaker-attribution-quote-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>narrator_quote_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this update so the narrator and the quoted speaker are clearly separated without changing voices cartoonishly.</p>
+            <p><strong>Target:</strong> Mina paused at the doorway and said, I can cover the first shift if Jordan takes the handoff.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-multi-speaker-attribution-two-speaker-labels-001</code></h3>
+            <p><strong>Slice:</strong> <code>labeled_two_speaker_exchange</code></p>
+            <p><strong>Prompt:</strong> Read this transcript excerpt with the two labeled speakers distinct and the labels easy to hear.</p>
+            <p><strong>Target:</strong> Agent: Your replacement card ships today. Customer: Great, please send the tracking number by text.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-multi-speaker-attribution-handoff-001</code></h3>
+            <p><strong>Slice:</strong> <code>handoff_owner_assignment</code></p>
+            <p><strong>Prompt:</strong> Read this handoff note so it is obvious which teammate owns each action.</p>
+            <p><strong>Target:</strong> Priya will call the clinic before noon, and Marco will update the medication list after the reply.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-multi-speaker-attribution-reported-speech-001</code></h3>
+            <p><strong>Slice:</strong> <code>reported_speech_embedded_instruction</code></p>
+            <p><strong>Prompt:</strong> Read this reported speech so the assistant's wording and the manager's quoted instruction do not blur together.</p>
+            <p><strong>Target:</strong> The assistant summarized the plan, then the manager added, Please hold the release until legal signs off.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-multi-speaker-attribution-panel-qa-001</code></h3>
+            <p><strong>Slice:</strong> <code>panel_question_answer_roles</code></p>
+            <p><strong>Prompt:</strong> Read this panel Q and A with a clear question contour followed by a grounded answer.</p>
+            <p><strong>Target:</strong> Moderator: What changed after the pilot? Researcher: The error rate fell, but the setup time stayed the same.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="structured_enumeration_delivery">
+        <summary><span>Structured Enumeration Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-structured-enumeration-delivery-priority-list-001</code></h3>
+            <p><strong>Slice:</strong> <code>ranked_priority_list_markers</code></p>
+            <p><strong>Prompt:</strong> Read this ranked action list so the order and urgency of each item are easy to follow.</p>
+            <p><strong>Target:</strong> First, close the west entrance. Second, check the backup radio. Finally, log the time in the incident notes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-structured-enumeration-delivery-option-set-001</code></h3>
+            <p><strong>Slice:</strong> <code>labeled_option_set_letters</code></p>
+            <p><strong>Prompt:</strong> Read these labeled options so each letter and choice can be selected by voice.</p>
+            <p><strong>Target:</strong> Option A: resend the code by email. Option B: send it by text. Option C: cancel this sign-in attempt.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-structured-enumeration-delivery-phase-checklist-001</code></h3>
+            <p><strong>Slice:</strong> <code>phase_heading_checklist</code></p>
+            <p><strong>Prompt:</strong> Read this three-phase checklist with headings that sound like structure, not extra commentary.</p>
+            <p><strong>Target:</strong> Before launch: verify the battery. During launch: watch the pressure gauge. After launch: archive the telemetry file.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-structured-enumeration-delivery-status-row-001</code></h3>
+            <p><strong>Slice:</strong> <code>compact_status_table_rows</code></p>
+            <p><strong>Prompt:</strong> Read this dashboard row so the item, value, and status do not blur together.</p>
+            <p><strong>Target:</strong> Row 4: battery, 87 percent, status green; row 5: signal, 42 percent, status yellow.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-structured-enumeration-delivery-nested-bullets-001</code></h3>
+            <p><strong>Slice:</strong> <code>nested_step_subitem_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this nested plan so the main step and its two subitems remain clear in audio.</p>
+            <p><strong>Target:</strong> Step one is prep: gather the consent forms and confirm the room number. Step two is review: note missing signatures and flag unclear dates.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="phonetic_confusability">
+        <summary><span>Phonetic Confusability</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-phonetic-confusability-minimal-pair-001</code></h3>
+            <p><strong>Slice:</strong> <code>minimal_pair_pain_pane</code></p>
+            <p><strong>Prompt:</strong> Read this clinic note so the similar-sounding words pain and pane are not confused.</p>
+            <p><strong>Target:</strong> The patient reported pain near the window pane after the waiting-room chair shifted.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-phonetic-confusability-letter-code-001</code></h3>
+            <p><strong>Slice:</strong> <code>confusable_letters_digits_code</code></p>
+            <p><strong>Prompt:</strong> Read this support code so each similar letter and digit can be copied by ear.</p>
+            <p><strong>Target:</strong> Use code B as in bravo, D as in delta, then 3 0 8 before the final M.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-phonetic-confusability-name-contrast-001</code></h3>
+            <p><strong>Slice:</strong> <code>similar_names_assignment</code></p>
+            <p><strong>Prompt:</strong> Read this handoff so the two similar teammate names remain distinct.</p>
+            <p><strong>Target:</strong> Sean signs the intake form, and Shawn sends the confirmation after lunch.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-phonetic-confusability-negative-positive-001</code></h3>
+            <p><strong>Slice:</strong> <code>positive_negative_result_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this test-result update so positive and negative cannot be misheard.</p>
+            <p><strong>Target:</strong> The first screen was positive, but the confirmatory lab result was negative.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-phonetic-confusability-short-function-words-001</code></h3>
+            <p><strong>Slice:</strong> <code>function_word_in_on_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this access instruction so the small function words do not disappear.</p>
+            <p><strong>Target:</strong> Put the badge in the tray, not on the tray, before you scan it.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="referential_cohesion">
+        <summary><span>Referential Cohesion</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-referential-cohesion-former-latter-001</code></h3>
+            <p><strong>Slice:</strong> <code>former_latter_equipment_reference</code></p>
+            <p><strong>Prompt:</strong> Read this equipment note so former and latter clearly point to the right items.</p>
+            <p><strong>Target:</strong> The blue cable powers the sensor, and the gray cable powers the charger; keep the former plugged in overnight.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-referential-cohesion-pronoun-handoff-001</code></h3>
+            <p><strong>Slice:</strong> <code>pronoun_antecedent_handoff</code></p>
+            <p><strong>Prompt:</strong> Read this handoff so the pronoun her stays attached to the correct person.</p>
+            <p><strong>Target:</strong> After Lina missed the lab check, Maya called her and rescheduled the appointment for Friday.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-referential-cohesion-this-that-001</code></h3>
+            <p><strong>Slice:</strong> <code>this_that_file_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this file-management instruction so this and that remain distinct.</p>
+            <p><strong>Target:</strong> Move this draft to archive, but leave that signed copy in the review folder.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-referential-cohesion-previous-next-001</code></h3>
+            <p><strong>Slice:</strong> <code>previous_next_negated_reference</code></p>
+            <p><strong>Prompt:</strong> Read this workflow warning so previous and next cannot be swapped by ear.</p>
+            <p><strong>Target:</strong> Open the previous report, not the next report, before you export the summary.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-referential-cohesion-same-different-001</code></h3>
+            <p><strong>Slice:</strong> <code>same_different_access_reference</code></p>
+            <p><strong>Prompt:</strong> Read this access-control instruction so same and different are easy to distinguish.</p>
+            <p><strong>Target:</strong> Use the same passcode for the gate, but a different passcode for the storage room.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="measurement_unit_disambiguation">
+        <summary><span>Measurement Unit Disambiguation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-measurement-unit-disambiguation-medication-label-001</code></h3>
+            <p><strong>Slice:</strong> <code>mg_ml_medication_label_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this simulated medication label so milligrams and milliliters cannot be confused.</p>
+            <p><strong>Target:</strong> The label lists 5 mg of active ingredient in each 2 mL measured dose.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-measurement-unit-disambiguation-engineering-gap-001</code></h3>
+            <p><strong>Slice:</strong> <code>mm_m_engineering_gap_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this engineering note so millimeters and meters stay clearly different.</p>
+            <p><strong>Target:</strong> Set the bracket gap to 0.5 mm, not 0.5 m, before tightening the frame.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-measurement-unit-disambiguation-latency-window-001</code></h3>
+            <p><strong>Slice:</strong> <code>ms_min_performance_metric_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this performance summary so milliseconds and minutes do not blur together.</p>
+            <p><strong>Target:</strong> Average latency was 18 ms, while the batch window stayed at 18 min.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-measurement-unit-disambiguation-package-weight-001</code></h3>
+            <p><strong>Slice:</strong> <code>lb_oz_ml_shipping_sample_units</code></p>
+            <p><strong>Prompt:</strong> Read this shipping line so pounds, ounces, and milliliters are each intelligible.</p>
+            <p><strong>Target:</strong> Package A weighs 3 lb 4 oz, and the sample vial contains 30 mL.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-measurement-unit-disambiguation-power-capacity-001</code></h3>
+            <p><strong>Slice:</strong> <code>w_wh_device_spec_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this device spec so watts and watt-hours are not treated as the same unit.</p>
+            <p><strong>Target:</strong> The charger is rated for 65 W, and the battery capacity is 55 Wh.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="contextual_abbreviation_expansion">
+        <summary><span>Contextual Abbreviation Expansion</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-contextual-abbreviation-expansion-saint-street-001</code></h3>
+            <p><strong>Slice:</strong> <code>saint_street_context_resolution</code></p>
+            <p><strong>Prompt:</strong> Read this pickup instruction so the two St. abbreviations resolve from context.</p>
+            <p><strong>Target:</strong> Meet at St. Anne clinic on Birch St. after the noon pickup.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contextual-abbreviation-expansion-number-no-001</code></h3>
+            <p><strong>Slice:</strong> <code>number_abbreviation_negation_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this inventory decision so No. and no are not confused.</p>
+            <p><strong>Target:</strong> Item No. 7 is approved, but no replacement key should be issued yet.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contextual-abbreviation-expansion-months-001</code></h3>
+            <p><strong>Slice:</strong> <code>month_abbreviation_date_context</code></p>
+            <p><strong>Prompt:</strong> Read this audit note so abbreviated month names are expanded naturally.</p>
+            <p><strong>Target:</strong> The report dated Jan. 5 was revised on Mar. 2 after the lab review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contextual-abbreviation-expansion-account-dept-001</code></h3>
+            <p><strong>Slice:</strong> <code>account_department_business_labels</code></p>
+            <p><strong>Prompt:</strong> Read this operations reminder so the short business labels are understandable by ear.</p>
+            <p><strong>Target:</strong> Send acct. 42 to the billing dept. before the 4 PM cutoff.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contextual-abbreviation-expansion-corporate-date-001</code></h3>
+            <p><strong>Slice:</strong> <code>corporate_suffix_weekday_context</code></p>
+            <p><strong>Prompt:</strong> Read this vendor note so corporate suffixes and the weekday abbreviation sound intentional.</p>
+            <p><strong>Target:</strong> Acme Inc. and River Co. need the revised tax form by Fri. afternoon.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="noise_resilience_delivery">
+        <summary><span>Noise Resilience Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-noise-resilience-delivery-commute-alert-001</code></h3>
+            <p><strong>Slice:</strong> <code>public_transit_noise_alert</code></p>
+            <p><strong>Prompt:</strong> Read this transit alert as if it may be heard over street noise, with the stop name and platform change clear.</p>
+            <p><strong>Target:</strong> For downtown trains, use platform two at Cedar Station until the signal repair is complete.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-noise-resilience-delivery-kitchen-timer-001</code></h3>
+            <p><strong>Slice:</strong> <code>appliance_noise_timer_instruction</code></p>
+            <p><strong>Prompt:</strong> Read this kitchen timer notification so it stays intelligible over appliance noise without sounding alarmed.</p>
+            <p><strong>Target:</strong> Your pasta timer has one minute left, then drain the pot and turn the burner off.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-noise-resilience-delivery-warehouse-pick-001</code></h3>
+            <p><strong>Slice:</strong> <code>headset_pick_code_clarity</code></p>
+            <p><strong>Prompt:</strong> Read this warehouse pick instruction for a headset user in a loud aisle.</p>
+            <p><strong>Target:</strong> Pick bin B fourteen, scan label K nine, and place two blue cartons on pallet six.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-noise-resilience-delivery-crowded-checkin-001</code></h3>
+            <p><strong>Slice:</strong> <code>crowded_lobby_name_desk</code></p>
+            <p><strong>Prompt:</strong> Read this check-in instruction for a crowded lobby, with the name and desk number easy to hear.</p>
+            <p><strong>Target:</strong> Maya Chen, please bring your photo ID to desk five after the next family is called.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-noise-resilience-delivery-emergency-hallway-001</code></h3>
+            <p><strong>Slice:</strong> <code>crowd_noise_safety_direction</code></p>
+            <p><strong>Prompt:</strong> Read this hallway safety message so it cuts through crowd noise while remaining composed.</p>
+            <p><strong>Target:</strong> Move to the right side of the hallway, keep walking, and leave the center lane clear for responders.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="audience_register_adaptation">
+        <summary><span>Audience Register Adaptation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-audience-register-adaptation-child-safety-001</code></h3>
+            <p><strong>Slice:</strong> <code>child_safety_plain_language</code></p>
+            <p><strong>Prompt:</strong> Read this for a child audience: gentle, simple, and reassuring, but keep every safety condition exact.</p>
+            <p><strong>Target:</strong> If you smell smoke, leave the room right away and find a trusted adult near the front desk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-audience-register-adaptation-clinical-plain-001</code></h3>
+            <p><strong>Slice:</strong> <code>patient_plain_language_discharge</code></p>
+            <p><strong>Prompt:</strong> Read this hospital discharge reminder in plain language for a patient, not like a rushed clinical note.</p>
+            <p><strong>Target:</strong> Take one tablet with breakfast, and call the clinic if dizziness lasts longer than thirty minutes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-audience-register-adaptation-executive-brief-001</code></h3>
+            <p><strong>Slice:</strong> <code>executive_brief_risk_condition</code></p>
+            <p><strong>Prompt:</strong> Read this as a concise executive briefing: polished and compact, with the risk condition easy to hear.</p>
+            <p><strong>Target:</strong> Revenue is on plan, but margin pressure will continue unless freight costs drop before August.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-audience-register-adaptation-technical-handoff-001</code></h3>
+            <p><strong>Slice:</strong> <code>technical_handoff_status_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this for an engineer handoff: technical and efficient, but not monotone or hard to parse.</p>
+            <p><strong>Target:</strong> Cache invalidation is complete on shard seven, but the index rebuild still needs a clean retry.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-audience-register-adaptation-public-radio-001</code></h3>
+            <p><strong>Slice:</strong> <code>public_radio_reported_speech</code></p>
+            <p><strong>Prompt:</strong> Read this in a public radio style: measured, accessible, and neutral, without making the quote sound theatrical.</p>
+            <p><strong>Target:</strong> The mayor said the pilot program will expand slowly, starting with two libraries on the east side.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="uncertainty_calibration_delivery">
+        <summary><span>Uncertainty Calibration Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-uncertainty-calibration-delivery-probability-001</code></h3>
+            <p><strong>Slice:</strong> <code>probability_forecast_calibration</code></p>
+            <p><strong>Prompt:</strong> Read this forecast update so the probability sounds useful but not certain.</p>
+            <p><strong>Target:</strong> There is a sixty percent chance of rain after 4 PM, so bring a jacket but keep the outdoor plan for now.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-uncertainty-calibration-delivery-caveat-001</code></h3>
+            <p><strong>Slice:</strong> <code>diagnostic_caveat_before_action</code></p>
+            <p><strong>Prompt:</strong> Read this troubleshooting note with a clear caveat, not as a guaranteed diagnosis.</p>
+            <p><strong>Target:</strong> The slow startup may be caused by the new plug-in, but we should check the logs before removing it.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-uncertainty-calibration-delivery-confidence-score-001</code></h3>
+            <p><strong>Slice:</strong> <code>confidence_score_with_review_condition</code></p>
+            <p><strong>Prompt:</strong> Read this verification result so the confidence score and manual review requirement both stand out.</p>
+            <p><strong>Target:</strong> I am about eighty percent confident this is the correct invoice, but the vendor name still needs manual review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-uncertainty-calibration-delivery-escalation-001</code></h3>
+            <p><strong>Slice:</strong> <code>uncertainty_to_escalation_handoff</code></p>
+            <p><strong>Prompt:</strong> Read this support update so uncertainty leads naturally to escalation without sounding evasive.</p>
+            <p><strong>Target:</strong> I cannot confirm the delivery address from this screen, so I will escalate the case to billing support.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-uncertainty-calibration-delivery-range-001</code></h3>
+            <p><strong>Slice:</strong> <code>time_estimate_range_dependency</code></p>
+            <p><strong>Prompt:</strong> Read this estimate with a range and dependency, so it does not sound like a fixed promise.</p>
+            <p><strong>Target:</strong> Setup should take between fifteen and twenty minutes if the network test passes on the first try.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="real_time_streaming_delivery">
+        <summary><span>Real Time Streaming Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-real-time-streaming-delivery-first-token-001</code></h3>
+            <p><strong>Slice:</strong> <code>first_token_transit_answer</code></p>
+            <p><strong>Prompt:</strong> Read this voice-assistant reply as if audio begins streaming immediately; the opening should be useful and not clipped.</p>
+            <p><strong>Target:</strong> Yes, the next train leaves from platform three in four minutes, so start walking now.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-real-time-streaming-delivery-chunk-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>chunk_boundary_step_sequence</code></p>
+            <p><strong>Prompt:</strong> Read this streamed troubleshooting answer with natural chunk boundaries, not as one breathless sentence.</p>
+            <p><strong>Target:</strong> First, reconnect the charging cable. Then wait ten seconds before pressing the power button again.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-real-time-streaming-delivery-barge-in-repair-001</code></h3>
+            <p><strong>Slice:</strong> <code>barge_in_correction_resume</code></p>
+            <p><strong>Prompt:</strong> Read this after a user interrupts the assistant; acknowledge the correction and resume without sounding broken.</p>
+            <p><strong>Target:</strong> Got it, not the blue folder. Open the green folder labeled invoices and choose the April file.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-real-time-streaming-delivery-short-alert-001</code></h3>
+            <p><strong>Slice:</strong> <code>low_latency_household_alert</code></p>
+            <p><strong>Prompt:</strong> Read this short streamed alert with a tight cadence, but avoid sounding like an alarm tone.</p>
+            <p><strong>Target:</strong> Door left open. Please close the refrigerator within two minutes to keep the food cold.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-real-time-streaming-delivery-progressive-disclosure-001</code></h3>
+            <p><strong>Slice:</strong> <code>progressive_navigation_guidance</code></p>
+            <p><strong>Prompt:</strong> Read this navigation guidance as progressive streaming: give the immediate action first, then the later landmark.</p>
+            <p><strong>Target:</strong> Turn right at the next light, then stay in the left lane until you pass the library.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="numeric_identifier_delivery">
+        <summary><span>Numeric Identifier Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-numeric-identifier-delivery-support-ticket-001</code></h3>
+            <p><strong>Slice:</strong> <code>support_ticket_alphanumeric_chunking</code></p>
+            <p><strong>Prompt:</strong> Read this support ticket number so a listener can write it down without confusing letters and digits.</p>
+            <p><strong>Target:</strong> Your support ticket is A seven F two, dash, 49 C, and it expires at 6 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-numeric-identifier-delivery-verification-code-001</code></h3>
+            <p><strong>Slice:</strong> <code>verification_code_digit_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this verification code with grouped digits, not as a natural number.</p>
+            <p><strong>Target:</strong> Enter verification code 904 118, then press pound to continue.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-numeric-identifier-delivery-device-serial-001</code></h3>
+            <p><strong>Slice:</strong> <code>device_serial_zero_letter_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this device serial so zeros and letters remain distinguishable by ear.</p>
+            <p><strong>Target:</strong> The device serial is Z zero Q, dash, 08 L, dash, 3 M.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-numeric-identifier-delivery-flight-record-001</code></h3>
+            <p><strong>Slice:</strong> <code>flight_record_locator_chunking</code></p>
+            <p><strong>Prompt:</strong> Read this travel record locator so the airline code and locator do not blur together.</p>
+            <p><strong>Target:</strong> Flight AC 214 is linked to record locator R six T 9 K P.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-numeric-identifier-delivery-lab-sample-001</code></h3>
+            <p><strong>Slice:</strong> <code>lab_sample_identifier_chunking</code></p>
+            <p><strong>Prompt:</strong> Read this lab sample label so the prefix, date-like digits, and suffix are easy to transcribe.</p>
+            <p><strong>Target:</strong> Sample ID L seven, 2407, dash, B two should be stored in tray four.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="sentence_boundary_inference">
+        <summary><span>Sentence Boundary Inference</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-sentence-boundary-inference-runon-update-001</code></h3>
+            <p><strong>Slice:</strong> <code>punctuation_light_status_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this punctuation-light status update with sensible phrase boundaries.</p>
+            <p><strong>Target:</strong> The backup finished overnight the archive is still verifying start the migration after lunch.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-sentence-boundary-inference-shopping-note-001</code></h3>
+            <p><strong>Slice:</strong> <code>compact_list_then_reminder_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this compact household note so list items and the final reminder do not run together.</p>
+            <p><strong>Target:</strong> Pick up rice oat milk batteries for the flashlight leave the receipt on the counter.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-sentence-boundary-inference-meeting-agenda-001</code></h3>
+            <p><strong>Slice:</strong> <code>terse_agenda_topic_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this terse meeting agenda with clear transitions between topics.</p>
+            <p><strong>Target:</strong> Review hiring numbers discuss the launch risk decide whether design needs another week.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-sentence-boundary-inference-alert-cascade-001</code></h3>
+            <p><strong>Slice:</strong> <code>alert_cause_impact_action_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this alert cascade so the cause, impact, and action are not flattened into one phrase.</p>
+            <p><strong>Target:</strong> Sensor three lost power cooling is reduced move the samples to bay two now.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-sentence-boundary-inference-customer-message-001</code></h3>
+            <p><strong>Slice:</strong> <code>unpunctuated_condition_callback_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this unpolished customer message naturally while keeping the condition and callback request clear.</p>
+            <p><strong>Target:</strong> The part arrived damaged if a replacement ships today call me before five.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="cross_lingual_name_pronunciation">
+        <summary><span>Cross Lingual Name Pronunciation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-cross-lingual-name-pronunciation-person-001</code></h3>
+            <p><strong>Slice:</strong> <code>vietnamese_name_in_english_context</code></p>
+            <p><strong>Prompt:</strong> Read this English sentence with respectful pronunciation for the Vietnamese name and no exaggerated accent.</p>
+            <p><strong>Target:</strong> Please welcome Linh Nguyen, who will lead the onboarding session after lunch.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-cross-lingual-name-pronunciation-place-001</code></h3>
+            <p><strong>Slice:</strong> <code>portuguese_spanish_place_names_in_travel_update</code></p>
+            <p><strong>Prompt:</strong> Read this travel update with natural English delivery and careful place-name pronunciation.</p>
+            <p><strong>Target:</strong> The connection through Sao Paulo is delayed, but the flight to Lima is still on time.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-cross-lingual-name-pronunciation-menu-001</code></h3>
+            <p><strong>Slice:</strong> <code>spanish_menu_item_in_english_context</code></p>
+            <p><strong>Prompt:</strong> Read this restaurant note so the Spanish dish name is clear without switching the whole sentence into Spanish.</p>
+            <p><strong>Target:</strong> The special is pollo asado with rice, and the vegetarian soup is ready at noon.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-cross-lingual-name-pronunciation-product-001</code></h3>
+            <p><strong>Slice:</strong> <code>japanese_product_name_with_version_number</code></p>
+            <p><strong>Prompt:</strong> Read this product support line with careful pronunciation of the Japanese product name.</p>
+            <p><strong>Target:</strong> The Sakura Mini printer needs firmware version 2.1 before the label test.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-cross-lingual-name-pronunciation-organization-001</code></h3>
+            <p><strong>Slice:</strong> <code>organization_and_city_names_in_conference_announcement</code></p>
+            <p><strong>Prompt:</strong> Read this conference announcement with clear pronunciation of the organization and city names.</p>
+            <p><strong>Target:</strong> The keynote from Casa Verde starts after the Zurich accessibility panel.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="speech_mode_stability">
+        <summary><span>Speech Mode Stability</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-speech-mode-stability-rhyme-001</code></h3>
+            <p><strong>Slice:</strong> <code>rhyming_safety_reminder_spoken_mode</code></p>
+            <p><strong>Prompt:</strong> Read this rhyming safety reminder as ordinary speech, not as a song or chant.</p>
+            <p><strong>Target:</strong> Slow is smooth and smooth is safe, so check the latch before you leave the gate.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-speech-mode-stability-countdown-001</code></h3>
+            <p><strong>Slice:</strong> <code>countdown_drill_spoken_mode</code></p>
+            <p><strong>Prompt:</strong> Read this countdown cue as speech for a training drill, not like a chant.</p>
+            <p><strong>Target:</strong> Three steps back, two hands visible, one clear path to the exit.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-speech-mode-stability-slogan-001</code></h3>
+            <p><strong>Slice:</strong> <code>slogan_inside_status_update_spoken_mode</code></p>
+            <p><strong>Prompt:</strong> Read this launch slogan inside a status update with professional speech, not advertising jingle energy.</p>
+            <p><strong>Target:</strong> The team will use the line build less, learn more at the end of the release recap.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-speech-mode-stability-repetition-001</code></h3>
+            <p><strong>Slice:</strong> <code>repeated_phrase_no_loop_or_song</code></p>
+            <p><strong>Prompt:</strong> Read this repeated phrase naturally for a rehearsal note without looping, singing, or speeding up.</p>
+            <p><strong>Target:</strong> Repeat the phrase ready now, ready now, once more before the camera starts.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-speech-mode-stability-stage-cue-001</code></h3>
+            <p><strong>Slice:</strong> <code>stage_cue_spoken_production_note</code></p>
+            <p><strong>Prompt:</strong> Read this stage cue as a calm spoken production note, not theatrical singing or exaggerated performance.</p>
+            <p><strong>Target:</strong> Lights rise slowly, voices stay low, and the narrator waits until the door closes.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="dialogue_act_prosody">
+        <summary><span>Dialogue Act Prosody</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-dialogue-act-prosody-confirmation-001</code></h3>
+            <p><strong>Slice:</strong> <code>confirmation_not_question</code></p>
+            <p><strong>Prompt:</strong> Read this as a concise confirmation, not as a new question or uncertain guess.</p>
+            <p><strong>Target:</strong> Yes, I moved the delivery window to Friday morning and kept the original address.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-act-prosody-clarifying-question-001</code></h3>
+            <p><strong>Slice:</strong> <code>clarifying_choice_question</code></p>
+            <p><strong>Prompt:</strong> Read this as a single clarifying question with polite uncertainty and no answer-like final cadence.</p>
+            <p><strong>Target:</strong> Do you want the quiet room near reception, or the larger room beside the elevators?</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-act-prosody-apology-repair-001</code></h3>
+            <p><strong>Slice:</strong> <code>apology_then_repair_action</code></p>
+            <p><strong>Prompt:</strong> Read this as an apology followed by a repair action, not as a casual status update.</p>
+            <p><strong>Target:</strong> I am sorry for the mix-up; I corrected the invoice and sent the updated copy to your account.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-act-prosody-offer-001</code></h3>
+            <p><strong>Slice:</strong> <code>offer_with_two_options</code></p>
+            <p><strong>Prompt:</strong> Read this as an offer of help with a light option boundary, not as a command.</p>
+            <p><strong>Target:</strong> I can walk you through the reset now, or send a short checklist for later.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-dialogue-act-prosody-deferral-001</code></h3>
+            <p><strong>Slice:</strong> <code>bounded_deferral_next_step</code></p>
+            <p><strong>Prompt:</strong> Read this as a bounded deferral with a clear next step, not as a refusal or guarantee.</p>
+            <p><strong>Target:</strong> I cannot confirm the final price yet, but I can hold the estimate until the vendor replies.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="address_wayfinding_delivery">
+        <summary><span>Address Wayfinding Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-address-wayfinding-delivery-street-suite-001</code></h3>
+            <p><strong>Slice:</strong> <code>street_number_suite_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this delivery address so the street number, street name, and suite are easy to transcribe.</p>
+            <p><strong>Target:</strong> Deliver the kit to 1480 North Harbor Avenue, Suite 305, before the loading desk closes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-address-wayfinding-delivery-apartment-entry-001</code></h3>
+            <p><strong>Slice:</strong> <code>apartment_unit_gate_code_sequence</code></p>
+            <p><strong>Prompt:</strong> Read this apartment entry instruction with the building, unit, gate code, and timing clearly separated.</p>
+            <p><strong>Target:</strong> Use Building C, Apartment 4B, then enter gate code 9021 after the second chime.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-address-wayfinding-delivery-intersection-001</code></h3>
+            <p><strong>Slice:</strong> <code>intersection_side_of_street_pickup</code></p>
+            <p><strong>Prompt:</strong> Read this pickup point so the intersection and side-of-street instruction do not blur together.</p>
+            <p><strong>Target:</strong> Meet at Pine Street and Seventh Avenue, on the library side, beside the red pickup sign.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-address-wayfinding-delivery-campus-room-001</code></h3>
+            <p><strong>Slice:</strong> <code>building_room_alphanumeric_wayfinding</code></p>
+            <p><strong>Prompt:</strong> Read this campus wayfinding update with the building abbreviation and room number understandable on first listen.</p>
+            <p><strong>Target:</strong> The workshop moved to Hall B, Room 12A, across from the east stairwell.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-address-wayfinding-delivery-emergency-access-001</code></h3>
+            <p><strong>Slice:</strong> <code>emergency_gate_lane_clearance</code></p>
+            <p><strong>Prompt:</strong> Read this emergency access instruction with composed urgency and exact location wording.</p>
+            <p><strong>Target:</strong> Send the responder to Gate 6, service lane D, and keep the south driveway clear.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="repair_sensitive_delivery">
+        <summary><span>Repair Sensitive Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-repair-sensitive-delivery-corrected-time-001</code></h3>
+            <p><strong>Slice:</strong> <code>corrected_time_replaces_previous_time</code></p>
+            <p><strong>Prompt:</strong> Read this correction so the old time is clearly replaced by the new time, not blended together.</p>
+            <p><strong>Target:</strong> Correction: ignore the 4:15 pickup time; the van now leaves at 4:50 from the west curb.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-repair-sensitive-delivery-cancelled-dose-001</code></h3>
+            <p><strong>Slice:</strong> <code>cancelled_measurement_replaced_by_updated_dose</code></p>
+            <p><strong>Prompt:</strong> Read this clinical correction with the canceled amount and replacement amount unambiguous.</p>
+            <p><strong>Target:</strong> Cancel the note that said 10 milligrams; the updated dose is 5 milligrams after dinner.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-repair-sensitive-delivery-name-spelling-001</code></h3>
+            <p><strong>Slice:</strong> <code>name_spelling_repair_letter_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this spelling repair so the listener knows which name spelling is wrong and which is correct.</p>
+            <p><strong>Target:</strong> I misspelled the guest name as Kara with a K; please use Cara with a C on the badge.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-repair-sensitive-delivery-route-reversal-001</code></h3>
+            <p><strong>Slice:</strong> <code>route_direction_reversal_with_landmark</code></p>
+            <p><strong>Prompt:</strong> Read this navigation repair so the reversed direction does not sound like an extra optional step.</p>
+            <p><strong>Target:</strong> Scratch the left turn after the bridge; turn right after the bridge, then stop by loading door two.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-repair-sensitive-delivery-status-correction-001</code></h3>
+            <p><strong>Slice:</strong> <code>status_label_negation_then_replacement</code></p>
+            <p><strong>Prompt:</strong> Read this status correction so the first label is rejected and the replacement label is easy to log.</p>
+            <p><strong>Target:</strong> The account is not closed; mark it pending review until the signed form arrives.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="pause_breath_control">
+        <summary><span>Pause Breath Control</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-pause-breath-control-brief-long-pause-001</code></h3>
+            <p><strong>Slice:</strong> <code>brief_then_long_pause_training_cue</code></p>
+            <p><strong>Prompt:</strong> Read this training cue with a brief pause after ready and a longer pause after set, without adding extra words.</p>
+            <p><strong>Target:</strong> Ready, set, begin the scan when the green light turns on.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pause-breath-control-no-midphrase-breath-001</code></h3>
+            <p><strong>Slice:</strong> <code>avoid_midphrase_breath_lab_condition</code></p>
+            <p><strong>Prompt:</strong> Read this lab instruction in one smooth breath group through the condition, with no awkward pause inside the vial phrase.</p>
+            <p><strong>Target:</strong> Keep the sterile cap sealed until the vial reaches room temperature, then label it for storage.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pause-breath-control-meditation-counts-001</code></h3>
+            <p><strong>Slice:</strong> <code>breathing_exercise_phase_spacing</code></p>
+            <p><strong>Prompt:</strong> Read this breathing exercise with calm spacing between phases, but do not sound sleepy or drop the counts.</p>
+            <p><strong>Target:</strong> Inhale for four counts, hold for two, then exhale slowly through the next four counts.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pause-breath-control-parenthetical-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>parenthetical_breath_group_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this maintenance note with the parenthetical phrase set off by clean breath-group boundaries.</p>
+            <p><strong>Target:</strong> The north pump, which is the backup unit, should stay offline until noon.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-pause-breath-control-long-form-breathing-001</code></h3>
+            <p><strong>Slice:</strong> <code>long_update_natural_breath_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this long customer update with natural breaths only at clause boundaries, not in the middle of names or dates.</p>
+            <p><strong>Target:</strong> After the July service window, Morgan will review the access logs, confirm the badge list, and send one final summary.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="citation_reference_delivery">
+        <summary><span>Citation Reference Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-citation-reference-delivery-academic-001</code></h3>
+            <p><strong>Slice:</strong> <code>academic_author_year_figure_reference</code></p>
+            <p><strong>Prompt:</strong> Read this academic source reference so the author cue, year, and figure number are all easy to transcribe.</p>
+            <p><strong>Target:</strong> Nguyen et al., 2024, Figure 3, reports a 12 percent relative error reduction.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-citation-reference-delivery-regulatory-001</code></h3>
+            <p><strong>Slice:</strong> <code>regulatory_part_section_paragraph_reference</code></p>
+            <p><strong>Prompt:</strong> Read this regulatory citation with the part, section, and paragraph boundaries unmistakable.</p>
+            <p><strong>Target:</strong> See 21 C F R Part 11, section 11.10, paragraph e, before approving the audit trail change.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-citation-reference-delivery-footnote-001</code></h3>
+            <p><strong>Slice:</strong> <code>table_footnote_appendix_reference</code></p>
+            <p><strong>Prompt:</strong> Read this table note so the footnote letter and appendix reference are not swallowed.</p>
+            <p><strong>Target:</strong> Use Table 2, footnote b, and Appendix C for the revised storage temperature range.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-citation-reference-delivery-doi-001</code></h3>
+            <p><strong>Slice:</strong> <code>doi_identifier_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this DOI reference as a source identifier, using careful grouping rather than a single blurred string.</p>
+            <p><strong>Target:</strong> The source identifier is D O I 10.1145 slash 3613904.3642130.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-citation-reference-delivery-crossref-001</code></h3>
+            <p><strong>Slice:</strong> <code>internal_clause_step_note_reference</code></p>
+            <p><strong>Prompt:</strong> Read this internal cross-reference so the clause, step, and note labels do not collapse together.</p>
+            <p><strong>Target:</strong> For the exception, read clause 4.2, step 3, note alpha, before closing the checklist.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="digital_locator_delivery">
+        <summary><span>Digital Locator Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-digital-locator-delivery-email-alias-001</code></h3>
+            <p><strong>Slice:</strong> <code>email_alias_plus_tag_ticket_reference</code></p>
+            <p><strong>Prompt:</strong> Read this digital contact instruction so the alias, plus tag, domain, and ticket number can be transcribed on first listen.</p>
+            <p><strong>Target:</strong> Email ops plus nightshift at status dot example dot org, and include ticket A C M E dash 4072.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-digital-locator-delivery-url-query-001</code></h3>
+            <p><strong>Slice:</strong> <code>url_path_query_parameter_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this URL handoff with the path and query parameter clearly grouped, not blurred into one long string.</p>
+            <p><strong>Target:</strong> Open docs dot example slash setup slash audio question mark tab equals latency.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-digital-locator-delivery-file-path-001</code></h3>
+            <p><strong>Slice:</strong> <code>file_path_separator_and_extension_delivery</code></p>
+            <p><strong>Prompt:</strong> Read this file path as a locator, keeping underscores, slashes, and the filename boundary audible.</p>
+            <p><strong>Target:</strong> Save the report under shared slash audits slash July underscore seven slash final dot csv.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-digital-locator-delivery-meeting-code-001</code></h3>
+            <p><strong>Slice:</strong> <code>meeting_link_and_passcode_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this meeting join instruction so the short link and passcode do not sound like one combined identifier.</p>
+            <p><strong>Target:</strong> Join meet dot example slash room seven B, then enter passcode 91 dash K L dash 6.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-digital-locator-delivery-handle-channel-001</code></h3>
+            <p><strong>Slice:</strong> <code>handle_channel_symbolic_locator</code></p>
+            <p><strong>Prompt:</strong> Read this social and channel locator with at-sign, hash, and underscore cues clear enough for dictation.</p>
+            <p><strong>Target:</strong> Message at design underscore ops in hash release dash room before posting the preview.</p>
+          </article>
+        </div>
+      </details>
     </section>
 
     <h2>Model Leaderboard</h2>
@@ -801,7 +2313,7 @@
           <td data-label="Rank">1</td>
           <td data-label="Model"><code>mlx-community/chatterbox-turbo-6bit</code></td>
           <td data-label="Avg">91.2</td>
-          <td data-label="Accurate">40 / 45</td>
+          <td data-label="Accurate">101 / 165</td>
           <td data-label="Weakest Category"><code>information_tuning</code> avg 84.5</td>
           <td data-label="Likely Fix Focus">number clarity, pauses around dense facts</td>
         </tr>
@@ -809,7 +2321,7 @@
           <td data-label="Rank">2</td>
           <td data-label="Model"><code>mlx-community/Kokoro-82M-4bit</code></td>
           <td data-label="Avg">88.6</td>
-          <td data-label="Accurate">36 / 45</td>
+          <td data-label="Accurate">94 / 165</td>
           <td data-label="Weakest Category"><code>speech_steerability</code> avg 80.8</td>
           <td data-label="Likely Fix Focus">style control, emphasis, pacing</td>
         </tr>
@@ -817,7 +2329,7 @@
           <td data-label="Rank">3</td>
           <td data-label="Model"><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code></td>
           <td data-label="Avg">84.7</td>
-          <td data-label="Accurate">28 / 45</td>
+          <td data-label="Accurate">69 / 165</td>
           <td data-label="Weakest Category"><code>paralinguistics</code> avg 77.0</td>
           <td data-label="Likely Fix Focus">emotion rendering, natural prosody</td>
         </tr>
@@ -847,12 +2359,34 @@
         <p><code>speaker_voice_consistency</code><br>avg 87.2 / n 5 / 79-94</p>
         <p><code>multilingual_code_switching</code><br>avg 84.0 / n 5 / 73-91</p>
         <p><code>long_form_discourse</code><br>avg 86.8 / n 5 / 78-93</p>
+        <p><code>text_normalization</code><br>avg 85.2 / n 5 / 76-92</p>
+        <p><code>acoustic_contexts</code><br>avg 87.4 / n 5 / 79-94</p>
+        <p><code>spontaneous_conversation</code><br>avg 83.8 / n 5 / 75-91</p>
+        <p><code>affective_transitions</code><br>avg 84.6 / n 5 / 76-92</p>
+        <p><code>punctuation_prosody</code><br>avg 86.0 / n 5 / 78-93</p>
+        <p><code>domain_terminology</code><br>avg 85.4 / n 5 / 77-92</p>
+        <p><code>heteronym_disambiguation</code><br>avg 84.8 / n 5 / 75-92</p>
+        <p><code>formatting_markup_robustness</code><br>avg 83.6 / n 5 / 74-91</p>
+        <p><code>nonverbal_paralinguistic_cues</code><br>avg 84.2 / n 5 / 75-92</p>
+        <p><code>voice_conversion_similarity</code><br>avg 84.0 / n 5 / 74-92</p>
+        <p><code>accent_dialect_handling</code><br>avg 83.4 / n 5 / 73-91</p>
+        <p><code>artifact_suppression</code><br>avg 83.0 / n 5 / 72-91</p>
+        <p><code>temporal_rhythm_control</code><br>avg 84.4 / n 5 / 75-92</p>
+        <p><code>safety_privacy_delivery</code><br>avg 84.5 / n 5 / 74-92</p>
+        <p><code>semantic_contrast_focus</code><br>avg 85.0 / n 5 / 76-93</p>
+        <p><code>dialogue_turn_management</code><br>avg 86.2 / n 5 / 78-94</p>
+        <p><code>compositional_style_control</code><br>avg 83.8 / n 5 / 74-92</p>
+        <p><code>named_entity_pronunciation</code><br>avg 84.2 / n 5 / 73-93</p>
+        <p><code>disfluency_repair_control</code><br>avg 84.6 / n 5 / 75-92</p>
+        <p><code>lexical_stress_disambiguation</code><br>avg 84.3 / n 5 / 74-92</p>
+        <p><code>pragmatic_intent_delivery</code><br>avg 84.8 / n 5 / 75-93</p>
+        <p><code>symbolic_math_reading</code><br>avg 83.9 / n 5 / 74-92</p>
       </div>
       <div class="panel">
         <h3>Scores By Model</h3>
-        <p><code>mlx-community/chatterbox-turbo-6bit</code><br>avg 90.5 / n 45 / 78-97</p>
-        <p><code>mlx-community/Kokoro-82M-4bit</code><br>avg 87.8 / n 45 / 74-95</p>
-        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 84.1 / n 45 / 70-93</p>
+        <p><code>mlx-community/chatterbox-turbo-6bit</code><br>avg 90.1 / n 165 / 78-97</p>
+        <p><code>mlx-community/Kokoro-82M-4bit</code><br>avg 87.2 / n 165 / 73-95</p>
+        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 165 / 70-93</p>
       </div>
       <div class="panel">
         <h3>Scores By Voice</h3>
@@ -939,10 +2473,92 @@
           <td data-label="Qwen3-TTS">81.0</td>
           <td data-label="What To Inspect">paragraph flow, list structure, topic transitions, stable endings</td>
         </tr>
+        <tr>
+          <td data-label="Category"><code>text_normalization</code></td>
+          <td data-label="Chatterbox">88.0</td>
+          <td data-label="Kokoro">84.5</td>
+          <td data-label="Qwen3-TTS">79.0</td>
+          <td data-label="What To Inspect">currency, URLs, versions, symbols, addresses, abbreviations</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>acoustic_contexts</code></td>
+          <td data-label="Chatterbox">89.0</td>
+          <td data-label="Kokoro">86.5</td>
+          <td data-label="Qwen3-TTS">82.0</td>
+          <td data-label="What To Inspect">phone, public-address, quiet, navigation, and dispatch delivery</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>spontaneous_conversation</code></td>
+          <td data-label="Chatterbox">87.5</td>
+          <td data-label="Kokoro">83.5</td>
+          <td data-label="Qwen3-TTS">75.0</td>
+          <td data-label="What To Inspect">hesitations, repairs, backchannels, pauses, restarts</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>affective_transitions</code></td>
+          <td data-label="Chatterbox">88.0</td>
+          <td data-label="Kokoro">84.5</td>
+          <td data-label="Qwen3-TTS">77.5</td>
+          <td data-label="What To Inspect">emotion transitions, clause-level prosody, style strength</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>punctuation_prosody</code></td>
+          <td data-label="Chatterbox">89.0</td>
+          <td data-label="Kokoro">86.0</td>
+          <td data-label="Qwen3-TTS">81.0</td>
+          <td data-label="What To Inspect">quote boundaries, lists, asides, questions, ellipsis pauses</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>voice_conversion_similarity</code></td>
+          <td data-label="Chatterbox">88.0</td>
+          <td data-label="Kokoro">84.5</td>
+          <td data-label="Qwen3-TTS">79.5</td>
+          <td data-label="What To Inspect">speaker similarity, content preservation, reference prosody, identity leakage</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>safety_privacy_delivery</code></td>
+          <td data-label="Chatterbox">89.0</td>
+          <td data-label="Kokoro">85.0</td>
+          <td data-label="Qwen3-TTS">80.5</td>
+          <td data-label="What To Inspect">consent wording, credential warnings, redactions, negation, irreversible-action clarity</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>semantic_contrast_focus</code></td>
+          <td data-label="Chatterbox">89.0</td>
+          <td data-label="Kokoro">85.5</td>
+          <td data-label="Qwen3-TTS">80.5</td>
+          <td data-label="What To Inspect">negation scope, exception boundaries, corrections, balanced choices, thresholds</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>dialogue_turn_management</code></td>
+          <td data-label="Chatterbox">90.0</td>
+          <td data-label="Kokoro">86.0</td>
+          <td data-label="Qwen3-TTS">82.5</td>
+          <td data-label="What To Inspect">acknowledgments, clarification questions, repair restarts, handoffs, closure</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>compositional_style_control</code></td>
+          <td data-label="Chatterbox">88.5</td>
+          <td data-label="Kokoro">84.5</td>
+          <td data-label="Qwen3-TTS">78.5</td>
+          <td data-label="What To Inspect">quiet urgency, friendly formality, upbeat slow coaching, serious reassurance</td>
+        </tr>
+        <tr>
+          <td data-label="Category"><code>symbolic_math_reading</code></td>
+          <td data-label="Chatterbox">88.0</td>
+          <td data-label="Kokoro">84.0</td>
+          <td data-label="Qwen3-TTS">79.0</td>
+          <td data-label="What To Inspect">formulas, variables, signs, coordinates, ratios, exact symbolic structure</td>
+        </tr>
       </tbody>
     </table>
 
     <h2>Baseline Model Deltas</h2>
+    <div class="panel">
+      <h3>Baseline Model</h3>
+      <p><code>mlx-community/chatterbox-turbo-6bit</code></p>
+      <p class="muted">Matched by <code>metadata.source_case_id</code>, or by stripping the <code>-local-tts</code> suffix.</p>
+    </div>
     <table>
       <thead>
         <tr>
@@ -958,17 +2574,17 @@
         <tr>
           <td data-label="Compared Model"><code>mlx-community/Kokoro-82M-4bit</code></td>
           <td data-label="Baseline"><code>mlx-community/chatterbox-turbo-6bit</code></td>
-          <td data-label="Matched Cases">45</td>
+          <td data-label="Matched Cases">165</td>
           <td data-label="Avg Delta">-2.6</td>
-          <td data-label="Wins / Ties / Losses">5 / 4 / 21</td>
+          <td data-label="Wins / Ties / Losses">24 / 18 / 113</td>
           <td data-label="Largest Regressions">speech pace and emphasis cases where style control trails the baseline.</td>
         </tr>
         <tr>
           <td data-label="Compared Model"><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code></td>
           <td data-label="Baseline"><code>mlx-community/chatterbox-turbo-6bit</code></td>
-          <td data-label="Matched Cases">45</td>
+          <td data-label="Matched Cases">165</td>
           <td data-label="Avg Delta">-6.5</td>
-          <td data-label="Wins / Ties / Losses">3 / 2 / 25</td>
+          <td data-label="Wins / Ties / Losses">15 / 13 / 127</td>
           <td data-label="Largest Regressions">emotion and dense-fact cases with lower naturalness or intelligibility.</td>
         </tr>
       </tbody>
@@ -979,6 +2595,8 @@
       <div class="panel">
         <h3>Evaluation Category</h3>
         <p><code>information_tuning</code><br>avg 84.5 / n 2 / range 76-93</p>
+        <p class="muted">Category focus: numbers, dates, units, ordered steps, and safety-critical wording.</p>
+        <p class="muted">Source basis: Seed-TTS-Eval intelligibility checks and TTSDS intelligibility/prosody dimensions.</p>
         <p class="muted">Likely fix areas: pronunciation, prosody/pacing, text faithfulness.</p>
         <p class="muted">Representative cases: dense dates, numbers, and units.</p>
       </div>
@@ -990,7 +2608,7 @@
       </div>
       <div class="panel">
         <h3>Synthesis Model</h3>
-        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 84.1 / n 45 / range 70-93</p>
+        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 165 / range 70-93</p>
         <p class="muted">Compare model-level weak spots before changing prompts, voices, wrappers, or model settings.</p>
       </div>
     </section>
@@ -1003,6 +2621,7 @@
           <th>Category</th>
           <th>Score</th>
           <th>Likely Fix Areas</th>
+          <th>Category Guidance</th>
           <th>Evidence</th>
           <th>Representative Cases</th>
         </tr>
@@ -1013,6 +2632,7 @@
           <td data-label="Category"><code>information_tuning</code></td>
           <td data-label="Score">avg 76.0<br><span class="muted">n 2 / range 72-80</span></td>
           <td data-label="Likely Fix Areas">pronunciation, prosody/pacing, text faithfulness</td>
+          <td data-label="Category Guidance">Focus: numbers, dates, units, ordered steps, and safety-critical wording. Source basis: Seed-TTS-Eval intelligibility checks.</td>
           <td data-label="Evidence">issues: intelligibility issue x1, number error x1</td>
           <td data-label="Representative Cases">dense dates, measurements, and step boundaries</td>
         </tr>
@@ -1021,6 +2641,7 @@
           <td data-label="Category"><code>speech_steerability</code></td>
           <td data-label="Score">avg 81.5<br><span class="muted">n 2 / range 79-84</span></td>
           <td data-label="Likely Fix Areas">instruction/style following, prosody/pacing</td>
+          <td data-label="Category Guidance">Focus: register, pace, volume, pitch, and emphasis controls. Source basis: InstructTTSEval acoustic/style control.</td>
           <td data-label="Evidence">issues: style mismatch x1, pacing issue x1</td>
           <td data-label="Representative Cases">pace, emphasis, and register-control prompts</td>
         </tr>
@@ -1030,7 +2651,7 @@
     <h2>Sample-By-Sample Breakdown</h2>
     <p>
       The real combined report contains one row per synthesized model/case pair. This preview shows
-      representative rows across models, categories, slices, and score bands from the 135 generated
+      representative rows across models, categories, slices, and score bands from the 480 generated
       samples.
     </p>
     <table id="sample-breakdown-table">
@@ -1169,12 +2790,12 @@
       the model leaderboard, then inspect category-level rankings to find where one generator loses
       to another on the same eval set. Use the Weakest Segments cards to find low-scoring
       model/category/slice groups, then use the Model-Category Action Matrix to route the lowest
-      model/category pairs to likely solution areas and representative samples. Use the top
-      diagnostics to confirm repeated issue clusters such as pronunciation errors, artifact classes,
-      or weak slices. Finally, filter the per-sample rows by label, status, model, category, or TTS
-      slice, search for an issue or case id, sort by score, and inspect the averaged score, the
-      three underlying Gemini scores, target text hash, generated-audio provenance, and any
-      researcher notes.
+      model/category pairs to likely solution areas, taxonomy focus areas, source-basis signals, and
+      representative samples. Use the top diagnostics to confirm repeated issue clusters such as
+      pronunciation errors, artifact classes, or weak slices. Finally, filter the per-sample rows by
+      label, status, model, category, or TTS slice, search for an issue or case id, sort by score,
+      and inspect the averaged score, the three underlying Gemini scores, target text hash,
+      generated-audio provenance, and any researcher notes.
     </p>
 
     <p class="muted">

@@ -378,6 +378,41 @@
           <option value="digital_locator_delivery">Digital locator delivery</option>
           <option value="conditional_logic_delivery">Conditional logic delivery</option>
           <option value="priority_escalation_delivery">Priority escalation delivery</option>
+          <option value="contrastive_pair_delivery">Contrastive pair delivery</option>
+          <option value="statistical_notation_delivery">Statistical notation delivery</option>
+          <option value="readback_confirmation_delivery">Readback confirmation delivery</option>
+          <option value="focus_particle_scope_delivery">Focus particle scope delivery</option>
+          <option value="slot_value_pairing_delivery">Slot value pairing delivery</option>
+          <option value="commitment_scope_delivery">Commitment scope delivery</option>
+          <option value="ordinal_ranking_delivery">Ordinal ranking delivery</option>
+          <option value="temporal_relation_delivery">Temporal relation delivery</option>
+          <option value="syntactic_attachment_delivery">Syntactic attachment delivery</option>
+          <option value="quantifier_scope_delivery">Quantifier scope delivery</option>
+          <option value="acronym_initialism_delivery">Acronym initialism delivery</option>
+          <option value="spatial_relation_delivery">Spatial relation delivery</option>
+          <option value="homograph_number_format_delivery">Homograph number-format delivery</option>
+          <option value="currency_financial_delivery">Currency financial delivery</option>
+          <option value="medication_dosage_delivery">Medication dosage delivery</option>
+          <option value="morphosyntactic_marker_delivery">Morphosyntactic marker delivery</option>
+          <option value="operator_precedence_delivery">Operator precedence delivery</option>
+          <option value="discourse_marker_intonation">Discourse marker intonation</option>
+          <option value="deictic_reference_delivery">Deictic reference delivery</option>
+          <option value="ellipsis_fragment_delivery">Ellipsis fragment delivery</option>
+          <option value="quoted_reported_speech_delivery">Quoted reported speech delivery</option>
+          <option value="modal_negation_scope_delivery">Modal negation scope delivery</option>
+          <option value="compound_proper_noun_delivery">Compound proper noun delivery</option>
+          <option value="range_interval_delivery">Range interval delivery</option>
+          <option value="email_thread_context_delivery">Email thread context delivery</option>
+          <option value="table_matrix_reading">Table matrix reading</option>
+          <option value="calendar_schedule_delivery">Calendar schedule delivery</option>
+          <option value="instruction_conflict_resolution_delivery">Instruction conflict resolution delivery</option>
+          <option value="tool_result_state_delivery">Tool result state delivery</option>
+          <option value="authorization_access_delivery">Authorization access delivery</option>
+          <option value="policy_clause_delivery">Policy clause delivery</option>
+          <option value="status_code_delivery">Status code delivery</option>
+          <option value="menu_option_navigation_delivery">Menu option navigation delivery</option>
+          <option value="locale_format_disambiguation">Locale format disambiguation</option>
+          <option value="accessibility_cue_delivery">Accessibility cue delivery</option>
         </select>
         <select id="label-filter" aria-label="Filter by label">
           <option value="">All labels</option>
@@ -422,7 +457,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 265 \
+  --limit 440 \
   --out runs/leaderboard/chatterbox</code></pre>
 
     <pre><code>oaj autojudge-local-tts \
@@ -431,7 +466,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 265 \
+  --limit 440 \
   --out runs/leaderboard/kokoro</code></pre>
 
     <pre><code>oaj autojudge-local-tts \
@@ -440,7 +475,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 265 \
+  --limit 440 \
   --out runs/leaderboard/qwen3-tts</code></pre>
 
     <p>
@@ -452,7 +487,7 @@
   --cases examples/tts_multiturn_cases.jsonl \
   --judge-provider gemini \
   --judge-samples 3 \
-  --limit 265 \
+  --limit 440 \
   --out runs/leaderboard/chatterbox</code></pre>
 
     <p>
@@ -497,16 +532,16 @@
     <h2>Sample Report Preview</h2>
     <section class="grid" aria-label="Sample report metrics">
       <div class="metric"><span>Models</span><strong>3</strong></div>
-      <div class="metric"><span>Shared Eval Cases</span><strong>265</strong></div>
+      <div class="metric"><span>Shared Eval Cases</span><strong>440</strong></div>
       <div class="metric"><span>Judge Samples</span><strong>3x</strong></div>
       <div class="metric"><span>Top Avg</span><strong>91.2</strong></div>
       <div class="metric"><span>Lowest Avg</span><strong>84.7</strong></div>
-      <div class="metric"><span>Total Judgments</span><strong>2385</strong></div>
+      <div class="metric"><span>Total Judgments</span><strong>3960</strong></div>
     </section>
 
     <h2>Eval Set Samples</h2>
     <p>
-      The public demo eval set contains 265 synthetic, public-safe cases grouped into research-backed
+      The public demo eval set contains 440 synthetic, public-safe cases grouped into research-backed
       TTS dimensions. Each category below contributes five shared cases that every model synthesizes
       before Gemini judges the generated audio.
     </p>
@@ -2366,6 +2401,1231 @@
           </article>
         </div>
       </details>
+      <details class="sample-group" data-category="contrastive_pair_delivery">
+        <summary><span>Contrastive Pair Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-contrastive-pair-delivery-option-ab-001</code></h3>
+            <p><strong>Slice:</strong> <code>option_a_b_arrival_time_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this A/B choice so option labels and outcomes remain balanced and easy to compare.</p>
+            <p><strong>Target:</strong> Option A keeps the current route and arrives at 5:20; Option B switches trains and arrives at 5:05.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contrastive-pair-delivery-before-after-001</code></h3>
+            <p><strong>Slice:</strong> <code>before_after_metric_update</code></p>
+            <p><strong>Prompt:</strong> Read this before-and-after metric update so the listener hears which value is old and which is new.</p>
+            <p><strong>Target:</strong> Before the patch, checkout took 14 seconds; after the patch, it takes 9 seconds.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contrastive-pair-delivery-left-right-001</code></h3>
+            <p><strong>Slice:</strong> <code>left_right_visual_state_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this visual comparison so left and right labels do not blur into a single description.</p>
+            <p><strong>Target:</strong> The left image shows the sealed package; the right image shows the package after the corner tear.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contrastive-pair-delivery-positive-negative-001</code></h3>
+            <p><strong>Slice:</strong> <code>positive_negative_control_result_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this test result contrast so positive and negative are not confused.</p>
+            <p><strong>Target:</strong> A positive control should turn blue; a negative control should remain clear.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-contrastive-pair-delivery-save-delete-001</code></h3>
+            <p><strong>Slice:</strong> <code>safe_destructive_action_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this action contrast with enough emphasis that the safe action and destructive action are unmistakable.</p>
+            <p><strong>Target:</strong> Tap Save to keep the draft, or tap Delete to remove it permanently.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="statistical_notation_delivery">
+        <summary><span>Statistical Notation Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-statistical-notation-delivery-p-value-ci-001</code></h3>
+            <p><strong>Slice:</strong> <code>p_value_confidence_interval_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this study result so the p-value and confidence interval are grouped clearly, not flattened into generic numbers.</p>
+            <p><strong>Target:</strong> The treatment effect was 2.4 points, p equals 0.03, with a 95 percent confidence interval from 0.4 to 4.4.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-statistical-notation-delivery-scientific-notation-001</code></h3>
+            <p><strong>Slice:</strong> <code>scientific_notation_negative_exponent_unit</code></p>
+            <p><strong>Prompt:</strong> Read this lab concentration so the scientific notation exponent and unit are easy to transcribe on first listen.</p>
+            <p><strong>Target:</strong> The sample concentration is 3.2 times 10 to the minus 6 moles per liter.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-statistical-notation-delivery-effect-size-001</code></h3>
+            <p><strong>Slice:</strong> <code>effect_size_standard_error_sample_count</code></p>
+            <p><strong>Prompt:</strong> Read this evaluation summary so the effect size and standard error are not confused with the sample count.</p>
+            <p><strong>Target:</strong> For n equals 48 sessions, Cohen's d was 0.62, with a standard error of 0.18.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-statistical-notation-delivery-percentile-iqr-001</code></h3>
+            <p><strong>Slice:</strong> <code>median_iqr_percentile_latency_summary</code></p>
+            <p><strong>Prompt:</strong> Read this distribution summary so percentiles and the interquartile range remain distinct.</p>
+            <p><strong>Target:</strong> Median latency was 220 milliseconds, with an interquartile range of 180 to 310 and a 95th percentile of 640.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-statistical-notation-delivery-table-row-001</code></h3>
+            <p><strong>Slice:</strong> <code>compact_table_row_metric_labels</code></p>
+            <p><strong>Prompt:</strong> Read this compact table row as a spoken summary with each statistic label attached to its value.</p>
+            <p><strong>Target:</strong> Model B: accuracy 91.2 percent, false positive rate 4.8 percent, and calibration error 0.07.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="readback_confirmation_delivery">
+        <summary><span>Readback Confirmation Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-readback-confirmation-delivery-order-repeat-001</code></h3>
+            <p><strong>Slice:</strong> <code>order_item_quantity_pickup_readback</code></p>
+            <p><strong>Prompt:</strong> Read this order readback so the item, quantity, and pickup time are clearly confirmed without sounding uncertain.</p>
+            <p><strong>Target:</strong> Confirming your order: two turkey sandwiches, one iced tea, pickup at 12:45.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-readback-confirmation-delivery-medical-dose-001</code></h3>
+            <p><strong>Slice:</strong> <code>clinical_dose_route_schedule_readback</code></p>
+            <p><strong>Prompt:</strong> Read this clinical readback slowly enough that dose, route, and schedule cannot be swapped.</p>
+            <p><strong>Target:</strong> Readback: 5 milligrams by mouth, twice daily, for seven days.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-readback-confirmation-delivery-dispatch-coordinate-001</code></h3>
+            <p><strong>Slice:</strong> <code>dispatch_unit_gate_standby_readback</code></p>
+            <p><strong>Prompt:</strong> Read this dispatch confirmation so the unit, gate, and standby instruction are easy to verify over radio.</p>
+            <p><strong>Target:</strong> Copy that, Unit 14: proceed to Gate C, then stand by until the supervisor clears entry.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-readback-confirmation-delivery-correction-001</code></h3>
+            <p><strong>Slice:</strong> <code>corrected_readback_rejected_active_value</code></p>
+            <p><strong>Prompt:</strong> Read this corrected readback so the rejected value and active value are not confused.</p>
+            <p><strong>Target:</strong> Correction noted: not bay 6, bay 16 is the loading point.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-readback-confirmation-delivery-acknowledge-defer-001</code></h3>
+            <p><strong>Slice:</strong> <code>acknowledged_not_completed_future_action</code></p>
+            <p><strong>Prompt:</strong> Read this confirmation so it acknowledges receipt but does not imply the task is already complete.</p>
+            <p><strong>Target:</strong> Received and queued: I will send the status summary after the final sensor check finishes.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="focus_particle_scope_delivery">
+        <summary><span>Focus Particle Scope Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-focus-particle-scope-delivery-only-shift-001</code></h3>
+            <p><strong>Slice:</strong> <code>only_night_shift_alarm_reset_scope</code></p>
+            <p><strong>Prompt:</strong> Read this access rule so only scopes the night shift and does not sound like a general alarm reset instruction.</p>
+            <p><strong>Target:</strong> Only the night shift should reset the alarm, not the day team.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-focus-particle-scope-delivery-also-archive-001</code></h3>
+            <p><strong>Slice:</strong> <code>also_archive_folder_additive_scope</code></p>
+            <p><strong>Prompt:</strong> Read this backup note so also clearly adds the archive folder rather than replacing the inbox.</p>
+            <p><strong>Target:</strong> The backup also includes the archive folder, not just the inbox.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-focus-particle-scope-delivery-even-dry-run-001</code></h3>
+            <p><strong>Slice:</strong> <code>even_dry_run_writes_log_warning</code></p>
+            <p><strong>Prompt:</strong> Read this engineering caution so even scopes the dry-run command and keeps the log warning clear.</p>
+            <p><strong>Target:</strong> Even the dry-run command writes a log, so check it before rerunning.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-focus-particle-scope-delivery-just-summary-001</code></h3>
+            <p><strong>Slice:</strong> <code>just_summary_not_full_report_scope</code></p>
+            <p><strong>Prompt:</strong> Read this sharing instruction so just limits what gets sent and does not soften the privacy boundary.</p>
+            <p><strong>Target:</strong> Just send the summary to the owner, not the full report.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-focus-particle-scope-delivery-not-all-rooms-001</code></h3>
+            <p><strong>Slice:</strong> <code>not_all_rooms_only_lab_wing_badges</code></p>
+            <p><strong>Prompt:</strong> Read this facility rule so not all and only the lab wing are grouped without implying every room needs badges.</p>
+            <p><strong>Target:</strong> Not all rooms need badges; only the lab wing requires badge access.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="slot_value_pairing_delivery">
+        <summary><span>Slot Value Pairing Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-slot-value-pairing-delivery-intake-form-001</code></h3>
+            <p><strong>Slice:</strong> <code>intake_form_label_value_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this intake form summary so each field label stays attached to its value.</p>
+            <p><strong>Target:</strong> Name: Mira Patel. Arrival time: 8:40 AM. Reason for visit: follow-up blood pressure check.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-slot-value-pairing-delivery-inventory-row-001</code></h3>
+            <p><strong>Slice:</strong> <code>inventory_field_value_attachment</code></p>
+            <p><strong>Prompt:</strong> Read this inventory row so quantity, location, and status do not swap values.</p>
+            <p><strong>Target:</strong> Item: filter cartridge. Quantity: 12. Location: shelf B-7. Status: hold for inspection.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-slot-value-pairing-delivery-calendar-rsvp-001</code></h3>
+            <p><strong>Slice:</strong> <code>calendar_rsvp_slot_attachment</code></p>
+            <p><strong>Prompt:</strong> Read this calendar RSVP record so attendee, response, and requested change are easy to transcribe.</p>
+            <p><strong>Target:</strong> Attendee: Jonah Lee. Response: tentative. Request: move the design review to 3 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-slot-value-pairing-delivery-lab-requisition-001</code></h3>
+            <p><strong>Slice:</strong> <code>lab_requisition_field_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this lab requisition summary so specimen type, priority, and destination remain distinct.</p>
+            <p><strong>Target:</strong> Specimen: serum tube. Priority: stat. Destination: chemistry bench two.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-slot-value-pairing-delivery-api-status-001</code></h3>
+            <p><strong>Slice:</strong> <code>api_status_payload_label_value_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this API status payload as speech without losing the field names or mixing their values.</p>
+            <p><strong>Target:</strong> Service: payments API. State: degraded. Region: us-west-2. Next update: 14:30 UTC.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="commitment_scope_delivery">
+        <summary><span>Commitment Scope Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-commitment-scope-delivery-apology-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>apology_delay_not_claim_approval</code></p>
+            <p><strong>Prompt:</strong> Read this support apology so the apology covers the delay but does not imply the claim is approved.</p>
+            <p><strong>Target:</strong> I am sorry the reply was delayed; I cannot promise the claim will be approved.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-commitment-scope-delivery-partial-refund-001</code></h3>
+            <p><strong>Slice:</strong> <code>partial_refund_active_plan_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this billing response so the committed refund and the still-active plan are not confused.</p>
+            <p><strong>Target:</strong> We can refund the shipping fee, but the annual plan remains active until May 31.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-commitment-scope-delivery-clinical-limits-001</code></h3>
+            <p><strong>Slice:</strong> <code>clinical_explanation_not_diagnosis_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this clinical assistant boundary so explanation support does not sound like a diagnosis.</p>
+            <p><strong>Target:</strong> I can explain the test results, but only your clinician can diagnose the cause.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-commitment-scope-delivery-security-condition-001</code></h3>
+            <p><strong>Slice:</strong> <code>security_reset_after_confirmation_only</code></p>
+            <p><strong>Prompt:</strong> Read this security response so the reset is conditional and not already authorized.</p>
+            <p><strong>Target:</strong> I can reset the session token after you confirm the last four digits, not before.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-commitment-scope-delivery-ops-inspection-001</code></h3>
+            <p><strong>Slice:</strong> <code>definite_inspection_conditional_repair</code></p>
+            <p><strong>Prompt:</strong> Read this operations commitment so inspection is definite while repair remains conditional.</p>
+            <p><strong>Target:</strong> We will inspect the east stairwell today; repairs are scheduled only if the bracket is loose.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="ordinal_ranking_delivery">
+        <summary><span>Ordinal Ranking Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-ordinal-ranking-delivery-triage-rerank-001</code></h3>
+            <p><strong>Slice:</strong> <code>triage_priority_order_conditional_rerank</code></p>
+            <p><strong>Prompt:</strong> Read this triage update so the original ranking and the conditional rerank are both clear.</p>
+            <p><strong>Target:</strong> First priority is restoring the database. Second priority is rolling back DNS, unless the restore fails; then DNS becomes first.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ordinal-ranking-delivery-floor-sequence-001</code></h3>
+            <p><strong>Slice:</strong> <code>floor_level_order_lower_level_last</code></p>
+            <p><strong>Prompt:</strong> Read this route so floor order and lower-level wording cannot be mistaken.</p>
+            <p><strong>Target:</strong> Stop at level two first, level twelve second, and lower level one last.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ordinal-ranking-delivery-award-tie-001</code></h3>
+            <p><strong>Slice:</strong> <code>award_results_first_second_tie_third</code></p>
+            <p><strong>Prompt:</strong> Read these award results so first, second-tie, and third place remain attached to the right names.</p>
+            <p><strong>Target:</strong> Bea finished first. Chen and Dev tied for second. Ari finished third after the tie-break review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ordinal-ranking-delivery-rubric-levels-001</code></h3>
+            <p><strong>Slice:</strong> <code>rubric_level_quality_label_pairing</code></p>
+            <p><strong>Prompt:</strong> Read this rubric note so level numbers and quality labels stay paired.</p>
+            <p><strong>Target:</strong> Level one means draft only. Level two means ready for review. Level three means approved for release.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ordinal-ranking-delivery-version-order-001</code></h3>
+            <p><strong>Slice:</strong> <code>version_label_first_second_final_order</code></p>
+            <p><strong>Prompt:</strong> Read this QA note so version labels do not sound numerically reordered.</p>
+            <p><strong>Target:</strong> Run version 2.01 as the first baseline, version 2.1 as the second check, and version 2.10 as the final comparison.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="temporal_relation_delivery">
+        <summary><span>Temporal Relation Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-temporal-relation-delivery-migration-window-001</code></h3>
+            <p><strong>Slice:</strong> <code>migration_window_before_during_after_checks</code></p>
+            <p><strong>Prompt:</strong> Read this migration schedule so before, during, and after the maintenance window stay distinct.</p>
+            <p><strong>Target:</strong> Before the 02:00 UTC window, export the audit log. During the window, pause writes. After 02:45 UTC, resume writes only if checks pass.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-relation-delivery-medication-taper-001</code></h3>
+            <p><strong>Slice:</strong> <code>medication_taper_through_starting_until</code></p>
+            <p><strong>Prompt:</strong> Read this medication taper so the listener can hear when each dose changes.</p>
+            <p><strong>Target:</strong> Take one tablet nightly through Friday; starting Saturday, take one tablet every other night until the bottle is empty.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-relation-delivery-travel-timezone-001</code></h3>
+            <p><strong>Slice:</strong> <code>travel_local_time_elapsed_connection_gate</code></p>
+            <p><strong>Prompt:</strong> Read this travel update so local times and elapsed layover timing are not merged.</p>
+            <p><strong>Target:</strong> Your flight lands in Denver at 4:10 PM local time; the connection boards 55 minutes later at gate B12.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-relation-delivery-subscription-grace-001</code></h3>
+            <p><strong>Slice:</strong> <code>billing_active_grace_cancellation_dates</code></p>
+            <p><strong>Prompt:</strong> Read this billing note so active service, grace period, and cancellation timing are unmistakable.</p>
+            <p><strong>Target:</strong> Service stays active until July 31. The seven-day grace period starts August 1, and cancellation completes after August 7.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-temporal-relation-delivery-lab-incubation-001</code></h3>
+            <p><strong>Slice:</strong> <code>lab_incubation_cool_then_measure_window</code></p>
+            <p><strong>Prompt:</strong> Read this lab protocol so incubation, cooling, and measurement order cannot be swapped.</p>
+            <p><strong>Target:</strong> Incubate for 18 minutes, cool for exactly two minutes, then measure absorbance within 30 seconds.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="syntactic_attachment_delivery">
+        <summary><span>Syntactic Attachment Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-syntactic-attachment-delivery-after-clause-001</code></h3>
+            <p><strong>Slice:</strong> <code>after_clause_actor_boundary</code></p>
+            <p><strong>Prompt:</strong> Read this ticket note so the listener can tell who called and who archived the ticket.</p>
+            <p><strong>Target:</strong> After Dana called, Riley archived the ticket; Morgan did not call.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-syntactic-attachment-delivery-technician-modifier-001</code></h3>
+            <p><strong>Slice:</strong> <code>modifier_attachment_badge_not_cart</code></p>
+            <p><strong>Prompt:</strong> Read this dispatch instruction so the badge description attaches to the right technician.</p>
+            <p><strong>Target:</strong> Notify the technician with the red badge, not the technician by the red cart.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-syntactic-attachment-delivery-coordination-scope-001</code></h3>
+            <p><strong>Slice:</strong> <code>coordination_scope_beta_customer_documents</code></p>
+            <p><strong>Prompt:</strong> Read this document cleanup note so the customer-condition scope is not applied to the legal notes.</p>
+            <p><strong>Target:</strong> Archive the drafts and summaries that mention beta customers, but leave the legal notes open.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-syntactic-attachment-delivery-reduced-relative-001</code></h3>
+            <p><strong>Slice:</strong> <code>reduced_relative_copied_created_files</code></p>
+            <p><strong>Prompt:</strong> Read this QA status so copied yesterday describes the files and does not sound like a new action.</p>
+            <p><strong>Target:</strong> The files copied yesterday failed verification; the files created today passed.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-syntactic-attachment-delivery-appositive-001</code></h3>
+            <p><strong>Slice:</strong> <code>appositive_manager_name_after_audit</code></p>
+            <p><strong>Prompt:</strong> Read this scheduling note so Alex is clearly the manager, not a second person to call.</p>
+            <p><strong>Target:</strong> Call Priya's manager, Alex, after the audit ends.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="quantifier_scope_delivery">
+        <summary><span>Quantifier Scope Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-quantifier-scope-delivery-backup-exception-001</code></h3>
+            <p><strong>Slice:</strong> <code>backup_all_except_billing_export</code></p>
+            <p><strong>Prompt:</strong> Read this backup status so the universal statement and exception are both clear.</p>
+            <p><strong>Target:</strong> All backup jobs except the billing export finished before midnight.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quantifier-scope-delivery-inventory-negative-001</code></h3>
+            <p><strong>Slice:</strong> <code>inventory_not_every_scanner_batteries_instead</code></p>
+            <p><strong>Prompt:</strong> Read this inventory note so not every is not confused with none.</p>
+            <p><strong>Target:</strong> Not every scanner needs replacement; the dock batteries need replacement instead.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quantifier-scope-delivery-reviewer-limits-001</code></h3>
+            <p><strong>Slice:</strong> <code>reviewer_at_least_interview_at_most</code></p>
+            <p><strong>Prompt:</strong> Read this scheduling constraint so lower and upper bounds cannot be swapped.</p>
+            <p><strong>Target:</strong> Assign at least three reviewers, but schedule at most two live interviews today.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quantifier-scope-delivery-clinical-exclusion-001</code></h3>
+            <p><strong>Slice:</strong> <code>clinical_every_discharged_except_cardiology</code></p>
+            <p><strong>Prompt:</strong> Read this clinical handoff so the exclusion applies only to one patient group.</p>
+            <p><strong>Target:</strong> Give every discharged patient a follow-up call, except those already seen by cardiology.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quantifier-scope-delivery-device-cardinality-001</code></h3>
+            <p><strong>Slice:</strong> <code>device_exactly_one_neither_old_dock</code></p>
+            <p><strong>Prompt:</strong> Read this device note so exact cardinality and total exclusion stay separate.</p>
+            <p><strong>Target:</strong> Exactly one adapter supports fast charging, and neither adapter works with the old dock.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="acronym_initialism_delivery">
+        <summary><span>Acronym Initialism Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-acronym-initialism-delivery-nasa-eta-001</code></h3>
+            <p><strong>Slice:</strong> <code>nasa_spoken_eta_lettered_time</code></p>
+            <p><strong>Prompt:</strong> Read this mission update so the agency acronym is spoken naturally but the arrival abbreviation remains lettered.</p>
+            <p><strong>Target:</strong> NASA cleared the imaging pass, and the ETA for the downlink is 14:30 UTC.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acronym-initialism-delivery-icu-mri-001</code></h3>
+            <p><strong>Slice:</strong> <code>icu_mri_ecg_lettered_clinical_time</code></p>
+            <p><strong>Prompt:</strong> Read this clinical schedule so all-caps medical abbreviations stay intelligible and separate from the appointment time.</p>
+            <p><strong>Target:</strong> The ICU nurse moved the MRI review to 08:15, after the ECG upload is complete.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acronym-initialism-delivery-api-sql-001</code></h3>
+            <p><strong>Slice:</strong> <code>api_sql_json_node_a7_technical_handoff</code></p>
+            <p><strong>Prompt:</strong> Read this engineering handoff so the initialisms and the database acronym are not blurred into ordinary words.</p>
+            <p><strong>Target:</strong> The API gateway passed the SQL health check, but the JSON export still fails on node A7.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acronym-initialism-delivery-fda-qr-001</code></h3>
+            <p><strong>Slice:</strong> <code>fda_qr_batch_xj42_compliance_label</code></p>
+            <p><strong>Prompt:</strong> Read this compliance note so the agency, code type, and batch identifier remain easy to transcribe.</p>
+            <p><strong>Target:</strong> The FDA label requires a QR code on batch XJ-42 before the sample ships.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-acronym-initialism-delivery-brand-model-001</code></h3>
+            <p><strong>Slice:</strong> <code>nfc_ax10_not_ax1o_model_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this product support note so the product acronym, model number, and similar-looking suffix do not merge.</p>
+            <p><strong>Target:</strong> Pair the NFC tag with model AX-10, not model AX-1O, before reopening the support ticket.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="spatial_relation_delivery">
+        <summary><span>Spatial Relation Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-spatial-relation-delivery-tray-placement-001</code></h3>
+            <p><strong>Slice:</strong> <code>lab_above_not_below_monitor</code></p>
+            <p><strong>Prompt:</strong> Read this lab setup note so above and below cannot be swapped.</p>
+            <p><strong>Target:</strong> Set the blue tray above the monitor, not below it, before starting the calibration.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spatial-relation-delivery-pickup-point-001</code></h3>
+            <p><strong>Slice:</strong> <code>pickup_outside_east_not_lobby_west</code></p>
+            <p><strong>Prompt:</strong> Read this pickup instruction so outside, east entrance, and not inside remain clear.</p>
+            <p><strong>Target:</strong> Meet the driver outside the east entrance, not inside the lobby or beside the west elevator.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spatial-relation-delivery-ui-card-001</code></h3>
+            <p><strong>Slice:</strong> <code>ui_left_column_right_edge_attachment</code></p>
+            <p><strong>Prompt:</strong> Read this interface instruction so left column and right edge attach to the right objects.</p>
+            <p><strong>Target:</strong> Move the task card to the left column, then place the red flag on its right edge.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spatial-relation-delivery-warehouse-bins-001</code></h3>
+            <p><strong>Slice:</strong> <code>warehouse_a3_behind_a4_front_shelf</code></p>
+            <p><strong>Prompt:</strong> Read this warehouse note so behind, in front, and the two bin labels are easy to transcribe.</p>
+            <p><strong>Target:</strong> Place bin A3 behind shelf seven, and keep bin A4 in front of the same shelf.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-spatial-relation-delivery-document-layout-001</code></h3>
+            <p><strong>Slice:</strong> <code>document_signature_under_stamp_over</code></p>
+            <p><strong>Prompt:</strong> Read this document review note so under, over, date line, and case number stay attached correctly.</p>
+            <p><strong>Target:</strong> The signature is under the date line, while the approval stamp sits over the case number.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="homograph_number_format_delivery">
+        <summary><span>Homograph Number-Format Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-homograph-number-format-delivery-version-decimal-001</code></h3>
+            <p><strong>Slice:</strong> <code>version_two_ten_decimal_two_point_one</code></p>
+            <p><strong>Prompt:</strong> Read this release note so the software version and the decimal value are not confused.</p>
+            <p><strong>Target:</strong> Install version 2.10 today, but record the calibration value as 2.1 in the log.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-homograph-number-format-delivery-room-extension-001</code></h3>
+            <p><strong>Slice:</strong> <code>room_1105_extension_11_05</code></p>
+            <p><strong>Prompt:</strong> Read this front-desk note so the room number and phone extension are chunked differently.</p>
+            <p><strong>Target:</strong> Send the visitor to room 1105, then call extension 11-05 when the badge is ready.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-homograph-number-format-delivery-date-slash-ratio-001</code></h3>
+            <p><strong>Slice:</strong> <code>slash_date_0304_ratio_three_fourths</code></p>
+            <p><strong>Prompt:</strong> Read this project update so the slash date and the ratio do not sound like the same structure.</p>
+            <p><strong>Target:</strong> The review is on 03/04, and the sampling ratio remains 3/4 for the pilot batch.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-homograph-number-format-delivery-hash-pound-001</code></h3>
+            <p><strong>Slice:</strong> <code>hashtag_release_pound_key_symbol</code></p>
+            <p><strong>Prompt:</strong> Read this support note so the symbol means hash tag once and pound key once.</p>
+            <p><strong>Target:</strong> Search for #release in the dashboard, then press # on the phone keypad to confirm.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-homograph-number-format-delivery-file-version-001</code></h3>
+            <p><strong>Slice:</strong> <code>filename_suffixes_semver_v120</code></p>
+            <p><strong>Prompt:</strong> Read this engineering handoff so the filename suffix and semantic version remain exact.</p>
+            <p><strong>Target:</strong> Open report.final.2, compare it with report.final.10, and deploy service v1.2.0 only after review.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="currency_financial_delivery">
+        <summary><span>Currency Financial Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-currency-financial-delivery-usd-cad-001</code></h3>
+            <p><strong>Slice:</strong> <code>invoice_usd_not_cad_amount</code></p>
+            <p><strong>Prompt:</strong> Read this invoice instruction so the amount and currency code cannot be confused.</p>
+            <p><strong>Target:</strong> Charge $1,250.50 in USD, not 1,250.50 CAD, before sending the invoice.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-currency-financial-delivery-basis-points-001</code></h3>
+            <p><strong>Slice:</strong> <code>fee_basis_points_not_percent</code></p>
+            <p><strong>Prompt:</strong> Read this pricing policy so basis points are not mistaken for percent.</p>
+            <p><strong>Target:</strong> Raise the service fee by 25 basis points, not 25 percent, for balances over $10,000.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-currency-financial-delivery-negative-refund-001</code></h3>
+            <p><strong>Slice:</strong> <code>negative_refund_original_charge</code></p>
+            <p><strong>Prompt:</strong> Read this ledger correction so the negative refund and original charge stay separate.</p>
+            <p><strong>Target:</strong> Record a refund of -$43.20, and leave the original $143.20 charge unchanged.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-currency-financial-delivery-exchange-rate-001</code></h3>
+            <p><strong>Slice:</strong> <code>exchange_rate_euros_per_dollar_cap</code></p>
+            <p><strong>Prompt:</strong> Read this transfer note so the exchange rate and transfer cap are not merged.</p>
+            <p><strong>Target:</strong> Use an exchange rate of 0.92 euros per dollar, then cap the transfer at 500 euros.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-currency-financial-delivery-balance-near-match-001</code></h3>
+            <p><strong>Slice:</strong> <code>similar_balances_after_ach_deposit</code></p>
+            <p><strong>Prompt:</strong> Read this bank update so the two similar balances can be transcribed on first listen.</p>
+            <p><strong>Target:</strong> The balance changed from $2,005.05 to $2,050.50 after the ACH deposit cleared.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="medication_dosage_delivery">
+        <summary><span>Medication Dosage Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-medication-dosage-delivery-route-schedule-001</code></h3>
+            <p><strong>Slice:</strong> <code>five_mg_mouth_morning_ten_mg_bedtime</code></p>
+            <p><strong>Prompt:</strong> Read this medication instruction so the dose, route, and schedule cannot be swapped.</p>
+            <p><strong>Target:</strong> Take 5 milligrams by mouth every morning, and use the 10 milligram tablet only at bedtime.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-medication-dosage-delivery-taper-001</code></h3>
+            <p><strong>Slice:</strong> <code>week_one_two_tablets_week_two_one_then_stop</code></p>
+            <p><strong>Prompt:</strong> Read this taper schedule so the week numbers and tablet counts stay attached.</p>
+            <p><strong>Target:</strong> For week one, take two tablets nightly; for week two, take one tablet nightly; then stop.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-medication-dosage-delivery-lookalike-names-001</code></h3>
+            <p><strong>Slice:</strong> <code>hydroxyzine_not_hydralazine_25_mg_evening</code></p>
+            <p><strong>Prompt:</strong> Read this pharmacy note so the similar medication names and strengths do not blur together.</p>
+            <p><strong>Target:</strong> Dispense hydroxyzine 25 milligrams, not hydralazine 25 milligrams, for the evening dose.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-medication-dosage-delivery-missed-dose-boundary-001</code></h3>
+            <p><strong>Slice:</strong> <code>less_than_four_hours_take_otherwise_skip_no_double</code></p>
+            <p><strong>Prompt:</strong> Read this missed-dose guidance so the skip condition and do-not-double warning are unmistakable.</p>
+            <p><strong>Target:</strong> If it is less than four hours late, take the dose now; otherwise skip it, and do not double the next dose.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-medication-dosage-delivery-weight-based-001</code></h3>
+            <p><strong>Slice:</strong> <code>ten_mg_per_kg_every_eight_hours_max_300_daily</code></p>
+            <p><strong>Prompt:</strong> Read this pediatric dosing note so the amount per kilogram and maximum daily dose remain distinct.</p>
+            <p><strong>Target:</strong> Give 10 milligrams per kilogram every eight hours, with a maximum of 300 milligrams per day.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="morphosyntactic_marker_delivery">
+        <summary><span>Morphosyntactic Marker Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-morphosyntactic-marker-delivery-plural-possessive-001</code></h3>
+            <p><strong>Slice:</strong> <code>plural_possessive_nurses_tablets_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this inventory note so the plural item and possessive owner marker are both audible.</p>
+            <p><strong>Target:</strong> The nurses' tablets are charged, but the nurse's tablet is still missing.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-morphosyntactic-marker-delivery-contracted-negation-001</code></h3>
+            <p><strong>Slice:</strong> <code>contracted_negative_wont_will_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this access warning so the contracted negative does not disappear.</p>
+            <p><strong>Target:</strong> The badge won't open the lab door, but it will open the storage room.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-morphosyntactic-marker-delivery-tense-suffix-001</code></h3>
+            <p><strong>Slice:</strong> <code>past_present_tense_suffix_patched_patches</code></p>
+            <p><strong>Prompt:</strong> Read this deployment status so completed and ongoing actions are not confused.</p>
+            <p><strong>Target:</strong> Sam patched the router yesterday, and Sam patches the backup switch tonight.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-morphosyntactic-marker-delivery-comparative-superlative-001</code></h3>
+            <p><strong>Slice:</strong> <code>comparative_superlative_faster_fastest_routes</code></p>
+            <p><strong>Prompt:</strong> Read this routing decision so comparative and superlative endings stay attached to the right route.</p>
+            <p><strong>Target:</strong> Route B is faster than route C, but route A is the fastest after 6 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-morphosyntactic-marker-delivery-pronoun-case-001</code></h3>
+            <p><strong>Slice:</strong> <code>pronoun_case_she_him_he_her_handoff</code></p>
+            <p><strong>Prompt:</strong> Read this handoff so subject and object pronouns are not blurred.</p>
+            <p><strong>Target:</strong> She assigned the ticket to him, and he returned the ticket to her before noon.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="operator_precedence_delivery">
+        <summary><span>Operator Precedence Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-operator-precedence-delivery-parentheses-first-001</code></h3>
+            <p><strong>Slice:</strong> <code>parentheses_before_multiplication_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this calculator note so the parenthesized term is evaluated first.</p>
+            <p><strong>Target:</strong> Calculate open parenthesis 2 plus 3 close parenthesis times 4, not 2 plus 3 times 4.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-operator-precedence-delivery-boolean-and-or-001</code></h3>
+            <p><strong>Slice:</strong> <code>boolean_and_group_before_or_override</code></p>
+            <p><strong>Prompt:</strong> Read this rule so the AND group binds before the OR fallback.</p>
+            <p><strong>Target:</strong> Allow access if role equals admin and status equals active, or if override equals true.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-operator-precedence-delivery-inequality-chain-001</code></h3>
+            <p><strong>Slice:</strong> <code>chained_inequality_lower_upper_temperature</code></p>
+            <p><strong>Prompt:</strong> Read this monitoring threshold so the lower and upper bounds stay in order.</p>
+            <p><strong>Target:</strong> Alert only when 20 is less than temperature and temperature is less than 30.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-operator-precedence-delivery-exponent-before-subtraction-001</code></h3>
+            <p><strong>Slice:</strong> <code>exponent_scope_x_squared_minus_y</code></p>
+            <p><strong>Prompt:</strong> Read this formula note so the exponent does not attach to the whole subtraction.</p>
+            <p><strong>Target:</strong> Use x squared minus y, not x times open parenthesis x minus y close parenthesis.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-operator-precedence-delivery-subscript-index-001</code></h3>
+            <p><strong>Slice:</strong> <code>subscript_scope_a_sub_i_plus_one</code></p>
+            <p><strong>Prompt:</strong> Read this array expression so the subscript and plus-one operation do not merge.</p>
+            <p><strong>Target:</strong> Read A sub i plus 1 as A sub i, then plus 1; do not read it as A sub open parenthesis i plus 1 close parenthesis.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="discourse_marker_intonation">
+        <summary><span>Discourse Marker Intonation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-discourse-marker-intonation-tag-confirmation-001</code></h3>
+            <p><strong>Slice:</strong> <code>tag_question_confirmation_didnt_it</code></p>
+            <p><strong>Prompt:</strong> Read this status check so the final tag question asks for confirmation instead of sounding like a flat statement.</p>
+            <p><strong>Target:</strong> The backup finished before noon, didn't it?</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-discourse-marker-intonation-correction-actually-001</code></h3>
+            <p><strong>Slice:</strong> <code>actually_gentle_correction_wayfinding</code></p>
+            <p><strong>Prompt:</strong> Read this correction so actually signals a gentle correction, not irritation or a new topic.</p>
+            <p><strong>Target:</strong> Actually, the west elevator is closed; please use the south stairs.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-discourse-marker-intonation-topic-shift-anyway-001</code></h3>
+            <p><strong>Slice:</strong> <code>anyway_topic_return_shipping_condition</code></p>
+            <p><strong>Prompt:</strong> Read this operations note so anyway marks a topic return without sounding dismissive.</p>
+            <p><strong>Target:</strong> Anyway, the shipment can leave after the seal photo uploads.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-discourse-marker-intonation-politeness-maybe-001</code></h3>
+            <p><strong>Slice:</strong> <code>maybe_soft_suggestion_patch_sequence</code></p>
+            <p><strong>Prompt:</strong> Read this suggestion so maybe softens the request but does not make the action sound optional if the user accepts.</p>
+            <p><strong>Target:</strong> Maybe start with the smaller patch, then roll out the full fix after the logs look clean.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-discourse-marker-intonation-contrast-well-001</code></h3>
+            <p><strong>Slice:</strong> <code>well_contrast_exception_signature_date</code></p>
+            <p><strong>Prompt:</strong> Read this support reply so well signals a careful contrast before the exception.</p>
+            <p><strong>Target:</strong> Well, the form is complete, except the signature line still needs today's date.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="deictic_reference_delivery">
+        <summary><span>Deictic Reference Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-deictic-reference-delivery-here-there-map-001</code></h3>
+            <p><strong>Slice:</strong> <code>here_gate_b_there_checkpoint_c_badge_scan</code></p>
+            <p><strong>Prompt:</strong> Read this map instruction so here and there stay attached to the right checkpoints.</p>
+            <p><strong>Target:</strong> Start here at gate B, then move there to checkpoint C after the badge scan.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-deictic-reference-delivery-this-that-inventory-001</code></h3>
+            <p><strong>Slice:</strong> <code>this_return_that_repair_box_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this inventory note so this and that do not sound interchangeable.</p>
+            <p><strong>Target:</strong> Label this box for return, and label that box for repair, before loading the cart.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-deictic-reference-delivery-now-then-procedure-001</code></h3>
+            <p><strong>Slice:</strong> <code>now_close_valve_then_reopen_drain_green_light</code></p>
+            <p><strong>Prompt:</strong> Read this procedure so now and then mark the immediate and later steps clearly.</p>
+            <p><strong>Target:</strong> Now close the intake valve; then reopen the drain line when the pressure light turns green.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-deictic-reference-delivery-left-right-screen-001</code></h3>
+            <p><strong>Slice:</strong> <code>this_panel_open_right_panel_close_after_export</code></p>
+            <p><strong>Prompt:</strong> Read this screen-share instruction so this panel and the panel on the right are not confused.</p>
+            <p><strong>Target:</strong> Keep this panel open, but close the panel on the right after the export finishes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-deictic-reference-delivery-previous-next-forms-001</code></h3>
+            <p><strong>Slice:</strong> <code>previous_form_signature_next_form_date_only</code></p>
+            <p><strong>Prompt:</strong> Read this form review note so previous and next refer to different records.</p>
+            <p><strong>Target:</strong> The previous form needs a signature; the next form only needs the date field checked.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="ellipsis_fragment_delivery">
+        <summary><span>Ellipsis Fragment Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-ellipsis-fragment-delivery-short-answer-001</code></h3>
+            <p><strong>Slice:</strong> <code>only_after_condition_fragment</code></p>
+            <p><strong>Prompt:</strong> Read this fragmentary answer naturally, without adding a subject, verb, or explanation.</p>
+            <p><strong>Target:</strong> Only after the badge light turns green.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ellipsis-fragment-delivery-confirmation-fragment-001</code></h3>
+            <p><strong>Slice:</strong> <code>yes_location_contrast_fragment</code></p>
+            <p><strong>Prompt:</strong> Read this confirmation fragment as a complete spoken reply, not as a trailing clause.</p>
+            <p><strong>Target:</strong> Yes, the west entrance, not the loading dock.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ellipsis-fragment-delivery-label-value-fragment-001</code></h3>
+            <p><strong>Slice:</strong> <code>clipped_status_label_value_fragments</code></p>
+            <p><strong>Prompt:</strong> Read this clipped status row so the label and value remain attached.</p>
+            <p><strong>Target:</strong> Current owner: Priya. Next checkpoint: Friday at 9.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ellipsis-fragment-delivery-headline-style-001</code></h3>
+            <p><strong>Slice:</strong> <code>headline_style_transit_update</code></p>
+            <p><strong>Prompt:</strong> Read this headline-style update with clear grouping, but do not make it sound like a dramatic news promo.</p>
+            <p><strong>Target:</strong> New delay on Line 3; shuttle buses from Central until noon.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-ellipsis-fragment-delivery-repair-fragment-001</code></h3>
+            <p><strong>Slice:</strong> <code>not_tuesday_wednesday_repair_fragment</code></p>
+            <p><strong>Prompt:</strong> Read this correction fragment so the replacement value is clear without adding a full sentence.</p>
+            <p><strong>Target:</strong> Not Tuesday, Wednesday morning.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="quoted_reported_speech_delivery">
+        <summary><span>Quoted Reported Speech Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-quoted-reported-speech-delivery-direct-quote-001</code></h3>
+            <p><strong>Slice:</strong> <code>direct_quote_instruction_attribution_mina</code></p>
+            <p><strong>Prompt:</strong> Read this update so the quoted instruction is clearly someone else's exact wording.</p>
+            <p><strong>Target:</strong> Mina said, "Lock the rear gate first," before she left for the south lot.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quoted-reported-speech-delivery-indirect-warning-001</code></h3>
+            <p><strong>Slice:</strong> <code>indirect_warning_attribution_jordan_charger</code></p>
+            <p><strong>Prompt:</strong> Read this indirect report so it does not sound like a new command from the speaker.</p>
+            <p><strong>Target:</strong> Jordan warned that the charger should stay unplugged until the case cools down.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quoted-reported-speech-delivery-quote-within-quote-001</code></h3>
+            <p><strong>Slice:</strong> <code>nested_quote_manual_review_label</code></p>
+            <p><strong>Prompt:</strong> Read this nested quote so the label phrase stays inside the quoted message.</p>
+            <p><strong>Target:</strong> The note says, "Choose the option marked 'manual review' before approving the claim."</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quoted-reported-speech-delivery-scare-quotes-001</code></h3>
+            <p><strong>Slice:</strong> <code>quoted_status_label_pending_customs_condition</code></p>
+            <p><strong>Prompt:</strong> Read this so the quoted word sounds like a label under review, not sarcasm.</p>
+            <p><strong>Target:</strong> The dashboard marks this shipment as "pending" until the customs scan arrives.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-quoted-reported-speech-delivery-speaker-switch-001</code></h3>
+            <p><strong>Slice:</strong> <code>two_speaker_quote_attribution_ava_leo_condition</code></p>
+            <p><strong>Prompt:</strong> Read this handoff note so the two speakers' words stay attached to the right people.</p>
+            <p><strong>Target:</strong> Ava asked, "Can we delay pickup?" Leo answered, "Only if dispatch confirms by noon."</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="modal_negation_scope_delivery">
+        <summary><span>Modal Negation Scope Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-modal-negation-scope-delivery-may-not-001</code></h3>
+            <p><strong>Slice:</strong> <code>may_not_permission_unless_supervisor_signs</code></p>
+            <p><strong>Prompt:</strong> Read this policy sentence so may not is understood as not allowed, not as uncertainty.</p>
+            <p><strong>Target:</strong> Visitors may not enter the clean room unless the supervisor signs the access log.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-modal-negation-scope-delivery-do-not-have-to-001</code></h3>
+            <p><strong>Slice:</strong> <code>do_not_have_to_optional_receipts_under_fifteen</code></p>
+            <p><strong>Prompt:</strong> Read this benefits note so do not have to sounds optional, not forbidden.</p>
+            <p><strong>Target:</strong> You do not have to submit receipts for meals under fifteen dollars.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-modal-negation-scope-delivery-likely-wont-001</code></h3>
+            <p><strong>Slice:</strong> <code>likely_wont_forecast_after_nightly_sync</code></p>
+            <p><strong>Prompt:</strong> Read this forecast so likely won't remains a cautious probability, not a guarantee.</p>
+            <p><strong>Target:</strong> The update likely won't reach branch devices until after the nightly sync.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-modal-negation-scope-delivery-cannot-until-001</code></h3>
+            <p><strong>Slice:</strong> <code>cannot_release_until_duplicate_charge_voided</code></p>
+            <p><strong>Prompt:</strong> Read this workflow gate so cannot and until control the same action.</p>
+            <p><strong>Target:</strong> The refund cannot be released until the duplicate charge is voided.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-modal-negation-scope-delivery-not-required-but-must-001</code></h3>
+            <p><strong>Slice:</strong> <code>photo_optional_inspector_must_record_seal</code></p>
+            <p><strong>Prompt:</strong> Read this compliance note so the optional and mandatory parts do not blur together.</p>
+            <p><strong>Target:</strong> A photo is not required, but the inspector must record the seal number.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="compound_proper_noun_delivery">
+        <summary><span>Compound Proper Noun Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-compound-proper-noun-delivery-product-name-001</code></h3>
+            <p><strong>Slice:</strong> <code>north_star_backup_product_name_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this release note so the compound product name stays grouped and is not split into unrelated common words.</p>
+            <p><strong>Target:</strong> Enable North Star Backup before starting the overnight migration window.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compound-proper-noun-delivery-team-name-001</code></h3>
+            <p><strong>Slice:</strong> <code>blue_harbor_response_team_name</code></p>
+            <p><strong>Prompt:</strong> Read this handoff so the team name and the action do not blur together.</p>
+            <p><strong>Target:</strong> Send the rollback plan to Blue Harbor Response after the database snapshot completes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compound-proper-noun-delivery-place-name-001</code></h3>
+            <p><strong>Slice:</strong> <code>cedar_ridge_not_cedar_bridge_station</code></p>
+            <p><strong>Prompt:</strong> Read this wayfinding update so the multi-word place name remains intelligible.</p>
+            <p><strong>Target:</strong> Meet at Cedar Ridge Station, not Cedar Bridge Station, for the 8:10 shuttle.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compound-proper-noun-delivery-protocol-name-001</code></h3>
+            <p><strong>Slice:</strong> <code>quiet_room_transfer_named_protocol</code></p>
+            <p><strong>Prompt:</strong> Read this protocol instruction so the capitalized phrase sounds like a named procedure.</p>
+            <p><strong>Target:</strong> Start Quiet Room Transfer only after the second nurse confirms the wristband.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-compound-proper-noun-delivery-program-name-001</code></h3>
+            <p><strong>Slice:</strong> <code>green_path_grant_program_name</code></p>
+            <p><strong>Prompt:</strong> Read this eligibility note so the program name stays distinct from the requirement.</p>
+            <p><strong>Target:</strong> The Green Path grant covers solar permits, but it does not cover roof repairs.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="range_interval_delivery">
+        <summary><span>Range Interval Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-range-interval-delivery-inclusive-range-001</code></h3>
+            <p><strong>Slice:</strong> <code>twelve_through_eighteen_inclusive_units</code></p>
+            <p><strong>Prompt:</strong> Read this eligibility rule so both endpoints and the inclusive condition are clear.</p>
+            <p><strong>Target:</strong> Approve requests from 12 through 18 units, including both 12 and 18.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-range-interval-delivery-exclusive-range-001</code></h3>
+            <p><strong>Slice:</strong> <code>above_forty_below_sixty_psi_exclusive</code></p>
+            <p><strong>Prompt:</strong> Read this threshold note so above and below do not accidentally include the endpoints.</p>
+            <p><strong>Target:</strong> Keep pressure above 40 and below 60 psi; 40 and 60 are outside the passing range.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-range-interval-delivery-alphanumeric-span-001</code></h3>
+            <p><strong>Slice:</strong> <code>bins_a3_through_a7_skip_a8</code></p>
+            <p><strong>Prompt:</strong> Read this inventory instruction so the shelf span is not mistaken for one long code.</p>
+            <p><strong>Target:</strong> Scan bins A3 through A7, then skip A8 until quality control clears it.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-range-interval-delivery-time-window-001</code></h3>
+            <p><strong>Slice:</strong> <code>between_930_and_1115_am_not_before_930</code></p>
+            <p><strong>Prompt:</strong> Read this appointment window so the start and end times remain attached to the same visit.</p>
+            <p><strong>Target:</strong> The technician may arrive between 9:30 and 11:15 AM, not before 9:30.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-range-interval-delivery-version-range-001</code></h3>
+            <p><strong>Slice:</strong> <code>versions_2_4_through_2_6_except_2_5_beta</code></p>
+            <p><strong>Prompt:</strong> Read this compatibility note so the version range and exception stay clear.</p>
+            <p><strong>Target:</strong> Install the patch on versions 2.4 through 2.6, except build 2.5 beta.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="email_thread_context_delivery">
+        <summary><span>Email Thread Context Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-email-thread-context-delivery-reply-prefix-001</code></h3>
+            <p><strong>Slice:</strong> <code>reply_prefix_subject_south_gate_exception</code></p>
+            <p><strong>Prompt:</strong> Read this inbox summary so the reply prefix and subject are clear but not overemphasized.</p>
+            <p><strong>Target:</strong> Re: site access update, Mara says the south gate opens at 7:15, but the loading dock stays closed.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-email-thread-context-delivery-quoted-history-001</code></h3>
+            <p><strong>Slice:</strong> <code>current_reply_versus_quoted_old_request</code></p>
+            <p><strong>Prompt:</strong> Read this email note so the quoted old request is not mistaken for the current action.</p>
+            <p><strong>Target:</strong> Current reply: approve the revised quote today. Earlier, Sam wrote, "Hold the order until finance reviews it."</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-email-thread-context-delivery-cc-bcc-001</code></h3>
+            <p><strong>Slice:</strong> <code>to_cc_bcc_recipient_field_boundaries</code></p>
+            <p><strong>Prompt:</strong> Read this send note so Cc and Bcc are distinct recipient fields.</p>
+            <p><strong>Target:</strong> Send the draft to Priya, Cc the legal alias, and Bcc the audit mailbox before 4 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-email-thread-context-delivery-attachment-forward-001</code></h3>
+            <p><strong>Slice:</strong> <code>forwarded_note_attachment_filename_remove_draft</code></p>
+            <p><strong>Prompt:</strong> Read this forwarded-message summary so the attachment name and forwarding action remain separate.</p>
+            <p><strong>Target:</strong> Forward Lena's note with attachment Q3 forecast final.xlsx, but remove the outdated draft before sending.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-email-thread-context-delivery-timezone-sender-001</code></h3>
+            <p><strong>Slice:</strong> <code>sender_timezone_response_deadline_contrast</code></p>
+            <p><strong>Prompt:</strong> Read this thread update so the sender, time zone, and response deadline do not blur together.</p>
+            <p><strong>Target:</strong> Noor replied from London at 09:20 BST; please answer by 2 PM Pacific with the revised delivery date.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="table_matrix_reading">
+        <summary><span>Table Matrix Reading</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-table-matrix-reading-row-column-001</code></h3>
+            <p><strong>Slice:</strong> <code>row_batch_7_column_temperature_value</code></p>
+            <p><strong>Prompt:</strong> Read this table lookup so the row, column, and value stay attached.</p>
+            <p><strong>Target:</strong> For row Batch 7 and column Temperature, the value is 68 degrees Fahrenheit.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-table-matrix-reading-header-units-001</code></h3>
+            <p><strong>Slice:</strong> <code>line_a_headers_units_speed_load_error_rate</code></p>
+            <p><strong>Prompt:</strong> Read this compact table row so each header keeps its unit.</p>
+            <p><strong>Target:</strong> Line A shows speed, 12 meters per second; load, 4.5 kilograms; and error rate, 0.8 percent.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-table-matrix-reading-missing-value-001</code></h3>
+            <p><strong>Slice:</strong> <code>missing_owner_dash_not_minus</code></p>
+            <p><strong>Prompt:</strong> Read this table status so the dash is understood as missing, not the word minus.</p>
+            <p><strong>Target:</strong> Column Status is complete, column Owner is dash for missing, and column Due Date is Friday.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-table-matrix-reading-merged-header-001</code></h3>
+            <p><strong>Slice:</strong> <code>q4_forecast_shared_header_revenue_margin</code></p>
+            <p><strong>Prompt:</strong> Read this spreadsheet summary so the shared quarter header applies to both metric cells.</p>
+            <p><strong>Target:</strong> Under Q4 forecast, revenue is 1.2 million dollars and margin is 18 percent.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-table-matrix-reading-grid-coordinate-001</code></h3>
+            <p><strong>Slice:</strong> <code>cell_b2_review_needed_d4_cleared</code></p>
+            <p><strong>Prompt:</strong> Read this grid coordinate result so B two and D four are not swapped.</p>
+            <p><strong>Target:</strong> Cell B2 is marked review needed, while cell D4 is marked cleared for release.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="calendar_schedule_delivery">
+        <summary><span>Calendar Schedule Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-calendar-schedule-delivery-recurring-exception-001</code></h3>
+            <p><strong>Slice:</strong> <code>weekly_standup_exception_july_14_1030</code></p>
+            <p><strong>Prompt:</strong> Read this calendar rule so the recurring pattern and single exception do not blur together.</p>
+            <p><strong>Target:</strong> Standup repeats every Tuesday at 9 AM, except July 14, when it moves to 10:30.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-calendar-schedule-delivery-hold-versus-confirmed-001</code></h3>
+            <p><strong>Slice:</strong> <code>tentative_hold_design_confirmed_vendor_room_4b</code></p>
+            <p><strong>Prompt:</strong> Read this scheduling update so the tentative hold and confirmed meeting are clearly different.</p>
+            <p><strong>Target:</strong> Keep the 2 PM hold with Design, but the confirmed vendor review starts at 3:15 in Room 4B.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-calendar-schedule-delivery-timezone-conversion-001</code></h3>
+            <p><strong>Slice:</strong> <code>tokyo_jst_to_pacific_previous_day</code></p>
+            <p><strong>Prompt:</strong> Read this invite summary so the source time zone and local time remain distinct.</p>
+            <p><strong>Target:</strong> The Tokyo partner call is 11 AM JST, which appears on your calendar as 7 PM Pacific the previous day.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-calendar-schedule-delivery-rsvp-optional-attendee-001</code></h3>
+            <p><strong>Slice:</strong> <code>rsvp_deadline_optional_maya_required_omar</code></p>
+            <p><strong>Prompt:</strong> Read this invite note so the RSVP deadline and optional attendee status are not confused.</p>
+            <p><strong>Target:</strong> Please RSVP by Friday at noon; Maya is optional, but Omar must attend the budget review.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-calendar-schedule-delivery-cancel-reschedule-001</code></h3>
+            <p><strong>Slice:</strong> <code>cancel_monday_845_reschedule_wednesday_120</code></p>
+            <p><strong>Prompt:</strong> Read this calendar change so the canceled event and replacement slot are unmistakable.</p>
+            <p><strong>Target:</strong> Cancel Monday's 8:45 check-in and reschedule it for Wednesday at 1:20 after the lab tour.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="instruction_conflict_resolution_delivery">
+        <summary><span>Instruction Conflict Resolution Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-instruction-conflict-resolution-delivery-latest-correction-001</code></h3>
+            <p><strong>Slice:</strong> <code>earlier_18_units_correction_ship_8_hold_10</code></p>
+            <p><strong>Prompt:</strong> Read this update so the latest correction overrides the earlier number.</p>
+            <p><strong>Target:</strong> Earlier I said ship 18 units; correction: ship 8 units and hold the remaining 10 for audit.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-instruction-conflict-resolution-delivery-ignore-default-001</code></h3>
+            <p><strong>Slice:</strong> <code>standard_blue_label_except_batch_7_orange</code></p>
+            <p><strong>Prompt:</strong> Read this workflow note so the custom override is not replaced by the normal default.</p>
+            <p><strong>Target:</strong> Use the standard blue label for all crates except Batch 7, which needs the orange quarantine label.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-instruction-conflict-resolution-delivery-current-policy-001</code></h3>
+            <p><strong>Slice:</strong> <code>old_guest_checkout_after_6_current_staff_approval_after_5</code></p>
+            <p><strong>Prompt:</strong> Read this policy change so the outdated rule is clearly superseded.</p>
+            <p><strong>Target:</strong> The old rule allowed guest checkout after 6 PM; the current rule requires staff approval after 5 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-instruction-conflict-resolution-delivery-conflicting-room-001</code></h3>
+            <p><strong>Slice:</strong> <code>ignore_room_2a_sign_intake_moved_room_4c</code></p>
+            <p><strong>Prompt:</strong> Read this room assignment so the canceled room is not treated as active.</p>
+            <p><strong>Target:</strong> Ignore the lobby sign for Room 2A; today's intake moved to Room 4C beside the pharmacy desk.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-instruction-conflict-resolution-delivery-format-override-001</code></h3>
+            <p><strong>Slice:</strong> <code>do_not_bullet_list_plain_paragraph_deadline_first</code></p>
+            <p><strong>Prompt:</strong> Read this formatting instruction so the final override wins over the earlier template.</p>
+            <p><strong>Target:</strong> Do not send the brief as a bullet list; send one plain paragraph with the deadline in the first sentence.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="tool_result_state_delivery">
+        <summary><span>Tool Result State Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-tool-result-state-delivery-success-warning-001</code></h3>
+            <p><strong>Slice:</strong> <code>backup_success_two_files_skipped_warning</code></p>
+            <p><strong>Prompt:</strong> Read this tool result so the successful action and warning remain distinct.</p>
+            <p><strong>Target:</strong> The backup finished successfully, but two files were skipped because they are still open.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-tool-result-state-delivery-partial-results-001</code></h3>
+            <p><strong>Slice:</strong> <code>store_a_c_found_store_b_timeout</code></p>
+            <p><strong>Prompt:</strong> Read this lookup result so the partial coverage and missing source are clear.</p>
+            <p><strong>Target:</strong> I found prices from Store A and Store C; Store B did not return a result before timeout.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-tool-result-state-delivery-stale-data-001</code></h3>
+            <p><strong>Slice:</strong> <code>forecast_rain_after_6_data_updated_310</code></p>
+            <p><strong>Prompt:</strong> Read this weather-tool response so the timestamp caveat is not mistaken for the forecast.</p>
+            <p><strong>Target:</strong> The forecast says light rain after 6 PM, based on data last updated at 3:10 PM.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-tool-result-state-delivery-permission-blocked-001</code></h3>
+            <p><strong>Slice:</strong> <code>draft_created_sending_blocked_mailbox_access</code></p>
+            <p><strong>Prompt:</strong> Read this automation result so the blocked step and next permission action stay attached.</p>
+            <p><strong>Target:</strong> The draft was created, but sending is blocked until Morgan grants mailbox access.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-tool-result-state-delivery-conflicting-tools-001</code></h3>
+            <p><strong>Slice:</strong> <code>map_12_minute_drive_transit_unavailable_fallback</code></p>
+            <p><strong>Prompt:</strong> Read this tool comparison so the two sources and the recommended fallback do not blur together.</p>
+            <p><strong>Target:</strong> The map tool shows a 12 minute drive, while transit data is unavailable; use the driving estimate for now.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="authorization_access_delivery">
+        <summary><span>Authorization Access Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-authorization-access-delivery-role-scope-001</code></h3>
+            <p><strong>Slice:</strong> <code>viewer_access_project_atlas_cannot_approve_budget</code></p>
+            <p><strong>Prompt:</strong> Read this access note so the role scope and denied action stay separate.</p>
+            <p><strong>Target:</strong> Rina has viewer access to Project Atlas, but she cannot approve budget changes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-authorization-access-delivery-expiring-access-001</code></h3>
+            <p><strong>Slice:</strong> <code>temporary_lab_access_expires_friday_6pm_unless_extended</code></p>
+            <p><strong>Prompt:</strong> Read this temporary access reminder so the expiration time is not mistaken for the start time.</p>
+            <p><strong>Target:</strong> Temporary lab access starts now and expires Friday at 6 PM unless Security extends it.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-authorization-access-delivery-step-up-auth-001</code></h3>
+            <p><strong>Slice:</strong> <code>password_accepted_payroll_export_requires_manager_approval</code></p>
+            <p><strong>Prompt:</strong> Read this login result so the completed sign-in and required extra approval remain distinct.</p>
+            <p><strong>Target:</strong> Your password was accepted, but payroll export still requires manager approval.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-authorization-access-delivery-delegated-permission-001</code></h3>
+            <p><strong>Slice:</strong> <code>shift_lead_unlock_bay_3_assistants_view_only</code></p>
+            <p><strong>Prompt:</strong> Read this delegation rule so who can act and who can only view are unmistakable.</p>
+            <p><strong>Target:</strong> Only the shift lead may unlock Bay 3; assistants may view the checklist but not open the door.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-authorization-access-delivery-revoked-access-001</code></h3>
+            <p><strong>Slice:</strong> <code>remove_admin_group_keep_read_only_incident_archive</code></p>
+            <p><strong>Prompt:</strong> Read this account update so the revoked access and remaining access are not blended.</p>
+            <p><strong>Target:</strong> Remove Leo from the admin group, but keep his read-only access to the incident archive.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="policy_clause_delivery">
+        <summary><span>Policy Clause Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-policy-clause-delivery-effective-date-001</code></h3>
+            <p><strong>Slice:</strong> <code>travel_policy_effective_august_1_except_approved_before_july_15</code></p>
+            <p><strong>Prompt:</strong> Read this policy clause so the effective date and exception are unmistakable.</p>
+            <p><strong>Target:</strong> The new travel policy applies on August 1, except for trips approved before July 15.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-policy-clause-delivery-obligation-exception-001</code></h3>
+            <p><strong>Slice:</strong> <code>vendors_must_invoice_within_30_days_unless_shorter_po_deadline</code></p>
+            <p><strong>Prompt:</strong> Read this contract sentence so the obligation and exception do not blur together.</p>
+            <p><strong>Target:</strong> Vendors must submit invoices within 30 days unless the purchase order states a shorter deadline.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-policy-clause-delivery-remedy-window-001</code></h3>
+            <p><strong>Slice:</strong> <code>service_interruption_over_four_hours_credit_within_seven_days</code></p>
+            <p><strong>Prompt:</strong> Read this service clause so the notice window and remedy remain attached.</p>
+            <p><strong>Target:</strong> If service is interrupted for more than four hours, the customer may request a credit within seven days.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-policy-clause-delivery-citation-scope-001</code></h3>
+            <p><strong>Slice:</strong> <code>section_4_2_contractors_view_records_not_export_personal_data</code></p>
+            <p><strong>Prompt:</strong> Read this compliance note so the section citation and scope limit are clear.</p>
+            <p><strong>Target:</strong> Under Section 4.2, contractors may view safety records, but they may not export personal data.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-policy-clause-delivery-renewal-termination-001</code></h3>
+            <p><strong>Slice:</strong> <code>quarterly_auto_renewal_unless_written_cancellation_10_business_days_before</code></p>
+            <p><strong>Prompt:</strong> Read this renewal clause so renewal and cancellation timing are not confused.</p>
+            <p><strong>Target:</strong> The subscription renews automatically each quarter unless written cancellation arrives 10 business days before renewal.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="status_code_delivery">
+        <summary><span>Status Code Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-status-code-delivery-http-429-001</code></h3>
+            <p><strong>Slice:</strong> <code>http_429_retry_after_60_seconds_not_locked</code></p>
+            <p><strong>Prompt:</strong> Read this API error so the status code, retry window, and account state are clearly separate.</p>
+            <p><strong>Target:</strong> HTTP 429 means too many requests; wait 60 seconds before retrying, and do not mark the account as locked.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-status-code-delivery-device-fault-001</code></h3>
+            <p><strong>Slice:</strong> <code>fault_code_p07_pressure_low_standby_b_ticket_1842</code></p>
+            <p><strong>Prompt:</strong> Read this device fault message so the code letters, digits, and required action are easy to transcribe.</p>
+            <p><strong>Target:</strong> Fault code P zero seven means pump pressure low; switch to standby unit B and log inspection ticket 1842.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-status-code-delivery-payment-decline-001</code></h3>
+            <p><strong>Slice:</strong> <code>decline_code_05_no_capture_two_retries_left</code></p>
+            <p><strong>Prompt:</strong> Read this payment terminal result so the decline code is not confused with the dollar amount or retry count.</p>
+            <p><strong>Target:</strong> Payment declined with code 05, do not honor; no charge was captured, and the customer has two retry attempts left.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-status-code-delivery-build-status-001</code></h3>
+            <p><strong>Slice:</strong> <code>build_318_compile_green_tests_yellow_deploy_red</code></p>
+            <p><strong>Prompt:</strong> Read this build pipeline status so each stage label stays attached to its result.</p>
+            <p><strong>Target:</strong> Build 318 is green for compile, yellow for tests, and red for deploy; hold release until deploy returns green.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-status-code-delivery-lab-qc-001</code></h3>
+            <p><strong>Slice:</strong> <code>sample_a17_qc_failed_code_qf_08_retest_control</code></p>
+            <p><strong>Prompt:</strong> Read this lab status so the sample ID, QC code, and retest action do not blur together.</p>
+            <p><strong>Target:</strong> Sample A17 is status QC failed, code Q F dash 08; retest the control before reporting patient results.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="menu_option_navigation_delivery">
+        <summary><span>Menu Option Navigation Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-menu-option-navigation-delivery-ivr-001</code></h3>
+            <p><strong>Slice:</strong> <code>ivr_option_number_destination_mapping</code></p>
+            <p><strong>Prompt:</strong> Read this phone menu so each option number stays attached to the right destination.</p>
+            <p><strong>Target:</strong> For billing, press 2; for technical support, press 3; to repeat these options, press 9.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-menu-option-navigation-delivery-kiosk-001</code></h3>
+            <p><strong>Slice:</strong> <code>kiosk_selected_option_unchanged_option</code></p>
+            <p><strong>Prompt:</strong> Read this kiosk order update so selected and unchanged menu items do not blur together.</p>
+            <p><strong>Target:</strong> Select option B, turkey sandwich with no cheese; leave option C unchanged for the bottled water.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-menu-option-navigation-delivery-settings-001</code></h3>
+            <p><strong>Slice:</strong> <code>settings_toggle_off_on_unchanged_states</code></p>
+            <p><strong>Prompt:</strong> Read this settings menu instruction so off, on, and unchanged states remain distinct.</p>
+            <p><strong>Target:</strong> Turn Location History off, keep Bluetooth on, and leave Background Refresh unchanged.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-menu-option-navigation-delivery-media-001</code></h3>
+            <p><strong>Slice:</strong> <code>media_accessibility_options_save_action</code></p>
+            <p><strong>Prompt:</strong> Read this media menu choice so accessibility options and the final action are clear.</p>
+            <p><strong>Target:</strong> Set Audio Description to on, set Captions to off, then choose Save Changes.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-menu-option-navigation-delivery-refill-001</code></h3>
+            <p><strong>Slice:</strong> <code>voice_menu_refill_versus_pharmacist_path</code></p>
+            <p><strong>Prompt:</strong> Read this pharmacy voice menu so the refill path and pharmacist path are not confused.</p>
+            <p><strong>Target:</strong> Say refill for the prescription ending in 2481, or say pharmacist only for a dosage question.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="locale_format_disambiguation">
+        <summary><span>Locale Format Disambiguation</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-locale-format-disambiguation-us-date-001</code></h3>
+            <p><strong>Slice:</strong> <code>us_slash_date_march_4_not_april_3</code></p>
+            <p><strong>Prompt:</strong> Read this invoice note so the U.S. date format is not interpreted as a day-month date.</p>
+            <p><strong>Target:</strong> For the U.S. invoice, 03/04/2026 means March 4, 2026, not April 3.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-locale-format-disambiguation-eu-decimal-001</code></h3>
+            <p><strong>Slice:</strong> <code>german_decimal_comma_price_1234_50_euros</code></p>
+            <p><strong>Prompt:</strong> Read this price-list note so the European decimal comma and thousands separator are unmistakable.</p>
+            <p><strong>Target:</strong> In the German price list, 1.234,50 euros means one thousand two hundred thirty-four euros and fifty cents.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-locale-format-disambiguation-canadian-postal-001</code></h3>
+            <p><strong>Slice:</strong> <code>canadian_postal_code_k1a_0b1_letter_digit_chunks</code></p>
+            <p><strong>Prompt:</strong> Read this shipping address so the Canadian postal code is spelled as letters and digits, not normalized as a word.</p>
+            <p><strong>Target:</strong> Ship to Ottawa postal code K one A zero B one; do not read it as a pronounceable name.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-locale-format-disambiguation-uk-phone-001</code></h3>
+            <p><strong>Slice:</strong> <code>uk_phone_plus_44_20_7946_0958_grouping</code></p>
+            <p><strong>Prompt:</strong> Read this contact detail so the U.K. country code, city code, and subscriber number remain grouped.</p>
+            <p><strong>Target:</strong> Call the U.K. office at plus 44, 20, 7946, 0958; keep the plus sign as the country code.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-locale-format-disambiguation-24h-time-001</code></h3>
+            <p><strong>Slice:</strong> <code>paris_14h30_matches_new_york_230_pm</code></p>
+            <p><strong>Prompt:</strong> Read this schedule note so 24-hour notation and 12-hour notation refer to the same meeting time.</p>
+            <p><strong>Target:</strong> The Paris schedule says 14 h 30, which matches 2:30 PM on the New York copy.</p>
+          </article>
+        </div>
+      </details>
+      <details class="sample-group" data-category="accessibility_cue_delivery">
+        <summary><span>Accessibility Cue Delivery</span><strong>5 cases</strong></summary>
+        <div class="sample-list">
+          <article class="sample-card">
+            <h3><code>tts-accessibility-cue-delivery-alt-text-001</code></h3>
+            <p><strong>Slice:</strong> <code>image_alt_text_ramp_open_button_covered</code></p>
+            <p><strong>Prompt:</strong> Read this image description so the label and warning remain distinct for a screen-reader user.</p>
+            <p><strong>Target:</strong> Image: front entrance ramp is open, but the automatic door button is covered for maintenance.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accessibility-cue-delivery-button-state-001</code></h3>
+            <p><strong>Slice:</strong> <code>button_label_currently_on_action_turn_off</code></p>
+            <p><strong>Prompt:</strong> Read this control announcement so the button label and toggle state are not confused.</p>
+            <p><strong>Target:</strong> Mute microphone button, currently on; double tap to turn microphone off.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accessibility-cue-delivery-form-error-001</code></h3>
+            <p><strong>Slice:</strong> <code>form_error_phone_requires_10_digits_current_7</code></p>
+            <p><strong>Prompt:</strong> Read this form error so the field name, required format, and current invalid value remain attached.</p>
+            <p><strong>Target:</strong> Error on phone number: enter 10 digits; current value has only seven digits.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accessibility-cue-delivery-chart-summary-001</code></h3>
+            <p><strong>Slice:</strong> <code>chart_summary_weekday_peak_wednesday_billing_friday</code></p>
+            <p><strong>Prompt:</strong> Read this chart summary so the axes, peak, and exception are clear without seeing the chart.</p>
+            <p><strong>Target:</strong> Chart: support tickets by weekday peak on Wednesday at 82, except billing tickets peak on Friday.</p>
+          </article>
+          <article class="sample-card">
+            <h3><code>tts-accessibility-cue-delivery-live-region-001</code></h3>
+            <p><strong>Slice:</strong> <code>live_region_upload_three_of_five_wait_before_closing</code></p>
+            <p><strong>Prompt:</strong> Read this live-region update so the completed count and remaining action are easy to catch.</p>
+            <p><strong>Target:</strong> Upload status: three of five files complete; continue waiting before closing this window.</p>
+          </article>
+        </div>
+      </details>
     </section>
 
     <h2>Model Leaderboard</h2>
@@ -2385,7 +3645,7 @@
           <td data-label="Rank">1</td>
           <td data-label="Model"><code>mlx-community/chatterbox-turbo-6bit</code></td>
           <td data-label="Avg">91.2</td>
-          <td data-label="Accurate">162 / 265</td>
+          <td data-label="Accurate">162 / 300</td>
           <td data-label="Weakest Category"><code>information_tuning</code> avg 84.5</td>
           <td data-label="Likely Fix Focus">number clarity, pauses around dense facts</td>
         </tr>
@@ -2393,7 +3653,7 @@
           <td data-label="Rank">2</td>
           <td data-label="Model"><code>mlx-community/Kokoro-82M-4bit</code></td>
           <td data-label="Avg">88.6</td>
-          <td data-label="Accurate">151 / 265</td>
+          <td data-label="Accurate">151 / 300</td>
           <td data-label="Weakest Category"><code>speech_steerability</code> avg 80.8</td>
           <td data-label="Likely Fix Focus">style control, emphasis, pacing</td>
         </tr>
@@ -2401,7 +3661,7 @@
           <td data-label="Rank">3</td>
           <td data-label="Model"><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code></td>
           <td data-label="Avg">84.7</td>
-          <td data-label="Accurate">111 / 265</td>
+          <td data-label="Accurate">111 / 300</td>
           <td data-label="Weakest Category"><code>paralinguistics</code> avg 77.0</td>
           <td data-label="Likely Fix Focus">emotion rendering, natural prosody</td>
         </tr>
@@ -2456,17 +3716,17 @@
       </div>
       <div class="panel">
         <h3>Scores By Model</h3>
-        <p><code>mlx-community/chatterbox-turbo-6bit</code><br>avg 90.1 / n 265 / 78-97</p>
-        <p><code>mlx-community/Kokoro-82M-4bit</code><br>avg 87.2 / n 265 / 73-95</p>
-        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 265 / 70-93</p>
+        <p><code>mlx-community/chatterbox-turbo-6bit</code><br>avg 90.1 / n 300 / 78-97</p>
+        <p><code>mlx-community/Kokoro-82M-4bit</code><br>avg 87.2 / n 300 / 73-95</p>
+        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 300 / 70-93</p>
       </div>
       <div class="panel">
         <h3>Scores By Voice</h3>
-        <p><code>af_heart</code><br>avg 87.0 / n 795 / 70-97</p>
+        <p><code>af_heart</code><br>avg 87.0 / n 855 / 70-97</p>
       </div>
       <div class="panel">
         <h3>Scores By Language</h3>
-        <p><code>en</code><br>avg 87.0 / n 795 / 70-97</p>
+        <p><code>en</code><br>avg 87.0 / n 855 / 70-97</p>
       </div>
     </section>
 
@@ -2646,17 +3906,17 @@
         <tr>
           <td data-label="Compared Model"><code>mlx-community/Kokoro-82M-4bit</code></td>
           <td data-label="Baseline"><code>mlx-community/chatterbox-turbo-6bit</code></td>
-          <td data-label="Matched Cases">265</td>
+          <td data-label="Matched Cases">300</td>
           <td data-label="Avg Delta">-2.6</td>
-          <td data-label="Wins / Ties / Losses">39 / 29 / 197</td>
+          <td data-label="Wins / Ties / Losses">42 / 31 / 222</td>
           <td data-label="Largest Regressions">speech pace, conditional-logic, and escalation-priority cases where style control trails the baseline.</td>
         </tr>
         <tr>
           <td data-label="Compared Model"><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code></td>
           <td data-label="Baseline"><code>mlx-community/chatterbox-turbo-6bit</code></td>
-          <td data-label="Matched Cases">265</td>
+          <td data-label="Matched Cases">300</td>
           <td data-label="Avg Delta">-6.5</td>
-          <td data-label="Wins / Ties / Losses">24 / 21 / 220</td>
+          <td data-label="Wins / Ties / Losses">25 / 22 / 248</td>
           <td data-label="Largest Regressions">emotion, dense-fact, conditional-rule, and critical-alert cases with lower naturalness or intelligibility.</td>
         </tr>
       </tbody>
@@ -2680,7 +3940,7 @@
       </div>
       <div class="panel">
         <h3>Synthesis Model</h3>
-        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 265 / range 70-93</p>
+        <p><code>mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit</code><br>avg 83.6 / n 300 / range 70-93</p>
         <p class="muted">Compare model-level weak spots before changing prompts, voices, wrappers, or model settings.</p>
       </div>
     </section>
@@ -2732,7 +3992,7 @@
     <h2>Sample-By-Sample Breakdown</h2>
     <p>
       The real combined report contains one row per synthesized model/case pair. This preview shows
-      representative rows across models, categories, slices, and score bands from the 795 generated
+      representative rows across models, categories, slices, and score bands from the 960 generated
       samples.
     </p>
     <table id="sample-breakdown-table">

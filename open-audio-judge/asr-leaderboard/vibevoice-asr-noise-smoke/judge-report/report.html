@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Audio Judge Report</title>
+  <style>
+    :root {
+      --ink: #172026;
+      --muted: #5d6975;
+      --line: #d8dee5;
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --good: #0f8a5f;
+      --warn: #b36b00;
+      --bad: #c93535;
+      --accent: #2864b4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 18px; letter-spacing: 0; }
+    main { max-width: 1180px; margin: 0 auto; padding: 24px 24px 40px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 13px; }
+    .metric strong { display: block; margin-top: 6px; font-size: 26px; }
+    .bucket {
+      display: grid;
+      grid-template-columns: 72px 1fr 42px;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      color: var(--muted);
+    }
+    .track { height: 10px; border-radius: 999px; background: #e8edf2; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { text-align: left; font-size: 13px; color: var(--muted); background: #fbfcfd; }
+    tr:last-child td { border-bottom: 0; }
+    .scorebar { min-width: 160px; }
+    .bar { height: 9px; background: #e8edf2; border-radius: 999px; overflow: hidden; margin-top: 7px; }
+    .bar > div { height: 100%; }
+    .accurate { color: var(--good); }
+    .needs_review { color: var(--warn); }
+    .inaccurate { color: var(--bad); }
+    .accurate-fill { background: var(--good); }
+    .needs_review-fill { background: var(--warn); }
+    .inaccurate-fill { background: var(--bad); }
+    .reason { color: var(--ink); line-height: 1.45; }
+    .muted { color: var(--muted); }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--accent); }
+    ul { margin: 6px 0 10px 18px; padding: 0; }
+    li { margin: 3px 0; }
+    .counts { list-style: none; margin: 10px 0 0; }
+    .counts li { display: flex; justify-content: space-between; gap: 14px; }
+    .severity-low { border-left: 4px solid var(--bad); }
+    .severity-medium { border-left: 4px solid var(--warn); }
+    .severity-high { border-left: 4px solid var(--good); }
+    .tag {
+      display: inline-block;
+      margin: 3px 4px 3px 0;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfd;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .case-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) repeat(5, minmax(130px, 180px));
+      gap: 10px;
+      margin: 0 0 12px;
+      align-items: end;
+    }
+    .case-tools label {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .case-tools input,
+    .case-tools select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--ink);
+      background: var(--panel);
+      font: inherit;
+    }
+    .sort-button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+      text-align: left;
+    }
+    .sort-button::after {
+      content: "  sort";
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .is-hidden { display: none !important; }
+    @media (max-width: 760px) {
+      header { padding: 22px 18px 16px; }
+      main { padding: 18px 12px 28px; }
+      .case-tools { grid-template-columns: 1fr; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+      td { border-bottom: 0; padding: 8px 12px; }
+      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Open Audio Judge Report</h1>
+    <div class="muted">Prompt-based audio LLM evaluation summary</div>
+  </header>
+  <main>
+    <section class="summary">
+      <div class="metric"><span>Cases</span><strong>5</strong></div>
+      <div class="metric"><span>Average</span><strong>92.8</strong></div>
+      <div class="metric"><span>Median</span><strong>100.0</strong></div>
+      <div class="metric"><span>Accurate</span><strong>4</strong></div>
+      <div class="metric"><span>Needs Review</span><strong>1</strong></div>
+      <div class="metric"><span>Inaccurate</span><strong>0</strong></div>
+    </section>
+
+    <h2>Score Distribution</h2>
+    <div class="bucket"><span>1-20</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>21-40</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>41-60</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>61-80</span><div class="track"><div class="fill" style="width:20%"></div></div><strong>1</strong></div>
+<div class="bucket"><span>81-100</span><div class="track"><div class="fill" style="width:80%"></div></div><strong>4</strong></div>
+
+    <h2>Semantic Diagnostics</h2>
+    <section class="summary">
+      <div class="metric"><span>Meaning Preservation</span><ul class="counts"><li><span>preserved</span> <strong>4</strong></li><li><span>partial loss</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Error Categories</span><ul class="counts"><li><span>no error</span> <strong>2</strong></li><li><span>formatting only</span> <strong>2</strong></li><li><span>number error</span> <strong>1</strong></li><li><span>substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>High-Impact Errors</span><ul class="counts"><li><span>number error</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Actionable Notes</span><ul class="counts"><li><span>The ASR engine captured all entities (&#x27;oat milk&#x27;, &#x27;latte&#x27;, &#x27;caramel drizzle&#x27;) and commands perfectly.</span> <strong>1</strong></li><li><span>The output contains structured timestamp and speaker information which is accurate.</span> <strong>1</strong></li><li><span>The ASR output successfully captured the entire phrase with perfect accuracy. The metadata formatting (timestamps and speaker tag) contains the correct text verbatim.</span> <strong>1</strong></li><li><span>Excellent transcription quality. The only variation is a standard text normalization difference (digit vs word for number).</span> <strong>1</strong></li><li><span>The model inserted extra digits into the room number (&#x27;42012&#x27; instead of &#x27;412&#x27;). Better digit-level acoustic modeling is needed to prevent number insertion errors.</span> <strong>1</strong></li><li><span>The transcription content is flawless. If plain text is expected, the post-processing pipeline should strip the JSON wrapper, or the model should be instructed to avoid metadata output.</span> <strong>1</strong></li></ul></div>
+    </section>
+
+    <h2>Candidate Metadata</h2>
+    <section class="summary">
+      <div class="metric"><span>TTS Slice</span><ul class="counts"><li><span>cafe background command</span> <strong>1</strong></li><li><span>vehicle noise navigation</span> <strong>1</strong></li><li><span>industrial noise identifier</span> <strong>1</strong></li><li><span>reverberant meeting room</span> <strong>1</strong></li><li><span>overlapping speech target</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Synthesis Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Synthesis Voice</span><ul class="counts"><li><span>af heart</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Language</span><ul class="counts"><li><span>en</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Evaluation Category</span><ul class="counts"><li><span>acoustic noise robustness</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Sample Kind</span><ul class="counts"><li><span>local synthetic tts</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Issues By Category</span><ul class="counts"><li><span>acoustic noise robustness / formatting only</span> <strong>2</strong></li><li><span>acoustic noise robustness / number error</span> <strong>1</strong></li><li><span>acoustic noise robustness / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By TTS Slice</span><ul class="counts"><li><span>industrial noise identifier / formatting only</span> <strong>1</strong></li><li><span>reverberant meeting room / number error</span> <strong>1</strong></li><li><span>reverberant meeting room / substitution</span> <strong>1</strong></li><li><span>overlapping speech target / formatting only</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit / formatting only</span> <strong>2</strong></li><li><span>mlx-community/VibeVoice-ASR-4bit / number error</span> <strong>1</strong></li><li><span>mlx-community/VibeVoice-ASR-4bit / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Voice</span><ul class="counts"><li><span>af heart / formatting only</span> <strong>2</strong></li><li><span>af heart / number error</span> <strong>1</strong></li><li><span>af heart / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Language</span><ul class="counts"><li><span>en / formatting only</span> <strong>2</strong></li><li><span>en / number error</span> <strong>1</strong></li><li><span>en / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Scores By Category</span><ul class="counts"><li><span>acoustic noise robustness</span> <strong>avg 92.8 / n 5 / 67-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By TTS Slice</span><ul class="counts"><li><span>reverberant meeting room</span> <strong>avg 67.0 / n 1 / 67-67</strong></li><li><span>overlapping speech target</span> <strong>avg 97.0 / n 1 / 97-97</strong></li><li><span>cafe background command</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>industrial noise identifier</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>vehicle noise navigation</span> <strong>avg 100.0 / n 1 / 100-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit</span> <strong>avg 92.8 / n 5 / 67-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Voice</span><ul class="counts"><li><span>af heart</span> <strong>avg 92.8 / n 5 / 67-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Language</span><ul class="counts"><li><span>en</span> <strong>avg 92.8 / n 5 / 67-100</strong></li></ul></div>
+      <div class="metric"><span>Failures By Category</span><strong class="muted">No category failures</strong></div>
+      <div class="metric"><span>Failures By TTS Slice</span><strong class="muted">No slice failures</strong></div>
+      <div class="metric"><span>Failures By Model</span><strong class="muted">No model failures</strong></div>
+      <div class="metric"><span>Failures By Voice</span><strong class="muted">No voice failures</strong></div>
+      <div class="metric"><span>Failures By Language</span><strong class="muted">No language failures</strong></div>
+      <div class="metric"><span>Failures By Sample Kind</span><strong class="muted">No sample-kind failures</strong></div>
+    </section>
+
+    <h2>Calibration Checks</h2>
+    <div class="metric"><strong class="muted">All calibration expectations matched</strong></div>
+
+    <h2>Weakest Segments</h2>
+    <section class="summary"><div class="metric severity-high">
+      <span>Model</span>
+      <strong>mlx-community/VibeVoice-ASR-4bit</strong>
+      <div class="muted">avg 92.8 / n 5 / range 67-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span><span class="tag">Robust ASR evaluation includes adverse acoustic environments such as vehicle noise and reverberation.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li><li><span>asr-noise-cafe-order-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-cafe-order-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is perfectly accurate with no semantic errors.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Evaluation Category</span>
+      <strong>acoustic noise robustness</strong>
+      <div class="muted">avg 92.8 / n 5 / range 67-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span><span class="tag">Robust ASR evaluation includes adverse acoustic environments such as vehicle noise and reverberation.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li><li><span>asr-noise-cafe-order-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-cafe-order-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is perfectly accurate with no semantic errors.</span></li></ul></div>
+    </div>
+<div class="metric severity-medium">
+      <span>TTS Slice</span>
+      <strong>reverberant meeting room</strong>
+      <div class="muted">avg 67.0 / n 1 / range 67-67</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Far-field and meeting ASR research tracks reverberation effects separately from clean microphone transcripts.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>TTS Slice</span>
+      <strong>overlapping speech target</strong>
+      <div class="muted">avg 97.0 / n 1 / range 97-97</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Conversational ASR evaluations include overlap and competing speech because they can change task-critical content.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>TTS Slice</span>
+      <strong>cafe background command</strong>
+      <div class="muted">avg 100.0 / n 1 / range 100-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">inspect low-score audio and judge rationale</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="muted">No judge issue categories</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-cafe-order-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-cafe-order-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is perfectly accurate with no semantic errors.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Voice</span>
+      <strong>af heart</strong>
+      <div class="muted">avg 92.8 / n 5 / range 67-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span><span class="tag">Robust ASR evaluation includes adverse acoustic environments such as vehicle noise and reverberation.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li><li><span>asr-noise-cafe-order-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-cafe-order-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is perfectly accurate with no semantic errors.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Language</span>
+      <strong>en</strong>
+      <div class="muted">avg 92.8 / n 5 / range 67-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span><span class="tag">Robust ASR evaluation includes adverse acoustic environments such as vehicle noise and reverberation.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li><li><span>asr-noise-cafe-order-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-cafe-order-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is perfectly accurate with no semantic errors.</span></li></ul></div>
+    </div></section>
+
+    <h2>Model-Category Action Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Category</th>
+          <th>Score</th>
+          <th>Likely Fix Areas</th>
+          <th>Category Guidance</th>
+          <th>Evidence</th>
+          <th>Representative Cases</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="severity-high">
+  <td data-label="Model">mlx-community/VibeVoice-ASR-4bit</td>
+  <td data-label="Category">acoustic noise robustness</td>
+  <td data-label="Score"><strong>avg 92.8</strong><br><span class="muted">n 5 / range 67-100</span></td>
+  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></td>
+  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">CHiME-style and far-field ASR benchmarks stress recognition under real background noise, not only clean-speech WER.</span><span class="tag">Robust ASR evaluation includes adverse acoustic environments such as vehicle noise and reverberation.</span></div></td>
+  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x2</span><span class="tag">number error x1</span><span class="tag">substitution x1</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
+  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-noise-reverberant-room-001-local-tts</span> <strong>67 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-reverberant-room-001</span><br><span class="muted">issues:</span> <span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</span></li><li><span>asr-noise-overlapping-speech-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-noise-overlapping-speech-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</span></li></ul></td>
+</tr>
+      </tbody>
+    </table>
+
+    <h2>Baseline Model Deltas</h2>
+    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Matched by metadata.source_case_id, or by stripping the -local-tts suffix.</div></div><div class="metric"><strong class="muted">No matched baseline model comparisons available</strong></div>
+
+    <h2>Baseline Regression Slices</h2>
+    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Negative deltas show category or slice regressions versus the selected baseline.</div></div><div class="metric"><strong class="muted">No matched baseline category or slice regressions available</strong></div>
+
+    <h2>Priority Cases</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Score</th>
+          <th>Meaning</th>
+          <th>Category</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+  <td data-label="Case">asr-noise-reverberant-room-001-local-tts</td>
+  <td data-label="Score">67</td>
+  <td data-label="Meaning">partial loss</td>
+  <td data-label="Category">number error</td>
+  <td data-label="Summary">The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</td>
+</tr>
+      </tbody>
+    </table>
+
+    <h2>Case Results</h2>
+    <section class="case-tools" aria-label="Case result filters">
+      <label>Search
+        <input id="case-search" type="search" placeholder="case, model, category, reason, issue">
+      </label>
+      <label>Label
+        <select id="case-label-filter">
+          <option value="">All labels</option>
+          <option value="accurate">Accurate</option>
+          <option value="needs_review">Needs review</option>
+          <option value="inaccurate">Inaccurate</option>
+        </select>
+      </label>
+      <label>Status
+        <select id="case-status-filter">
+          <option value="">All statuses</option>
+          <option value="ok">OK</option>
+          <option value="provider_error">Provider error</option>
+          <option value="parse_error">Parse error</option>
+        </select>
+      </label>
+      <label>Model
+        <select id="case-model-filter">
+          <option value="">All models</option>
+          <option value="mlx-community/VibeVoice-ASR-4bit">mlx-community/VibeVoice-ASR-4bit</option>
+        </select>
+      </label>
+      <label>Category
+        <select id="case-category-filter">
+          <option value="">All categories</option>
+          <option value="acoustic_noise_robustness">acoustic noise robustness</option>
+        </select>
+      </label>
+      <label>TTS Slice
+        <select id="case-slice-filter">
+          <option value="">All slices</option>
+          <option value="cafe_background_command">cafe background command</option><option value="industrial_noise_identifier">industrial noise identifier</option><option value="overlapping_speech_target">overlapping speech target</option><option value="reverberant_meeting_room">reverberant meeting room</option><option value="vehicle_noise_navigation">vehicle noise navigation</option>
+        </select>
+      </label>
+      <div class="muted" id="case-visible-count">5 / 5 shown</div>
+    </section>
+    <table id="case-results-table">
+      <thead>
+        <tr>
+          <th><button class="sort-button" type="button" data-sort="case">Case</button></th>
+          <th>Provenance</th>
+          <th><button class="sort-button" type="button" data-sort="score">Score</button></th>
+          <th>Label</th>
+          <th>Reason</th>
+          <th>Diagnostics</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-case="asr-noise-cafe-order-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="acoustic_noise_robustness" data-slice="cafe_background_command" data-search="asr-noise-cafe-order-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is an exact word-for-word representation of the audio, preserving the entire meaning perfectly. the text is flawless, with the only difference being the structured json wrapper in the candidate. the transcript is perfectly accurate with no semantic errors. preserved no_error the asr engine captured all entities (&#x27;oat milk&#x27;, &#x27;latte&#x27;, &#x27;caramel drizzle&#x27;) and commands perfectly. the output contains structured timestamp and speaker information which is accurate. acoustic_noise_robustness cafe_background_command mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-noise-cafe-order-001">
+  <td data-label="Case">asr-noise-cafe-order-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>acoustic noise robustness</strong></li><li><span>ASR slice</span> <strong>cafe background command</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-noise-cafe-order-001</strong></li><li><span>Text SHA-256</span> <strong>613cfd4c60424169e80cba7ab2ecc6f0fcb35f677cdfbfd9746b4efaebf165ef</strong></li><li><span>Duration</span> <strong>3.28s</strong></li><li><span>Bytes</span> <strong>157364</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>100</strong>
+    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is an exact word-for-word representation of the audio, preserving the entire meaning perfectly. The text is flawless, with the only difference being the structured JSON wrapper in the candidate.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The transcript is perfectly accurate with no semantic errors.</div><details><summary>Judge transcript</summary>Add oat milk to the latte and leave out the caramel drizzle.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>The ASR engine captured all entities (&#x27;oat milk&#x27;, &#x27;latte&#x27;, &#x27;caramel drizzle&#x27;) and commands perfectly.</li><li>The output contains structured timestamp and speaker information which is accurate.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-noise-driving-route-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="acoustic_noise_robustness" data-slice="vehicle_noise_navigation" data-search="asr-noise-driving-route-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is a perfect word-for-word match to the audio, preserving the spoken instruction completely with no errors. there are no semantic errors in the candidate transcript. preserved no_error the asr output successfully captured the entire phrase with perfect accuracy. the metadata formatting (timestamps and speaker tag) contains the correct text verbatim. acoustic_noise_robustness vehicle_noise_navigation mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-noise-driving-route-001">
+  <td data-label="Case">asr-noise-driving-route-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>acoustic noise robustness</strong></li><li><span>ASR slice</span> <strong>vehicle noise navigation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-noise-driving-route-001</strong></li><li><span>Text SHA-256</span> <strong>c3ce8e7e94fd6ea30d703cbca09fc8f6c03373f0ea379bfc5d94dd49aa48ce26</strong></li><li><span>Duration</span> <strong>3.72s</strong></li><li><span>Bytes</span> <strong>178484</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>100</strong>
+    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is a perfect word-for-word match to the audio, preserving the spoken instruction completely with no errors.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors in the candidate transcript.</div><details><summary>Judge transcript</summary>Take the second exit after the bridge, then stay in the right lane.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>The ASR output successfully captured the entire phrase with perfect accuracy. The metadata formatting (timestamps and speaker tag) contains the correct text verbatim.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-noise-warehouse-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="acoustic_noise_robustness" data-slice="industrial_noise_identifier" data-search="asr-noise-warehouse-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate, with the only difference from the reference being the formatting of the number &#x27;three&#x27; as &#x27;3&#x27;, which does not affect semantic meaning. no semantic errors; the candidate transcript is perfectly accurate. preserved formatting_only excellent transcription quality. the only variation is a standard text normalization difference (digit vs word for number). acoustic_noise_robustness industrial_noise_identifier mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-noise-warehouse-001">
+  <td data-label="Case">asr-noise-warehouse-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>acoustic noise robustness</strong></li><li><span>ASR slice</span> <strong>industrial noise identifier</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-noise-warehouse-001</strong></li><li><span>Text SHA-256</span> <strong>f7c26924015438634f3eb4be84b886d690e9009b39ecd8f4fa88408ff3ec2e11</strong></li><li><span>Duration</span> <strong>4.08s</strong></li><li><span>Bytes</span> <strong>195764</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>100</strong>
+    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate, with the only difference from the reference being the formatting of the number &#x27;three&#x27; as &#x27;3&#x27;, which does not affect semantic meaning.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate transcript is perfectly accurate.</div><details><summary>Judge transcript</summary>Scan bin A17 before moving the pallet to loading dock three.</details><div><span class="muted">Key differences</span><ul><li>The word &#x27;three&#x27; is written as the digit &#x27;3&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Excellent transcription quality. The only variation is a standard text normalization difference (digit vs word for number).</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-noise-reverberant-room-001-local-tts" data-score="67" data-label="needs_review" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="acoustic_noise_robustness" data-slice="reverberant_meeting_room" data-search="asr-noise-reverberant-room-001-local-tts needs_review ok average of 3 judge samples: 66.67 (scores: 75, 70, 55). representative reason: the candidate transcript accurately captures the entire sentence except for the room number, transcribing &#x27;412&#x27; as &#x27;42012&#x27;. this error in the room number is critical as it would mislead someone trying to find the meeting. the room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error. partial_loss number_error substitution the model inserted extra digits into the room number (&#x27;42012&#x27; instead of &#x27;412&#x27;). better digit-level acoustic modeling is needed to prevent number insertion errors. acoustic_noise_robustness reverberant_meeting_room mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-noise-reverberant-room-001">
+  <td data-label="Case">asr-noise-reverberant-room-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>acoustic noise robustness</strong></li><li><span>ASR slice</span> <strong>reverberant meeting room</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-noise-reverberant-room-001</strong></li><li><span>Text SHA-256</span> <strong>f0f9e458a7bf2804ef37a0a709c4a7882c50036351a8f11cd69c590f1805b4d8</strong></li><li><span>Duration</span> <strong>3.56s</strong></li><li><span>Bytes</span> <strong>170804</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>67</strong>
+    <div class="bar"><div class="needs_review-fill" style="width:67%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 75, 70, 55; avg 66.67</div>
+  </td>
+  <td data-label="Label" class="needs_review">needs review</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 66.67 (scores: 75, 70, 55). Representative reason: The candidate transcript accurately captures the entire sentence except for the room number, transcribing &#x27;412&#x27; as &#x27;42012&#x27;. This error in the room number is critical as it would mislead someone trying to find the meeting.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>partial_loss</div><div><span class="muted">Semantic impact</span><br>The room number &#x27;412&#x27; was incorrectly transcribed as &#x27;42012&#x27;, creating a highly misleading location error.</div><details><summary>Judge transcript</summary>The quarterly review starts in room 412 at half past three.</details><div><span class="muted">Key differences</span><ul><li>Candidate transcribed &#x27;412&#x27; as &#x27;42012&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>number_error, substitution</div><div><span class="muted">Researcher notes</span><ul><li>The model inserted extra digits into the room number (&#x27;42012&#x27; instead of &#x27;412&#x27;). Better digit-level acoustic modeling is needed to prevent number insertion errors.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-noise-overlapping-speech-001-local-tts" data-score="97" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="acoustic_noise_robustness" data-slice="overlapping_speech_target" data-search="asr-noise-overlapping-speech-001-local-tts accurate ok average of 3 judge samples: 96.67 (scores: 95, 100, 95). representative reason: the candidate transcript is 100% accurate to the spoken audio, preserving the exact wording and meaning. the only discrepancy is that the candidate output is wrapped in a json-style array containing metadata (start, end, speaker, and content) instead of presenting as a plain text string. the spoken meaning is perfectly preserved, with the only discrepancy being the json metadata format in the candidate output. preserved formatting_only the transcription content is flawless. if plain text is expected, the post-processing pipeline should strip the json wrapper, or the model should be instructed to avoid metadata output. acoustic_noise_robustness overlapping_speech_target mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-noise-overlapping-speech-001">
+  <td data-label="Case">asr-noise-overlapping-speech-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>acoustic noise robustness</strong></li><li><span>ASR slice</span> <strong>overlapping speech target</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-noise-overlapping-speech-001</strong></li><li><span>Text SHA-256</span> <strong>e72cbb8fa9f427ff6a5ac7dcb1cf1e153ec37baeeba0a80c6be4033169b3f66b</strong></li><li><span>Duration</span> <strong>4.08s</strong></li><li><span>Bytes</span> <strong>195764</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>97</strong>
+    <div class="bar"><div class="accurate-fill" style="width:97%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 95, 100, 95; avg 96.67</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 96.67 (scores: 95, 100, 95). Representative reason: The candidate transcript is 100% accurate to the spoken audio, preserving the exact wording and meaning. The only discrepancy is that the candidate output is wrapped in a JSON-style array containing metadata (Start, End, Speaker, and Content) instead of presenting as a plain text string.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The spoken meaning is perfectly preserved, with the only discrepancy being the JSON metadata format in the candidate output.</div><details><summary>Judge transcript</summary>Ignore the side conversation and record the final answer as option C.</details><div><span class="muted">Key differences</span><ul><li>The candidate transcript is wrapped in a JSON structure containing &#x27;Start&#x27;, &#x27;End&#x27;, &#x27;Speaker&#x27;, and &#x27;Content&#x27; metadata fields instead of plain text.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The transcription content is flawless. If plain text is expected, the post-processing pipeline should strip the JSON wrapper, or the model should be instructed to avoid metadata output.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+      </tbody>
+    </table>
+  </main>
+  <script>
+    (() => {
+      const table = document.querySelector("#case-results-table");
+      if (!table) return;
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const search = document.querySelector("#case-search");
+      const label = document.querySelector("#case-label-filter");
+      const status = document.querySelector("#case-status-filter");
+      const model = document.querySelector("#case-model-filter");
+      const category = document.querySelector("#case-category-filter");
+      const slice = document.querySelector("#case-slice-filter");
+      const count = document.querySelector("#case-visible-count");
+      const state = { sortKey: "", sortDir: "desc" };
+
+      function applyFilters() {
+        const query = (search?.value || "").trim().toLowerCase();
+        const labelValue = label?.value || "";
+        const statusValue = status?.value || "";
+        const modelValue = model?.value || "";
+        const categoryValue = category?.value || "";
+        const sliceValue = slice?.value || "";
+        let visible = 0;
+        rows.forEach((row) => {
+          const matches =
+            (!query || row.dataset.search.includes(query)) &&
+            (!labelValue || row.dataset.label === labelValue) &&
+            (!statusValue || row.dataset.status === statusValue) &&
+            (!modelValue || row.dataset.model === modelValue) &&
+            (!categoryValue || row.dataset.category === categoryValue) &&
+            (!sliceValue || row.dataset.slice === sliceValue);
+          row.classList.toggle("is-hidden", !matches);
+          if (matches) visible += 1;
+        });
+        if (count) count.textContent = `${visible} / ${rows.length} shown`;
+      }
+
+      function sortRows(key) {
+        state.sortDir = state.sortKey === key && state.sortDir === "asc" ? "desc" : "asc";
+        state.sortKey = key;
+        const dir = state.sortDir === "asc" ? 1 : -1;
+        const sorted = [...rows].sort((left, right) => {
+          if (key === "score") {
+            return (Number(left.dataset.score) - Number(right.dataset.score)) * dir;
+          }
+          return left.dataset.case.localeCompare(right.dataset.case) * dir;
+        });
+        sorted.forEach((row) => tbody.appendChild(row));
+        rows.splice(0, rows.length, ...sorted);
+        applyFilters();
+      }
+
+      [search, label, status, model, category, slice].forEach((control) => {
+        control?.addEventListener("input", applyFilters);
+        control?.addEventListener("change", applyFilters);
+      });
+      table.querySelectorAll("[data-sort]").forEach((button) => {
+        button.addEventListener("click", () => sortRows(button.dataset.sort));
+      });
+      sortRows("score");
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Audio Judge Report</title>
+  <style>
+    :root {
+      --ink: #172026;
+      --muted: #5d6975;
+      --line: #d8dee5;
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --good: #0f8a5f;
+      --warn: #b36b00;
+      --bad: #c93535;
+      --accent: #2864b4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 18px; letter-spacing: 0; }
+    main { max-width: 1180px; margin: 0 auto; padding: 24px 24px 40px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 13px; }
+    .metric strong { display: block; margin-top: 6px; font-size: 26px; }
+    .bucket {
+      display: grid;
+      grid-template-columns: 72px 1fr 42px;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      color: var(--muted);
+    }
+    .track { height: 10px; border-radius: 999px; background: #e8edf2; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { text-align: left; font-size: 13px; color: var(--muted); background: #fbfcfd; }
+    tr:last-child td { border-bottom: 0; }
+    .scorebar { min-width: 160px; }
+    .bar { height: 9px; background: #e8edf2; border-radius: 999px; overflow: hidden; margin-top: 7px; }
+    .bar > div { height: 100%; }
+    .accurate { color: var(--good); }
+    .needs_review { color: var(--warn); }
+    .inaccurate { color: var(--bad); }
+    .accurate-fill { background: var(--good); }
+    .needs_review-fill { background: var(--warn); }
+    .inaccurate-fill { background: var(--bad); }
+    .reason { color: var(--ink); line-height: 1.45; }
+    .muted { color: var(--muted); }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--accent); }
+    ul { margin: 6px 0 10px 18px; padding: 0; }
+    li { margin: 3px 0; }
+    .counts { list-style: none; margin: 10px 0 0; }
+    .counts li { display: flex; justify-content: space-between; gap: 14px; }
+    .severity-low { border-left: 4px solid var(--bad); }
+    .severity-medium { border-left: 4px solid var(--warn); }
+    .severity-high { border-left: 4px solid var(--good); }
+    .tag {
+      display: inline-block;
+      margin: 3px 4px 3px 0;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfd;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .case-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) repeat(5, minmax(130px, 180px));
+      gap: 10px;
+      margin: 0 0 12px;
+      align-items: end;
+    }
+    .case-tools label {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .case-tools input,
+    .case-tools select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--ink);
+      background: var(--panel);
+      font: inherit;
+    }
+    .sort-button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      padding: 0;
+      text-align: left;
+    }
+    .sort-button::after {
+      content: "  sort";
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .is-hidden { display: none !important; }
+    @media (max-width: 760px) {
+      header { padding: 22px 18px 16px; }
+      main { padding: 18px 12px 28px; }
+      .case-tools { grid-template-columns: 1fr; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
+      td { border-bottom: 0; padding: 8px 12px; }
+      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Open Audio Judge Report</h1>
+    <div class="muted">Prompt-based audio LLM evaluation summary</div>
+  </header>
+  <main>
+    <section class="summary">
+      <div class="metric"><span>Cases</span><strong>5</strong></div>
+      <div class="metric"><span>Average</span><strong>90.2</strong></div>
+      <div class="metric"><span>Median</span><strong>98.0</strong></div>
+      <div class="metric"><span>Accurate</span><strong>4</strong></div>
+      <div class="metric"><span>Needs Review</span><strong>0</strong></div>
+      <div class="metric"><span>Inaccurate</span><strong>1</strong></div>
+    </section>
+
+    <h2>Score Distribution</h2>
+    <div class="bucket"><span>1-20</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>21-40</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>41-60</span><div class="track"><div class="fill" style="width:20%"></div></div><strong>1</strong></div>
+<div class="bucket"><span>61-80</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
+<div class="bucket"><span>81-100</span><div class="track"><div class="fill" style="width:80%"></div></div><strong>4</strong></div>
+
+    <h2>Semantic Diagnostics</h2>
+    <section class="summary">
+      <div class="metric"><span>Meaning Preservation</span><ul class="counts"><li><span>preserved</span> <strong>4</strong></li><li><span>partial loss</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Error Categories</span><ul class="counts"><li><span>formatting only</span> <strong>3</strong></li><li><span>no error</span> <strong>1</strong></li><li><span>entity error</span> <strong>1</strong></li><li><span>number error</span> <strong>1</strong></li><li><span>substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>High-Impact Errors</span><ul class="counts"><li><span>entity error</span> <strong>1</strong></li><li><span>number error</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Actionable Notes</span><ul class="counts"><li><span>The model performs exceptionally well, accurately spelling the proper noun &#x27;Rao&#x27; and the location &#x27;Cedar Avenue&#x27;.</span> <strong>1</strong></li><li><span>Perfect transcription of the audio, accurately capturing product names like Zephyr Mini and Zephyr Max.</span> <strong>1</strong></li><li><span>The model misheard &#x27;one eight&#x27; (/wʌn eɪt/) as &#x27;y&#x27; (/waɪ/) in the alphanumeric sequence &#x27;PX-4187&#x27;. Alphanumeric sequence recognition is a known failure point that needs targeted training data or specialized language model biasing.</span> <strong>1</strong></li><li><span>Consider incorporating common organizational entities or compound names into the language model&#x27;s lexicon to prevent unnecessary splitting of words like &#x27;Northstar&#x27;.</span> <strong>1</strong></li><li><span>The model performed perfectly, accurately transcribing both numerical digits and letters (&#x27;812&#x27;, &#x27;5B&#x27;) as well as the street name.</span> <strong>1</strong></li></ul></div>
+    </section>
+
+    <h2>Candidate Metadata</h2>
+    <section class="summary">
+      <div class="metric"><span>TTS Slice</span><ul class="counts"><li><span>person place entity</span> <strong>1</strong></li><li><span>product name contrast</span> <strong>1</strong></li><li><span>alphanumeric identifier</span> <strong>1</strong></li><li><span>organization contact entity</span> <strong>1</strong></li><li><span>address entity</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Synthesis Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Synthesis Voice</span><ul class="counts"><li><span>af heart</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Language</span><ul class="counts"><li><span>en</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Evaluation Category</span><ul class="counts"><li><span>entity factual integrity</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Sample Kind</span><ul class="counts"><li><span>local synthetic tts</span> <strong>5</strong></li></ul></div>
+      <div class="metric"><span>Issues By Category</span><ul class="counts"><li><span>entity factual integrity / formatting only</span> <strong>3</strong></li><li><span>entity factual integrity / entity error</span> <strong>1</strong></li><li><span>entity factual integrity / number error</span> <strong>1</strong></li><li><span>entity factual integrity / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By TTS Slice</span><ul class="counts"><li><span>person place entity / formatting only</span> <strong>1</strong></li><li><span>alphanumeric identifier / entity error</span> <strong>1</strong></li><li><span>alphanumeric identifier / number error</span> <strong>1</strong></li><li><span>alphanumeric identifier / substitution</span> <strong>1</strong></li><li><span>organization contact entity / formatting only</span> <strong>1</strong></li><li><span>address entity / formatting only</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit / formatting only</span> <strong>3</strong></li><li><span>mlx-community/VibeVoice-ASR-4bit / entity error</span> <strong>1</strong></li><li><span>mlx-community/VibeVoice-ASR-4bit / number error</span> <strong>1</strong></li><li><span>mlx-community/VibeVoice-ASR-4bit / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Voice</span><ul class="counts"><li><span>af heart / formatting only</span> <strong>3</strong></li><li><span>af heart / entity error</span> <strong>1</strong></li><li><span>af heart / number error</span> <strong>1</strong></li><li><span>af heart / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Issues By Language</span><ul class="counts"><li><span>en / formatting only</span> <strong>3</strong></li><li><span>en / entity error</span> <strong>1</strong></li><li><span>en / number error</span> <strong>1</strong></li><li><span>en / substitution</span> <strong>1</strong></li></ul></div>
+      <div class="metric"><span>Scores By Category</span><ul class="counts"><li><span>entity factual integrity</span> <strong>avg 90.2 / n 5 / 57-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By TTS Slice</span><ul class="counts"><li><span>alphanumeric identifier</span> <strong>avg 57.0 / n 1 / 57-57</strong></li><li><span>organization contact entity</span> <strong>avg 97.0 / n 1 / 97-97</strong></li><li><span>person place entity</span> <strong>avg 98.0 / n 1 / 98-98</strong></li><li><span>product name contrast</span> <strong>avg 99.0 / n 1 / 99-99</strong></li><li><span>address entity</span> <strong>avg 100.0 / n 1 / 100-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Model</span><ul class="counts"><li><span>mlx-community/VibeVoice-ASR-4bit</span> <strong>avg 90.2 / n 5 / 57-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Voice</span><ul class="counts"><li><span>af heart</span> <strong>avg 90.2 / n 5 / 57-100</strong></li></ul></div>
+      <div class="metric"><span>Scores By Language</span><ul class="counts"><li><span>en</span> <strong>avg 90.2 / n 5 / 57-100</strong></li></ul></div>
+      <div class="metric"><span>Failures By Category</span><strong class="muted">No category failures</strong></div>
+      <div class="metric"><span>Failures By TTS Slice</span><strong class="muted">No slice failures</strong></div>
+      <div class="metric"><span>Failures By Model</span><strong class="muted">No model failures</strong></div>
+      <div class="metric"><span>Failures By Voice</span><strong class="muted">No voice failures</strong></div>
+      <div class="metric"><span>Failures By Language</span><strong class="muted">No language failures</strong></div>
+      <div class="metric"><span>Failures By Sample Kind</span><strong class="muted">No sample-kind failures</strong></div>
+    </section>
+
+    <h2>Calibration Checks</h2>
+    <div class="metric"><strong class="muted">All calibration expectations matched</strong></div>
+
+    <h2>Weakest Segments</h2>
+    <section class="summary"><div class="metric severity-high">
+      <span>Model</span>
+      <strong>mlx-community/VibeVoice-ASR-4bit</strong>
+      <div class="muted">avg 90.2 / n 5 / range 57-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span><span class="tag">Custom vocabulary and entity recall are critical for product, contact, and organization names.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x3</span><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li><li><span>asr-entity-doctor-001-local-tts</span> <strong>98 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-doctor-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken words are perfectly captured.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Evaluation Category</span>
+      <strong>entity factual integrity</strong>
+      <div class="muted">avg 90.2 / n 5 / range 57-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span><span class="tag">Custom vocabulary and entity recall are critical for product, contact, and organization names.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x3</span><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li><li><span>asr-entity-doctor-001-local-tts</span> <strong>98 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-doctor-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken words are perfectly captured.</span></li></ul></div>
+    </div>
+<div class="metric severity-low">
+      <span>TTS Slice</span>
+      <strong>alphanumeric identifier</strong>
+      <div class="muted">avg 57.0 / n 1 / range 57-57</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Identifier errors can have high task impact despite low edit distance.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>TTS Slice</span>
+      <strong>organization contact entity</strong>
+      <div class="muted">avg 97.0 / n 1 / range 97-97</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Named-entity integrity complements WER for downstream workflow reliability.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>TTS Slice</span>
+      <strong>person place entity</strong>
+      <div class="muted">avg 98.0 / n 1 / range 98-98</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-doctor-001-local-tts</span> <strong>98 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-doctor-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken words are perfectly captured.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Voice</span>
+      <strong>af heart</strong>
+      <div class="muted">avg 90.2 / n 5 / range 57-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span><span class="tag">Custom vocabulary and entity recall are critical for product, contact, and organization names.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x3</span><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li><li><span>asr-entity-doctor-001-local-tts</span> <strong>98 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-doctor-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken words are perfectly captured.</span></li></ul></div>
+    </div>
+<div class="metric severity-high">
+      <span>Language</span>
+      <strong>en</strong>
+      <div class="muted">avg 90.2 / n 5 / range 57-100</div>
+      
+      <div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span><span class="tag">Custom vocabulary and entity recall are critical for product, contact, and organization names.</span></div>
+      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></div>
+      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x3</span><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span></div>
+      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li><li><span>asr-entity-doctor-001-local-tts</span> <strong>98 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-doctor-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken words are perfectly captured.</span></li></ul></div>
+    </div></section>
+
+    <h2>Model-Category Action Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Category</th>
+          <th>Score</th>
+          <th>Likely Fix Areas</th>
+          <th>Category Guidance</th>
+          <th>Evidence</th>
+          <th>Representative Cases</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="severity-high">
+  <td data-label="Model">mlx-community/VibeVoice-ASR-4bit</td>
+  <td data-label="Category">entity factual integrity</td>
+  <td data-label="Score"><strong>avg 90.2</strong><br><span class="muted">n 5 / range 57-100</span></td>
+  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span><span class="tag">entity error</span><span class="tag">text faithfulness</span><span class="tag">substitution</span></td>
+  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">Entity recall and named-entity error analysis are common ASR quality slices beyond aggregate WER.</span><span class="tag">Custom vocabulary and entity recall are critical for product, contact, and organization names.</span></div></td>
+  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x3</span><span class="tag">entity error x1</span><span class="tag">number error x1</span><span class="tag">substitution x1</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
+  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-entity-ticket-001-local-tts</span> <strong>57 / inaccurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-ticket-001</span><br><span class="muted">issues:</span> <span class="tag">entity error</span><span class="tag">number error</span><span class="tag">substitution</span><br><span class="reason">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</span></li><li><span>asr-entity-organization-001-local-tts</span> <strong>97 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-entity-organization-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</span></li></ul></td>
+</tr>
+      </tbody>
+    </table>
+
+    <h2>Baseline Model Deltas</h2>
+    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Matched by metadata.source_case_id, or by stripping the -local-tts suffix.</div></div><div class="metric"><strong class="muted">No matched baseline model comparisons available</strong></div>
+
+    <h2>Baseline Regression Slices</h2>
+    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Negative deltas show category or slice regressions versus the selected baseline.</div></div><div class="metric"><strong class="muted">No matched baseline category or slice regressions available</strong></div>
+
+    <h2>Priority Cases</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Score</th>
+          <th>Meaning</th>
+          <th>Category</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+  <td data-label="Case">asr-entity-ticket-001-local-tts</td>
+  <td data-label="Score">57</td>
+  <td data-label="Meaning">partial loss</td>
+  <td data-label="Category">entity error, number error</td>
+  <td data-label="Summary">The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</td>
+</tr>
+      </tbody>
+    </table>
+
+    <h2>Case Results</h2>
+    <section class="case-tools" aria-label="Case result filters">
+      <label>Search
+        <input id="case-search" type="search" placeholder="case, model, category, reason, issue">
+      </label>
+      <label>Label
+        <select id="case-label-filter">
+          <option value="">All labels</option>
+          <option value="accurate">Accurate</option>
+          <option value="needs_review">Needs review</option>
+          <option value="inaccurate">Inaccurate</option>
+        </select>
+      </label>
+      <label>Status
+        <select id="case-status-filter">
+          <option value="">All statuses</option>
+          <option value="ok">OK</option>
+          <option value="provider_error">Provider error</option>
+          <option value="parse_error">Parse error</option>
+        </select>
+      </label>
+      <label>Model
+        <select id="case-model-filter">
+          <option value="">All models</option>
+          <option value="mlx-community/VibeVoice-ASR-4bit">mlx-community/VibeVoice-ASR-4bit</option>
+        </select>
+      </label>
+      <label>Category
+        <select id="case-category-filter">
+          <option value="">All categories</option>
+          <option value="entity_factual_integrity">entity factual integrity</option>
+        </select>
+      </label>
+      <label>TTS Slice
+        <select id="case-slice-filter">
+          <option value="">All slices</option>
+          <option value="address_entity">address entity</option><option value="alphanumeric_identifier">alphanumeric identifier</option><option value="organization_contact_entity">organization contact entity</option><option value="person_place_entity">person place entity</option><option value="product_name_contrast">product name contrast</option>
+        </select>
+      </label>
+      <div class="muted" id="case-visible-count">5 / 5 shown</div>
+    </section>
+    <table id="case-results-table">
+      <thead>
+        <tr>
+          <th><button class="sort-button" type="button" data-sort="case">Case</button></th>
+          <th>Provenance</th>
+          <th><button class="sort-button" type="button" data-sort="score">Score</button></th>
+          <th>Label</th>
+          <th>Reason</th>
+          <th>Diagnostics</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-case="asr-entity-doctor-001-local-tts" data-score="98" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="person_place_entity" data-search="asr-entity-doctor-001-local-tts accurate ok average of 3 judge samples: 98.33 (scores: 100, 95, 100). representative reason: the candidate transcript is perfectly accurate and preserves the meaning completely, with the only difference being a minor capitalization of &#x27;clinic&#x27; and the segment block format. no semantic errors; the spoken words are perfectly captured. preserved formatting_only the model performs exceptionally well, accurately spelling the proper noun &#x27;rao&#x27; and the location &#x27;cedar avenue&#x27;. entity_factual_integrity person_place_entity mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-doctor-001">
+  <td data-label="Case">asr-entity-doctor-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>entity factual integrity</strong></li><li><span>ASR slice</span> <strong>person place entity</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-entity-doctor-001</strong></li><li><span>Text SHA-256</span> <strong>9ff5a0befafca6c4d8752ec9817f898caed7717e40beb76cd3eaa239a8cf9473</strong></li><li><span>Duration</span> <strong>3.40s</strong></li><li><span>Bytes</span> <strong>163124</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>98</strong>
+    <div class="bar"><div class="accurate-fill" style="width:98%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 95, 100; avg 98.33</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 98.33 (scores: 100, 95, 100). Representative reason: The candidate transcript is perfectly accurate and preserves the meaning completely, with the only difference being a minor capitalization of &#x27;Clinic&#x27; and the segment block format.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the spoken words are perfectly captured.</div><details><summary>Judge transcript</summary>Schedule the follow-up with Dr. Rao at the Cedar Avenue clinic.</details><div><span class="muted">Key differences</span><ul><li>The candidate capitalizes &#x27;Clinic&#x27; as &#x27;Clinic&#x27; instead of &#x27;clinic&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model performs exceptionally well, accurately spelling the proper noun &#x27;Rao&#x27; and the location &#x27;Cedar Avenue&#x27;.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-entity-product-001-local-tts" data-score="99" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="product_name_contrast" data-search="asr-entity-product-001-local-tts accurate ok average of 3 judge samples: 99.33 (scores: 100, 100, 98). representative reason: the candidate transcript is a perfect match with the spoken audio and reference transcript, preserving the exact meaning and all entities with no errors. no semantic errors; the transcription is perfectly accurate. preserved no_error perfect transcription of the audio, accurately capturing product names like zephyr mini and zephyr max. entity_factual_integrity product_name_contrast mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-product-001">
+  <td data-label="Case">asr-entity-product-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>entity factual integrity</strong></li><li><span>ASR slice</span> <strong>product name contrast</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-entity-product-001</strong></li><li><span>Text SHA-256</span> <strong>919dd10bf1c803fb423936e4f48c18d6469b7753fa5383a94ff26fc32bf6d745</strong></li><li><span>Duration</span> <strong>3.84s</strong></li><li><span>Bytes</span> <strong>184244</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>99</strong>
+    <div class="bar"><div class="accurate-fill" style="width:99%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 100, 98; avg 99.33</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 99.33 (scores: 100, 100, 98). Representative reason: The candidate transcript is a perfect match with the spoken audio and reference transcript, preserving the exact meaning and all entities with no errors.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the transcription is perfectly accurate.</div><details><summary>Judge transcript</summary>Compare the Zephyr Mini plan with the Zephyr Max plan before renewal.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription of the audio, accurately capturing product names like Zephyr Mini and Zephyr Max.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-entity-ticket-001-local-tts" data-score="57" data-label="inaccurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="alphanumeric_identifier" data-search="asr-entity-ticket-001-local-tts inaccurate ok average of 3 judge samples: 56.67 (scores: 55, 55, 60). representative reason: the candidate transcript mistranscribes the critical alphanumeric ticket id &#x27;px-4187&#x27; as &#x27;px4y7&#x27;. while the rest of the command is perfectly captured, this entity error would prevent downstream ticketing systems from routing or associating the call summary correctly. the ticket id entity is corrupted, making it impossible to correctly identify the target ticket. partial_loss entity_error number_error substitution the model misheard &#x27;one eight&#x27; (/wʌn eɪt/) as &#x27;y&#x27; (/waɪ/) in the alphanumeric sequence &#x27;px-4187&#x27;. alphanumeric sequence recognition is a known failure point that needs targeted training data or specialized language model biasing. entity_factual_integrity alphanumeric_identifier mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-ticket-001">
+  <td data-label="Case">asr-entity-ticket-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>entity factual integrity</strong></li><li><span>ASR slice</span> <strong>alphanumeric identifier</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-entity-ticket-001</strong></li><li><span>Text SHA-256</span> <strong>845a5229d7c30013391f3297d1a9cc591ee108b93c4cf22218cdb749913fbf6e</strong></li><li><span>Duration</span> <strong>4.60s</strong></li><li><span>Bytes</span> <strong>220724</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>57</strong>
+    <div class="bar"><div class="inaccurate-fill" style="width:57%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 55, 55, 60; avg 56.67</div>
+  </td>
+  <td data-label="Label" class="inaccurate">inaccurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 56.67 (scores: 55, 55, 60). Representative reason: The candidate transcript mistranscribes the critical alphanumeric ticket ID &#x27;PX-4187&#x27; as &#x27;px4y7&#x27;. While the rest of the command is perfectly captured, this entity error would prevent downstream ticketing systems from routing or associating the call summary correctly.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>partial_loss</div><div><span class="muted">Semantic impact</span><br>The ticket ID entity is corrupted, making it impossible to correctly identify the target ticket.</div><details><summary>Judge transcript</summary>Attach the call summary to ticket PX-4187 before closing the case.</details><div><span class="muted">Key differences</span><ul><li>Candidate has &#x27;px4y7&#x27; instead of &#x27;PX-4187&#x27;</li></ul></div><div><span class="muted">Categories</span><br>entity_error, number_error, substitution</div><div><span class="muted">Researcher notes</span><ul><li>The model misheard &#x27;one eight&#x27; (/wʌn eɪt/) as &#x27;y&#x27; (/waɪ/) in the alphanumeric sequence &#x27;PX-4187&#x27;. Alphanumeric sequence recognition is a known failure point that needs targeted training data or specialized language model biasing.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-entity-organization-001-local-tts" data-score="97" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="organization_contact_entity" data-search="asr-entity-organization-001-local-tts accurate ok average of 3 judge samples: 97.00 (scores: 95, 98, 98). representative reason: the candidate transcript is exceptionally accurate, capturing all words, entities, and punctuation correctly. the only discrepancy is a minor formatting difference where &#x27;northstar&#x27; is split into two words &#x27;north star&#x27;, which has zero impact on the semantic comprehension of the sentence. the candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio. preserved formatting_only consider incorporating common organizational entities or compound names into the language model&#x27;s lexicon to prevent unnecessary splitting of words like &#x27;northstar&#x27;. entity_factual_integrity organization_contact_entity mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-organization-001">
+  <td data-label="Case">asr-entity-organization-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>entity factual integrity</strong></li><li><span>ASR slice</span> <strong>organization contact entity</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-entity-organization-001</strong></li><li><span>Text SHA-256</span> <strong>2c9213d5e33f7fc5a5924f6f72b4f91505c0b4c71b26848cb000e2d00ef961bc</strong></li><li><span>Duration</span> <strong>3.80s</strong></li><li><span>Bytes</span> <strong>182324</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>97</strong>
+    <div class="bar"><div class="accurate-fill" style="width:97%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 95, 98, 98; avg 97.00</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 97.00 (scores: 95, 98, 98). Representative reason: The candidate transcript is exceptionally accurate, capturing all words, entities, and punctuation correctly. The only discrepancy is a minor formatting difference where &#x27;Northstar&#x27; is split into two words &#x27;North Star&#x27;, which has zero impact on the semantic comprehension of the sentence.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The candidate transcript contains only a minor spacing difference in the organization&#x27;s name, preserving the full meaning of the audio.</div><details><summary>Judge transcript</summary>Send the signed form to Northstar Benefits and copy Elena Morales.</details><div><span class="muted">Key differences</span><ul><li>The compound name &#x27;Northstar&#x27; is transcribed as &#x27;North Star&#x27; (two words).</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Consider incorporating common organizational entities or compound names into the language model&#x27;s lexicon to prevent unnecessary splitting of words like &#x27;Northstar&#x27;.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+<tr data-case="asr-entity-address-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="address_entity" data-search="asr-entity-address-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is exceptionally accurate, matching the audio and reference transcripts perfectly. the only difference is the capitalization of the word &#x27;apartment&#x27;, which is a harmless formatting difference with absolutely no semantic impact. no semantic errors; the candidate transcript is completely accurate. preserved formatting_only the model performed perfectly, accurately transcribing both numerical digits and letters (&#x27;812&#x27;, &#x27;5b&#x27;) as well as the street name. entity_factual_integrity address_entity mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-address-001">
+  <td data-label="Case">asr-entity-address-001-local-tts</td>
+  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>entity factual integrity</strong></li><li><span>ASR slice</span> <strong>address entity</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/VibeVoice-ASR-4bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-entity-address-001</strong></li><li><span>Text SHA-256</span> <strong>5cf2d55b0dddffcc8b60dc856eb7816a36e745257daaf10abd184d3fcd40a9dc</strong></li><li><span>Duration</span> <strong>4.24s</strong></li><li><span>Bytes</span> <strong>203444</strong></li></ul></td>
+  <td data-label="Score" class="scorebar"><strong>100</strong>
+    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
+  </td>
+  <td data-label="Label" class="accurate">accurate</td>
+  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is exceptionally accurate, matching the audio and reference transcripts perfectly. The only difference is the capitalization of the word &#x27;Apartment&#x27;, which is a harmless formatting difference with absolutely no semantic impact.</td>
+  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate transcript is completely accurate.</div><details><summary>Judge transcript</summary>The delivery address is 812 Ashwood Lane, apartment 5B.</details><div><span class="muted">Key differences</span><ul><li>The word &#x27;apartment&#x27; is capitalized as &#x27;Apartment&#x27; in the candidate transcript.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model performed perfectly, accurately transcribing both numerical digits and letters (&#x27;812&#x27;, &#x27;5B&#x27;) as well as the street name.</li></ul></div></td>
+  <td data-label="Status">ok</td>
+</tr>
+      </tbody>
+    </table>
+  </main>
+  <script>
+    (() => {
+      const table = document.querySelector("#case-results-table");
+      if (!table) return;
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const search = document.querySelector("#case-search");
+      const label = document.querySelector("#case-label-filter");
+      const status = document.querySelector("#case-status-filter");
+      const model = document.querySelector("#case-model-filter");
+      const category = document.querySelector("#case-category-filter");
+      const slice = document.querySelector("#case-slice-filter");
+      const count = document.querySelector("#case-visible-count");
+      const state = { sortKey: "", sortDir: "desc" };
+
+      function applyFilters() {
+        const query = (search?.value || "").trim().toLowerCase();
+        const labelValue = label?.value || "";
+        const statusValue = status?.value || "";
+        const modelValue = model?.value || "";
+        const categoryValue = category?.value || "";
+        const sliceValue = slice?.value || "";
+        let visible = 0;
+        rows.forEach((row) => {
+          const matches =
+            (!query || row.dataset.search.includes(query)) &&
+            (!labelValue || row.dataset.label === labelValue) &&
+            (!statusValue || row.dataset.status === statusValue) &&
+            (!modelValue || row.dataset.model === modelValue) &&
+            (!categoryValue || row.dataset.category === categoryValue) &&
+            (!sliceValue || row.dataset.slice === sliceValue);
+          row.classList.toggle("is-hidden", !matches);
+          if (matches) visible += 1;
+        });
+        if (count) count.textContent = `${visible} / ${rows.length} shown`;
+      }
+
+      function sortRows(key) {
+        state.sortDir = state.sortKey === key && state.sortDir === "asc" ? "desc" : "asc";
+        state.sortKey = key;
+        const dir = state.sortDir === "asc" ? 1 : -1;
+        const sorted = [...rows].sort((left, right) => {
+          if (key === "score") {
+            return (Number(left.dataset.score) - Number(right.dataset.score)) * dir;
+          }
+          return left.dataset.case.localeCompare(right.dataset.case) * dir;
+        });
+        sorted.forEach((row) => tbody.appendChild(row));
+        rows.splice(0, rows.length, ...sorted);
+        applyFilters();
+      }
+
+      [search, label, status, model, category, slice].forEach((control) => {
+        control?.addEventListener("input", applyFilters);
+        control?.addEventListener("change", applyFilters);
+      });
+      table.querySelectorAll("[data-sort]").forEach((button) => {
+        button.addEventListener("click", () => sortRows(button.dataset.sort));
+      });
+      sortRows("score");
+    })();
+  </script>
+</body>
+</html>

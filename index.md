@@ -3,7 +3,7 @@ layout: default
 ---
 
 [Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Notes](./notes.md)<br>
-Resources: [Speech Timeline](./speech-timeline.md) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) / [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
+Resources: [Speech Timeline](./speech-timeline.md) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
 
 # About
 

@@ -3,7 +3,8 @@ layout: default
 ---
 
 [Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Notes](./notes.md)<br>
-Resources: [Speech Timeline](./speech-timeline.md) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
+Resources: [Speech Timeline](./speech-timeline.md) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio Benchmark Index](https://github.com/kennethli319/audio-benchmark-index)<br>
+Courses: [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
 
 # About
 
@@ -69,6 +70,10 @@ I am targeting Applied AI, Speech LLM, and Audio ML roles focused on model train
 #### [Open Audio Judge](https://github.com/kennethli319/open-audio-judge) (2026 - Present)
 
 - Built an open-source LLM-as-judge evaluation and monitoring toolkit for voice-AI systems, using omni-model APIs and self-hosted models to assess ASR, TTS, and speech-agent outputs.
+
+#### [Audio Benchmark Index](https://github.com/kennethli319/audio-benchmark-index) (2026 - Present)
+
+- Curated a public index of speech, audio, and multimodal audio benchmarks with task coverage, license/access notes, official sources, and reproducible download helpers.
 
 #### [Speech ML Systems Curriculum](./audio-text-ml-course/) (2025 - Present)
 

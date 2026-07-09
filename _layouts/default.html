@@ -13,12 +13,13 @@
     {% include head-custom.html %}
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="wrapper">
       <header>
         <h1><a href="{{ "/" | absolute_url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
 
         {% if site.logo %}
-          <img src="{{site.logo | relative_url}}" alt="Logo" />
+          <img src="{{site.logo | relative_url}}" alt="Portrait of {{ site.title | default: site.github.repository_name }}" />
         {% endif %}
 
         <p align="center"><i>{{ site.description | default: site.github.project_tagline }}</i></p>
@@ -41,11 +42,11 @@
         </ul>
         {% endif %}
       </header>
-      <section>
+      <main id="main-content" tabindex="-1">
 
       {{ content }}
 
-      </section>
+      </main>
       <footer>
         {% if site.github.is_project_page %}
         <p>This project is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a></p>

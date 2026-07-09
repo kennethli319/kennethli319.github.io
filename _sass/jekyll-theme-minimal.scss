@@ -44,6 +44,22 @@ a:hover, a:focus {
   font-weight: bold;
 }
 
+.skip-link {
+  background:#fff;
+  border:2px solid #267CB9;
+  border-radius:4px;
+  left:12px;
+  padding:8px 12px;
+  position:fixed;
+  top:12px;
+  transform:translateY(-200%);
+  z-index:1000;
+}
+
+.skip-link:focus {
+  transform:translateY(0);
+}
+
 a small {
   font-size:11px;
   color:#777;
@@ -185,7 +201,7 @@ strong {
   color:#222;
 }
 
-section {
+main {
   width:680px;
   float:right;
   padding-bottom:50px;
@@ -217,7 +233,7 @@ footer {
     margin:0;
   }
 
-  header, section, footer {
+  header, main, footer {
     float:none;
     position:static;
     width:auto;
@@ -227,7 +243,7 @@ footer {
     padding-right:320px;
   }
 
-  section {
+  main {
     border:1px solid #e5e5e5;
     border-width:1px 0;
     padding:20px 0;
@@ -252,6 +268,11 @@ footer {
 
   header {
     padding:0;
+  }
+
+  header img {
+    height:auto;
+    max-width:120px;
   }
 
   header ul, header p.view {

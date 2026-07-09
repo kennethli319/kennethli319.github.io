@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Speech Timeline
+description: A searchable history of the ideas, systems, and evaluation methods that shaped modern speech AI.
 ---
 
 # Speech Recognition & Synthesis Timeline
@@ -13,6 +14,12 @@ title: Speech Timeline
   color: #666;
   font-size: 0.98rem;
   line-height: 1.65;
+}
+.speech-scope {
+  color: #666;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin-top: -0.65rem;
 }
 .speech-podcast {
   border: 1px solid #e1e1e1;
@@ -36,6 +43,98 @@ title: Speech Timeline
   margin-top: 0.8rem;
   width: 100%;
 }
+.speech-podcast-links {
+  font-size: 0.86rem;
+  margin: 0.7rem 0 0;
+}
+.speech-podcast-links a,
+.speech-source a {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+.speech-tools {
+  background: #f7f9fb;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  margin: 1.35rem 0 1.5rem;
+  padding: 1rem;
+}
+.speech-tools[hidden] {
+  display: none;
+}
+.speech-tools h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+.speech-controls {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1.7fr) repeat(2, minmax(0, 1fr));
+}
+.speech-control {
+  color: #444;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 0.3rem;
+}
+.speech-control input,
+.speech-control select {
+  background: #fff;
+  border: 1px solid #777;
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: #333;
+  font: inherit;
+  font-weight: 400;
+  min-height: 44px;
+  padding: 0.55rem 0.65rem;
+  width: 100%;
+}
+.speech-control input:focus-visible,
+.speech-control select:focus-visible,
+.speech-button:focus-visible,
+.speech-nav a:focus-visible {
+  outline: 3px solid #006699;
+  outline-offset: 2px;
+}
+.speech-tools-footer {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+.speech-results {
+  color: #555;
+  font-size: 0.88rem;
+  margin: 0;
+}
+.speech-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.speech-button {
+  background: #fff;
+  border: 1px solid #777;
+  border-radius: 6px;
+  color: #333;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  min-height: 44px;
+  padding: 0.45rem 0.65rem;
+}
+.speech-button:hover {
+  border-color: #666;
+}
+.speech-button:disabled {
+  color: #888;
+  cursor: default;
+  opacity: 0.7;
+}
 .speech-nav {
   display: flex;
   flex-wrap: wrap;
@@ -48,9 +147,9 @@ title: Speech Timeline
   border: 1px solid #e1e1e1;
   border-radius: 999px;
   color: #555;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   line-height: 1;
-  padding: 0.35rem 0.55rem;
+  padding: 0.45rem 0.65rem;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -58,12 +157,19 @@ title: Speech Timeline
   border-color: #aaa;
   color: #222;
 }
+.speech-nav a {
+  align-items: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  min-height: 44px;
+}
 .speech-era {
   margin: 2.2rem 0 0.7rem;
-  color: #777;
+  color: #666;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+  scroll-margin-top: 1rem;
   text-transform: uppercase;
 }
 .speech-row {
@@ -80,11 +186,11 @@ title: Speech Timeline
 }
 .speech-kicker {
   margin-top: 0.35rem;
-  color: #888;
+  color: #666;
   font-size: 0.82rem;
   font-weight: 400;
 }
-.speech-body h2 {
+.speech-body h3 {
   margin: 0 0 0.25rem;
   font-size: 1.1rem;
   line-height: 1.35;
@@ -97,7 +203,7 @@ title: Speech Timeline
 }
 .speech-tag {
   border-color: #ddd;
-  color: #777;
+  color: #666;
 }
 .speech-impact {
   border-color: #bdbdbd;
@@ -112,7 +218,7 @@ title: Speech Timeline
   margin: 1.25rem 0 0;
 }
 .speech-tag-note {
-  color: #777;
+  color: #666;
   font-size: 0.9rem;
   line-height: 1.55;
   margin: 0.65rem 0 0;
@@ -126,6 +232,11 @@ title: Speech Timeline
 .speech-source {
   font-size: 0.9rem;
 }
+.speech-source::before {
+  color: #555;
+  content: "Sources: ";
+  font-weight: 700;
+}
 .speech-source a {
   margin-right: 0.55rem;
 }
@@ -136,37 +247,116 @@ title: Speech Timeline
   margin: 0.45rem 0;
   padding-left: 0.75rem;
 }
+.speech-timeline.is-compact .speech-row {
+  padding: 0.9rem 0;
+}
+.speech-timeline.is-compact .speech-body > p:not(.speech-takeaway):not(.speech-source) {
+  display: none;
+}
+.speech-timeline.is-compact.is-searching .speech-row:not([hidden]) .speech-body > p {
+  display: block;
+}
+.speech-empty {
+  background: #f7f9fb;
+  border: 1px solid #dfe3e8;
+  border-radius: 8px;
+  color: #555;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+.speech-row[hidden],
+.speech-era[hidden],
+.speech-nav[hidden],
+.speech-nav a[hidden],
+.speech-empty[hidden] {
+  display: none;
+}
 .back-link {
   margin-top: 2rem;
 }
 @media (max-width: 640px) {
+  .speech-controls {
+    grid-template-columns: 1fr;
+  }
+  .speech-tools-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
   .speech-row {
     grid-template-columns: 1fr;
     gap: 0.35rem;
+  }
+  .speech-year {
+    align-items: baseline;
+    display: flex;
+    gap: 0.55rem;
+  }
+  .speech-kicker {
+    margin-top: 0;
   }
 }
 </style>
 
 <p class="speech-intro">
-  A compact timeline of milestones and key concepts that shaped automatic
+  A curated, annotated timeline of 95 milestones and key concepts that shaped automatic
   speech recognition, text-to-speech, and modern speech-to-speech systems.
   Each entry highlights the proposed idea, the practical achievement, and why
   it still matters.
 </p>
 
-<section class="speech-podcast" aria-label="Speech timeline audio podcast">
-  <h2>Audio Podcast: From Foot Pedals To Omni Models</h2>
-  <p>A narrated companion to the speech timeline, covering the arc from early speech machines to modern omni-modal speech systems.</p>
-  <audio controls preload="metadata" src="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">
-    <a href="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">Download the audio podcast</a>
-  </audio>
+<p class="speech-scope"><strong>Scope:</strong> A selective, non-exhaustive map of influential research and systems, organized by first publication or public release. Last reviewed July 9, 2026.</p>
+
+<section id="speech-tools" class="speech-tools" aria-labelledby="speech-tools-title" hidden>
+  <h2 id="speech-tools-title">Explore the timeline</h2>
+  <div class="speech-controls">
+    <label class="speech-control" for="speech-search">
+      Search milestones
+      <input id="speech-search" type="search" placeholder="Try Whisper, vocoder, or evaluation" autocomplete="off" aria-controls="speech-timeline">
+    </label>
+    <label class="speech-control" for="speech-area-filter">
+      Topic
+      <select id="speech-area-filter" aria-controls="speech-timeline">
+        <option value="">All topics</option>
+        <option value="ASR">ASR</option>
+        <option value="TTS">TTS</option>
+        <option value="Speech-to-Speech">Speech-to-Speech</option>
+        <option value="Audio LLM">Audio LLM</option>
+        <option value="Evaluation">Evaluation</option>
+      </select>
+    </label>
+    <label class="speech-control" for="speech-impact-filter">
+      Progress type
+      <select id="speech-impact-filter" aria-controls="speech-timeline">
+        <option value="">All progress types</option>
+        <option value="new capability">New capability</option>
+        <option value="optimize existing component">Optimize existing component</option>
+        <option value="efficiency">Efficiency</option>
+      </select>
+    </label>
+  </div>
+  <div class="speech-tools-footer">
+    <p id="speech-results" class="speech-results" role="status" aria-live="polite" aria-atomic="true">Timeline ready.</p>
+    <div class="speech-actions">
+      <button id="speech-density" class="speech-button" type="button" aria-controls="speech-timeline" aria-pressed="false" hidden>Compact view</button>
+      <button id="speech-clear" class="speech-button" type="button" disabled>Clear filters</button>
+    </div>
+  </div>
 </section>
 
-<p class="speech-legend" aria-label="Milestone groups">
+<section class="speech-podcast" aria-label="Speech timeline audio podcast">
+  <h2 id="speech-podcast-title">Audio Podcast: From Foot Pedals To Omni Models</h2>
+  <p id="speech-podcast-description">A narrated companion to the speech timeline, covering the arc from early speech machines to modern omni-modal speech systems.</p>
+  <audio controls preload="metadata" aria-labelledby="speech-podcast-title" aria-describedby="speech-podcast-description" src="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">
+    <a href="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}">Download the audio podcast</a>
+  </audio>
+  <p class="speech-podcast-links">22 min · M4A · 43 MB · <a href="{{ '/assets/audio/from-foot-pedals-to-omni-models.m4a' | relative_url }}" aria-label="Download podcast (M4A, 43 MB)" download>Download podcast</a> · <a href="{{ '/speech-timeline-podcast-transcript.html' | relative_url }}">Read transcript</a></p>
+</section>
+
+<div class="speech-legend" role="group" aria-label="Milestone groups">
   <span class="speech-impact">new capability</span>
   <span class="speech-impact">optimize existing component</span>
   <span class="speech-impact">efficiency</span>
-</p>
+</div>
 
 <p class="speech-tag-note">
   The first tag groups each milestone by the kind of progress it represents:
@@ -183,17 +373,19 @@ title: Speech Timeline
   <a href="#speech-foundation">Speech Foundation Models</a>
 </nav>
 
-<div class="speech-timeline">
+<div id="speech-timeline" class="speech-timeline">
+
+<p id="speech-empty" class="speech-empty" hidden>No milestones match those filters. Try a broader search or clear the filters.</p>
 
 <h2 id="mechanical" class="speech-era">Mechanical & Early Electronic</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1937
     <div class="speech-kicker">Perceptual frequency</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Mel Scale For Pitch Perception</h2>
+    <h3>Mel Scale For Pitch Perception</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> A psychophysical pitch scale that maps physical frequency to perceived pitch magnitude rather than treating Hertz as perceptually uniform.</p>
     <p><strong>Achievement:</strong> The mel scale gave speech engineers a practical way to weight spectral analysis toward human auditory resolution.</p>
@@ -204,12 +396,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1939
     <div class="speech-kicker">Manual synthesis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Bell Labs Voder</h2>
+    <h3>Bell Labs Voder</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Vocoder</span></div>
     <p><strong>Proposed:</strong> A human-operated speech synthesizer that controlled voicing, noise, pitch, and filter settings with keys and pedals.</p>
     <p><strong>Achievement:</strong> It showed that intelligible speech could be generated by controlling a compact acoustic representation instead of replaying recordings.</p>
@@ -220,12 +412,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1940
     <div class="speech-kicker">Analysis-synthesis coding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Dudley Vocoder</h2>
+    <h3>Dudley Vocoder</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
     <p><strong>Proposed:</strong> Analyze speech into slowly varying control signals for spectral bands and excitation, then resynthesize intelligible speech from that compact representation.</p>
     <p><strong>Achievement:</strong> The vocoder showed that speech could be transmitted, transformed, and reconstructed through an analysis-synthesis model rather than preserving every waveform sample.</p>
@@ -236,12 +428,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1946
     <div class="speech-kicker">Time-frequency analysis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Sound Spectrograph And Spectrogram Features</h2>
+    <h3>Sound Spectrograph And Spectrogram Features</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> Analyze speech as a changing distribution of frequency energy over time, producing a visible spectrogram rather than a single waveform trace.</p>
     <p><strong>Achievement:</strong> The sound spectrograph made formants, transitions, voicing, bursts, and noise patterns inspectable for speech science and engineering.</p>
@@ -252,12 +444,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1946
     <div class="speech-kicker">Windowed spectra</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Gabor Time-Frequency Analysis</h2>
+    <h3>Gabor Time-Frequency Analysis</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> Describe signals with localized time-frequency elements instead of choosing only a time-domain waveform or a full-duration Fourier spectrum.</p>
     <p><strong>Achievement:</strong> Gabor's analysis gave engineers a formal way to think about windowed spectra, time-frequency resolution, and the tradeoff between precise timing and precise frequency.</p>
@@ -268,12 +460,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1952
     <div class="speech-kicker">Digit recognition</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Bell Labs Audrey</h2>
+    <h3>Bell Labs Audrey</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Template Matching</span></div>
     <p><strong>Proposed:</strong> A hardware recognizer for spoken digits using formant-like acoustic measurements and speaker-dependent matching.</p>
     <p><strong>Achievement:</strong> It recognized digits from a known speaker with high accuracy, making automatic recognition concrete rather than speculative.</p>
@@ -284,12 +476,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1961-1962
     <div class="speech-kicker">Public ASR demo</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>IBM Shoebox</h2>
+    <h3>IBM Shoebox</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Command Recognition</span></div>
     <p><strong>Proposed:</strong> A small-vocabulary speech recognizer for digits and arithmetic commands.</p>
     <p><strong>Achievement:</strong> It demonstrated spoken command input at the 1962 Seattle World's Fair.</p>
@@ -300,12 +492,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1963
     <div class="speech-kicker">Cepstral features</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Cepstral Analysis</h2>
+    <h3>Cepstral Analysis</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> Analyze the spectrum of a log spectrum so periodic structure in frequency can be separated from the smoother spectral envelope.</p>
     <p><strong>Achievement:</strong> Cepstral analysis gave speech engineers a compact way to describe spectral shape while reducing sensitivity to raw waveform phase and fine harmonic detail.</p>
@@ -316,12 +508,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1965
     <div class="speech-kicker">Fast spectral analysis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Cooley-Tukey Fast Fourier Transform</h2>
+    <h3>Cooley-Tukey Fast Fourier Transform</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> A divide-and-conquer algorithm for computing discrete Fourier transforms far faster than direct summation for composite sequence lengths.</p>
     <p><strong>Achievement:</strong> The FFT made routine spectral analysis practical on digital computers, turning time-domain speech into frequency-domain frames at scale.</p>
@@ -334,12 +526,12 @@ title: Speech Timeline
 <h2 id="statistical" class="speech-era">Signal Processing & Statistical Speech</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1967
     <div class="speech-kicker">Trellis decoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Viterbi Algorithm For Sequence Search</h2>
+    <h3>Viterbi Algorithm For Sequence Search</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Search</span><span class="speech-tag">HMM</span></div>
     <p><strong>Proposed:</strong> A dynamic programming decoder for finding the most likely path through a trellis of hidden states and observations.</p>
     <p><strong>Achievement:</strong> The Viterbi algorithm gave later HMM-based ASR a tractable way to infer word, phone, and state sequences without enumerating every possible alignment.</p>
@@ -350,12 +542,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1968
     <div class="speech-kicker">Speech coding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Linear Predictive Coding</h2>
+    <h3>Linear Predictive Coding</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Signal Processing</span></div>
     <p><strong>Proposed:</strong> A source-filter model that predicts each speech sample from previous samples and compactly represents the vocal tract filter.</p>
     <p><strong>Achievement:</strong> LPC made low-bitrate speech coding and controllable parametric synthesis practical.</p>
@@ -366,12 +558,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1975
     <div class="speech-kicker">Endpoint detection</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Voice Activity Detection And Utterance Endpoints</h2>
+    <h3>Voice Activity Detection And Utterance Endpoints</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Segmentation</span></div>
     <p><strong>Proposed:</strong> Use short-time energy, zero-crossing behavior, and duration rules to detect the beginning and end of isolated spoken utterances.</p>
     <p><strong>Achievement:</strong> Endpoint detection made small-vocabulary recognition more practical by trimming silence and reducing the search space before matching or decoding.</p>
@@ -382,12 +574,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1976
     <div class="speech-kicker">Search and knowledge integration</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Harpy Speech Understanding System</h2>
+    <h3>Harpy Speech Understanding System</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Search</span><span class="speech-tag">Knowledge Sources</span></div>
     <p><strong>Proposed:</strong> A connected-speech recognizer that compiled acoustic, lexical, syntactic, and task knowledge into a unified network searched with a best-few beam strategy.</p>
     <p><strong>Achievement:</strong> Harpy met the ARPA speech-understanding goals for a restricted thousand-word task and showed that large-vocabulary connected speech recognition could be made computationally practical.</p>
@@ -398,12 +590,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1978
     <div class="speech-kicker">Time alignment</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Dynamic Time Warping For Word Recognition</h2>
+    <h3>Dynamic Time Warping For Word Recognition</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Alignment</span></div>
     <p><strong>Proposed:</strong> A dynamic programming method for matching utterances that differ in speaking rate.</p>
     <p><strong>Achievement:</strong> DTW made isolated-word recognition more robust by aligning acoustic sequences rather than comparing them frame by frame.</p>
@@ -414,12 +606,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1980
     <div class="speech-kicker">Feature representation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Mel-Frequency Cepstral Coefficients</h2>
+    <h3>Mel-Frequency Cepstral Coefficients</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> Represent short speech frames with cepstral coefficients on a mel-spaced frequency scale, approximating human perceptual frequency resolution.</p>
     <p><strong>Achievement:</strong> MFCCs became a standard front-end for template, HMM/GMM, and early neural ASR systems because they compactly captured phonetic information while reducing raw waveform variability.</p>
@@ -430,12 +622,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1980
     <div class="speech-kicker">Codebook representations</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Vector Quantization For Speech Coding</h2>
+    <h3>Vector Quantization For Speech Coding</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> Represent blocks of speech parameters by the nearest entry in a learned codebook rather than quantizing each scalar independently.</p>
     <p><strong>Achievement:</strong> Vector quantization made compact codebook-based speech coding practical, especially for LPC-derived parameters and other low-bitrate representations.</p>
@@ -446,12 +638,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1982
     <div class="speech-kicker">Rule-based TTS</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Klattalk Text-To-Speech</h2>
+    <h3>Klattalk Text-To-Speech</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Formant Synthesis</span></div>
     <p><strong>Proposed:</strong> A real-time English text-to-speech system that converted ordinary spelling into linguistic controls for a formant synthesizer.</p>
     <p><strong>Achievement:</strong> Klattalk connected text analysis, pronunciation rules, prosody, and acoustic generation in an integrated system that later influenced DECtalk.</p>
@@ -462,12 +654,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1984
     <div class="speech-kicker">Phase reconstruction</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Griffin-Lim Spectrogram Inversion</h2>
+    <h3>Griffin-Lim Spectrogram Inversion</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
     <p><strong>Proposed:</strong> Reconstruct a time-domain signal from a modified short-time Fourier transform by iteratively estimating phase consistent with the target magnitude spectrogram.</p>
     <p><strong>Achievement:</strong> Griffin-Lim gave speech and audio systems a practical baseline for turning magnitude spectrograms back into waveforms when phase was missing or altered.</p>
@@ -478,12 +670,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1984
     <div class="speech-kicker">Statistical denoising</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>MMSE-STSA Speech Enhancement</h2>
+    <h3>MMSE-STSA Speech Enhancement</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Enhancement</span></div>
     <p><strong>Proposed:</strong> Estimate clean-speech short-time spectral amplitudes from noisy observations with a minimum mean-square error statistical model.</p>
     <p><strong>Achievement:</strong> Ephraim and Malah gave single-channel speech enhancement a durable probabilistic baseline, including explicit treatment of speech-presence uncertainty and noisy phase reconstruction.</p>
@@ -494,12 +686,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1988
     <div class="speech-kicker">Large-vocabulary ASR</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>CMU SPHINX</h2>
+    <h3>CMU SPHINX</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">HMM</span><span class="speech-tag">Language Model</span></div>
     <p><strong>Proposed:</strong> A speaker-independent continuous speech recognizer that combined HMM acoustic modeling with statistical language modeling for a roughly thousand-word task.</p>
     <p><strong>Achievement:</strong> SPHINX demonstrated that large-vocabulary continuous speech recognition by previously unseen speakers was practical, not only a laboratory aspiration.</p>
@@ -510,12 +702,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1989
     <div class="speech-kicker">Prosody modification</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Pitch-Synchronous Overlap-Add</h2>
+    <h3>Pitch-Synchronous Overlap-Add</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Prosody</span></div>
     <p><strong>Proposed:</strong> Modify pitch, duration, and concatenation of speech waveforms by cutting around pitch periods and recombining segments with overlap-add processing.</p>
     <p><strong>Achievement:</strong> PSOLA improved diphone and concatenative synthesis by making prosody changes more natural without requiring a full source-filter resynthesis model.</p>
@@ -526,12 +718,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1989
     <div class="speech-kicker">Probabilistic decoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Hidden Markov Models Become The ASR Workhorse</h2>
+    <h3>Hidden Markov Models Become The ASR Workhorse</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">HMM</span></div>
     <p><strong>Proposed:</strong> A probabilistic framework that combines hidden state sequences, acoustic likelihoods, pronunciation lexicons, and language models.</p>
     <p><strong>Achievement:</strong> HMM systems scaled recognition from isolated words toward continuous speech and large vocabularies.</p>
@@ -542,12 +734,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1989
     <div class="speech-kicker">Temporal neural features</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Time-Delay Neural Networks</h2>
+    <h3>Time-Delay Neural Networks</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Neural Network</span><span class="speech-tag">Temporal Context</span></div>
     <p><strong>Proposed:</strong> Use shifted local time windows and shared neural weights so a recognizer could learn acoustic-phonetic patterns and their temporal relationships.</p>
     <p><strong>Achievement:</strong> TDNNs improved phoneme recognition by making early neural acoustic models less sensitive to small timing shifts.</p>
@@ -558,12 +750,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1990
     <div class="speech-kicker">Auditory features</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Perceptual Linear Prediction</h2>
+    <h3>Perceptual Linear Prediction</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Features</span></div>
     <p><strong>Proposed:</strong> Analyze speech with critical-band resolution, equal-loudness weighting, and intensity-loudness compression before fitting a compact all-pole spectral model.</p>
     <p><strong>Achievement:</strong> PLP gave ASR systems a low-dimensional auditory feature representation that blended perceptual modeling with linear-predictive analysis.</p>
@@ -574,12 +766,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1993
     <div class="speech-kicker">Phonetic benchmark data</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>TIMIT Acoustic-Phonetic Corpus</h2>
+    <h3>TIMIT Acoustic-Phonetic Corpus</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Release a carefully transcribed corpus of phonetically rich American English speech with time-aligned word and phone labels.</p>
     <p><strong>Achievement:</strong> TIMIT gave researchers a shared small-scale benchmark for acoustic-phonetic modeling, phone recognition, feature analysis, and early neural ASR experiments.</p>
@@ -590,12 +782,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1993
     <div class="speech-kicker">Conversational ASR data</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Switchboard Telephone Speech Corpus</h2>
+    <h3>Switchboard Telephone Speech Corpus</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Collect large-scale spontaneous telephone conversations with transcripts so speech systems could be trained and tested on natural conversational speech rather than read prompts alone.</p>
     <p><strong>Achievement:</strong> Switchboard provided roughly 260 hours of two-sided telephone conversations from hundreds of speakers, becoming a durable benchmark for conversational ASR, speaker recognition, and dialogue research.</p>
@@ -606,12 +798,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1993
     <div class="speech-kicker">Pronunciation lexicons</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>CMU Pronouncing Dictionary</h2>
+    <h3>CMU Pronouncing Dictionary</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Lexicon</span></div>
     <p><strong>Proposed:</strong> Provide a machine-readable mapping from English words to ARPAbet phoneme sequences, including stress markings and alternate pronunciations.</p>
     <p><strong>Achievement:</strong> CMUdict became a widely reused open pronunciation lexicon for speech recognition, speech synthesis, language teaching tools, and grapheme-to-phoneme training.</p>
@@ -622,12 +814,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1994
     <div class="speech-kicker">TTS evaluation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Mean Opinion Score For Synthetic Speech</h2>
+    <h3>Mean Opinion Score For Synthetic Speech</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Rate speech output with listener panels and average their judgments across quality scales such as naturalness, intelligibility, effort, and pleasantness.</p>
     <p><strong>Achievement:</strong> ITU-T P.85 gave voice-output systems a shared subjective evaluation procedure, complementing broader speech-quality methods such as P.800.</p>
@@ -638,12 +830,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1995
     <div class="speech-kicker">Speaker adaptation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Maximum Likelihood Linear Regression</h2>
+    <h3>Maximum Likelihood Linear Regression</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Adaptation</span></div>
     <p><strong>Proposed:</strong> Adapt continuous-density HMM acoustic models to a new speaker or environment by estimating linear transforms from limited adaptation data.</p>
     <p><strong>Achievement:</strong> MLLR made speaker adaptation practical for large-vocabulary recognizers without retraining full acoustic models for every user.</p>
@@ -654,12 +846,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1996
     <div class="speech-kicker">Data-driven voices</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Unit Selection And CHATR</h2>
+    <h3>Unit Selection And CHATR</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Concatenative</span></div>
     <p><strong>Proposed:</strong> Select and concatenate recorded speech units from a large database, optimizing target match and join quality.</p>
     <p><strong>Achievement:</strong> Unit selection greatly improved naturalness compared with heavily rule-based synthesis in constrained domains.</p>
@@ -670,12 +862,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1997
     <div class="speech-kicker">Recurrent memory</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Long Short-Term Memory</h2>
+    <h3>Long Short-Term Memory</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Sequence Modeling</span></div>
     <p><strong>Proposed:</strong> Add gated memory cells to recurrent neural networks so sequence models could preserve information over longer spans without unstable gradients.</p>
     <p><strong>Achievement:</strong> LSTM made recurrent modeling more practical for long temporal dependencies, later becoming a standard building block in acoustic models, CTC systems, RNN-T, attention ASR, and neural TTS.</p>
@@ -686,12 +878,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     1999
     <div class="speech-kicker">High-quality vocoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>STRAIGHT Speech Analysis-Synthesis</h2>
+    <h3>STRAIGHT Speech Analysis-Synthesis</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
     <p><strong>Proposed:</strong> Decompose speech with pitch-adaptive time-frequency smoothing and instantaneous-frequency-based F0 extraction so spectral envelope, pitch, and aperiodicity could be modified with fewer periodicity artifacts.</p>
     <p><strong>Achievement:</strong> STRAIGHT became a high-quality analysis-modification-resynthesis tool for speech transformation, voice conversion, morphing, and statistical parametric synthesis research.</p>
@@ -704,12 +896,12 @@ title: Speech Timeline
 <h2 id="evaluation-tooling" class="speech-era">Evaluation & Tooling</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2000
     <div class="speech-kicker">ASR evaluation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Word Error Rate And NIST Scoring</h2>
+    <h3>Word Error Rate And NIST Scoring</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Score ASR output by aligning a hypothesis transcript to a human reference and counting substitutions, deletions, and insertions.</p>
     <p><strong>Achievement:</strong> NIST evaluation campaigns and the SCTK/SCLITE tooling made WER a shared benchmark language across conversational, broadcast, and later multilingual ASR tasks.</p>
@@ -720,12 +912,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2001
     <div class="speech-kicker">Comparative listening tests</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>MUSHRA Listening Evaluation</h2>
+    <h3>MUSHRA Listening Evaluation</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Evaluate intermediate-quality audio systems with a multi-stimulus listening test that includes a visible reference, hidden reference, and anchor conditions on a 0-100 scale.</p>
     <p><strong>Achievement:</strong> ITU-R BS.1534 made MUSHRA a standardized way to compare codecs, enhancement systems, neural vocoders, and TTS outputs with finer discrimination than a single absolute rating.</p>
@@ -736,12 +928,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2002
     <div class="speech-kicker">Decoding graphs</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Weighted Finite-State Transducer Decoding</h2>
+    <h3>Weighted Finite-State Transducer Decoding</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">WFST</span><span class="speech-tag">Search</span></div>
     <p><strong>Proposed:</strong> Represent acoustic context, pronunciation dictionaries, language models, and decoding alternatives with weighted finite-state transducers that can be composed, determinized, minimized, and searched.</p>
     <p><strong>Achievement:</strong> WFSTs gave large-vocabulary ASR a mathematically clean way to combine many model components into optimized recognition graphs.</p>
@@ -752,12 +944,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2002
     <div class="speech-kicker">Parametric synthesis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>HMM-Based Speech Synthesis</h2>
+    <h3>HMM-Based Speech Synthesis</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">HMM</span></div>
     <p><strong>Proposed:</strong> Generate acoustic parameters from statistical models, then synthesize speech with a vocoder.</p>
     <p><strong>Achievement:</strong> Statistical parametric TTS made voices smaller, more adaptable, and easier to control than large unit-selection databases.</p>
@@ -768,12 +960,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2003
     <div class="speech-kicker">Who spoke when</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Speaker Diarization In Rich Transcription</h2>
+    <h3>Speaker Diarization In Rich Transcription</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Segment long recordings into speaker-homogeneous regions and cluster them so transcripts can answer who spoke when, not only what words were said.</p>
     <p><strong>Achievement:</strong> NIST Rich Transcription evaluations made speaker diarization a recurring shared task across broadcast, telephone, and meeting speech.</p>
@@ -784,12 +976,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2003
     <div class="speech-kicker">Diarization metric</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Diarization Error Rate</h2>
+    <h3>Diarization Error Rate</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Measure speaker diarization by the share of reference speech time affected by missed speech, false alarms, or speaker-confusion errors after mapping system speaker labels to reference speakers.</p>
     <p><strong>Achievement:</strong> NIST Rich Transcription evaluations and MD-eval-style tooling made DER the common score for comparing diarization systems across meetings, broadcast speech, telephone speech, and later speaker-attributed transcription tasks.</p>
@@ -800,12 +992,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2005
     <div class="speech-kicker">Shared TTS challenge</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Blizzard Challenge</h2>
+    <h3>Blizzard Challenge</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span></div>
     <p><strong>Proposed:</strong> Compare corpus-based speech synthesis systems by giving participants common speech databases, hidden test sentences, and shared listening-test protocols.</p>
     <p><strong>Achievement:</strong> The first Blizzard Challenge created a public benchmark culture for TTS, letting unit-selection, statistical parametric, and later neural systems be judged on comparable data and listener ratings.</p>
@@ -816,12 +1008,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2006
     <div class="speech-kicker">Sequence learning</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Connectionist Temporal Classification</h2>
+    <h3>Connectionist Temporal Classification</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">End-to-End</span></div>
     <p><strong>Proposed:</strong> Train sequence models without frame-level alignments by summing over possible label-to-frame paths.</p>
     <p><strong>Achievement:</strong> CTC made direct acoustic-to-label learning practical for tasks where exact alignments are expensive or unknown.</p>
@@ -832,12 +1024,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2007
     <div class="speech-kicker">Parametric TTS toolkit</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>HTS HMM-Based Speech Synthesis Toolkit</h2>
+    <h3>HTS HMM-Based Speech Synthesis Toolkit</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Toolkit</span><span class="speech-tag">HMM</span></div>
     <p><strong>Proposed:</strong> Release a shared HMM-based synthesis toolkit that models spectrum, excitation, and duration with context-dependent statistical models.</p>
     <p><strong>Achievement:</strong> HTS gave researchers and developers a reproducible platform for building compact statistical parametric voices, adapting speakers, and comparing synthesis techniques.</p>
@@ -850,12 +1042,12 @@ title: Speech Timeline
 <h2 id="neural" class="speech-era">Neural Turn</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2011
     <div class="speech-kicker">Open ASR recipes</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Kaldi Speech Recognition Toolkit</h2>
+    <h3>Kaldi Speech Recognition Toolkit</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Toolkit</span><span class="speech-tag">WFST</span></div>
     <p><strong>Proposed:</strong> A flexible open-source ASR toolkit built around finite-state decoding, modular recipes, and extensible acoustic modeling.</p>
     <p><strong>Achievement:</strong> Kaldi made strong HMM/GMM, DNN-HMM, speaker adaptation, lattice, and language-model workflows reproducible across research labs and production teams.</p>
@@ -866,12 +1058,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2011
     <div class="speech-kicker">Speaker embeddings</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>I-Vectors And Total Variability Modeling</h2>
+    <h3>I-Vectors And Total Variability Modeling</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Represent an utterance with a low-dimensional vector in a total-variability space that captures speaker and channel variation together.</p>
     <p><strong>Achievement:</strong> I-vectors became a standard compact representation for speaker verification, language recognition, diarization, and speaker adaptation workflows.</p>
@@ -882,12 +1074,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2012
     <div class="speech-kicker">Deep acoustic models</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>DNN-HMM Acoustic Modeling</h2>
+    <h3>DNN-HMM Acoustic Modeling</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Hybrid</span></div>
     <p><strong>Proposed:</strong> Replace GMM acoustic likelihood models with deep neural networks while keeping HMM decoding and language-model infrastructure.</p>
     <p><strong>Achievement:</strong> DNN-HMM systems delivered large WER reductions on established ASR benchmarks.</p>
@@ -898,12 +1090,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2012
     <div class="speech-kicker">Alignment-free transduction</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Recurrent Neural Network Transducer</h2>
+    <h3>Recurrent Neural Network Transducer</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Transducer</span></div>
     <p><strong>Proposed:</strong> Learn a probabilistic mapping from an input sequence to an output sequence without requiring a predefined frame-level alignment.</p>
     <p><strong>Achievement:</strong> RNN-T extended the CTC idea with a prediction network, letting recognition depend on both acoustic history and emitted label history.</p>
@@ -914,12 +1106,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2014
     <div class="speech-kicker">End-to-end scale</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Deep Speech</h2>
+    <h3>Deep Speech</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">CTC</span></div>
     <p><strong>Proposed:</strong> Train a large neural recognizer with CTC on substantial speech data and pair it with decoding and language-model support.</p>
     <p><strong>Achievement:</strong> It showed that a simpler end-to-end acoustic pipeline could compete with heavily engineered systems when trained at scale.</p>
@@ -930,12 +1122,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2015
     <div class="speech-kicker">Open benchmark data</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>LibriSpeech</h2>
+    <h3>LibriSpeech</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Dataset</span></div>
     <p><strong>Proposed:</strong> Build a large, freely available corpus of read English speech derived from public-domain audiobooks, with standardized train, development, and test splits.</p>
     <p><strong>Achievement:</strong> LibriSpeech gave ASR researchers about 1,000 hours of labeled speech and became a shared benchmark for conventional, end-to-end, and self-supervised recognizers.</p>
@@ -946,12 +1138,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2015
     <div class="speech-kicker">Attention-based ASR</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Listen, Attend and Spell</h2>
+    <h3>Listen, Attend and Spell</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Attention</span><span class="speech-tag">Seq2seq</span></div>
     <p><strong>Proposed:</strong> A pyramidal recurrent encoder and attention decoder that transcribes speech into characters without a pronunciation lexicon.</p>
     <p><strong>Achievement:</strong> LAS showed that attention-based sequence-to-sequence modeling could learn acoustic modeling, alignment, and character prediction jointly.</p>
@@ -962,12 +1154,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2016
     <div class="speech-kicker">Real-time vocoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>WORLD Vocoder</h2>
+    <h3>WORLD Vocoder</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Vocoder</span></div>
     <p><strong>Proposed:</strong> A high-quality speech analysis-synthesis system that estimates F0, spectral envelope, and aperiodicity, then resynthesizes speech quickly enough for real-time use.</p>
     <p><strong>Achievement:</strong> WORLD made controllable vocoder-based synthesis practical for statistical parametric TTS, singing synthesis, voice conversion, and speech research tooling.</p>
@@ -978,12 +1170,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2016
     <div class="speech-kicker">Neural waveform generation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>WaveNet</h2>
+    <h3>WaveNet</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span></div>
     <p><strong>Proposed:</strong> Autoregressive neural waveform modeling with dilated convolutions.</p>
     <p><strong>Achievement:</strong> WaveNet produced much more natural speech than conventional vocoders and became a reference point for neural audio generation.</p>
@@ -994,12 +1186,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2017
     <div class="speech-kicker">Seq2seq synthesis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Tacotron</h2>
+    <h3>Tacotron</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Attention</span></div>
     <p><strong>Proposed:</strong> An encoder-decoder model that maps characters to spectrogram-like acoustic features with attention.</p>
     <p><strong>Achievement:</strong> It reduced the need for complex front-end feature engineering and made end-to-end neural TTS feel practical.</p>
@@ -1010,12 +1202,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2017
     <div class="speech-kicker">Attention backbone</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Transformer Sequence Modeling</h2>
+    <h3>Transformer Sequence Modeling</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Attention</span></div>
     <p><strong>Proposed:</strong> Replace recurrent sequence modeling with stacked self-attention and feed-forward layers, making long-context token interactions easier to learn in parallel.</p>
     <p><strong>Achievement:</strong> Although introduced for machine translation, the Transformer quickly became the backbone pattern behind Conformer ASR, Whisper-style encoder-decoders, speech LMs, and codec-token generators.</p>
@@ -1026,12 +1218,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2017
     <div class="speech-kicker">Learned discrete codes</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>VQ-VAE And Neural Discrete Representations</h2>
+    <h3>VQ-VAE And Neural Discrete Representations</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Discrete Units</span></div>
     <p><strong>Proposed:</strong> Learn a latent codebook with vector quantization so neural models can encode continuous signals into discrete symbols while training an encoder and decoder end to end.</p>
     <p><strong>Achievement:</strong> VQ-VAE made learned discrete representations practical for high-dimensional data, including speech experiments that separated phoneme-like content from speaker variation.</p>
@@ -1042,12 +1234,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2017
     <div class="speech-kicker">Neural TTS stack</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Tacotron 2</h2>
+    <h3>Tacotron 2</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Attention</span><span class="speech-tag">Neural Vocoder</span></div>
     <p><strong>Proposed:</strong> Pair an attention-based spectrogram predictor with a modified WaveNet vocoder to synthesize waveform audio from characters.</p>
     <p><strong>Achievement:</strong> Tacotron 2 produced highly natural single-speaker TTS and made the acoustic-model-plus-neural-vocoder recipe a dominant neural synthesis pattern.</p>
@@ -1058,12 +1250,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2018
     <div class="speech-kicker">Parallel vocoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Parallel WaveNet</h2>
+    <h3>Parallel WaveNet</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">Distillation</span></div>
     <p><strong>Proposed:</strong> Distill an autoregressive WaveNet teacher into a parallel feed-forward student using probability density distillation.</p>
     <p><strong>Achievement:</strong> It preserved high-fidelity neural waveform quality while generating speech more than 20 times faster than real time and serving production voices.</p>
@@ -1074,12 +1266,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2018
     <div class="speech-kicker">Speaker embeddings</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>X-Vectors For Speaker Representation</h2>
+    <h3>X-Vectors For Speaker Representation</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Train a deep neural network to map variable-length utterances into fixed-dimensional speaker embeddings, with augmentation to improve robustness.</p>
     <p><strong>Achievement:</strong> X-vectors became a practical speaker representation for verification, diarization, adaptation, and downstream speech-system conditioning.</p>
@@ -1090,12 +1282,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2018
     <div class="speech-kicker">Transducer revival</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Streaming RNN-Transducer ASR</h2>
+    <h3>Streaming RNN-Transducer ASR</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Streaming</span></div>
     <p><strong>Proposed:</strong> Use transducer models to jointly learn acoustic encoding, prediction, and alignment for streaming recognition.</p>
     <p><strong>Achievement:</strong> RNN-T became a dominant production architecture for low-latency ASR on phones, assistants, and meetings.</p>
@@ -1106,12 +1298,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2018
     <div class="speech-kicker">Contrastive pretraining</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Contrastive Predictive Coding</h2>
+    <h3>Contrastive Predictive Coding</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span></div>
     <p><strong>Proposed:</strong> Learn useful representations by predicting future latent observations with a contrastive objective, including experiments on raw speech.</p>
     <p><strong>Achievement:</strong> CPC showed that unlabeled audio could train speech features that transfer to phoneme recognition and other downstream tasks.</p>
@@ -1122,12 +1314,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2019
     <div class="speech-kicker">Acoustic augmentation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>SpecAugment</h2>
+    <h3>SpecAugment</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Regularization</span></div>
     <p><strong>Proposed:</strong> Improve ASR training by masking blocks of time and frequency directly on log-mel spectrogram inputs, plus simple time warping.</p>
     <p><strong>Achievement:</strong> SpecAugment gave end-to-end recognizers a strong, architecture-independent regularizer without requiring extra labeled speech.</p>
@@ -1138,12 +1330,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2019
     <div class="speech-kicker">Unsupervised pretraining</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>wav2vec</h2>
+    <h3>wav2vec</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span></div>
     <p><strong>Proposed:</strong> Learn speech representations directly from raw audio by training a convolutional model to distinguish true future latent samples from distractors.</p>
     <p><strong>Achievement:</strong> wav2vec showed that unsupervised pretraining on unlabeled speech could improve downstream ASR when only limited transcribed data was available.</p>
@@ -1154,12 +1346,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2019
     <div class="speech-kicker">Fast synthesis</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>FastSpeech</h2>
+    <h3>FastSpeech</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Non-Autoregressive</span></div>
     <p><strong>Proposed:</strong> A feed-forward Transformer TTS model with duration prediction to generate speech features in parallel.</p>
     <p><strong>Achievement:</strong> It improved inference speed and controllability compared with autoregressive attention models.</p>
@@ -1172,12 +1364,12 @@ title: Speech Timeline
 <h2 id="foundation" class="speech-era">Foundation Models</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Variance control</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>FastSpeech 2</h2>
+    <h3>FastSpeech 2</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Non-Autoregressive</span><span class="speech-tag">Prosody</span></div>
     <p><strong>Proposed:</strong> Train non-autoregressive TTS directly on ground-truth mel-spectrograms while conditioning on duration, pitch, and energy instead of relying on teacher-student distillation.</p>
     <p><strong>Achievement:</strong> FastSpeech 2 simplified the training pipeline, improved quality over FastSpeech, and made explicit variance prediction a practical way to control speech rhythm and expressiveness.</p>
@@ -1188,12 +1380,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Convolution + attention</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Conformer</h2>
+    <h3>Conformer</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">Transformer</span></div>
     <p><strong>Proposed:</strong> Combine convolution modules with self-attention to capture local acoustic patterns and global context.</p>
     <p><strong>Achievement:</strong> Conformer became a high-performing backbone for hybrid, CTC, attention, and transducer ASR systems.</p>
@@ -1204,12 +1396,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Fast neural vocoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>HiFi-GAN</h2>
+    <h3>HiFi-GAN</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">GAN</span></div>
     <p><strong>Proposed:</strong> Generate high-fidelity speech waveforms from mel-spectrograms with a generative adversarial network designed for fast inference.</p>
     <p><strong>Achievement:</strong> HiFi-GAN delivered strong perceptual quality while running far faster than autoregressive neural vocoders.</p>
@@ -1220,12 +1412,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Speaker embedding backbone</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>ECAPA-TDNN Speaker Embeddings</h2>
+    <h3>ECAPA-TDNN Speaker Embeddings</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Improve TDNN speaker embeddings with Res2Net-style temporal blocks, squeeze-and-excitation channel attention, multi-layer feature aggregation, and attentive statistics pooling.</p>
     <p><strong>Achievement:</strong> ECAPA-TDNN substantially improved x-vector-style speaker verification and became a common compact backbone for extracting reusable speaker embeddings.</p>
@@ -1236,12 +1428,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Diffusion vocoding</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>DiffWave And Diffusion Speech Generation</h2>
+    <h3>DiffWave And Diffusion Speech Generation</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Neural Vocoder</span><span class="speech-tag">Diffusion</span></div>
     <p><strong>Proposed:</strong> Generate speech waveforms by reversing a gradual noise process, conditioning the denoising model on acoustic features such as mel-spectrograms.</p>
     <p><strong>Achievement:</strong> DiffWave showed that diffusion models could synthesize high-quality speech with a non-autoregressive generative process.</p>
@@ -1252,12 +1444,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2020
     <div class="speech-kicker">Self-supervision</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>wav2vec 2.0</h2>
+    <h3>wav2vec 2.0</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Pretraining</span></div>
     <p><strong>Proposed:</strong> Learn speech representations from raw audio with masked prediction over quantized latent targets, then fine-tune with limited labels.</p>
     <p><strong>Achievement:</strong> It sharply reduced labeled-data requirements and improved low-resource ASR performance.</p>
@@ -1268,12 +1460,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">End-to-end neural TTS</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>VITS</h2>
+    <h3>VITS</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Flow</span><span class="speech-tag">VAE</span></div>
     <p><strong>Proposed:</strong> An end-to-end TTS model combining variational inference, normalizing flows, adversarial training, and a neural vocoder.</p>
     <p><strong>Achievement:</strong> It produced strong naturalness without a separate acoustic model and vocoder training pipeline.</p>
@@ -1284,12 +1476,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">Discrete speech units</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>HuBERT</h2>
+    <h3>HuBERT</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Representation Learning</span></div>
     <p><strong>Proposed:</strong> Predict masked speech-unit clusters to learn robust hidden-unit representations from unlabeled audio.</p>
     <p><strong>Achievement:</strong> HuBERT strengthened self-supervised speech representation learning and helped popularize discrete unit modeling.</p>
@@ -1300,12 +1492,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">Textless speech modeling</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Generative Spoken Language Modeling</h2>
+    <h3>Generative Spoken Language Modeling</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech LM</span><span class="speech-tag">Discrete Units</span></div>
     <p><strong>Proposed:</strong> Learn acoustic and linguistic structure from raw speech without text labels by encoding speech into discrete pseudo-text units, modeling those units, and decoding them back to audio.</p>
     <p><strong>Achievement:</strong> GSLM made textless spoken language modeling concrete, with automatic and human evaluations for unit quality, language modeling, and resynthesis.</p>
@@ -1316,12 +1508,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">Representation evaluation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>SUPERB Benchmark</h2>
+    <h3>SUPERB Benchmark</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Evaluation</span><span class="speech-tag">Pretraining</span></div>
     <p><strong>Proposed:</strong> A shared benchmark for evaluating pretrained speech representations across recognition, speaker, paralinguistic, and semantic tasks.</p>
     <p><strong>Achievement:</strong> SUPERB made it easier to compare wav2vec-style, HuBERT-style, and later representation models beyond a single downstream ASR score.</p>
@@ -1332,12 +1524,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">Full-stack speech pretraining</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>WavLM</h2>
+    <h3>WavLM</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Pretraining</span><span class="speech-tag">Speaker Modeling</span></div>
     <p><strong>Proposed:</strong> Extend masked speech pretraining toward full-stack speech processing by combining HuBERT-style prediction with denoising, utterance mixing, and gated relative position bias.</p>
     <p><strong>Achievement:</strong> WavLM improved pretrained speech representations across recognition, speaker, separation, and other downstream tasks instead of optimizing only ASR transfer.</p>
@@ -1348,12 +1540,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2021
     <div class="speech-kicker">Neural audio codecs</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>SoundStream And Codec Tokens</h2>
+    <h3>SoundStream And Codec Tokens</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> Compress speech and general audio with an end-to-end neural encoder, residual vector quantizer, and decoder that can stream at low bitrate.</p>
     <p><strong>Achievement:</strong> SoundStream made high-quality neural audio compression practical with learned quantized representations that could run at low bitrate.</p>
@@ -1364,12 +1556,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2022
     <div class="speech-kicker">Unified speech-text pretraining</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>SpeechT5</h2>
+    <h3>SpeechT5</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-Text</span><span class="speech-tag">Pretraining</span></div>
     <p><strong>Proposed:</strong> A shared encoder-decoder framework with speech and text pre/post-nets, trained to connect speech and text representations in a unified semantic space.</p>
     <p><strong>Achievement:</strong> SpeechT5 showed that one pretrained speech-text model could be adapted across ASR, TTS, speech translation, voice conversion, speech enhancement, and speaker identification.</p>
@@ -1380,12 +1572,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2022
     <div class="speech-kicker">Audio token compression</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>EnCodec</h2>
+    <h3>EnCodec</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> A neural audio codec with residual vector quantization, adversarial reconstruction, and an optional language model over discrete audio codes.</p>
     <p><strong>Achievement:</strong> EnCodec produced high-quality audio compression at low bitrates and made codec streams easy to reuse as model tokens.</p>
@@ -1396,12 +1588,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2022
     <div class="speech-kicker">Web-scale robustness</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Whisper</h2>
+    <h3>Whisper</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Weak Supervision</span></div>
     <p><strong>Proposed:</strong> Train a sequence-to-sequence speech recognizer on a very large weakly supervised multilingual audio corpus.</p>
     <p><strong>Achievement:</strong> Whisper delivered unusually robust zero-shot ASR and translation behavior across languages, accents, and noisy audio.</p>
@@ -1412,12 +1604,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2022
     <div class="speech-kicker">Audio language modeling</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>AudioLM</h2>
+    <h3>AudioLM</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech LM</span></div>
     <p><strong>Proposed:</strong> Model speech as a hierarchy of semantic and acoustic tokens for long-range coherent audio generation.</p>
     <p><strong>Achievement:</strong> It generated realistic speech continuations while preserving speaker identity and acoustic consistency.</p>
@@ -1428,12 +1620,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2023
     <div class="speech-kicker">In-context voice cloning</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>VALL-E</h2>
+    <h3>VALL-E</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Codec LM</span></div>
     <p><strong>Proposed:</strong> Treat TTS as conditional language modeling over discrete codec codes using a short acoustic prompt.</p>
     <p><strong>Achievement:</strong> It demonstrated convincing zero-shot voice cloning from a few seconds of speech.</p>
@@ -1444,12 +1636,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2023
     <div class="speech-kicker">Low-resource scale</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Massively Multilingual Speech</h2>
+    <h3>Massively Multilingual Speech</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Multilingual</span></div>
     <p><strong>Proposed:</strong> Scale speech recognition, synthesis, and language identification across far more languages by combining self-supervised wav2vec 2.0 pretraining with broad public speech data.</p>
     <p><strong>Achievement:</strong> MMS reported ASR and TTS models for 1,107 languages, pretrained representations across 1,406 languages, and language identification for 4,017 languages.</p>
@@ -1460,12 +1652,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2023
     <div class="speech-kicker">Speech infilling</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Voicebox</h2>
+    <h3>Voicebox</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech Editing</span><span class="speech-tag">Flow Matching</span></div>
     <p><strong>Proposed:</strong> Train a non-autoregressive flow-matching model to infill masked speech from surrounding audio context and text guidance.</p>
     <p><strong>Achievement:</strong> It generalized one speech generation model across zero-shot TTS, cross-lingual style transfer, denoising, content editing, and diverse sample generation.</p>
@@ -1476,12 +1668,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2023
     <div class="speech-kicker">Speech-text LLM fusion</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>AudioPaLM</h2>
+    <h3>AudioPaLM</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Audio LLM</span></div>
     <p><strong>Proposed:</strong> Fuse a text large language model with an audio language model so one decoder-style system can process and generate both text and speech tokens.</p>
     <p><strong>Achievement:</strong> It improved speech translation and zero-shot speech-to-text translation while preserving voice cues such as speaker identity and intonation in speech-to-speech settings.</p>
@@ -1492,12 +1684,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2023
     <div class="speech-kicker">Multilingual speech translation</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>SeamlessM4T</h2>
+    <h3>SeamlessM4T</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span></div>
     <p><strong>Proposed:</strong> A unified multilingual and multimodal translation system covering speech and text inputs and outputs.</p>
     <p><strong>Achievement:</strong> It connected ASR, speech translation, text translation, and TTS in one research system across many languages.</p>
@@ -1510,12 +1702,12 @@ title: Speech Timeline
 <h2 id="speech-foundation" class="speech-era">Speech Foundation Models</h2>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Factorized zero-shot TTS</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>NaturalSpeech 3</h2>
+    <h3>NaturalSpeech 3</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Diffusion</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> Factorize speech into content, prosody, timbre, and acoustic-detail subspaces, then generate them with diffusion models conditioned on a prompt.</p>
     <p><strong>Achievement:</strong> It pushed zero-shot TTS quality, similarity, prosody, and intelligibility by combining factorized codec representations with diffusion generation.</p>
@@ -1526,12 +1718,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Speech generation foundation model</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Seed-TTS</h2>
+    <h3>Seed-TTS</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech Foundation Model</span><span class="speech-tag">Zero-Shot</span></div>
     <p><strong>Proposed:</strong> A family of large-scale autoregressive speech generation models for zero-shot voice generation, controllable speech synthesis, speech editing, and evaluation of speaker similarity and naturalness.</p>
     <p><strong>Achievement:</strong> Seed-TTS showed that prompt-based TTS could approach human-recorded speech in subjective quality and speaker similarity while supporting versatile speech generation tasks.</p>
@@ -1542,12 +1734,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Simple flow-matching TTS</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>E2 TTS</h2>
+    <h3>E2 TTS</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Flow Matching</span><span class="speech-tag">Zero-Shot</span></div>
     <p><strong>Proposed:</strong> A fully non-autoregressive zero-shot TTS system that pads text with filler tokens, trains a flow-matching mel-spectrogram generator with audio infilling, and avoids duration models, phoneme conversion, and monotonic alignment search.</p>
     <p><strong>Achievement:</strong> It showed that a much simpler architecture could reach strong naturalness, speaker similarity, and intelligibility in prompt-based voice generation.</p>
@@ -1558,12 +1750,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Open flow-matching TTS</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>F5-TTS</h2>
+    <h3>F5-TTS</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Flow Matching</span><span class="speech-tag">Open Model</span></div>
     <p><strong>Proposed:</strong> A fully non-autoregressive zero-shot TTS system using flow matching with a Diffusion Transformer, ConvNeXt text refinement, filler-token alignment, and Sway Sampling for faster inference.</p>
     <p><strong>Achievement:</strong> F5-TTS made E2-style flow-matching voice generation more reproducible and practical by releasing code and checkpoints while improving convergence, robustness, and multilingual zero-shot speech quality.</p>
@@ -1574,12 +1766,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Audio instruction following</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Qwen2-Audio</h2>
+    <h3>Qwen2-Audio</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">Audio LLM</span><span class="speech-tag">Instruction Following</span></div>
     <p><strong>Proposed:</strong> A large audio-language model that accepts audio inputs and follows natural language or voice instructions for analysis and conversation.</p>
     <p><strong>Achievement:</strong> It unified voice chat and audio analysis modes without relying on explicit mode-switching prompts.</p>
@@ -1590,12 +1782,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Supervised speech tokens</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>CosyVoice</h2>
+    <h3>CosyVoice</h3>
     <div class="speech-meta"><span class="speech-impact">optimize existing component</span><span class="speech-tag">TTS</span><span class="speech-tag">Codec LM</span><span class="speech-tag">Zero-Shot</span></div>
     <p><strong>Proposed:</strong> Use supervised semantic speech tokens from a multilingual ASR encoder as the intermediate representation for large-language-model-based zero-shot TTS.</p>
     <p><strong>Achievement:</strong> CosyVoice combined a text-to-token language model with conditional flow matching for token-to-speech synthesis, improving content consistency and speaker similarity in multilingual voice cloning.</p>
@@ -1606,12 +1798,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Native realtime audio</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>GPT-4o Realtime Speech Interaction</h2>
+    <h3>GPT-4o Realtime Speech Interaction</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Audio LLM</span></div>
     <p><strong>Proposed:</strong> A single omnimodal model interface that can reason across audio, vision, and text in real time, reducing reliance on separate transcription, text reasoning, and speech-synthesis stages.</p>
     <p><strong>Achievement:</strong> GPT-4o demonstrated low-latency spoken interaction with interruption handling, expressive speech output, and native audio understanding as part of a general assistant model.</p>
@@ -1622,12 +1814,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Low-frame-rate audio tokens</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Mimi And Streaming Codec Tokens</h2>
+    <h3>Mimi And Streaming Codec Tokens</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">TTS</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Key Concept</span><span class="speech-tag">Codec</span></div>
     <p><strong>Proposed:</strong> Use a streaming neural audio codec with a low token rate and semantically useful codebooks as the audio interface for real-time speech language models.</p>
     <p><strong>Achievement:</strong> Mimi made high-quality speech tokenization practical for systems such as Moshi, reducing the number of autoregressive audio steps while preserving enough detail for natural dialogue.</p>
@@ -1638,12 +1830,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2024
     <div class="speech-kicker">Full-duplex dialogue</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Moshi</h2>
+    <h3>Moshi</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">Speech-to-Speech</span><span class="speech-tag">Full Duplex</span><span class="speech-tag">Codec LM</span></div>
     <p><strong>Proposed:</strong> A real-time speech-text foundation model that generates speech-to-speech dialogue with parallel streams for the user and the model.</p>
     <p><strong>Achievement:</strong> Moshi demonstrated low-latency full-duplex spoken interaction, including interruptions and overlapping conversational dynamics.</p>
@@ -1654,12 +1846,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2025
     <div class="speech-kicker">Streaming omni model</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Qwen2.5-Omni</h2>
+    <h3>Qwen2.5-Omni</h3>
     <div class="speech-meta"><span class="speech-impact">efficiency</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Thinker-Talker</span></div>
     <p><strong>Proposed:</strong> An end-to-end multimodal model that perceives text, images, audio, and video while generating text and natural speech responses in a streaming manner.</p>
     <p><strong>Achievement:</strong> It introduced the Thinker-Talker split, using a language model for text reasoning and a speech generator for audio-token output.</p>
@@ -1670,12 +1862,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2025
     <div class="speech-kicker">Open audio foundation model</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Kimi-Audio</h2>
+    <h3>Kimi-Audio</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">Audio LLM</span><span class="speech-tag">Streaming</span><span class="speech-tag">Tokenizer</span></div>
     <p><strong>Proposed:</strong> An open-source audio foundation model for understanding, generation, and conversation, using a 12.5 Hz audio tokenizer, continuous audio features, discrete output tokens, and a streaming detokenizer.</p>
     <p><strong>Achievement:</strong> It combined audio understanding, ASR, audio question answering, and speech conversation in one released model family with public code and checkpoints.</p>
@@ -1686,12 +1878,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2025
     <div class="speech-kicker">Native omni speech model</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Qwen3-Omni</h2>
+    <h3>Qwen3-Omni</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Omnimodal</span><span class="speech-tag">Streaming</span></div>
     <p><strong>Proposed:</strong> A native omnimodal model that processes text, images, audio, and video while generating both text and real-time speech through a Thinker-Talker architecture.</p>
     <p><strong>Achievement:</strong> Qwen3-Omni reported strong audio and audio-visual benchmark results, public Apache-2.0 model releases, and a low first-packet-latency speech path based on discrete codec prediction.</p>
@@ -1702,12 +1894,12 @@ title: Speech Timeline
 </section>
 
 <section class="speech-row">
-  <aside class="speech-year">
+  <div class="speech-year">
     2026
     <div class="speech-kicker">Long-context omni speech</div>
-  </aside>
+  </div>
   <div class="speech-body">
-    <h2>Qwen3.5-Omni</h2>
+    <h3>Qwen3.5-Omni</h3>
     <div class="speech-meta"><span class="speech-impact">new capability</span><span class="speech-tag">ASR</span><span class="speech-tag">TTS</span><span class="speech-tag">Omnimodal</span><span class="speech-tag">Long Context</span></div>
     <p><strong>Proposed:</strong> A large omnimodal model with long-context audio-visual understanding, multilingual speech generation, and hybrid-attention mixture-of-experts Thinker/Talker modules.</p>
     <p><strong>Achievement:</strong> It reports broad audio and audio-visual benchmark coverage, over 10 hours of audio understanding, and improved streaming speech stability through ARIA dynamic text-speech unit alignment.</p>
@@ -1719,4 +1911,136 @@ title: Speech Timeline
 
 </div>
 
-<p class="back-link"><a href="./">back</a></p>
+<script>
+(function () {
+  "use strict";
+
+  var timeline = document.getElementById("speech-timeline");
+  var search = document.getElementById("speech-search");
+  var areaFilter = document.getElementById("speech-area-filter");
+  var impactFilter = document.getElementById("speech-impact-filter");
+  var results = document.getElementById("speech-results");
+  var clearButton = document.getElementById("speech-clear");
+  var densityButton = document.getElementById("speech-density");
+  var emptyState = document.getElementById("speech-empty");
+  var eraNav = document.querySelector(".speech-nav");
+  var tools = document.getElementById("speech-tools");
+
+  if (!timeline || !search || !areaFilter || !impactFilter || !results || !clearButton || !densityButton || !emptyState || !eraNav || !tools) {
+    return;
+  }
+
+  var rows = Array.prototype.slice.call(timeline.querySelectorAll(".speech-row"));
+  var eras = Array.prototype.slice.call(timeline.querySelectorAll(".speech-era"));
+
+  function normalize(value) {
+    return value.toLowerCase().trim().replace(/\s+/g, " ");
+  }
+
+  rows.forEach(function (row) {
+    var heading = row.querySelector(".speech-body h3");
+    var title = heading ? heading.textContent.trim() : "Timeline milestone";
+    var tags = Array.prototype.slice.call(row.querySelectorAll(".speech-tag"));
+    var impact = row.querySelector(".speech-impact");
+    var paragraphs = Array.prototype.slice.call(row.querySelectorAll(".speech-body > p"));
+    var sourceLinks = Array.prototype.slice.call(row.querySelectorAll(".speech-source a"));
+    var searchableNodes = Array.prototype.slice.call(row.querySelectorAll(".speech-year, .speech-body h3, .speech-impact, .speech-tag, .speech-body > p:not(.speech-source)"));
+
+    row.speechSearchText = normalize(searchableNodes.map(function (node) {
+      return node.textContent;
+    }).join(" "));
+    row.speechTags = tags.map(function (tag) {
+      return normalize(tag.textContent);
+    });
+    row.speechImpact = impact ? normalize(impact.textContent) : "";
+
+    paragraphs.forEach(function (paragraph) {
+      var label = paragraph.querySelector("strong");
+      if (label && normalize(label.textContent) === "why it matters:") {
+        paragraph.classList.add("speech-takeaway");
+      }
+    });
+
+    sourceLinks.forEach(function (link) {
+      if (!link.hasAttribute("aria-label")) {
+        link.setAttribute("aria-label", title + ": " + link.textContent.trim());
+      }
+    });
+  });
+
+  function applyFilters() {
+    var query = normalize(search.value);
+    var terms = query ? query.split(" ") : [];
+    var area = normalize(areaFilter.value);
+    var impact = normalize(impactFilter.value);
+    var visibleCount = 0;
+
+    rows.forEach(function (row) {
+      var matchesSearch = terms.every(function (term) {
+        return row.speechSearchText.indexOf(term) !== -1;
+      });
+      var matchesArea = !area || row.speechTags.indexOf(area) !== -1;
+      var matchesImpact = !impact || row.speechImpact === impact;
+      var isVisible = matchesSearch && matchesArea && matchesImpact;
+
+      row.hidden = !isVisible;
+      if (isVisible) {
+        visibleCount += 1;
+      }
+    });
+
+    eras.forEach(function (era) {
+      var sibling = era.nextElementSibling;
+      var hasVisibleRow = false;
+
+      while (sibling && !sibling.classList.contains("speech-era")) {
+        if (sibling.classList.contains("speech-row") && !sibling.hidden) {
+          hasVisibleRow = true;
+          break;
+        }
+        sibling = sibling.nextElementSibling;
+      }
+
+      era.hidden = !hasVisibleRow;
+      var eraLink = eraNav.querySelector('a[href="#' + era.id + '"]');
+      if (eraLink) {
+        eraLink.hidden = !hasVisibleRow;
+      }
+    });
+
+    var filtersActive = Boolean(query || area || impact);
+    results.textContent = filtersActive
+      ? visibleCount === 1
+        ? "Showing 1 matching milestone (of " + rows.length + ")."
+        : "Showing " + visibleCount + " matching milestones (of " + rows.length + ")."
+      : "Showing all " + rows.length + " milestones.";
+    clearButton.disabled = !filtersActive;
+    emptyState.hidden = visibleCount !== 0;
+    eraNav.hidden = visibleCount === 0;
+    timeline.classList.toggle("is-searching", terms.length > 0);
+  }
+
+  search.addEventListener("input", applyFilters);
+  areaFilter.addEventListener("change", applyFilters);
+  impactFilter.addEventListener("change", applyFilters);
+
+  clearButton.addEventListener("click", function () {
+    search.value = "";
+    areaFilter.value = "";
+    impactFilter.value = "";
+    applyFilters();
+    search.focus();
+  });
+
+  densityButton.addEventListener("click", function () {
+    var isCompact = timeline.classList.toggle("is-compact");
+    densityButton.setAttribute("aria-pressed", String(isCompact));
+  });
+
+  applyFilters();
+  tools.hidden = false;
+  densityButton.hidden = false;
+})();
+</script>
+
+<p class="back-link"><a href="./">Back to home</a></p>

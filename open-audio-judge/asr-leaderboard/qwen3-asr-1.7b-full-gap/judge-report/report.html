@@ -3,47 +3,78 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Open Audio Judge Report</title>
+  <title>Open Audio Judge ASR Report · Qwen3 ASR 1.7B (8-bit) — ASR evaluation</title>
   <style>
     :root {
       --ink: #172026;
-      --muted: #5d6975;
-      --line: #d8dee5;
-      --bg: #f7f8fa;
+      --muted: #56616c;
+      --line: #d7dde4;
+      --bg: #f4f6f8;
       --panel: #ffffff;
-      --good: #0f8a5f;
-      --warn: #b36b00;
-      --bad: #c93535;
-      --accent: #2864b4;
+      --good: #087a55;
+      --warn: #9a5800;
+      --bad: #b4232d;
+      --accent: #1859a9;
+      --accent-soft: #eaf2fb;
     }
     * { box-sizing: border-box; }
+    html { overflow-x: hidden; }
     body {
       margin: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
       background: var(--bg);
+      line-height: 1.5;
+      overflow-wrap: anywhere;
     }
     header {
-      padding: 28px 32px 20px;
+      padding: 28px 24px 24px;
       background: var(--panel);
       border-bottom: 1px solid var(--line);
     }
-    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
-    h2 { margin: 28px 0 12px; font-size: 18px; letter-spacing: 0; }
-    main { max-width: 1180px; margin: 0 auto; padding: 24px 24px 40px; }
+    .header-inner { max-width: 1180px; margin: 0 auto; }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 5px 0 8px; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; letter-spacing: -.025em; }
+    h2 { margin: 32px 0 6px; font-size: 22px; letter-spacing: -.015em; }
+    h3 { margin: 0 0 8px; font-size: 16px; }
+    h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .section-intro { margin: 0 0 14px; color: var(--muted); max-width: 72ch; }
+    main { max-width: 1180px; min-width: 0; margin: 0 auto; padding: 24px 24px 56px; }
     .summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
       gap: 12px;
     }
     .metric {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 14px 16px;
+      min-width: 0;
     }
-    .metric span { display: block; color: var(--muted); font-size: 13px; }
-    .metric strong { display: block; margin-top: 6px; font-size: 26px; }
+    .metric > span { display: block; color: var(--muted); font-size: 13px; }
+    .metric > strong { display: block; margin-top: 6px; font-size: 26px; line-height: 1.15; }
+    .decision-brief {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .decision-callout {
+      background: #11283f;
+      border-radius: 14px;
+      color: #fff;
+      padding: 20px;
+    }
+    .decision-callout .eyebrow { color: #9fc6ef; }
+    .decision-callout strong { display: block; margin: 6px 0; font-size: clamp(22px, 3vw, 32px); line-height: 1.15; }
+    .decision-callout p { margin: 8px 0 0; color: #d9e6f2; }
+    .decision-actions { display: grid; gap: 10px; }
+    .decision-action { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+    .decision-action strong { display: block; margin-bottom: 3px; }
+    .health { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .health-chip { border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); padding: 5px 10px; font-size: 12px; }
+    .health-chip.warn { border-color: #d9ad73; background: #fff7e9; color: var(--warn); }
     .bucket {
       display: grid;
       grid-template-columns: 72px 1fr 42px;
@@ -54,18 +85,25 @@
     }
     .track { height: 10px; border-radius: 999px; background: #e8edf2; overflow: hidden; }
     .fill { height: 100%; background: var(--accent); }
+    .table-region {
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+    .table-region:focus { outline: 3px solid #8bb7e8; outline-offset: 2px; }
+    .priority-table { min-width: 680px; }
+    .calibration-table { min-width: 560px; }
     table {
       width: 100%;
       border-collapse: collapse;
       background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
+      table-layout: fixed;
     }
-    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
     th { text-align: left; font-size: 13px; color: var(--muted); background: #fbfcfd; }
     tr:last-child td { border-bottom: 0; }
-    .scorebar { min-width: 160px; }
     .bar { height: 9px; background: #e8edf2; border-radius: 999px; overflow: hidden; margin-top: 7px; }
     .bar > div { height: 100%; }
     .accurate { color: var(--good); }
@@ -77,11 +115,18 @@
     .reason { color: var(--ink); line-height: 1.45; }
     .muted { color: var(--muted); }
     details { margin-top: 8px; }
-    summary { cursor: pointer; color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    .section-details { margin-top: 28px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .section-details > summary { padding: 15px 17px; }
+    .section-details-content { border-top: 1px solid var(--line); padding: 4px 17px 18px; }
     ul { margin: 6px 0 10px 18px; padding: 0; }
     li { margin: 3px 0; }
     .counts { list-style: none; margin: 10px 0 0; }
-    .counts li { display: flex; justify-content: space-between; gap: 14px; }
+    .counts > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; }
+    .evidence-list > li { display: block; margin-bottom: 14px; }
+    .provenance { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 7px 14px; margin-left: 0; }
+    .provenance > li { display: grid; grid-template-columns: minmax(0, .65fr) minmax(0, 1fr); }
+    .provenance strong { overflow-wrap: anywhere; }
     .severity-low { border-left: 4px solid var(--bad); }
     .severity-medium { border-left: 4px solid var(--warn); }
     .severity-high { border-left: 4px solid var(--good); }
@@ -95,12 +140,17 @@
       font-size: 12px;
       color: var(--muted);
     }
+    .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr)); gap: 12px; }
+    .action-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+    .action-card .score-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; margin: 8px 0; }
+    .action-card .score-line strong { font-size: 24px; }
     .case-tools {
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) repeat(5, minmax(130px, 180px));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
       gap: 10px;
       margin: 0 0 12px;
       align-items: end;
+      min-width: 0;
     }
     .case-tools label {
       display: grid;
@@ -117,49 +167,110 @@
       color: var(--ink);
       background: var(--panel);
       font: inherit;
+      min-width: 0;
     }
+    .case-tools .search-control { grid-column: span 2; }
+    .case-tools .results-count { align-self: center; font-size: 13px; }
+    .sort-tools { display: flex; flex-wrap: wrap; gap: 7px; }
     .sort-button {
-      border: 0;
-      background: transparent;
-      color: inherit;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--accent);
       cursor: pointer;
       font: inherit;
-      padding: 0;
+      font-size: 12px;
+      padding: 6px 10px;
       text-align: left;
     }
-    .sort-button::after {
-      content: "  sort";
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 400;
-    }
+    .sort-button[aria-pressed="true"] { background: var(--accent-soft); border-color: #8bb7e8; }
+    .case-list { display: grid; gap: 12px; }
+    .case-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 17px; min-width: 0; }
+    .case-card.severity-low { border-left-width: 5px; }
+    .case-card.severity-medium { border-left-width: 5px; }
+    .case-card.severity-high { border-left-width: 5px; }
+    .case-card-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+    .case-card-top h3 { margin: 3px 0 0; overflow-wrap: anywhere; }
+    .case-score { flex: 0 0 auto; text-align: right; }
+    .case-score > strong { display: block; font-size: 30px; line-height: 1; }
+    .status-pill { display: inline-block; margin-top: 6px; padding: 3px 8px; border-radius: 999px; background: #f0f3f6; font-size: 12px; font-weight: 700; }
+    .case-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 18px; margin-top: 16px; }
+    .case-grid p { margin: 0 0 12px; }
+    blockquote { margin: 0 0 12px; border-left: 3px solid #9fb5cb; padding: 8px 12px; background: #f7f9fb; color: #263746; }
+    .case-evidence { min-width: 0; }
+    .case-details { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 8px; }
     .is-hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     @media (max-width: 760px) {
       header { padding: 22px 18px 16px; }
       main { padding: 18px 12px 28px; }
+      .decision-brief, .case-grid { grid-template-columns: 1fr; }
       .case-tools { grid-template-columns: 1fr; }
-      table, thead, tbody, th, td, tr { display: block; }
-      thead { display: none; }
-      tr { border-bottom: 1px solid var(--line); padding: 10px 0; }
-      td { border-bottom: 0; padding: 8px 12px; }
-      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 12px; }
+      .case-tools .search-control { grid-column: auto; }
+      .case-card-top { gap: 10px; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric > strong { font-size: 23px; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Open Audio Judge Report</h1>
-    <div class="muted">Prompt-based audio LLM evaluation summary</div>
+    <div class="header-inner">
+      <a href="/open-audio-judge/asr-leaderboard-demo.html">&larr; ASR leaderboard</a>
+      <h1>Qwen3 ASR 1.7B (8-bit) — ASR evaluation</h1>
+      <div class="muted">12 evaluated cases · 4 evaluation categories · en · semantic judge score; higher is better</div>
+    </div>
   </header>
   <main>
-    <section class="summary">
+    <section class="summary" aria-label="Report summary">
       <div class="metric"><span>Cases</span><strong>12</strong></div>
-      <div class="metric"><span>Average</span><strong>96.7</strong></div>
+      <div class="metric"><span>Semantic score</span><strong>96.7</strong></div>
       <div class="metric"><span>Median</span><strong>100.0</strong></div>
       <div class="metric"><span>Accurate</span><strong>11</strong></div>
       <div class="metric"><span>Needs Review</span><strong>1</strong></div>
       <div class="metric"><span>Inaccurate</span><strong>0</strong></div>
     </section>
+
+    <section class="decision-brief" aria-label="Decision brief">
+      <div class="decision-callout">
+        <span class="eyebrow">Decision brief</span>
+        <strong>Review 1 of 12 cases before relying on this model</strong>
+        <p>11/12 cases are labeled accurate. Use the lowest-scoring evidence below to decide whether the remaining errors matter for your workload.</p>
+      </div>
+      <div class="decision-actions">
+        <div class="decision-action"><strong>Inspect asr-numeric-account-001-local-tts first</strong><span class="muted">Score 60: The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></div>
+        <div class="decision-action"><strong>Recommended next step</strong><span class="muted">The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</span></div>
+      </div>
+    </section>
+    <div class="health" aria-label="Judge health">
+      <span class="health-chip"><strong>36/36</strong> judge attempts succeeded</span>
+      <span class="health-chip">No judge execution failures</span>
+      <span class="health-chip">1 case with 20+ point judge spread</span>
+    </div>
+
+    <h2>Priority Cases</h2>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <div class="table-region" role="region" aria-label="Priority cases" tabindex="0"><table class="priority-table">
+      <caption class="sr-only">Cases that need attention, ordered by semantic severity and score</caption>
+      <thead>
+        <tr>
+          <th scope="col">Case</th>
+          <th scope="col">Score</th>
+          <th scope="col">Meaning</th>
+          <th scope="col">Category</th>
+          <th scope="col">Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+  <td data-label="Case">asr-numeric-account-001-local-tts</td>
+  <td data-label="Score">60</td>
+  <td data-label="Meaning">partial loss</td>
+  <td data-label="Category">number error</td>
+  <td data-label="Summary">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</td>
+</tr>
+      </tbody>
+    </table></div>
 
     <h2>Score Distribution</h2>
     <div class="bucket"><span>1-20</span><div class="track"><div class="fill" style="width:0%"></div></div><strong>0</strong></div>
@@ -173,51 +284,15 @@
       <div class="metric"><span>Meaning Preservation</span><ul class="counts"><li><span>preserved</span> <strong>11</strong></li><li><span>partial loss</span> <strong>1</strong></li></ul></div>
       <div class="metric"><span>Error Categories</span><ul class="counts"><li><span>formatting only</span> <strong>8</strong></li><li><span>no error</span> <strong>3</strong></li><li><span>substitution</span> <strong>1</strong></li><li><span>number error</span> <strong>1</strong></li></ul></div>
       <div class="metric"><span>High-Impact Errors</span><ul class="counts"><li><span>number error</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Actionable Notes</span><ul class="counts"><li><span>The candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. The error is strictly a minor punctuation difference.</span> <strong>1</strong></li><li><span>Perfect transcription, including capitalization and punctuation.</span> <strong>1</strong></li><li><span>The model correctly transcribed the measurement. The numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words.</span> <strong>1</strong></li><li><span>The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</span> <strong>1</strong></li><li><span>Ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts.</span> <strong>1</strong></li><li><span>The model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs.</span> <strong>1</strong></li></ul></div>
     </section>
-
-    <h2>Candidate Metadata</h2>
-    <section class="summary">
-      <div class="metric"><span>TTS Slice</span><ul class="counts"><li><span>disfluency token accounting</span> <strong>1</strong></li><li><span>sentence boundary punctuation</span> <strong>1</strong></li><li><span>decimal measurement</span> <strong>1</strong></li><li><span>digit sequence</span> <strong>1</strong></li><li><span>percentage minimal pair</span> <strong>1</strong></li><li><span>clinical negation</span> <strong>1</strong></li><li><span>permission scope</span> <strong>1</strong></li><li><span>unless condition</span> <strong>1</strong></li><li><span>am pm window</span> <strong>1</strong></li><li><span>relative time relation</span> <strong>1</strong></li><li><span>ordinal date minimal pair</span> <strong>1</strong></li><li><span>duration contrast</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Synthesis Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit</span> <strong>12</strong></li></ul></div>
-      <div class="metric"><span>Synthesis Voice</span><ul class="counts"><li><span>af heart</span> <strong>12</strong></li></ul></div>
-      <div class="metric"><span>Language</span><ul class="counts"><li><span>en</span> <strong>12</strong></li></ul></div>
-      <div class="metric"><span>Evaluation Category</span><ul class="counts"><li><span>temporal scheduling accuracy</span> <strong>4</strong></li><li><span>numeric unit integrity</span> <strong>3</strong></li><li><span>negation modality scope</span> <strong>3</strong></li><li><span>transcription accuracy wer</span> <strong>2</strong></li></ul></div>
-      <div class="metric"><span>Sample Kind</span><ul class="counts"><li><span>local synthetic tts</span> <strong>12</strong></li></ul></div>
-      <div class="metric"><span>Issues By Category</span><ul class="counts"><li><span>temporal scheduling accuracy / formatting only</span> <strong>3</strong></li><li><span>numeric unit integrity / formatting only</span> <strong>2</strong></li><li><span>negation modality scope / formatting only</span> <strong>2</strong></li><li><span>transcription accuracy wer / formatting only</span> <strong>1</strong></li><li><span>numeric unit integrity / substitution</span> <strong>1</strong></li><li><span>numeric unit integrity / number error</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Issues By TTS Slice</span><ul class="counts"><li><span>disfluency token accounting / formatting only</span> <strong>1</strong></li><li><span>decimal measurement / formatting only</span> <strong>1</strong></li><li><span>digit sequence / substitution</span> <strong>1</strong></li><li><span>digit sequence / number error</span> <strong>1</strong></li><li><span>percentage minimal pair / formatting only</span> <strong>1</strong></li><li><span>clinical negation / formatting only</span> <strong>1</strong></li><li><span>permission scope / formatting only</span> <strong>1</strong></li><li><span>am pm window / formatting only</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Issues By Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / formatting only</span> <strong>8</strong></li><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / substitution</span> <strong>1</strong></li><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / number error</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Issues By Voice</span><ul class="counts"><li><span>af heart / formatting only</span> <strong>8</strong></li><li><span>af heart / substitution</span> <strong>1</strong></li><li><span>af heart / number error</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Issues By Language</span><ul class="counts"><li><span>en / formatting only</span> <strong>8</strong></li><li><span>en / substitution</span> <strong>1</strong></li><li><span>en / number error</span> <strong>1</strong></li></ul></div>
-      <div class="metric"><span>Scores By Category</span><ul class="counts"><li><span>numeric unit integrity</span> <strong>avg 86.7 / n 3 / 60-100</strong></li><li><span>negation modality scope</span> <strong>avg 100.0 / n 3 / 100-100</strong></li><li><span>temporal scheduling accuracy</span> <strong>avg 100.0 / n 4 / 100-100</strong></li><li><span>transcription accuracy wer</span> <strong>avg 100.0 / n 2 / 100-100</strong></li></ul></div>
-      <div class="metric"><span>Scores By TTS Slice</span><ul class="counts"><li><span>digit sequence</span> <strong>avg 60.0 / n 1 / 60-60</strong></li><li><span>am pm window</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>clinical negation</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>decimal measurement</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>disfluency token accounting</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>duration contrast</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>ordinal date minimal pair</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>percentage minimal pair</span> <strong>avg 100.0 / n 1 / 100-100</strong></li></ul></div>
-      <div class="metric"><span>Scores By Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
-      <div class="metric"><span>Scores By Voice</span><ul class="counts"><li><span>af heart</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
-      <div class="metric"><span>Scores By Language</span><ul class="counts"><li><span>en</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
-      <div class="metric"><span>Failures By Category</span><strong class="muted">No category failures</strong></div>
-      <div class="metric"><span>Failures By TTS Slice</span><strong class="muted">No slice failures</strong></div>
-      <div class="metric"><span>Failures By Model</span><strong class="muted">No model failures</strong></div>
-      <div class="metric"><span>Failures By Voice</span><strong class="muted">No voice failures</strong></div>
-      <div class="metric"><span>Failures By Language</span><strong class="muted">No language failures</strong></div>
-      <div class="metric"><span>Failures By Sample Kind</span><strong class="muted">No sample-kind failures</strong></div>
+    <section class="metric" style="margin-top:12px">
+      <span>Actionable Notes</span>
+      <ul class="counts"><li><span>The candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. The error is strictly a minor punctuation difference.</span> <strong>1</strong></li><li><span>Perfect transcription, including capitalization and punctuation.</span> <strong>1</strong></li><li><span>The model correctly transcribed the measurement. The numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words.</span> <strong>1</strong></li><li><span>The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</span> <strong>1</strong></li><li><span>Ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts.</span> <strong>1</strong></li><li><span>The model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs.</span> <strong>1</strong></li></ul>
     </section>
-
-    <h2>Calibration Checks</h2>
-    <div class="metric"><strong class="muted">All calibration expectations matched</strong></div>
 
     <h2>Weakest Segments</h2>
+    <p class="section-intro">Compare slices with enough variation to reveal where quality drops and what to improve next.</p>
     <section class="summary"><div class="metric severity-high">
-      <span>Model</span>
-      <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong>
-      <div class="muted">avg 96.7 / n 12 / range 60-100</div>
-      
-      <div><span class="muted">Source basis</span><br><span class="tag">ASR benchmarks often report normalized and unnormalized WER; disfluencies expose normalization policy choices.</span><span class="tag">Text normalization and punctuation policy change WER and downstream readability.</span></div>
-      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
-      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x8</span><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
-      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></div>
-    </div>
-<div class="metric severity-high">
       <span>Evaluation Category</span>
       <strong>numeric unit integrity</strong>
       <div class="muted">avg 86.7 / n 3 / range 60-100</div>
@@ -226,7 +301,7 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-numeric-measurement-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-measurement-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</span></li><li><span>asr-numeric-percentage-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-percentage-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The transcript preserves the meaning perfectly with only standard formatting differences.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-numeric-measurement-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-measurement-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</span></li><li><span>asr-numeric-percentage-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-percentage-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">The transcript preserves the meaning perfectly with only standard formatting differences.</span></li></ul></div>
     </div>
 <div class="metric severity-high">
       <span>Evaluation Category</span>
@@ -237,7 +312,7 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x2</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li><li><span>asr-negation-policy-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-policy-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken meaning is fully preserved.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li><li><span>asr-negation-policy-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-policy-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken meaning is fully preserved.</span></li></ul></div>
     </div>
 <div class="metric severity-high">
       <span>Evaluation Category</span>
@@ -248,10 +323,10 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x3</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-temporal-date-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-date-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</span></li><li><span>asr-temporal-duration-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-duration-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</span></li><li><span>asr-temporal-relative-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-relative-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the candidate transcript is perfectly accurate.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-temporal-date-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-date-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</span></li><li><span>asr-temporal-duration-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-duration-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</span></li><li><span>asr-temporal-relative-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-relative-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the candidate transcript is perfectly accurate.</span></li></ul></div>
     </div>
 <div class="metric severity-medium">
-      <span>TTS Slice</span>
+      <span>ASR Slice</span>
       <strong>digit sequence</strong>
       <div class="muted">avg 60.0 / n 1 / range 60-60</div>
       
@@ -259,10 +334,10 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li></ul></div>
     </div>
 <div class="metric severity-high">
-      <span>TTS Slice</span>
+      <span>ASR Slice</span>
       <strong>am pm window</strong>
       <div class="muted">avg 100.0 / n 1 / range 100-100</div>
       
@@ -270,10 +345,10 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x1</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-temporal-window-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-window-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the transcript is fully accurate with only minor formatting variation.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-temporal-window-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-window-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the transcript is fully accurate with only minor formatting variation.</span></li></ul></div>
     </div>
 <div class="metric severity-high">
-      <span>TTS Slice</span>
+      <span>ASR Slice</span>
       <strong>clinical negation</strong>
       <div class="muted">avg 100.0 / n 1 / range 100-100</div>
       
@@ -281,319 +356,551 @@
       <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span></div>
       <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x1</span></div>
       <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></div>
-    </div>
-<div class="metric severity-high">
-      <span>Voice</span>
-      <strong>af heart</strong>
-      <div class="muted">avg 96.7 / n 12 / range 60-100</div>
-      
-      <div><span class="muted">Source basis</span><br><span class="tag">ASR benchmarks often report normalized and unnormalized WER; disfluencies expose normalization policy choices.</span><span class="tag">Text normalization and punctuation policy change WER and downstream readability.</span></div>
-      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
-      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x8</span><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
-      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></div>
-    </div>
-<div class="metric severity-high">
-      <span>Language</span>
-      <strong>en</strong>
-      <div class="muted">avg 96.7 / n 12 / range 60-100</div>
-      
-      <div><span class="muted">Source basis</span><br><span class="tag">ASR benchmarks often report normalized and unnormalized WER; disfluencies expose normalization policy choices.</span><span class="tag">Text normalization and punctuation policy change WER and downstream readability.</span></div>
-      <div><span class="muted">Likely fix areas</span><br><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
-      <div><span class="muted">Issue categories</span><br><span class="tag">formatting only x8</span><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
-      <div><span class="muted">Evaluation failures</span><br><span class="muted">No failed evaluations</span></div>
-      <div><span class="muted">Representative low-score samples</span><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></div>
+      <div><span class="muted">Representative low-score samples</span><ul class="evidence-list"><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></div>
     </div></section>
 
-    <h2>Model-Category Action Matrix</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Model</th>
-          <th>Category</th>
-          <th>Score</th>
-          <th>Likely Fix Areas</th>
-          <th>Category Guidance</th>
-          <th>Evidence</th>
-          <th>Representative Cases</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="severity-high">
-  <td data-label="Model">mlx-community/Qwen3-ASR-1.7B-8bit</td>
-  <td data-label="Category">numeric unit integrity</td>
-  <td data-label="Score"><strong>avg 86.7</strong><br><span class="muted">n 3 / range 60-100</span></td>
-  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></td>
-  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">Numeric normalization should distinguish equivalent formatting from value-changing recognition errors.</span><span class="tag">Digit-sequence accuracy is a practical ASR slice for forms, support, and voice agents.</span></div></td>
-  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x2</span><span class="tag">substitution x1</span><span class="tag">number error x1</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
-  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-numeric-measurement-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-measurement-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</span></li></ul></td>
-</tr>
-<tr class="severity-high">
-  <td data-label="Model">mlx-community/Qwen3-ASR-1.7B-8bit</td>
-  <td data-label="Category">negation modality scope</td>
-  <td data-label="Score"><strong>avg 100.0</strong><br><span class="muted">n 3 / range 100-100</span></td>
-  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span></td>
-  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">Clinical ASR error analysis treats negated findings as high-impact meaning changes.</span><span class="tag">Scope and modality errors can invert policy meaning while changing few words.</span></div></td>
-  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x2</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
-  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></td>
-</tr>
-<tr class="severity-high">
-  <td data-label="Model">mlx-community/Qwen3-ASR-1.7B-8bit</td>
-  <td data-label="Category">temporal scheduling accuracy</td>
-  <td data-label="Score"><strong>avg 100.0</strong><br><span class="muted">n 4 / range 100-100</span></td>
-  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span></td>
-  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">AM/PM and temporal relation errors can be severe even when token edit distance is small.</span><span class="tag">Temporal relation preservation belongs in semantic ASR evaluation beyond WER.</span></div></td>
-  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x3</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
-  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-temporal-date-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-date-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</span></li><li><span>asr-temporal-duration-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-duration-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</span></li></ul></td>
-</tr>
-<tr class="severity-high">
-  <td data-label="Model">mlx-community/Qwen3-ASR-1.7B-8bit</td>
-  <td data-label="Category">transcription accuracy wer</td>
-  <td data-label="Score"><strong>avg 100.0</strong><br><span class="muted">n 2 / range 100-100</span></td>
-  <td data-label="Likely Fix Areas"><span class="tag">formatting only</span></td>
-  <td data-label="Category Guidance"><div><span class="muted">Source basis</span><br><span class="tag">ASR benchmarks often report normalized and unnormalized WER; disfluencies expose normalization policy choices.</span><span class="tag">Text normalization and punctuation policy change WER and downstream readability.</span></div></td>
-  <td data-label="Evidence"><span class="muted">Issues</span><br><span class="tag">formatting only x1</span><br><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></td>
-  <td data-label="Representative Low-Score Samples"><ul class="counts"><li><span>asr-wer-disfluency-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-wer-disfluency-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors in the candidate transcript; it is a word-for-word correct transcription.</span></li><li><span>asr-wer-punctuation-boundary-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-wer-punctuation-boundary-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is completely accurate with no semantic loss.</span></li></ul></td>
-</tr>
-      </tbody>
-    </table>
-
-    <h2>Baseline Model Deltas</h2>
-    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Matched by metadata.source_case_id, or by stripping the -local-tts suffix.</div></div><div class="metric"><strong class="muted">No matched baseline model comparisons available</strong></div>
-
-    <h2>Baseline Regression Slices</h2>
-    <div class="metric"><span>Baseline Model</span><strong>mlx-community/chatterbox-turbo-6bit</strong><div class="muted">Negative deltas show category or slice regressions versus the selected baseline.</div></div><div class="metric"><strong class="muted">No matched baseline category or slice regressions available</strong></div>
-
-    <h2>Priority Cases</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Case</th>
-          <th>Score</th>
-          <th>Meaning</th>
-          <th>Category</th>
-          <th>Summary</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-  <td data-label="Case">asr-numeric-account-001-local-tts</td>
-  <td data-label="Score">60</td>
-  <td data-label="Meaning">partial loss</td>
-  <td data-label="Category">number error</td>
-  <td data-label="Summary">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</td>
-</tr>
-      </tbody>
-    </table>
-
     <h2>Case Results</h2>
+    <p class="section-intro">Lowest scores appear first. Search the judge rationale, model, category, slice, or issue.</p>
     <section class="case-tools" aria-label="Case result filters">
-      <label>Search
+      <label class="search-control">Search
         <input id="case-search" type="search" placeholder="case, model, category, reason, issue">
       </label>
-      <label>Label
+      <label>Quality
         <select id="case-label-filter">
           <option value="">All labels</option>
-          <option value="accurate">Accurate</option>
-          <option value="needs_review">Needs review</option>
-          <option value="inaccurate">Inaccurate</option>
+          <option value="accurate">Accurate</option><option value="needs_review">Needs Review</option>
         </select>
       </label>
-      <label>Status
-        <select id="case-status-filter">
-          <option value="">All statuses</option>
-          <option value="ok">OK</option>
-          <option value="provider_error">Provider error</option>
-          <option value="parse_error">Parse error</option>
-        </select>
-      </label>
-      <label>Model
-        <select id="case-model-filter">
-          <option value="">All models</option>
-          <option value="mlx-community/Qwen3-ASR-1.7B-8bit">mlx-community/Qwen3-ASR-1.7B-8bit</option>
-        </select>
-      </label>
+      <input id="case-status-filter" type="hidden" value="">
+      <input id="case-model-filter" type="hidden" value="">
       <label>Category
         <select id="case-category-filter">
           <option value="">All categories</option>
-          <option value="negation_modality_scope">negation modality scope</option><option value="numeric_unit_integrity">numeric unit integrity</option><option value="temporal_scheduling_accuracy">temporal scheduling accuracy</option><option value="transcription_accuracy_wer">transcription accuracy wer</option>
+          <option value="negation_modality_scope">Negation Modality Scope</option><option value="numeric_unit_integrity">Numeric Unit Integrity</option><option value="temporal_scheduling_accuracy">Temporal Scheduling Accuracy</option><option value="transcription_accuracy_wer">Transcription Accuracy Wer</option>
         </select>
       </label>
-      <label>TTS Slice
+      <label>Slice
         <select id="case-slice-filter">
           <option value="">All slices</option>
-          <option value="am_pm_window">am pm window</option><option value="clinical_negation">clinical negation</option><option value="decimal_measurement">decimal measurement</option><option value="digit_sequence">digit sequence</option><option value="disfluency_token_accounting">disfluency token accounting</option><option value="duration_contrast">duration contrast</option><option value="ordinal_date_minimal_pair">ordinal date minimal pair</option><option value="percentage_minimal_pair">percentage minimal pair</option><option value="permission_scope">permission scope</option><option value="relative_time_relation">relative time relation</option><option value="sentence_boundary_punctuation">sentence boundary punctuation</option><option value="unless_condition">unless condition</option>
+          <option value="am_pm_window">Am Pm Window</option><option value="clinical_negation">Clinical Negation</option><option value="decimal_measurement">Decimal Measurement</option><option value="digit_sequence">Digit Sequence</option><option value="disfluency_token_accounting">Disfluency Token Accounting</option><option value="duration_contrast">Duration Contrast</option><option value="ordinal_date_minimal_pair">Ordinal Date Minimal Pair</option><option value="percentage_minimal_pair">Percentage Minimal Pair</option><option value="permission_scope">Permission Scope</option><option value="relative_time_relation">Relative Time Relation</option><option value="sentence_boundary_punctuation">Sentence Boundary Punctuation</option><option value="unless_condition">Unless Condition</option>
         </select>
       </label>
-      <div class="muted" id="case-visible-count">12 / 12 shown</div>
+      <div class="sort-tools" aria-label="Sort cases">
+        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
+        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+      </div>
+      <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">12 / 12 shown</div>
     </section>
-    <table id="case-results-table">
-      <thead>
-        <tr>
-          <th><button class="sort-button" type="button" data-sort="case">Case</button></th>
-          <th>Provenance</th>
-          <th><button class="sort-button" type="button" data-sort="score">Score</button></th>
-          <th>Label</th>
-          <th>Reason</th>
-          <th>Diagnostics</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-case="asr-wer-disfluency-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="transcription_accuracy_wer" data-slice="disfluency_token_accounting" data-search="asr-wer-disfluency-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript perfectly captures the spoken words, including the disfluency, with the only difference being the omission of commas, which has no impact on meaning preservation. there are no semantic errors in the candidate transcript; it is a word-for-word correct transcription. preserved formatting_only the candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. the error is strictly a minor punctuation difference. transcription_accuracy_wer disfluency_token_accounting mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-wer-disfluency-001">
-  <td data-label="Case">asr-wer-disfluency-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>transcription accuracy wer</strong></li><li><span>ASR slice</span> <strong>disfluency token accounting</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-wer-disfluency-001</strong></li><li><span>Text SHA-256</span> <strong>d7554e1f20e8046ff869c7e16f61ebdc8335e982164130cb2d3c6c4bf9916eee</strong></li><li><span>Duration</span> <strong>3.92s</strong></li><li><span>Bytes</span> <strong>188084</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <section id="case-results-table" class="case-list" aria-live="polite">
+      <article class="case-card severity-high" data-case="asr-wer-disfluency-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="transcription_accuracy_wer" data-slice="disfluency_token_accounting" data-search="asr-wer-disfluency-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript perfectly captures the spoken words, including the disfluency, with the only difference being the omission of commas, which has no impact on meaning preservation. there are no semantic errors in the candidate transcript; it is a word-for-word correct transcription. preserved formatting_only the candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. the error is strictly a minor punctuation difference. transcription_accuracy_wer disfluency_token_accounting mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-wer-disfluency-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">transcription accuracy wer &middot; disfluency token accounting</div>
+      <h3>asr-wer-disfluency-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>There are no semantic errors in the candidate transcript; it is a word-for-word correct transcription.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. The error is strictly a minor punctuation difference.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>I need the, sorry, the final invoice attached to the March ticket.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>missing commas around the word &#x27;sorry&#x27;</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript perfectly captures the spoken words, including the disfluency, with the only difference being the omission of commas, which has no impact on meaning preservation.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript perfectly captures the spoken words, including the disfluency, with the only difference being the omission of commas, which has no impact on meaning preservation.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors in the candidate transcript; it is a word-for-word correct transcription.</div><details><summary>Judge transcript</summary>I need the, sorry, the final invoice attached to the March ticket.</details><div><span class="muted">Key differences</span><ul><li>missing commas around the word &#x27;sorry&#x27;</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. The error is strictly a minor punctuation difference.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-wer-punctuation-boundary-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="transcription_accuracy_wer" data-slice="sentence_boundary_punctuation" data-search="asr-wer-punctuation-boundary-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript matches the reference and the audio perfectly, with absolutely no errors in transcription, punctuation, or spelling. the transcript is completely accurate with no semantic loss. preserved no_error perfect transcription, including capitalization and punctuation. transcription_accuracy_wer sentence_boundary_punctuation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-wer-punctuation-boundary-001">
-  <td data-label="Case">asr-wer-punctuation-boundary-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>transcription accuracy wer</strong></li><li><span>ASR slice</span> <strong>sentence boundary punctuation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-wer-punctuation-boundary-001</strong></li><li><span>Text SHA-256</span> <strong>30ce2ce13eaebf18c2d60223c27e6e644e491d4d24806ee559d1a36d9b6f76aa</strong></li><li><span>Duration</span> <strong>3.64s</strong></li><li><span>Bytes</span> <strong>174644</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors in the candidate transcript; it is a word-for-word correct transcription.</div><details><summary>Judge transcript</summary>I need the, sorry, the final invoice attached to the March ticket.</details><div><span class="muted">Key differences</span><ul><li>missing commas around the word &#x27;sorry&#x27;</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The candidate transcript successfully captures disfluencies (&#x27;sorry&#x27;) without deleting words or hallucinating. The error is strictly a minor punctuation difference.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>transcription accuracy wer</strong></li><li><span>ASR slice</span> <strong>disfluency token accounting</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-wer-disfluency-001</strong></li><li><span>Text SHA-256</span> <strong>d7554e1f20e8046ff869c7e16f61ebdc8335e982164130cb2d3c6c4bf9916eee</strong></li><li><span>Duration</span> <strong>3.92s</strong></li><li><span>Bytes</span> <strong>188084</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-wer-punctuation-boundary-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="transcription_accuracy_wer" data-slice="sentence_boundary_punctuation" data-search="asr-wer-punctuation-boundary-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript matches the reference and the audio perfectly, with absolutely no errors in transcription, punctuation, or spelling. the transcript is completely accurate with no semantic loss. preserved no_error perfect transcription, including capitalization and punctuation. transcription_accuracy_wer sentence_boundary_punctuation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-wer-punctuation-boundary-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">transcription accuracy wer &middot; sentence boundary punctuation</div>
+      <h3>asr-wer-punctuation-boundary-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>The transcript is completely accurate with no semantic loss.</p>
+      <div><span class="tag">no error</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>Perfect transcription, including capitalization and punctuation.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>No refunds after Friday. Exceptions require manager approval.</blockquote>
+      <p class="muted">No key differences recorded.</p>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript matches the reference and the audio perfectly, with absolutely no errors in transcription, punctuation, or spelling.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript matches the reference and the audio perfectly, with absolutely no errors in transcription, punctuation, or spelling.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The transcript is completely accurate with no semantic loss.</div><details><summary>Judge transcript</summary>No refunds after Friday. Exceptions require manager approval.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription, including capitalization and punctuation.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-numeric-measurement-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="decimal_measurement" data-search="asr-numeric-measurement-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the meaning perfectly, with only a minor formatting difference where the spoken number &#x27;thirty-seven point five&#x27; is represented numerically as &#x27;37.5&#x27;. there are no semantic errors; the spoken words and numeric representations match in meaning perfectly. preserved formatting_only the model correctly transcribed the measurement. the numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words. numeric_unit_integrity decimal_measurement mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-measurement-001">
-  <td data-label="Case">asr-numeric-measurement-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>decimal measurement</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-measurement-001</strong></li><li><span>Text SHA-256</span> <strong>1ba0e91325222fab47ab079798743fd1e6c43e845377315a824e82f8afe516d5</strong></li><li><span>Duration</span> <strong>3.56s</strong></li><li><span>Bytes</span> <strong>170804</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The transcript is completely accurate with no semantic loss.</div><details><summary>Judge transcript</summary>No refunds after Friday. Exceptions require manager approval.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription, including capitalization and punctuation.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>transcription accuracy wer</strong></li><li><span>ASR slice</span> <strong>sentence boundary punctuation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-wer-punctuation-boundary-001</strong></li><li><span>Text SHA-256</span> <strong>30ce2ce13eaebf18c2d60223c27e6e644e491d4d24806ee559d1a36d9b6f76aa</strong></li><li><span>Duration</span> <strong>3.64s</strong></li><li><span>Bytes</span> <strong>174644</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-numeric-measurement-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="decimal_measurement" data-search="asr-numeric-measurement-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the meaning perfectly, with only a minor formatting difference where the spoken number &#x27;thirty-seven point five&#x27; is represented numerically as &#x27;37.5&#x27;. there are no semantic errors; the spoken words and numeric representations match in meaning perfectly. preserved formatting_only the model correctly transcribed the measurement. the numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words. numeric_unit_integrity decimal_measurement mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-measurement-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">numeric unit integrity &middot; decimal measurement</div>
+      <h3>asr-numeric-measurement-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The model correctly transcribed the measurement. The numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Set the incubator to 37.5 degrees Celsius.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>The candidate transcript uses digits &#x27;37.5&#x27; instead of spelled-out words &#x27;thirty-seven point five&#x27;.</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the meaning perfectly, with only a minor formatting difference where the spoken number &#x27;thirty-seven point five&#x27; is represented numerically as &#x27;37.5&#x27;.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the meaning perfectly, with only a minor formatting difference where the spoken number &#x27;thirty-seven point five&#x27; is represented numerically as &#x27;37.5&#x27;.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</div><details><summary>Judge transcript</summary>Set the incubator to 37.5 degrees Celsius.</details><div><span class="muted">Key differences</span><ul><li>The candidate transcript uses digits &#x27;37.5&#x27; instead of spelled-out words &#x27;thirty-seven point five&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly transcribed the measurement. The numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-numeric-account-001-local-tts" data-score="60" data-label="needs_review" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="digit_sequence" data-search="asr-numeric-account-001-local-tts needs_review ok average of 3 judge samples: 60.00 (scores: 70, 60, 50). representative reason: the candidate transcript accurately captures almost all of the spoken sentence, but it misrecognizes the final digit of the account number, transcribing &#x27;8&#x27; as &#x27;e&#x27;. in the context of an account number, this single character substitution is a critical error that would lead to downstream failures (e.g., failed lookup or validation), representing a partial semantic loss. the candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;e&#x27;. partial_loss substitution number_error the model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;e&#x27; (/iː/) at the end of the numeric sequence. ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts. numeric_unit_integrity digit_sequence mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-account-001">
-  <td data-label="Case">asr-numeric-account-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>digit sequence</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-account-001</strong></li><li><span>Text SHA-256</span> <strong>1b8373fa92691331a8512bd9fdb9eaa080397a75a368a630b825fb74f6d0f8ed</strong></li><li><span>Duration</span> <strong>4.84s</strong></li><li><span>Bytes</span> <strong>232244</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>60</strong>
-    <div class="bar"><div class="needs_review-fill" style="width:60%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</div><details><summary>Judge transcript</summary>Set the incubator to 37.5 degrees Celsius.</details><div><span class="muted">Key differences</span><ul><li>The candidate transcript uses digits &#x27;37.5&#x27; instead of spelled-out words &#x27;thirty-seven point five&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly transcribed the measurement. The numeric formatting (37.5) is often preferred for downstream tasks over the fully spelled-out words.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>decimal measurement</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-measurement-001</strong></li><li><span>Text SHA-256</span> <strong>1ba0e91325222fab47ab079798743fd1e6c43e845377315a824e82f8afe516d5</strong></li><li><span>Duration</span> <strong>3.56s</strong></li><li><span>Bytes</span> <strong>170804</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-medium" data-case="asr-numeric-account-001-local-tts" data-score="60" data-label="needs_review" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="digit_sequence" data-search="asr-numeric-account-001-local-tts needs_review ok average of 3 judge samples: 60.00 (scores: 70, 60, 50). representative reason: the candidate transcript accurately captures almost all of the spoken sentence, but it misrecognizes the final digit of the account number, transcribing &#x27;8&#x27; as &#x27;e&#x27;. in the context of an account number, this single character substitution is a critical error that would lead to downstream failures (e.g., failed lookup or validation), representing a partial semantic loss. the candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;e&#x27;. partial_loss substitution number_error the model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;e&#x27; (/iː/) at the end of the numeric sequence. ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts. numeric_unit_integrity digit_sequence mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-account-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">numeric unit integrity &middot; digit sequence</div>
+      <h3>asr-numeric-account-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>60</strong>
+      <span class="status-pill needs_review">needs review</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</p>
+      <div><span class="tag">substitution</span><span class="tag">number error</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</li><li>Ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Read back account number 4902 7718 before submitting the form.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>Candidate substituted &#x27;8&#x27; with &#x27;E&#x27; at the end of the account number.</li><li>Candidate omitted the space separating the two blocks of the account number.</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 60.00 (scores: 70, 60, 50). Representative reason: The candidate transcript accurately captures almost all of the spoken sentence, but it misrecognizes the final digit of the account number, transcribing &#x27;8&#x27; as &#x27;E&#x27;. In the context of an account number, this single character substitution is a critical error that would lead to downstream failures (e.g., failed lookup or validation), representing a partial semantic loss.</p>
     <div class="muted" style="margin-top:6px">judge samples: 70, 60, 50; avg 60.00</div>
-  </td>
-  <td data-label="Label" class="needs_review">needs review</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 60.00 (scores: 70, 60, 50). Representative reason: The candidate transcript accurately captures almost all of the spoken sentence, but it misrecognizes the final digit of the account number, transcribing &#x27;8&#x27; as &#x27;E&#x27;. In the context of an account number, this single character substitution is a critical error that would lead to downstream failures (e.g., failed lookup or validation), representing a partial semantic loss.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>partial_loss</div><div><span class="muted">Semantic impact</span><br>The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</div><details><summary>Judge transcript</summary>Read back account number 4902 7718 before submitting the form.</details><div><span class="muted">Key differences</span><ul><li>Candidate substituted &#x27;8&#x27; with &#x27;E&#x27; at the end of the account number.</li><li>Candidate omitted the space separating the two blocks of the account number.</li></ul></div><div><span class="muted">Categories</span><br>substitution, number_error</div><div><span class="muted">Researcher notes</span><ul><li>The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</li><li>Ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-numeric-percentage-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="percentage_minimal_pair" data-search="asr-numeric-percentage-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is perfectly accurate and preserves the spoken meaning entirely. the only differences are formatting choices, where the spoken numbers and percent terms are written as digits and symbols (90% and 19% instead of ninety percent and nineteen percent), which is highly readable and often preferred. the transcript preserves the meaning perfectly with only standard formatting differences. preserved formatting_only the model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs. numeric_unit_integrity percentage_minimal_pair mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-percentage-001">
-  <td data-label="Case">asr-numeric-percentage-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>percentage minimal pair</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-percentage-001</strong></li><li><span>Text SHA-256</span> <strong>aa7d137ea1db996c1e57892ce44ca8be6dc6df047decaa3e34ddc150a5335c24</strong></li><li><span>Duration</span> <strong>3.88s</strong></li><li><span>Bytes</span> <strong>186164</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>partial_loss</div><div><span class="muted">Semantic impact</span><br>The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</div><details><summary>Judge transcript</summary>Read back account number 4902 7718 before submitting the form.</details><div><span class="muted">Key differences</span><ul><li>Candidate substituted &#x27;8&#x27; with &#x27;E&#x27; at the end of the account number.</li><li>Candidate omitted the space separating the two blocks of the account number.</li></ul></div><div><span class="muted">Categories</span><br>substitution, number_error</div><div><span class="muted">Researcher notes</span><ul><li>The model confused the phonetically similar sounds of &#x27;eight&#x27; (/eɪt/) and &#x27;E&#x27; (/iː/) at the end of the numeric sequence.</li><li>Ensure acoustic models are better trained on distinguishing cardinal numbers from letters in alphanumeric contexts.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>digit sequence</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-account-001</strong></li><li><span>Text SHA-256</span> <strong>1b8373fa92691331a8512bd9fdb9eaa080397a75a368a630b825fb74f6d0f8ed</strong></li><li><span>Duration</span> <strong>4.84s</strong></li><li><span>Bytes</span> <strong>232244</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-numeric-percentage-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="percentage_minimal_pair" data-search="asr-numeric-percentage-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is perfectly accurate and preserves the spoken meaning entirely. the only differences are formatting choices, where the spoken numbers and percent terms are written as digits and symbols (90% and 19% instead of ninety percent and nineteen percent), which is highly readable and often preferred. the transcript preserves the meaning perfectly with only standard formatting differences. preserved formatting_only the model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs. numeric_unit_integrity percentage_minimal_pair mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-percentage-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">numeric unit integrity &middot; percentage minimal pair</div>
+      <h3>asr-numeric-percentage-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>The transcript preserves the meaning perfectly with only standard formatting differences.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>The battery dropped from ninety percent to nineteen percent during the test.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>ninety percent is written as 90%</li><li>nineteen percent is written as 19%</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is perfectly accurate and preserves the spoken meaning entirely. The only differences are formatting choices, where the spoken numbers and percent terms are written as digits and symbols (90% and 19% instead of ninety percent and nineteen percent), which is highly readable and often preferred.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is perfectly accurate and preserves the spoken meaning entirely. The only differences are formatting choices, where the spoken numbers and percent terms are written as digits and symbols (90% and 19% instead of ninety percent and nineteen percent), which is highly readable and often preferred.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The transcript preserves the meaning perfectly with only standard formatting differences.</div><details><summary>Judge transcript</summary>The battery dropped from ninety percent to nineteen percent during the test.</details><div><span class="muted">Key differences</span><ul><li>ninety percent is written as 90%</li><li>nineteen percent is written as 19%</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-negation-medical-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="clinical_negation" data-search="asr-negation-medical-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is perfectly accurate, with only a minor, grammatically correct comma added before the conjunction &#x27;but&#x27; which has no impact on the spoken meaning. no semantic errors; the spoken meaning is fully and accurately preserved. preserved formatting_only excellent transcription. the minor punctuation change does not affect readability or downstream processing. negation_modality_scope clinical_negation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-medical-001">
-  <td data-label="Case">asr-negation-medical-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>clinical negation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-medical-001</strong></li><li><span>Text SHA-256</span> <strong>dbdcbaeba42a61f71f6c3283ff950b99d754363b182b2ef052eff60f552edd82</strong></li><li><span>Duration</span> <strong>3.44s</strong></li><li><span>Bytes</span> <strong>165044</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>The transcript preserves the meaning perfectly with only standard formatting differences.</div><details><summary>Judge transcript</summary>The battery dropped from ninety percent to nineteen percent during the test.</details><div><span class="muted">Key differences</span><ul><li>ninety percent is written as 90%</li><li>nineteen percent is written as 19%</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly recognized the numbers &#x27;90&#x27; and &#x27;19&#x27; and applied clean, readable formatting using digits and percent signs.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>numeric unit integrity</strong></li><li><span>ASR slice</span> <strong>percentage minimal pair</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-numeric-percentage-001</strong></li><li><span>Text SHA-256</span> <strong>aa7d137ea1db996c1e57892ce44ca8be6dc6df047decaa3e34ddc150a5335c24</strong></li><li><span>Duration</span> <strong>3.88s</strong></li><li><span>Bytes</span> <strong>186164</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-negation-medical-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="clinical_negation" data-search="asr-negation-medical-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is perfectly accurate, with only a minor, grammatically correct comma added before the conjunction &#x27;but&#x27; which has no impact on the spoken meaning. no semantic errors; the spoken meaning is fully and accurately preserved. preserved formatting_only excellent transcription. the minor punctuation change does not affect readability or downstream processing. negation_modality_scope clinical_negation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-medical-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">negation modality scope &middot; clinical negation</div>
+      <h3>asr-negation-medical-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>No semantic errors; the spoken meaning is fully and accurately preserved.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>Excellent transcription. The minor punctuation change does not affect readability or downstream processing.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>The patient denies chest pain but reports shortness of breath.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>Added a comma after &#x27;chest pain&#x27; in the candidate transcript.</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is perfectly accurate, with only a minor, grammatically correct comma added before the conjunction &#x27;but&#x27; which has no impact on the spoken meaning.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is perfectly accurate, with only a minor, grammatically correct comma added before the conjunction &#x27;but&#x27; which has no impact on the spoken meaning.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the spoken meaning is fully and accurately preserved.</div><details><summary>Judge transcript</summary>The patient denies chest pain but reports shortness of breath.</details><div><span class="muted">Key differences</span><ul><li>Added a comma after &#x27;chest pain&#x27; in the candidate transcript.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Excellent transcription. The minor punctuation change does not affect readability or downstream processing.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-negation-policy-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="permission_scope" data-search="asr-negation-policy-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the exact meaning of the spoken audio. the only difference is minor formatting, specifically using a period and a new sentence instead of a semicolon, which does not impact comprehension or downstream usability. there are no semantic errors; the spoken meaning is fully preserved. preserved formatting_only the transcript is perfect. the punctuation difference is completely acceptable and preserves all semantic information. negation_modality_scope permission_scope mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-policy-001">
-  <td data-label="Case">asr-negation-policy-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>permission scope</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-policy-001</strong></li><li><span>Text SHA-256</span> <strong>599ef83653daccc61f7cd8f7daed7b7e910ab4c4919442065b793630923fb099</strong></li><li><span>Duration</span> <strong>4.52s</strong></li><li><span>Bytes</span> <strong>216884</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the spoken meaning is fully and accurately preserved.</div><details><summary>Judge transcript</summary>The patient denies chest pain but reports shortness of breath.</details><div><span class="muted">Key differences</span><ul><li>Added a comma after &#x27;chest pain&#x27; in the candidate transcript.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Excellent transcription. The minor punctuation change does not affect readability or downstream processing.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>clinical negation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-medical-001</strong></li><li><span>Text SHA-256</span> <strong>dbdcbaeba42a61f71f6c3283ff950b99d754363b182b2ef052eff60f552edd82</strong></li><li><span>Duration</span> <strong>3.44s</strong></li><li><span>Bytes</span> <strong>165044</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-negation-policy-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="permission_scope" data-search="asr-negation-policy-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the exact meaning of the spoken audio. the only difference is minor formatting, specifically using a period and a new sentence instead of a semicolon, which does not impact comprehension or downstream usability. there are no semantic errors; the spoken meaning is fully preserved. preserved formatting_only the transcript is perfect. the punctuation difference is completely acceptable and preserves all semantic information. negation_modality_scope permission_scope mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-policy-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">negation modality scope &middot; permission scope</div>
+      <h3>asr-negation-policy-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>There are no semantic errors; the spoken meaning is fully preserved.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The transcript is perfect. The punctuation difference is completely acceptable and preserves all semantic information.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Only administrators may export records. Contractors may view records only.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>Candidate split the sentence with a period instead of using a semicolon as in the reference.</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the exact meaning of the spoken audio. The only difference is minor formatting, specifically using a period and a new sentence instead of a semicolon, which does not impact comprehension or downstream usability.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the exact meaning of the spoken audio. The only difference is minor formatting, specifically using a period and a new sentence instead of a semicolon, which does not impact comprehension or downstream usability.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the spoken meaning is fully preserved.</div><details><summary>Judge transcript</summary>Only administrators may export records. Contractors may view records only.</details><div><span class="muted">Key differences</span><ul><li>Candidate split the sentence with a period instead of using a semicolon as in the reference.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The transcript is perfect. The punctuation difference is completely acceptable and preserves all semantic information.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-negation-condition-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="unless_condition" data-search="asr-negation-condition-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is a perfect match to the spoken audio and the reference transcript, preserving the exact meaning and details with no errors. no semantic errors; the transcription is perfectly accurate. preserved no_error perfect transcription. correctly captured the conditional logic and negation structure &#x27;unless the inspection fails&#x27;. negation_modality_scope unless_condition mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-condition-001">
-  <td data-label="Case">asr-negation-condition-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>unless condition</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-condition-001</strong></li><li><span>Text SHA-256</span> <strong>82c70b514883f60d665a4cf44698b4dcb754c2636052cca7a7165104e40b4eb6</strong></li><li><span>Duration</span> <strong>3.64s</strong></li><li><span>Bytes</span> <strong>174644</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the spoken meaning is fully preserved.</div><details><summary>Judge transcript</summary>Only administrators may export records. Contractors may view records only.</details><div><span class="muted">Key differences</span><ul><li>Candidate split the sentence with a period instead of using a semicolon as in the reference.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The transcript is perfect. The punctuation difference is completely acceptable and preserves all semantic information.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>permission scope</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-policy-001</strong></li><li><span>Text SHA-256</span> <strong>599ef83653daccc61f7cd8f7daed7b7e910ab4c4919442065b793630923fb099</strong></li><li><span>Duration</span> <strong>4.52s</strong></li><li><span>Bytes</span> <strong>216884</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-negation-condition-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="negation_modality_scope" data-slice="unless_condition" data-search="asr-negation-condition-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is a perfect match to the spoken audio and the reference transcript, preserving the exact meaning and details with no errors. no semantic errors; the transcription is perfectly accurate. preserved no_error perfect transcription. correctly captured the conditional logic and negation structure &#x27;unless the inspection fails&#x27;. negation_modality_scope unless_condition mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-negation-condition-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">negation modality scope &middot; unless condition</div>
+      <h3>asr-negation-condition-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>No semantic errors; the transcription is perfectly accurate.</p>
+      <div><span class="tag">no error</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>Perfect transcription. Correctly captured the conditional logic and negation structure &#x27;unless the inspection fails&#x27;.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Ship the replacement unless the inspection fails tomorrow morning.</blockquote>
+      <p class="muted">No key differences recorded.</p>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is a perfect match to the spoken audio and the reference transcript, preserving the exact meaning and details with no errors.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is a perfect match to the spoken audio and the reference transcript, preserving the exact meaning and details with no errors.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the transcription is perfectly accurate.</div><details><summary>Judge transcript</summary>Ship the replacement unless the inspection fails tomorrow morning.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription. Correctly captured the conditional logic and negation structure &#x27;unless the inspection fails&#x27;.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-temporal-window-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="am_pm_window" data-search="asr-temporal-window-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is a perfect representation of the audio, with the only variation being the standard abbreviation formatting of &#x27;p.m.&#x27; instead of &#x27;pm&#x27;, which has zero impact on the meaning. no semantic errors; the transcript is fully accurate with only minor formatting variation. preserved formatting_only perfect transcription. the asr model handled the content flawlessly, including specialized terms like &#x27;migration window&#x27;. temporal_scheduling_accuracy am_pm_window mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-window-001">
-  <td data-label="Case">asr-temporal-window-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>am pm window</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-window-001</strong></li><li><span>Text SHA-256</span> <strong>66ed82094ed39a1d36cd5387c7648754c1c6dc7807e73c30aee7e0773552281c</strong></li><li><span>Duration</span> <strong>3.84s</strong></li><li><span>Bytes</span> <strong>184244</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the transcription is perfectly accurate.</div><details><summary>Judge transcript</summary>Ship the replacement unless the inspection fails tomorrow morning.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription. Correctly captured the conditional logic and negation structure &#x27;unless the inspection fails&#x27;.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>negation modality scope</strong></li><li><span>ASR slice</span> <strong>unless condition</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-negation-condition-001</strong></li><li><span>Text SHA-256</span> <strong>82c70b514883f60d665a4cf44698b4dcb754c2636052cca7a7165104e40b4eb6</strong></li><li><span>Duration</span> <strong>3.64s</strong></li><li><span>Bytes</span> <strong>174644</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-temporal-window-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="am_pm_window" data-search="asr-temporal-window-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is a perfect representation of the audio, with the only variation being the standard abbreviation formatting of &#x27;p.m.&#x27; instead of &#x27;pm&#x27;, which has zero impact on the meaning. no semantic errors; the transcript is fully accurate with only minor formatting variation. preserved formatting_only perfect transcription. the asr model handled the content flawlessly, including specialized terms like &#x27;migration window&#x27;. temporal_scheduling_accuracy am_pm_window mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-window-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">temporal scheduling accuracy &middot; am pm window</div>
+      <h3>asr-temporal-window-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>No semantic errors; the transcript is fully accurate with only minor formatting variation.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>Perfect transcription. The ASR model handled the content flawlessly, including specialized terms like &#x27;migration window&#x27;.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Start the migration window tonight at 10 pm after traffic drops.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>Candidate writes &#x27;p.m.&#x27; with periods, while the reference/audio interpretation is &#x27;pm&#x27;.</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is a perfect representation of the audio, with the only variation being the standard abbreviation formatting of &#x27;p.m.&#x27; instead of &#x27;pm&#x27;, which has zero impact on the meaning.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is a perfect representation of the audio, with the only variation being the standard abbreviation formatting of &#x27;p.m.&#x27; instead of &#x27;pm&#x27;, which has zero impact on the meaning.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the transcript is fully accurate with only minor formatting variation.</div><details><summary>Judge transcript</summary>Start the migration window tonight at 10 pm after traffic drops.</details><div><span class="muted">Key differences</span><ul><li>Candidate writes &#x27;p.m.&#x27; with periods, while the reference/audio interpretation is &#x27;pm&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription. The ASR model handled the content flawlessly, including specialized terms like &#x27;migration window&#x27;.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-temporal-relative-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="relative_time_relation" data-search="asr-temporal-relative-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript perfectly matches the spoken audio and the reference transcript with zero errors, fully preserving the meaning and all critical details. no semantic errors; the candidate transcript is perfectly accurate. preserved no_error the asr model performed flawlessly on this temporal relative constraint instruction, capturing all key elements including the negation at the end. temporal_scheduling_accuracy relative_time_relation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-relative-001">
-  <td data-label="Case">asr-temporal-relative-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>relative time relation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-relative-001</strong></li><li><span>Text SHA-256</span> <strong>683eb39c6dccaa56d07fc3c6fef174a36de3b354f5a5c17ad0cc0cc6dc211101</strong></li><li><span>Duration</span> <strong>3.96s</strong></li><li><span>Bytes</span> <strong>190004</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the transcript is fully accurate with only minor formatting variation.</div><details><summary>Judge transcript</summary>Start the migration window tonight at 10 pm after traffic drops.</details><div><span class="muted">Key differences</span><ul><li>Candidate writes &#x27;p.m.&#x27; with periods, while the reference/audio interpretation is &#x27;pm&#x27;.</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>Perfect transcription. The ASR model handled the content flawlessly, including specialized terms like &#x27;migration window&#x27;.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>am pm window</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-window-001</strong></li><li><span>Text SHA-256</span> <strong>66ed82094ed39a1d36cd5387c7648754c1c6dc7807e73c30aee7e0773552281c</strong></li><li><span>Duration</span> <strong>3.84s</strong></li><li><span>Bytes</span> <strong>184244</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-temporal-relative-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="relative_time_relation" data-search="asr-temporal-relative-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript perfectly matches the spoken audio and the reference transcript with zero errors, fully preserving the meaning and all critical details. no semantic errors; the candidate transcript is perfectly accurate. preserved no_error the asr model performed flawlessly on this temporal relative constraint instruction, capturing all key elements including the negation at the end. temporal_scheduling_accuracy relative_time_relation mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-relative-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">temporal scheduling accuracy &middot; relative time relation</div>
+      <h3>asr-temporal-relative-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>No semantic errors; the candidate transcript is perfectly accurate.</p>
+      <div><span class="tag">no error</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The ASR model performed flawlessly on this temporal relative constraint instruction, capturing all key elements including the negation at the end.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Book the follow-up two weeks after the first infusion, not before it.</blockquote>
+      <p class="muted">No key differences recorded.</p>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript perfectly matches the spoken audio and the reference transcript with zero errors, fully preserving the meaning and all critical details.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript perfectly matches the spoken audio and the reference transcript with zero errors, fully preserving the meaning and all critical details.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate transcript is perfectly accurate.</div><details><summary>Judge transcript</summary>Book the follow-up two weeks after the first infusion, not before it.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>The ASR model performed flawlessly on this temporal relative constraint instruction, capturing all key elements including the negation at the end.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-temporal-date-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="ordinal_date_minimal_pair" data-search="asr-temporal-date-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the full meaning of the audio, with only a benign formatting difference where the dates are written as digits and ordinals rather than being spelled out as words. there are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting. preserved formatting_only the model correctly recognized the speech. the difference is purely in the text normalization style (digits vs. words). temporal_scheduling_accuracy ordinal_date_minimal_pair mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-date-001">
-  <td data-label="Case">asr-temporal-date-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>ordinal date minimal pair</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-date-001</strong></li><li><span>Text SHA-256</span> <strong>e79ea5b3319ccee0d2c33d7f53824ce7a080f06aa60c47f39f725a4209609d4a</strong></li><li><span>Duration</span> <strong>3.20s</strong></li><li><span>Bytes</span> <strong>153524</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate transcript is perfectly accurate.</div><details><summary>Judge transcript</summary>Book the follow-up two weeks after the first infusion, not before it.</details><div><span class="muted">Categories</span><br>no_error</div><div><span class="muted">Researcher notes</span><ul><li>The ASR model performed flawlessly on this temporal relative constraint instruction, capturing all key elements including the negation at the end.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>relative time relation</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-relative-001</strong></li><li><span>Text SHA-256</span> <strong>683eb39c6dccaa56d07fc3c6fef174a36de3b354f5a5c17ad0cc0cc6dc211101</strong></li><li><span>Duration</span> <strong>3.96s</strong></li><li><span>Bytes</span> <strong>190004</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-temporal-date-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="ordinal_date_minimal_pair" data-search="asr-temporal-date-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and preserves the full meaning of the audio, with only a benign formatting difference where the dates are written as digits and ordinals rather than being spelled out as words. there are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting. preserved formatting_only the model correctly recognized the speech. the difference is purely in the text normalization style (digits vs. words). temporal_scheduling_accuracy ordinal_date_minimal_pair mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-date-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">temporal scheduling accuracy &middot; ordinal date minimal pair</div>
+      <h3>asr-temporal-date-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The model correctly recognized the speech. The difference is purely in the text normalization style (digits vs. words).</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Move the inspection from July fourth to July fourteenth.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>July fourth is written as July 4th</li><li>July fourteenth is written as July 14th</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the full meaning of the audio, with only a benign formatting difference where the dates are written as digits and ordinals rather than being spelled out as words.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is completely accurate and preserves the full meaning of the audio, with only a benign formatting difference where the dates are written as digits and ordinals rather than being spelled out as words.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</div><details><summary>Judge transcript</summary>Move the inspection from July fourth to July fourteenth.</details><div><span class="muted">Key differences</span><ul><li>July fourth is written as July 4th</li><li>July fourteenth is written as July 14th</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly recognized the speech. The difference is purely in the text normalization style (digits vs. words).</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-<tr data-case="asr-temporal-duration-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="duration_contrast" data-search="asr-temporal-duration-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is semantically perfect, with the only difference being the formatting of the numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27; as digits &#x27;15&#x27; and &#x27;50&#x27;, which does not alter the meaning. no semantic errors; the candidate represents numbers as digits but preserves the exact meaning. preserved formatting_only the model correctly transcribed and distinguished the highly similar sounding numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27;, representing them accurately in digit format. temporal_scheduling_accuracy duration_contrast mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-duration-001">
-  <td data-label="Case">asr-temporal-duration-001-local-tts</td>
-  <td data-label="Provenance"><ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>duration contrast</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-duration-001</strong></li><li><span>Text SHA-256</span> <strong>46846ed936375faff65199b095184a0ce00cea6cb427f8e34c78a31cc4374a2c</strong></li><li><span>Duration</span> <strong>3.56s</strong></li><li><span>Bytes</span> <strong>170804</strong></li></ul></td>
-  <td data-label="Score" class="scorebar"><strong>100</strong>
-    <div class="bar"><div class="accurate-fill" style="width:100%"></div></div>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</div><details><summary>Judge transcript</summary>Move the inspection from July fourth to July fourteenth.</details><div><span class="muted">Key differences</span><ul><li>July fourth is written as July 4th</li><li>July fourteenth is written as July 14th</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly recognized the speech. The difference is purely in the text normalization style (digits vs. words).</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>ordinal date minimal pair</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-date-001</strong></li><li><span>Text SHA-256</span> <strong>e79ea5b3319ccee0d2c33d7f53824ce7a080f06aa60c47f39f725a4209609d4a</strong></li><li><span>Duration</span> <strong>3.20s</strong></li><li><span>Bytes</span> <strong>153524</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+<article class="case-card severity-high" data-case="asr-temporal-duration-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="temporal_scheduling_accuracy" data-slice="duration_contrast" data-search="asr-temporal-duration-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is semantically perfect, with the only difference being the formatting of the numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27; as digits &#x27;15&#x27; and &#x27;50&#x27;, which does not alter the meaning. no semantic errors; the candidate represents numbers as digits but preserves the exact meaning. preserved formatting_only the model correctly transcribed and distinguished the highly similar sounding numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27;, representing them accurately in digit format. temporal_scheduling_accuracy duration_contrast mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-temporal-duration-001">
+  <div class="case-card-top">
+    <div>
+      <div class="eyebrow">temporal scheduling accuracy &middot; duration contrast</div>
+      <h3>asr-temporal-duration-001-local-tts</h3>
+      <span class="muted">Qwen3 ASR 1.7B (8-bit)</span>
+    </div>
+    <div class="case-score">
+      <strong>100</strong>
+      <span class="status-pill accurate">accurate</span>
+    </div>
+  </div>
+  <div class="case-grid">
+    <section>
+      <h4>Semantic impact</h4>
+      <p>No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</p>
+      <div><span class="tag">formatting only</span></div>
+      <div><span class="muted">Recommended action</span><ul><li>The model correctly transcribed and distinguished the highly similar sounding numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27;, representing them accurately in digit format.</li></ul></div>
+    </section>
+    <section class="case-evidence">
+      <h4>Model transcript</h4>
+      <blockquote>Run the pump for fifteen minutes then let it rest for fifty minutes.</blockquote>
+      <div><span class="muted">Key differences</span><ul><li>The word &#x27;fifteen&#x27; is written as the digit &#x27;15&#x27;</li><li>The word &#x27;fifty&#x27; is written as the digit &#x27;50&#x27;</li></ul></div>
+    </section>
+  </div>
+  <details class="case-details">
+    <summary>Judge rationale, vote details, and provenance</summary>
+    <p class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is semantically perfect, with the only difference being the formatting of the numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27; as digits &#x27;15&#x27; and &#x27;50&#x27;, which does not alter the meaning.</p>
     <div class="muted" style="margin-top:6px">judge samples: 100, 100, 100; avg 100.00</div>
-  </td>
-  <td data-label="Label" class="accurate">accurate</td>
-  <td data-label="Reason" class="reason">Average of 3 judge samples: 100.00 (scores: 100, 100, 100). Representative reason: The candidate transcript is semantically perfect, with the only difference being the formatting of the numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27; as digits &#x27;15&#x27; and &#x27;50&#x27;, which does not alter the meaning.</td>
-  <td data-label="Diagnostics"><div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</div><details><summary>Judge transcript</summary>Run the pump for fifteen minutes then let it rest for fifty minutes.</details><div><span class="muted">Key differences</span><ul><li>The word &#x27;fifteen&#x27; is written as the digit &#x27;15&#x27;</li><li>The word &#x27;fifty&#x27; is written as the digit &#x27;50&#x27;</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly transcribed and distinguished the highly similar sounding numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27;, representing them accurately in digit format.</li></ul></div></td>
-  <td data-label="Status">ok</td>
-</tr>
-      </tbody>
-    </table>
+    <div><span class="muted">Meaning</span><br>preserved</div><div><span class="muted">Semantic impact</span><br>No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</div><details><summary>Judge transcript</summary>Run the pump for fifteen minutes then let it rest for fifty minutes.</details><div><span class="muted">Key differences</span><ul><li>The word &#x27;fifteen&#x27; is written as the digit &#x27;15&#x27;</li><li>The word &#x27;fifty&#x27; is written as the digit &#x27;50&#x27;</li></ul></div><div><span class="muted">Categories</span><br>formatting_only</div><div><span class="muted">Researcher notes</span><ul><li>The model correctly transcribed and distinguished the highly similar sounding numbers &#x27;fifteen&#x27; and &#x27;fifty&#x27;, representing them accurately in digit format.</li></ul></div>
+    <h4 style="margin-top:14px">Provenance</h4>
+    <ul class="counts provenance"><li><span>Category</span> <strong>temporal scheduling accuracy</strong></li><li><span>ASR slice</span> <strong>duration contrast</strong></li><li><span>Model</span> <strong>mlx-community/chatterbox-turbo-6bit</strong></li><li><span>Candidate model</span> <strong>mlx-community/Qwen3-ASR-1.7B-8bit</strong></li><li><span>Voice</span> <strong>af heart</strong></li><li><span>Language</span> <strong>en</strong></li><li><span>Lang code</span> <strong>en</strong></li><li><span>Sample</span> <strong>local synthetic tts</strong></li><li><span>Source case</span> <strong>asr-temporal-duration-001</strong></li><li><span>Text SHA-256</span> <strong>46846ed936375faff65199b095184a0ce00cea6cb427f8e34c78a31cc4374a2c</strong></li><li><span>Duration</span> <strong>3.56s</strong></li><li><span>Bytes</span> <strong>170804</strong></li></ul>
+    <p class="muted">Evaluation status: ok</p>
+  </details>
+</article>
+    </section>
+
+    <details class="section-details">
+      <summary>Dataset coverage, metadata, and calibration</summary>
+      <div class="section-details-content">
+        <h2>Candidate Metadata</h2>
+        <section class="summary">
+          <div class="metric"><span>ASR Slice</span><ul class="counts"><li><span>disfluency token accounting</span> <strong>1</strong></li><li><span>sentence boundary punctuation</span> <strong>1</strong></li><li><span>decimal measurement</span> <strong>1</strong></li><li><span>digit sequence</span> <strong>1</strong></li><li><span>percentage minimal pair</span> <strong>1</strong></li><li><span>clinical negation</span> <strong>1</strong></li><li><span>permission scope</span> <strong>1</strong></li><li><span>unless condition</span> <strong>1</strong></li><li><span>am pm window</span> <strong>1</strong></li><li><span>relative time relation</span> <strong>1</strong></li><li><span>ordinal date minimal pair</span> <strong>1</strong></li><li><span>duration contrast</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>ASR Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit</span> <strong>12</strong></li></ul></div>
+          <div class="metric"><span>Synthesis Voice</span><ul class="counts"><li><span>af heart</span> <strong>12</strong></li></ul></div>
+          <div class="metric"><span>Language</span><ul class="counts"><li><span>en</span> <strong>12</strong></li></ul></div>
+          <div class="metric"><span>Evaluation Category</span><ul class="counts"><li><span>temporal scheduling accuracy</span> <strong>4</strong></li><li><span>numeric unit integrity</span> <strong>3</strong></li><li><span>negation modality scope</span> <strong>3</strong></li><li><span>transcription accuracy wer</span> <strong>2</strong></li></ul></div>
+          <div class="metric"><span>Sample Kind</span><ul class="counts"><li><span>local synthetic tts</span> <strong>12</strong></li></ul></div>
+          <div class="metric"><span>Issues By Category</span><ul class="counts"><li><span>temporal scheduling accuracy / formatting only</span> <strong>3</strong></li><li><span>numeric unit integrity / formatting only</span> <strong>2</strong></li><li><span>negation modality scope / formatting only</span> <strong>2</strong></li><li><span>transcription accuracy wer / formatting only</span> <strong>1</strong></li><li><span>numeric unit integrity / substitution</span> <strong>1</strong></li><li><span>numeric unit integrity / number error</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>Issues By ASR Slice</span><ul class="counts"><li><span>disfluency token accounting / formatting only</span> <strong>1</strong></li><li><span>decimal measurement / formatting only</span> <strong>1</strong></li><li><span>digit sequence / substitution</span> <strong>1</strong></li><li><span>digit sequence / number error</span> <strong>1</strong></li><li><span>percentage minimal pair / formatting only</span> <strong>1</strong></li><li><span>clinical negation / formatting only</span> <strong>1</strong></li><li><span>permission scope / formatting only</span> <strong>1</strong></li><li><span>am pm window / formatting only</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>Issues By Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / formatting only</span> <strong>8</strong></li><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / substitution</span> <strong>1</strong></li><li><span>mlx-community/Qwen3-ASR-1.7B-8bit / number error</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>Issues By Voice</span><ul class="counts"><li><span>af heart / formatting only</span> <strong>8</strong></li><li><span>af heart / substitution</span> <strong>1</strong></li><li><span>af heart / number error</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>Issues By Language</span><ul class="counts"><li><span>en / formatting only</span> <strong>8</strong></li><li><span>en / substitution</span> <strong>1</strong></li><li><span>en / number error</span> <strong>1</strong></li></ul></div>
+          <div class="metric"><span>Scores By Category</span><ul class="counts"><li><span>numeric unit integrity</span> <strong>avg 86.7 / n 3 / 60-100</strong></li><li><span>negation modality scope</span> <strong>avg 100.0 / n 3 / 100-100</strong></li><li><span>temporal scheduling accuracy</span> <strong>avg 100.0 / n 4 / 100-100</strong></li><li><span>transcription accuracy wer</span> <strong>avg 100.0 / n 2 / 100-100</strong></li></ul></div>
+          <div class="metric"><span>Scores By ASR Slice</span><ul class="counts"><li><span>digit sequence</span> <strong>avg 60.0 / n 1 / 60-60</strong></li><li><span>am pm window</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>clinical negation</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>decimal measurement</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>disfluency token accounting</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>duration contrast</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>ordinal date minimal pair</span> <strong>avg 100.0 / n 1 / 100-100</strong></li><li><span>percentage minimal pair</span> <strong>avg 100.0 / n 1 / 100-100</strong></li></ul></div>
+          <div class="metric"><span>Scores By Model</span><ul class="counts"><li><span>mlx-community/Qwen3-ASR-1.7B-8bit</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
+          <div class="metric"><span>Scores By Voice</span><ul class="counts"><li><span>af heart</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
+          <div class="metric"><span>Scores By Language</span><ul class="counts"><li><span>en</span> <strong>avg 96.7 / n 12 / 60-100</strong></li></ul></div>
+          <div class="metric"><span>Failures By Category</span><strong class="muted">No category failures</strong></div>
+          <div class="metric"><span>Failures By ASR Slice</span><strong class="muted">No slice failures</strong></div>
+          <div class="metric"><span>Failures By Model</span><strong class="muted">No model failures</strong></div>
+          <div class="metric"><span>Failures By Voice</span><strong class="muted">No voice failures</strong></div>
+          <div class="metric"><span>Failures By Language</span><strong class="muted">No language failures</strong></div>
+          <div class="metric"><span>Failures By Sample Kind</span><strong class="muted">No sample-kind failures</strong></div>
+        </section>
+
+        <h2>Calibration Checks</h2>
+        <div class="metric"><strong class="muted">All calibration expectations matched</strong></div>
+      </div>
+    </details>
+
+    <details class="section-details">
+      <summary>Advanced comparison analysis</summary>
+      <div class="section-details-content">
+        <h2>Model-Category Action Matrix</h2>
+        <section class="action-grid"><article class="action-card severity-high">
+  <span class="eyebrow">numeric unit integrity</span>
+  <h3>Qwen3 ASR 1.7B (8-bit)</h3>
+  <div class="score-line"><strong>86.7</strong><span class="muted">n=3 &middot; range 60-100</span></div>
+  <div><span class="muted">Likely Fix Areas</span><br><span class="tag">formatting only</span><span class="tag">substitution</span><span class="tag">text faithfulness</span></div>
+  <div><span class="muted">Category Guidance</span><div><span class="muted">Source basis</span><br><span class="tag">Numeric normalization should distinguish equivalent formatting from value-changing recognition errors.</span><span class="tag">Digit-sequence accuracy is a practical ASR slice for forms, support, and voice agents.</span></div></div>
+  <div><span class="muted">Issues</span><br><span class="tag">formatting only x2</span><span class="tag">substitution x1</span><span class="tag">number error x1</span></div>
+  <div><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></div>
+  <details><summary>Representative low-score samples</summary><ul class="evidence-list"><li><span>asr-numeric-account-001-local-tts</span> <strong>60 / needs review</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-account-001</span><br><span class="muted">issues:</span> <span class="tag">substitution</span><span class="tag">number error</span><br><span class="reason">The candidate incorrectly transcribes the final digit of the account number, substituting &#x27;8&#x27; with the letter &#x27;E&#x27;.</span></li><li><span>asr-numeric-measurement-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-numeric-measurement-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the spoken words and numeric representations match in meaning perfectly.</span></li></ul></details>
+</article>
+<article class="action-card severity-high">
+  <span class="eyebrow">negation modality scope</span>
+  <h3>Qwen3 ASR 1.7B (8-bit)</h3>
+  <div class="score-line"><strong>100.0</strong><span class="muted">n=3 &middot; range 100-100</span></div>
+  <div><span class="muted">Likely Fix Areas</span><br><span class="tag">formatting only</span></div>
+  <div><span class="muted">Category Guidance</span><div><span class="muted">Source basis</span><br><span class="tag">Clinical ASR error analysis treats negated findings as high-impact meaning changes.</span><span class="tag">Scope and modality errors can invert policy meaning while changing few words.</span></div></div>
+  <div><span class="muted">Issues</span><br><span class="tag">formatting only x2</span></div>
+  <div><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></div>
+  <details><summary>Representative low-score samples</summary><ul class="evidence-list"><li><span>asr-negation-condition-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-condition-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">No semantic errors; the transcription is perfectly accurate.</span></li><li><span>asr-negation-medical-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-negation-medical-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the spoken meaning is fully and accurately preserved.</span></li></ul></details>
+</article>
+<article class="action-card severity-high">
+  <span class="eyebrow">temporal scheduling accuracy</span>
+  <h3>Qwen3 ASR 1.7B (8-bit)</h3>
+  <div class="score-line"><strong>100.0</strong><span class="muted">n=4 &middot; range 100-100</span></div>
+  <div><span class="muted">Likely Fix Areas</span><br><span class="tag">formatting only</span></div>
+  <div><span class="muted">Category Guidance</span><div><span class="muted">Source basis</span><br><span class="tag">AM/PM and temporal relation errors can be severe even when token edit distance is small.</span><span class="tag">Temporal relation preservation belongs in semantic ASR evaluation beyond WER.</span></div></div>
+  <div><span class="muted">Issues</span><br><span class="tag">formatting only x3</span></div>
+  <div><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></div>
+  <details><summary>Representative low-score samples</summary><ul class="evidence-list"><li><span>asr-temporal-date-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-date-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors; the candidate transcript accurately captures the audio and only differs from the reference in numeric formatting.</span></li><li><span>asr-temporal-duration-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-temporal-duration-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">No semantic errors; the candidate represents numbers as digits but preserves the exact meaning.</span></li></ul></details>
+</article>
+<article class="action-card severity-high">
+  <span class="eyebrow">transcription accuracy wer</span>
+  <h3>Qwen3 ASR 1.7B (8-bit)</h3>
+  <div class="score-line"><strong>100.0</strong><span class="muted">n=2 &middot; range 100-100</span></div>
+  <div><span class="muted">Likely Fix Areas</span><br><span class="tag">formatting only</span></div>
+  <div><span class="muted">Category Guidance</span><div><span class="muted">Source basis</span><br><span class="tag">ASR benchmarks often report normalized and unnormalized WER; disfluencies expose normalization policy choices.</span><span class="tag">Text normalization and punctuation policy change WER and downstream readability.</span></div></div>
+  <div><span class="muted">Issues</span><br><span class="tag">formatting only x1</span></div>
+  <div><span class="muted">Failures</span><br><span class="muted">No failed evaluations</span></div>
+  <details><summary>Representative low-score samples</summary><ul class="evidence-list"><li><span>asr-wer-disfluency-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-wer-disfluency-001</span><br><span class="muted">issues:</span> <span class="tag">formatting only</span><br><span class="reason">There are no semantic errors in the candidate transcript; it is a word-for-word correct transcription.</span></li><li><span>asr-wer-punctuation-boundary-001-local-tts</span> <strong>100 / accurate</strong><br><span class="muted">status: ok</span><br><span class="muted">source: asr-wer-punctuation-boundary-001</span><br><span class="muted">issues:</span> <span class="muted">No judge issue categories</span><br><span class="reason">The transcript is completely accurate with no semantic loss.</span></li></ul></details>
+</article></section>
+
+      </div>
+    </details>
   </main>
   <script>
     (() => {
-      const table = document.querySelector("#case-results-table");
-      if (!table) return;
-      const tbody = table.querySelector("tbody");
-      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const container = document.querySelector("#case-results-table");
+      if (!container) return;
+      const rows = Array.from(container.querySelectorAll(".case-card"));
       const search = document.querySelector("#case-search");
       const label = document.querySelector("#case-label-filter");
       const status = document.querySelector("#case-status-filter");
@@ -601,7 +908,19 @@
       const category = document.querySelector("#case-category-filter");
       const slice = document.querySelector("#case-slice-filter");
       const count = document.querySelector("#case-visible-count");
-      const state = { sortKey: "", sortDir: "desc" };
+      const state = { sortKey: "score", sortDir: "desc" };
+      const params = new URLSearchParams(window.location.search);
+      const initialValues = [
+        [search, "search"],
+        [label, "label"],
+        [status, "status"],
+        [model, "model"],
+        [category, "category"],
+        [slice, "slice"],
+      ];
+      initialValues.forEach(([control, key]) => {
+        if (control && params.has(key)) control.value = params.get(key) || "";
+      });
 
       function applyFilters() {
         const query = (search?.value || "").trim().toLowerCase();
@@ -635,8 +954,11 @@
           }
           return left.dataset.case.localeCompare(right.dataset.case) * dir;
         });
-        sorted.forEach((row) => tbody.appendChild(row));
+        sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
+        document.querySelectorAll("[data-sort]").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+        });
         applyFilters();
       }
 
@@ -644,7 +966,7 @@
         control?.addEventListener("input", applyFilters);
         control?.addEventListener("change", applyFilters);
       });
-      table.querySelectorAll("[data-sort]").forEach((button) => {
+      document.querySelectorAll("[data-sort]").forEach((button) => {
         button.addEventListener("click", () => sortRows(button.dataset.sort));
       });
       sortRows("score");

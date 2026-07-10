@@ -249,9 +249,9 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="table-region" role="region" aria-label="Priority cases" tabindex="0"><table class="priority-table">
-      <caption class="sr-only">Cases that need attention, ordered by semantic severity and score</caption>
+      <caption class="sr-only">Cases that need attention, ordered by judge status, semantic severity, score, and judge coverage</caption>
       <thead>
         <tr>
           <th scope="col">Case</th>
@@ -348,12 +348,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">3 / 3 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-wer-function-word-001-local-tts" data-score="87" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="transcription_accuracy_wer" data-slice="function_word_substitution" data-search="asr-wer-function-word-001-local-tts accurate ok average of 3 judge samples: 86.67 (scores: 80, 85, 95). representative reason: the candidate transcript substitutes the singular noun and verb &#x27;patch is&#x27; with the plural noun &#x27;patches&#x27;. while this introduces a minor grammatical shift, the overall meaning—that the update is meant for the beta channel instead of the stable channel—remains completely clear and unambiguous. the candidate substituted &#x27;patch is&#x27; with &#x27;patches&#x27;, slightly altering the grammar but preserving the primary meaning. minor_loss substitution the model collapsed the noun + auxiliary verb &#x27;patch is&#x27; into the phonetically similar plural noun &#x27;patches&#x27;. improving acoustic modeling for weak auxiliary verbs following sibilant-ending words would help prevent this error. transcription_accuracy_wer function_word_substitution mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-wer-function-word-001">
   <div class="case-card-top">
     <div>
@@ -374,7 +374,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model collapsed the noun + auxiliary verb &#x27;patch is&#x27; into the phonetically similar plural noun &#x27;patches&#x27;. Improving acoustic modeling for weak auxiliary verbs following sibilant-ending words would help prevent this error.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The release notes say the patch is for the beta channel, not the stable channel.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Substituted &#x27;patch is&#x27; with &#x27;patches&#x27;</li></ul></div>
     </section>
@@ -409,7 +409,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Improve context-aware language modeling to correctly distinguish homophones like &#x27;write&#x27; and &#x27;right&#x27; when modifying nouns like &#x27;team&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Please write the new access policy before the right team reviews it.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Used &#x27;write team&#x27; instead of &#x27;right team&#x27;</li></ul></div>
     </section>
@@ -444,7 +444,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model performed perfectly, with only insignificant capitalization differences.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Turn left at Pine Street, then park by gate four.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Capitalization of &#x27;Gate Four&#x27; instead of &#x27;gate four&#x27;</li></ul></div>
     </section>
@@ -574,7 +574,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

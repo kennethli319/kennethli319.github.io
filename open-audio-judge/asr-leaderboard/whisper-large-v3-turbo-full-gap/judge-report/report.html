@@ -249,9 +249,9 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="table-region" role="region" aria-label="Priority cases" tabindex="0"><table class="priority-table">
-      <caption class="sr-only">Cases that need attention, ordered by semantic severity and score</caption>
+      <caption class="sr-only">Cases that need attention, ordered by judge status, semantic severity, score, and judge coverage</caption>
       <thead>
         <tr>
           <th scope="col">Case</th>
@@ -393,12 +393,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">12 / 12 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-wer-disfluency-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/whisper-large-v3-turbo-asr-fp16" data-category="transcription_accuracy_wer" data-slice="disfluency_token_accounting" data-search="asr-wer-disfluency-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is an exact match of the reference and successfully captures the entire phrase, including the disfluency &#x27;sorry&#x27;, with perfect accuracy and punctuation. no semantic errors exist as the candidate transcript is identical to the reference. preserved no_error the model successfully handles self-correction and disfluencies (&#x27;i need the, sorry, the&#x27;) without deleting them or hallucinating incorrect text. transcription_accuracy_wer disfluency_token_accounting mlx-community/chatterbox-turbo-6bit mlx-community/whisper-large-v3-turbo-asr-fp16 af_heart en en local_synthetic_tts asr-wer-disfluency-001">
   <div class="case-card-top">
     <div>
@@ -419,7 +419,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model successfully handles self-correction and disfluencies (&#x27;I need the, sorry, the&#x27;) without deleting them or hallucinating incorrect text.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>I need the, sorry, the final invoice attached to the March ticket.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -454,7 +454,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR model successfully recognized all words correctly.</li><li>Punctuation formatting could be improved to avoid trailing commas and comma splices, though meaning is fully preserved.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>No refunds after Friday. Exceptions require manager approval.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Used a comma instead of a period after &#x27;Friday&#x27;</li><li>Added a trailing comma at the end of the sentence</li></ul></div>
     </section>
@@ -489,7 +489,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The candidate&#x27;s choice to output numeric digits for measurements is highly readable and appropriate.</li><li>No errors detected.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Set the incubator to 37.5 degrees Celsius.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The number &#x27;thirty-seven point five&#x27; is represented numerically as &#x27;37.5&#x27;.</li></ul></div>
     </section>
@@ -524,7 +524,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model confused the spoken word &#x27;eight&#x27; with the letter &#x27;E&#x27; at the end of the account number. Improving acoustic modeling for digits vs. letters in alphanumeric strings could help prevent this.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Read back account number 4902 7718 before submitting the form.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Substituted &#x27;4902771E&#x27; for &#x27;4902 7718&#x27;</li></ul></div>
     </section>
@@ -559,7 +559,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model successfully captured the numerical values &#x27;90&#x27; and &#x27;19&#x27; and correctly associated them with percent symbols.</li><li>This is a high-quality transcript with acceptable formatting-only differences.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The battery dropped from ninety percent to nineteen percent during the test.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Spelled out &#x27;ninety percent&#x27; represented as &#x27;90%&#x27;</li><li>Spelled out &#x27;nineteen percent&#x27; represented as &#x27;19%&#x27;</li></ul></div>
     </section>
@@ -594,7 +594,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent transcription of medical terms and negation.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The patient denies chest pain but reports shortness of breath.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -629,7 +629,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model performed perfectly. The punctuation difference is completely acceptable and does not alter the meaning or grammatical structure of the sentence.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Only administrators may export records. Contractors may view records only.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Semicolon in reference is replaced by a period in the candidate transcript.</li></ul></div>
     </section>
@@ -664,7 +664,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR system performed flawlessly on this conditional statement, capturing the critical words &#x27;unless&#x27; and &#x27;fails&#x27; accurately.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Ship the replacement unless the inspection fails tomorrow morning.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -699,7 +699,7 @@
       <div><span class="muted">Recommended action</span><ul><li>This is a flawless transcription from a semantic standpoint. The minor formatting variation in &#x27;10pm&#x27; is acceptable.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Start the migration window tonight at 10 pm after traffic drops.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate writes &#x27;10pm&#x27; without a space, whereas the reference/audio implies &#x27;10 pm&#x27;.</li></ul></div>
     </section>
@@ -734,7 +734,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent performance with perfect alignment, proper punctuation, and correct spelling.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Book the follow up two weeks after the first infusion, not before it.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -769,7 +769,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR output is correct. Converting spoken numbers/dates into standard digit format is expected behavior for many downstream tasks.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Move the inspection from July fourth to July fourteenth.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Used &#x27;July 4th&#x27; instead of &#x27;July fourth&#x27;</li><li>Used &#x27;July 14th&#x27; instead of &#x27;July fourteenth&#x27;</li></ul></div>
     </section>
@@ -804,7 +804,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model confused &#x27;fifty&#x27; with &#x27;15&#x27; (&#x27;fifteen&#x27;), which is a classic phonetic ambiguity. Acoustic modeling or language model priors for numeric sequences should be improved to better distinguish teen/ty suffixes.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Run the pump for fifteen minutes, then let it rest for fifty minutes.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Candidate transcribed &#x27;15 minutes&#x27; instead of the spoken &#x27;fifty minutes&#x27; (50) for the resting duration.</li></ul></div>
     </section>
@@ -964,7 +964,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

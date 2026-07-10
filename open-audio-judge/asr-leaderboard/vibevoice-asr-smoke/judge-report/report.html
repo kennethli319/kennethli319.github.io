@@ -249,7 +249,7 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="metric"><strong class="muted">No priority cases</strong></div>
 
     <h2>Score Distribution</h2>
@@ -323,12 +323,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">3 / 3 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-wer-function-word-001-local-tts" data-score="85" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="transcription_accuracy_wer" data-slice="function_word_substitution" data-search="asr-wer-function-word-001-local-tts accurate ok average of 3 judge samples: 85.00 (scores: 85, 85, 85). representative reason: the candidate transcript contains a minor acoustic substitution, transcribing &#x27;patch is&#x27; as &#x27;patches&#x27;, which slightly impacts the grammar of the sentence but preserves the overall semantic meaning and intent. the substitution of &#x27;patch is for&#x27; with &#x27;patches for&#x27; creates a minor grammatical slip but does not change the core message. preserved substitution the phonetic similarity between &#x27;patch is&#x27; (/pætʃ ɪz/) and &#x27;patches&#x27; (/pætʃɪz/) caused a minor transcription error. language model constraints could help prevent grammatically incomplete sequences like &#x27;the patches for... not the stable channel&#x27;. transcription_accuracy_wer function_word_substitution mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-wer-function-word-001">
   <div class="case-card-top">
     <div>
@@ -349,7 +349,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The phonetic similarity between &#x27;patch is&#x27; (/pætʃ ɪz/) and &#x27;patches&#x27; (/pætʃɪz/) caused a minor transcription error. Language model constraints could help prevent grammatically incomplete sequences like &#x27;the patches for... not the stable channel&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The release notes say the patch is for the beta channel, not the stable channel.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Substituted &#x27;patches for&#x27; for &#x27;patch is for&#x27;</li></ul></div>
     </section>
@@ -384,7 +384,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent transcription performance with perfect semantic and lexical matching.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Please write the new access policy before the right team reviews it.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -419,7 +419,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent transcription with no errors.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Turn left at Pine Street, then park by gate four.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -549,7 +549,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

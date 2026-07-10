@@ -249,9 +249,9 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="table-region" role="region" aria-label="Priority cases" tabindex="0"><table class="priority-table">
-      <caption class="sr-only">Cases that need attention, ordered by semantic severity and score</caption>
+      <caption class="sr-only">Cases that need attention, ordered by judge status, semantic severity, score, and judge coverage</caption>
       <thead>
         <tr>
           <th scope="col">Case</th>
@@ -348,12 +348,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">5 / 5 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-noise-cafe-order-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="acoustic_noise_robustness" data-slice="cafe_background_command" data-search="asr-noise-cafe-order-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is an absolute perfect match to both the audio and the reference transcript, with no errors whatsoever. there are no semantic errors; the candidate transcript is completely accurate. preserved no_error the asr model successfully transcribed the audio with 100% accuracy, showing no issues with names, ingredients, or instruction structure. acoustic_noise_robustness cafe_background_command mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-noise-cafe-order-001">
   <div class="case-card-top">
     <div>
@@ -374,7 +374,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR model successfully transcribed the audio with 100% accuracy, showing no issues with names, ingredients, or instruction structure.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Add oat milk to the latte and leave out the caramel drizzle.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -409,7 +409,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent transcription accuracy with zero word errors. The sentence boundary detection is the only minor variation, which is a benign formatting difference.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Take the second exit after the bridge, then stay in the right lane.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate transcript splits the instruction into two sentences using a period and capitalization (&#x27;bridge. Then&#x27;) instead of a comma (&#x27;bridge, then&#x27;).</li></ul></div>
     </section>
@@ -444,7 +444,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR model performed perfectly on this short, clear warehouse command, correctly transcribing the alphanumeric bin ID &#x27;A17&#x27; and the destination &#x27;loading dock three&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Scan bin A17 before moving the pallet to loading dock three.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -479,7 +479,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model inserted an extra digit &#x27;2&#x27; into the room number, misinterpreting &#x27;four twelve&#x27; as &#x27;four two one two&#x27; or similar. Focus on fine-tuning number recognition, especially in slightly reverberant conditions.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The quarterly review starts in room 412 at half past three.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Room &#x27;412&#x27; was transcribed as &#x27;4212&#x27;</li></ul></div>
     </section>
@@ -514,7 +514,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The ASR model performed flawlessly on this sample with no issues in transcription, formatting, or punctuation.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Ignore the side conversation and record the final answer as option C.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -644,7 +644,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

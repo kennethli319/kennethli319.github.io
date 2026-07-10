@@ -249,7 +249,7 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="metric"><strong class="muted">No priority cases</strong></div>
 
     <h2>Score Distribution</h2>
@@ -361,12 +361,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">5 / 5 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-numeric-transfer-001-local-tts" data-score="100" data-label="accurate" data-status="ok" data-model="mlx-community/Qwen3-ASR-1.7B-8bit" data-category="numeric_unit_integrity" data-slice="amount_contrast" data-search="asr-numeric-transfer-001-local-tts accurate ok average of 3 judge samples: 100.00 (scores: 100, 100, 100). representative reason: the candidate transcript is completely accurate and perfectly preserves the meaning of the spoken audio. the only difference is a minor punctuation variation where the comma is replaced by a period, which has zero impact on semantic understanding. no semantic errors; meaning is perfectly preserved. preserved formatting_only excellent performance. the model correctly captured the distinction between &#x27;fifteen&#x27; and &#x27;fifty&#x27;, as well as the negation and name &#x27;maya&#x27;. numeric_unit_integrity amount_contrast mlx-community/chatterbox-turbo-6bit mlx-community/qwen3-asr-1.7b-8bit af_heart en en local_synthetic_tts asr-numeric-transfer-001">
   <div class="case-card-top">
     <div>
@@ -387,7 +387,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Excellent performance. The model correctly captured the distinction between &#x27;fifteen&#x27; and &#x27;fifty&#x27;, as well as the negation and name &#x27;Maya&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Transfer fifteen dollars to Maya today, not fifty dollars.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate splits the sentence with a period instead of a comma after &#x27;today&#x27;.</li></ul></div>
     </section>
@@ -422,7 +422,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model recognized the medication &#x27;melatonin&#x27; and the dosage &#x27;five milligrams&#x27; perfectly.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Give the patient 5 milligrams of melatonin before bedtime.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -457,7 +457,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model performed perfectly with no errors.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Do not restart the server until the database backup finishes.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -492,7 +492,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Perfect match. The system correctly handled the negation &#x27;cannot&#x27; and key terms &#x27;trial&#x27;, &#x27;refund&#x27;, and &#x27;Friday&#x27; with correct punctuation and spelling.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The customer can cancel the trial, but cannot receive a refund after Friday.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -527,7 +527,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The transcription is highly accurate. The minor formatting variation in &#x27;a.m.&#x27; is acceptable and does not impact downstream processing.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The benefits enrollment deadline is Monday at 9 a.m.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Formatting of the time suffix (&#x27;a.m.&#x27; vs &#x27;am&#x27;)</li></ul></div>
     </section>
@@ -677,7 +677,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

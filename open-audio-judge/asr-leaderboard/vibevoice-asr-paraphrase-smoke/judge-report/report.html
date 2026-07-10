@@ -249,7 +249,7 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="metric"><strong class="muted">No priority cases</strong></div>
 
     <h2>Score Distribution</h2>
@@ -323,12 +323,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">5 / 5 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-semantic-paraphrase-001-local-tts" data-score="98" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="semantic_paraphrase_preservation" data-slice="event_state_preservation" data-search="asr-semantic-paraphrase-001-local-tts accurate ok average of 3 judge samples: 98.33 (scores: 95, 100, 100). representative reason: the candidate transcript perfectly captures the spoken audio with no errors, omissions, or substitutions. the text matches the reference exactly, with only minor segment formatting wrappers. no semantic errors found; the transcript is perfectly accurate. preserved no_error the transcript is completely accurate and matches the reference and audio perfectly. semantic_paraphrase_preservation event_state_preservation mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-semantic-paraphrase-001">
   <div class="case-card-top">
     <div>
@@ -349,7 +349,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The transcript is completely accurate and matches the reference and audio perfectly.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The technician replaced the cracked valve and confirmed the leak stopped.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -384,7 +384,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The transcription accuracy is 100%. The ASR pipeline outputted metadata formatting which might need to be parsed or stripped depending on the downstream application&#x27;s expectations.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The upload failed because the token expired, so the client retried after refresh.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The transcript is contained within a JSON block with &#x27;Start&#x27;, &#x27;End&#x27;, &#x27;Speaker&#x27;, and &#x27;Content&#x27; keys instead of being a plain string.</li></ul></div>
     </section>
@@ -419,7 +419,7 @@
       <div><span class="muted">Recommended action</span><ul><li>ASR transcription is flawless.</li><li>If raw text is required, a simple post-processing parser can extract the content field from the JSON structure.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The candidate model improved recall but reduced precision on noisy calls.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate transcript is wrapped in a JSON structure containing segment metadata (&#x27;Start&#x27;, &#x27;End&#x27;, &#x27;Speaker&#x27;, &#x27;Content&#x27;).</li></ul></div>
     </section>
@@ -454,7 +454,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The candidate transcript is more accurate to the actual audio than the reference transcript in this case. The reference transcript has &#x27;Maria&#x27; but the audio clearly says &#x27;Rhea&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Rhea called Priya after she reviewed the contract changes.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Candidate uses &#x27;Rhea&#x27; matching the audio, while the reference transcript uses &#x27;Maria&#x27;.</li></ul></div>
     </section>
@@ -489,7 +489,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The core ASR engine performed flawlessly. The formatting wrapper (JSON with timestamps and speaker diarization) should be parsed or stripped depending on downstream application requirements.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>If the first backup succeeds, skip the manual export and notify operations.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate transcript is formatted as a JSON array with &#x27;Start&#x27;, &#x27;End&#x27;, &#x27;Speaker&#x27;, and &#x27;Content&#x27; keys instead of plain text.</li></ul></div>
     </section>
@@ -619,7 +619,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

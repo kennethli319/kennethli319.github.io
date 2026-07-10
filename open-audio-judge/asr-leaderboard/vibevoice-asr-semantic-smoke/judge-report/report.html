@@ -249,7 +249,7 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="metric"><strong class="muted">No priority cases</strong></div>
 
     <h2>Score Distribution</h2>
@@ -361,12 +361,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">5 / 5 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-numeric-transfer-001-local-tts" data-score="98" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="numeric_unit_integrity" data-slice="amount_contrast" data-search="asr-numeric-transfer-001-local-tts accurate ok average of 3 judge samples: 97.67 (scores: 98, 95, 100). representative reason: the candidate transcript is perfectly accurate word-for-word, correctly identifying the critical distinction between &#x27;fifteen&#x27; and &#x27;fifty&#x27; dollars. the text is wrapped in a json segment structure with timestamps and speaker tags, which is a formatting difference but does not degrade the semantic quality of the transcription itself. the transcript is fully accurate, with only a formatting-level difference due to json container wrapping. preserved formatting_only the model successfully transcribed the numeric distinction (&#x27;fifteen&#x27; vs &#x27;fifty&#x27;) and the entity name &#x27;maya&#x27; perfectly. post-processing can easily strip the json wrapper if only the raw text is required for downstream tasks. numeric_unit_integrity amount_contrast mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-numeric-transfer-001">
   <div class="case-card-top">
     <div>
@@ -387,7 +387,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model successfully transcribed the numeric distinction (&#x27;fifteen&#x27; vs &#x27;fifty&#x27;) and the entity name &#x27;Maya&#x27; perfectly.</li><li>Post-processing can easily strip the JSON wrapper if only the raw text is required for downstream tasks.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Transfer fifteen dollars to Maya today, not fifty dollars.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Candidate transcript is wrapped in a JSON array containing Start, End, Speaker, and Content keys.</li></ul></div>
     </section>
@@ -422,7 +422,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model correctly transcribed both the numerical dosage (&#x27;five milligrams&#x27;) and the specific medication (&#x27;melatonin&#x27;) without any errors.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Give the patient five milligrams of melatonin before bedtime.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -457,7 +457,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model achieved perfect accuracy, correctly capturing negations, entities, and actions.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Do not restart the server until the database backup finishes.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -492,7 +492,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The transcription is highly accurate, capturing the negation (&#x27;cannot&#x27;) and crucial details flawlessly. No semantic errors present.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The customer can cancel the trial, but cannot receive a refund after Friday.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Omitted comma after &#x27;trial&#x27;</li></ul></div>
     </section>
@@ -527,7 +527,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The transcription is highly accurate. Orthographic variation in time representations is benign and does not affect semantic understanding.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The benefits enrollment deadline is Monday at 9 a.m.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate writes &#x27;9:00 a.m.&#x27; while the reference writes &#x27;9 am&#x27;.</li></ul></div>
     </section>
@@ -677,7 +677,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

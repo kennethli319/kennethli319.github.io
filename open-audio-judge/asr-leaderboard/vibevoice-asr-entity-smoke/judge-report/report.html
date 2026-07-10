@@ -249,9 +249,9 @@
     </div>
 
     <h2>Priority Cases</h2>
-    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, or a non-accurate label.</p>
+    <p class="section-intro">Start here: these cases have the largest semantic impact, a high-impact error, a non-accurate label, or incomplete judge coverage.</p>
     <div class="table-region" role="region" aria-label="Priority cases" tabindex="0"><table class="priority-table">
-      <caption class="sr-only">Cases that need attention, ordered by semantic severity and score</caption>
+      <caption class="sr-only">Cases that need attention, ordered by judge status, semantic severity, score, and judge coverage</caption>
       <thead>
         <tr>
           <th scope="col">Case</th>
@@ -348,12 +348,12 @@
         </select>
       </label>
       <div class="sort-tools" aria-label="Sort cases">
-        <button class="sort-button" type="button" data-sort="score" aria-pressed="true">Lowest score</button>
-        <button class="sort-button" type="button" data-sort="case" aria-pressed="false">Case ID</button>
+        <button class="sort-button" type="button" data-sort="score" data-base-label="Score" aria-pressed="true">Score: low to high</button>
+        <button class="sort-button" type="button" data-sort="case" data-base-label="Case ID" aria-pressed="false">Case ID</button>
       </div>
       <div class="muted results-count" id="case-visible-count" role="status" aria-live="polite">5 / 5 shown</div>
     </section>
-    <section id="case-results-table" class="case-list" aria-live="polite">
+    <section id="case-results-table" class="case-list">
       <article class="case-card severity-high" data-case="asr-entity-doctor-001-local-tts" data-score="98" data-label="accurate" data-status="ok" data-model="mlx-community/VibeVoice-ASR-4bit" data-category="entity_factual_integrity" data-slice="person_place_entity" data-search="asr-entity-doctor-001-local-tts accurate ok average of 3 judge samples: 98.33 (scores: 100, 95, 100). representative reason: the candidate transcript is perfectly accurate and preserves the meaning completely, with the only difference being a minor capitalization of &#x27;clinic&#x27; and the segment block format. no semantic errors; the spoken words are perfectly captured. preserved formatting_only the model performs exceptionally well, accurately spelling the proper noun &#x27;rao&#x27; and the location &#x27;cedar avenue&#x27;. entity_factual_integrity person_place_entity mlx-community/chatterbox-turbo-6bit mlx-community/vibevoice-asr-4bit af_heart en en local_synthetic_tts asr-entity-doctor-001">
   <div class="case-card-top">
     <div>
@@ -374,7 +374,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model performs exceptionally well, accurately spelling the proper noun &#x27;Rao&#x27; and the location &#x27;Cedar Avenue&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Schedule the follow-up with Dr. Rao at the Cedar Avenue clinic.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The candidate capitalizes &#x27;Clinic&#x27; as &#x27;Clinic&#x27; instead of &#x27;clinic&#x27;.</li></ul></div>
     </section>
@@ -409,7 +409,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Perfect transcription of the audio, accurately capturing product names like Zephyr Mini and Zephyr Max.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Compare the Zephyr Mini plan with the Zephyr Max plan before renewal.</blockquote>
       <p class="muted">No key differences recorded.</p>
     </section>
@@ -444,7 +444,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model misheard &#x27;one eight&#x27; (/wʌn eɪt/) as &#x27;y&#x27; (/waɪ/) in the alphanumeric sequence &#x27;PX-4187&#x27;. Alphanumeric sequence recognition is a known failure point that needs targeted training data or specialized language model biasing.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Attach the call summary to ticket PX-4187 before closing the case.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>Candidate has &#x27;px4y7&#x27; instead of &#x27;PX-4187&#x27;</li></ul></div>
     </section>
@@ -479,7 +479,7 @@
       <div><span class="muted">Recommended action</span><ul><li>Consider incorporating common organizational entities or compound names into the language model&#x27;s lexicon to prevent unnecessary splitting of words like &#x27;Northstar&#x27;.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>Send the signed form to Northstar Benefits and copy Elena Morales.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The compound name &#x27;Northstar&#x27; is transcribed as &#x27;North Star&#x27; (two words).</li></ul></div>
     </section>
@@ -514,7 +514,7 @@
       <div><span class="muted">Recommended action</span><ul><li>The model performed perfectly, accurately transcribing both numerical digits and letters (&#x27;812&#x27;, &#x27;5B&#x27;) as well as the street name.</li></ul></div>
     </section>
     <section class="case-evidence">
-      <h4>Model transcript</h4>
+      <h4>Judge transcript</h4>
       <blockquote>The delivery address is 812 Ashwood Lane, apartment 5B.</blockquote>
       <div><span class="muted">Key differences</span><ul><li>The word &#x27;apartment&#x27; is capitalized as &#x27;Apartment&#x27; in the candidate transcript.</li></ul></div>
     </section>
@@ -644,7 +644,22 @@
         sorted.forEach((row) => container.appendChild(row));
         rows.splice(0, rows.length, ...sorted);
         document.querySelectorAll("[data-sort]").forEach((button) => {
-          button.setAttribute("aria-pressed", String(button.dataset.sort === key));
+          const active = button.dataset.sort === key;
+          button.setAttribute("aria-pressed", String(active));
+          if (!active) {
+            button.textContent = button.dataset.baseLabel;
+            button.removeAttribute("aria-label");
+            return;
+          }
+          const lowFirst = state.sortDir === "asc";
+          const current = key === "score"
+            ? `Score: ${lowFirst ? "low to high" : "high to low"}`
+            : `Case ID: ${lowFirst ? "A to Z" : "Z to A"}`;
+          const next = key === "score"
+            ? (lowFirst ? "high to low" : "low to high")
+            : (lowFirst ? "Z to A" : "A to Z");
+          button.textContent = current;
+          button.setAttribute("aria-label", `${current}; activate to sort ${next}`);
         });
         applyFilters();
       }

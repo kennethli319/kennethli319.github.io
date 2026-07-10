@@ -33,6 +33,9 @@
       border-bottom: 1px solid var(--line);
     }
     .header-inner { max-width: 1180px; margin: 0 auto; }
+    .report-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .report-nav a { border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none; }
+    .report-nav a:hover { border-color: #8bb7e8; background: var(--accent-soft); }
     .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
     h1 { margin: 5px 0 8px; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; letter-spacing: -.025em; }
     h2 { margin: 32px 0 6px; font-size: 22px; letter-spacing: -.015em; }
@@ -216,7 +219,12 @@
 <body>
   <header>
     <div class="header-inner">
-      <a href="/open-audio-judge/asr-leaderboard-demo.html">&larr; ASR leaderboard</a>
+      <nav class="report-nav" aria-label="Open Audio Judge navigation">
+        <a href="/open-audio-judge/asr-leaderboard-demo.html">&larr; ASR leaderboard</a>
+        <a href="/open-audio-judge/tts-leaderboard-demo.html">TTS leaderboard</a>
+        <a href="https://github.com/kennethli319/open-audio-judge">GitHub repository</a>
+      </nav>
+      <span class="eyebrow">Open Audio Judge ASR report</span>
       <h1>Whisper Large v3 Turbo (FP16) — ASR evaluation</h1>
       <div class="muted">5 evaluated cases · 3 evaluation categories · en · semantic judge score; higher is better</div>
     </div>

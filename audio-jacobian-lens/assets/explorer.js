@@ -436,14 +436,15 @@
     `;
   }
 
-  function renderStandardRows(streamName) {
+  function renderStandardRows(streamName, startPosition = 0, endPosition = null) {
     const stream = state.report.payload[streamName];
     const rows = stream.cells || [];
     return rows.map((cells, layerIndex) => {
-      const values = cells.map((_, position) => finite(candidatesFor(streamName, layerIndex, position)[0]?.score) ?? 0);
-      const strengths = rowStrengths(values, false);
+      const boundedEnd = endPosition === null ? cells.length : Math.min(endPosition, cells.length);
+      const positions = cells.slice(startPosition, boundedEnd).map((_, offset) => startPosition + offset);
+      const strengths = rowStrengths(cells.map((_, position) => finite(candidatesFor(streamName, layerIndex, position)[0]?.score) ?? 0), false);
       const layer = stream.layers?.[layerIndex] ?? layerIndex;
-      const cellHTML = cells.map((_, position) => {
+      const cellHTML = positions.map((position) => {
         const top = candidatesFor(streamName, layerIndex, position)[0];
         return matrixCellHTML({
           kind: streamName,
@@ -454,14 +455,16 @@
           label: compactText(top?.text, `ID ${top?.id ?? "—"}`),
         });
       }).join("");
-      return `<div class="matrix-row" style="--position-count:${cells.length}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
+      return `<div class="matrix-row" style="--position-count:${positions.length}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
     }).join("");
   }
 
-  function renderHeadRow() {
+  function renderHeadRow(startPosition = 0, endPosition = null) {
     const tokens = state.report.payload.transcription.tokens || [];
+    const boundedEnd = endPosition === null ? tokens.length : Math.min(endPosition, tokens.length);
+    const positions = tokens.slice(startPosition, boundedEnd).map((token, offset) => ({ token, position: startPosition + offset }));
     const strengths = rowStrengths(tokens.map((token) => token.probability), true);
-    const cells = tokens.map((token, position) => matrixCellHTML({
+    const cells = positions.map(({ token, position }) => matrixCellHTML({
       kind: "head",
       layerIndex: 0,
       layerLabel: "Actual output head",
@@ -469,7 +472,34 @@
       strength: strengths[position],
       label: compactText(token.text),
     })).join("");
-    return `<div class="matrix-row" style="--position-count:${tokens.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
+    return `<div class="matrix-row" style="--position-count:${positions.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
+  }
+
+  function renderSpeechRows() {
+    const tokens = state.report.payload.transcription.tokens || [];
+    const windowSize = 8;
+    const windows = [];
+    for (let start = 0; start < tokens.length; start += windowSize) {
+      const end = Math.min(start + windowSize, tokens.length);
+      const count = end - start;
+      const tokenHeaders = tokens.slice(start, end).map((token, offset) => {
+        const position = start + offset;
+        return `<button class="speech-position-token" type="button" data-token-position="${position}" aria-label="Select token ${position + 1}, ${escapeHTML(compactText(token.text))}"><span>T${position + 1}</span><strong>${escapeHTML(compactText(token.text))}</strong></button>`;
+      }).join("");
+      windows.push(`
+        <section class="speech-matrix-window" aria-label="Generated token positions ${start + 1} through ${end}">
+          <header><strong>Tokens ${start + 1}–${end}</strong><span>Top candidate at every saved layer</span></header>
+          <div class="speech-matrix-scroll" tabindex="0" aria-label="Layer readouts for token positions ${start + 1} through ${end}">
+            <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * 82}px">
+              <div class="matrix-row speech-position-row" style="--position-count:${count}"><div class="matrix-layer-label">OUTPUT</div>${tokenHeaders}</div>
+              ${renderStandardRows("decoder", start, end)}
+              ${renderHeadRow(start, end)}
+            </div>
+          </div>
+        </section>
+      `);
+    }
+    return windows.join("");
   }
 
   function renderTTSRows() {
@@ -499,7 +529,7 @@
     return `${rows}<div class="matrix-row" style="--position-count:${head.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { headLegend = false } = {}) {
+  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false } = {}) {
     return `
       <section class="matrix-panel">
         <header class="explorer-panel-heading">
@@ -507,7 +537,7 @@
           <p>${escapeHTML(description)}</p>
         </header>
         <div class="matrix-legend"><span><i></i> Fitted/readout intensity</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
-        <div class="layer-matrix">${rows}</div>
+        <div class="layer-matrix${windowed ? " windowed" : ""}">${rows}</div>
       </section>
     `;
   }
@@ -539,7 +569,8 @@
 
   function renderTimeline() {
     const positions = tokenList();
-    const dense = positions.length > 24;
+    const readableSpeech = family === "speech";
+    const dense = positions.length > 24 && !readableSpeech;
     const buttons = positions.map((item, position) => {
       const label = family === "tts" ? `S${position + 1}` : `T${position + 1}`;
       const value = family === "tts" ? `ID ${item.id}` : compactText(item.text);
@@ -568,7 +599,7 @@
         </header>
         ${audio}
         <div class="position-heading"><strong>${family === "tts" ? "Realized acoustic-code IDs" : "Generated output pieces"}</strong><span>${positions.length} saved positions</span></div>
-        <div class="position-timeline${dense ? " dense" : ""}" style="--position-count:${positions.length}">${buttons}</div>
+        <div class="position-timeline${dense ? " dense" : ""}${readableSpeech ? " speech-readable" : ""}" style="--position-count:${positions.length}">${buttons}</div>
         <p id="selected-position-line" class="selected-position-line"></p>
         ${renderFilterControl()}
       </section>
@@ -652,8 +683,8 @@
       family === "speech"
         ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames."
         : "Decoder readout rows are followed by the actual teacher-forced output probability. Decoder and HEAD columns share the same generated token position.",
-      `${renderStandardRows("decoder")}${renderHeadRow()}`,
-      { headLegend: true },
+      family === "speech" ? renderSpeechRows() : `${renderStandardRows("decoder")}${renderHeadRow()}`,
+      { headLegend: true, windowed: family === "speech" },
     ));
     return panels.join("");
   }
@@ -872,7 +903,7 @@
 
   function syncSelectionDOM() {
     if (!state.report) return;
-    workspace.querySelectorAll(".position-button").forEach((button) => {
+    workspace.querySelectorAll(".position-button, .speech-position-token").forEach((button) => {
       const selected = Number(button.dataset.tokenPosition) === state.selectedToken;
       button.setAttribute("aria-pressed", String(selected));
     });

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "description": "Unlinked public review build of the Audio Jacobian Lens, with three curated summaries and three full cached explorers.",
+  "description": "Unlinked public review build of the Audio Jacobian Lens, with full cached explorers as the primary routes and curated experiment findings as secondary interpretation pages.",
   "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
   "source_repository": "https://github.com/kennethli319/audio-jacobian-lens",
   "published_on": "2026-07-11",
@@ -11,32 +11,40 @@
     "tts": 3
   },
   "routes": {
-    "summaries": [
+    "detailed_cached_explorers": [
       "/audio-jacobian-lens/",
       "/audio-jacobian-lens/speech/",
       "/audio-jacobian-lens/tts/"
     ],
-    "detailed_cached_explorers": [
+    "findings": [
+      "/audio-jacobian-lens/findings/",
+      "/audio-jacobian-lens/findings/speech/",
+      "/audio-jacobian-lens/findings/tts/"
+    ],
+    "legacy_explorer_aliases": [
       "/audio-jacobian-lens/explorer/asr/",
       "/audio-jacobian-lens/explorer/speech/",
       "/audio-jacobian-lens/explorer/tts/"
     ]
   },
-  "interaction_boundary": "Static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, cached candidate inspection, ASR character-length reranking, TTS text diagnostics, and recorded intervention inspection only. No model inference, upload, recording, generation, or intervention endpoint is present.",
+  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, cached candidate inspection, ASR character-length reranking, readable banded speech-token matrices, TTS text diagnostics, and recorded intervention inspection. Findings pages explain the curated experiments. No model inference, upload, recording, generation, or intervention endpoint is present.",
   "media_policy": "Only the three CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
   "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes three reduced reports. ASR character-length buckets are separate, hash-pinned files loaded only when the filter is enabled. Ephemeral server IDs and embedded audio are excluded.",
   "sha256": {
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
     "assets/app.js": "1546309f575b66aacfb106ca1ddb8190793851b46cb78e734a701fa978da760c",
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
-    "assets/explorer.js": "36419c9c14ea22eac40dfde363defee6a217e0d2336363e931ebb17776fa0405",
-    "assets/explorer.css": "fdae8470aa61f54b908747a0866f90dac6ecec13f30b5042fdf588f16c33bf26",
-    "index.html": "8783aa937978569c8878c001ec2738bf5c656122302d79c1f340ecc62e3598f0",
-    "speech/index.html": "f3452b9b7af349791cc0cd015ec4ebbb8a6e547ddfa3111efd1bd32feb57a7d0",
-    "tts/index.html": "3b5974f365091550918d34079a0120f2586e9a10da77a10abb85d12a720065da",
-    "explorer/asr/index.html": "ee9a26e46bfda6811679ceed8d7787b977984d90ed335a36197d6afa02564a46",
-    "explorer/speech/index.html": "83f7ab656a8d6f8b95bb812d0952632c0a814f0192d8fe38e47f96e2cc594926",
-    "explorer/tts/index.html": "0ed2a4099ba39893676e00abad075242d9944d5f45592f80d8cf72845a800b82",
+    "assets/explorer.js": "b0f3cc420a54ff334be2a0a8bfe12ac45343b7f1b848501d61eb9f949f18933b",
+    "assets/explorer.css": "db95ee310f3c2dc649d9a642fe8e9bfbec07bb20f1c2afeef2e2673d131440be",
+    "index.html": "1e0c859c9128ee2a3828ffd07a106f60729ce6f38378437a2354216f5b060416",
+    "speech/index.html": "dc00e1792afc2b636119d06c4d0df0ab69e9919602421b909bd838fd491a0a37",
+    "tts/index.html": "e0366dae2cfb43541800f4d5ca8e31ab2dfce031a24050a629748ad91402c6c3",
+    "findings/index.html": "20c46db0f273a134912cd6ab7d90b6390e7a347d0655cc67a6541e6a0ff0ce31",
+    "findings/speech/index.html": "18da502241e075b69d02e5e785b7c11c6e26ca86c669784bb592d5dbf5b4ae84",
+    "findings/tts/index.html": "46ee067bb2e2bb90018d51fd23d3b9574575ac38088b3c3495699a487b71b90b",
+    "explorer/asr/index.html": "65b5884c85d2d0f9db61768e8863047a7fe51bc9ea6a4af646c2e3030218a7fc",
+    "explorer/speech/index.html": "0b2024ce9d6a86c111b15ecb43368535a9270cf0b480f78f6a170d64d3e19664",
+    "explorer/tts/index.html": "26b30de9c7fe35d21d7148371d6bf502274b8788341561ec64850d3850983475",
     "explorer/data/asr/manifest.json": "21cba27f2a99a6314a4d50cbf7b0fabcd6d8113d352d9403707dd28cd96ece49",
     "explorer/data/speech/manifest.json": "6e6835d14ab89f7e93fcb5d322bc735f454336874d738de9f0d7e0cfabb134d5",
     "explorer/data/tts/manifest.json": "18e6569a82b863bbedf8576691cc4ab38d3e35a9a6aaae0ebe90c9098cf00e87"

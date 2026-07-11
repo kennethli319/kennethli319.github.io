@@ -3,68 +3,53 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Explore three recorded Whisper J-lens reports without running a model or uploading audio.">
+    <meta name="description" content="Inspect cached Whisper J-lens reports across output positions and layers.">
     <meta name="robots" content="noindex,nofollow">
     <meta name="theme-color" content="#f7f8fa">
-    <title>ASR reports · Audio Jacobian Lens</title>
+    <link rel="canonical" href="https://kennethli319.github.io/audio-jacobian-lens/">
+    <title>ASR explorer · Audio Jacobian Lens</title>
     <link rel="stylesheet" href="./assets/styles.css">
-    <script src="./assets/app.js" defer></script>
+    <link rel="stylesheet" href="./assets/explorer.css">
+    <script src="./assets/explorer.js" defer></script>
   </head>
-  <body data-family="asr" data-data-url="./data/reports.json">
-    <a class="skip-link" href="#main">Skip to reports</a>
+  <body class="detailed-explorer" data-family="asr" data-manifest-url="./explorer/data/asr/manifest.json">
+    <a class="skip-link" href="#main">Skip to cached explorer</a>
     <header class="site-header">
-      <a class="brand" href="./" aria-label="Audio Jacobian Lens ASR reports">
+      <a class="brand" href="./" aria-label="Audio Jacobian Lens ASR explorer">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Recorded report explorer</small></span>
+        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Detailed cached explorer</small></span>
       </a>
-      <nav class="site-nav" aria-label="Model families">
+      <nav class="site-nav" aria-label="Detailed model explorers">
         <a class="active" href="./" aria-current="page">ASR</a>
         <a href="./speech/">Speech</a>
         <a href="./tts/">TTS</a>
       </nav>
-      <span class="static-badge">PREVIEW · RECORDED REPORTS</span>
+      <a class="summary-link" href="./findings/">Experiment findings</a>
+      <span class="static-badge">PREVIEW · STATIC REPLAY</span>
     </header>
 
     <main id="main">
-      <section class="hero" aria-labelledby="page-title">
+      <section class="explorer-hero" aria-labelledby="page-title">
         <div>
-          <p class="eyebrow">Whisper Tiny · decoder evidence</p>
-          <h1 id="page-title">Watch a transcript become readable through depth.</h1>
-          <p class="hero-copy">Three frozen ASR runs show early readability, late emergence, and tokenizer-piece behavior. Select a report, then hover or focus any layer slice for its exact rank and probability.</p>
+          <p class="eyebrow">Whisper Tiny · cached decoder reports</p>
+          <h1 id="page-title">Trace one realized token across every saved layer.</h1>
+          <p>Select an output token or its waveform span. The output timeline, layer matrix, and candidate inspector remain synchronized.</p>
         </div>
-        <aside class="static-note" aria-label="How this preview works">
-          <strong>Recorded, not live</strong>
-          <p>Every value comes from a saved model run. This page never uploads audio and does not call an inference server.</p>
-        </aside>
+        <aside><strong>Static replay</strong><span>No upload, recording, generation, or model server. Every candidate was saved with the report.</span></aside>
       </section>
 
-      <section class="explorer" aria-labelledby="reports-title">
-        <header class="section-heading">
-          <div><p class="section-label">THREE CURATED EXAMPLES</p><h2 id="reports-title">ASR reports</h2><a class="detailed-explorer-link" href="./explorer/asr/">Open detailed cached explorer <span aria-hidden="true">→</span></a></div>
-          <p>Lower rank is stronger readability. The final HEAD slice is the model's actual output distribution; earlier slices are fitted readouts.</p>
-        </header>
-        <div class="report-shell">
-          <aside class="report-picker">
-            <p class="overline">Choose a report</p>
-            <div id="example-list" class="example-list" aria-label="ASR reports"></div>
-          </aside>
-          <article id="report-detail" class="report-detail" aria-live="polite" aria-busy="true">
-            <div class="loading-state"><span aria-hidden="true"></span><p>Loading recorded reports…</p></div>
-          </article>
-        </div>
+      <section class="sample-switcher" aria-labelledby="sample-title">
+        <div><p class="section-label">01 · REPORT</p><h2 id="sample-title">Choose a recorded example</h2></div>
+        <div id="sample-list" class="sample-buttons" aria-label="Cached ASR examples"></div>
       </section>
 
-      <section class="reading-guide" aria-labelledby="guide-title">
-        <div><p class="section-label">READING BOUNDARY</p><h2 id="guide-title">What this lens can—and cannot—say</h2></div>
-        <div class="guide-columns">
-          <p><strong>Rank measures readability.</strong> It asks where the realized output sits in a fitted vocabulary-wide readout at a layer.</p>
-          <p><strong>Rank is not calibrated confidence.</strong> A strong intermediate rank does not prove conscious consideration, causation, or correctness.</p>
-          <p><strong>Errors remain evidence.</strong> Generated paths, reference mismatches, token boundaries, and held-out status stay visible in each report.</p>
-        </div>
+      <div id="explorer-error" class="error-state" role="alert" hidden></div>
+      <section id="explorer-workspace" class="explorer-workspace" aria-live="polite" aria-busy="true">
+        <div class="loading-state"><span aria-hidden="true"></span><p>Loading cached report…</p></div>
       </section>
     </main>
 
-    <footer class="site-footer"><span>Audio Jacobian Lens · cached research preview</span><a href="#main">Back to top</a></footer>
-    <noscript><p class="noscript">JavaScript is required to read the cached report file. No model inference is performed.</p></noscript>
+    <footer class="site-footer"><span>Detailed cached explorer · no live inference</span><a href="#main">Back to top</a></footer>
+    <noscript><p class="noscript">JavaScript is required to inspect the cached report files.</p></noscript>
   </body>
 </html>

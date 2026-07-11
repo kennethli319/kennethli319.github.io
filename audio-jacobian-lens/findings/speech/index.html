@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Read findings from three recorded LFM speech-to-speech language J-lens experiments without running a model.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f7f8fa">
+    <link rel="canonical" href="https://kennethli319.github.io/audio-jacobian-lens/findings/speech/">
+    <title>Speech experiment findings · Audio Jacobian Lens</title>
+    <link rel="stylesheet" href="../../assets/styles.css">
+    <script src="../../assets/app.js" defer></script>
+  </head>
+  <body data-family="speech" data-data-url="../../data/reports.json">
+    <a class="skip-link" href="#main">Skip to findings</a>
+    <header class="site-header">
+      <a class="brand" href="../../speech/" aria-label="Audio Jacobian Lens Speech explorer">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Experiment findings</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Experiment findings by model family">
+        <a href="../">ASR</a>
+        <a class="active" href="./" aria-current="page">Speech</a>
+        <a href="../tts/">TTS</a>
+      </nav>
+      <span class="static-badge">PREVIEW · EXPERIMENT FINDINGS</span>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">LFM · lexical-readout screening</p>
+          <h1 id="page-title">Separate model behavior from lens quality.</h1>
+          <p class="hero-copy">Three frozen speech-to-speech runs preserve strong late emergence, non-monotonic trajectories, and fitted-lens failures. The language readout explains generated text tokens—not acoustic frames.</p>
+        </div>
+        <aside class="static-note caution" aria-label="Evidence status">
+          <strong>Provisional evidence</strong>
+          <p>The current projected lens was fitted on one clip. Held-out examples test integration, but do not validate a general-purpose speech J-lens.</p>
+        </aside>
+      </section>
+
+      <section class="explorer" aria-labelledby="reports-title">
+        <header class="section-heading">
+          <div><p class="section-label">THREE CURATED EXAMPLES</p><h2 id="reports-title">Speech findings</h2><a class="detailed-explorer-link" href="../../speech/">Open detailed cached explorer <span aria-hidden="true">→</span></a></div>
+          <p>Compare fitted lexical ranks across LFM layers with the actual output head. A weak fitted rank can coexist with correct model generation.</p>
+        </header>
+        <div class="report-shell">
+          <aside class="report-picker">
+            <p class="overline">Choose a report</p>
+            <div id="example-list" class="example-list" aria-label="Speech reports"></div>
+          </aside>
+          <article id="report-detail" class="report-detail" aria-live="polite" aria-busy="true">
+            <div class="loading-state"><span aria-hidden="true"></span><p>Loading recorded reports…</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="reading-guide" aria-labelledby="guide-title">
+        <div><p class="section-label">READING BOUNDARY</p><h2 id="guide-title">A model result and a lens result are different.</h2></div>
+        <div class="guide-columns">
+          <p><strong>The output head reports the model.</strong> It is the actual next-token distribution on the recorded generation path.</p>
+          <p><strong>Intermediate ranks report the lens.</strong> They show what the fitted mapping recovers from an earlier residual state.</p>
+          <p><strong>Generated audio is withheld.</strong> Only rights-cleared source audio is offered; the cached language evidence remains inspectable without it.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Audio Jacobian Lens · cached experiment findings</span><a href="#main">Back to top</a></footer>
+    <noscript><p class="noscript">JavaScript is required to read the cached report file. No model inference is performed.</p></noscript>
+  </body>
+</html>

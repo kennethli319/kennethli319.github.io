@@ -195,6 +195,24 @@
 .position-timeline.dense .position-button { min-height: 46px; padding: 4px 1px; border-radius: 3px; }
 .position-timeline.dense .position-button span { display: none; }
 .position-timeline.dense .position-button strong { font-size: 7px; writing-mode: vertical-rl; max-height: 32px; margin-inline: auto; }
+.position-timeline.speech-readable {
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 5px;
+}
+.position-timeline.speech-readable .position-button { min-height: 62px; padding: 7px 8px; }
+.position-timeline.speech-readable .position-button span { display: block; }
+.position-timeline.speech-readable .position-button strong {
+  display: -webkit-box;
+  margin-top: 5px;
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 .selected-position-line { min-height: 20px; margin: 9px 0 0; color: var(--ink-soft); font-size: 10px; }
 .selected-position-line strong { color: var(--ink); }
 
@@ -256,6 +274,66 @@
 .matrix-cell.selected { z-index: 2; outline: 2px solid var(--ink); outline-offset: 1px; }
 .matrix-cell.same-position:not(.selected)::before { content: ""; position: absolute; inset: 3px; border: 1px solid rgba(24, 33, 42, .36); border-radius: 3px; }
 .matrix-cell span { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; color: var(--ink); font: 600 8px/1 var(--mono); text-overflow: clip; }
+
+.layer-matrix.windowed { gap: 18px; }
+.speech-matrix-window { min-width: 0; }
+.speech-matrix-window + .speech-matrix-window { padding-top: 18px; border-top: 1px solid var(--line); }
+.speech-matrix-window > header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.speech-matrix-window > header strong { font-size: 10px; }
+.speech-matrix-window > header span { color: var(--muted); font-size: 8px; }
+.speech-matrix-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+.speech-matrix-scroll:focus-visible { border-radius: 6px; outline: 2px solid rgba(var(--lens-rgb), .45); outline-offset: 3px; }
+.speech-matrix-grid {
+  display: grid;
+  min-width: max(100%, var(--speech-window-min));
+  gap: 4px;
+  padding: 2px 2px 7px;
+}
+.speech-position-token {
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px 5px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.speech-position-token:hover { border-color: var(--line-strong); }
+.speech-position-token[aria-pressed="true"] { border-color: var(--head); background: rgba(var(--head-rgb), .07); box-shadow: inset 0 -3px 0 var(--head); }
+.speech-position-token span { display: block; color: var(--muted); font: 500 7px/1.2 var(--mono); }
+.speech-position-token strong {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  font: 650 9px/1.2 var(--mono);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+[data-family="speech"] .speech-matrix-grid .matrix-cell { min-height: 54px; }
+[data-family="speech"] .speech-matrix-grid .matrix-cell span {
+  padding: 5px 4px;
+  place-items: center;
+  font-size: 9px;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
+}
 
 .detail-inspector { position: sticky; top: 12px; min-width: 0; padding: 20px; }
 .inspector-empty { min-height: 280px; display: grid; align-content: center; color: var(--muted); }
@@ -366,6 +444,7 @@
   .matrix-layer-label { font-size: 8px; }
   .matrix-cell { min-height: 36px; border-radius: 3px; }
   .matrix-cell span { display: none; }
+  [data-family="speech"] .speech-matrix-grid .matrix-cell span { display: grid; }
 }
 
 @media (max-width: 500px) {
@@ -384,5 +463,7 @@
   .position-timeline { gap: 2px; }
   .position-button { border-radius: 3px; }
   .position-button strong { writing-mode: vertical-rl; max-height: 28px; margin-inline: auto; }
+  .position-timeline.speech-readable { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .position-timeline.speech-readable .position-button strong { max-height: none; margin-inline: 0; writing-mode: horizontal-tb; }
   .provenance-grid { grid-template-columns: 1fr; }
 }

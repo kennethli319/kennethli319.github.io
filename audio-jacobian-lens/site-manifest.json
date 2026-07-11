@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "description": "Unlinked public review build of the Audio Jacobian Lens cached-report explorer.",
+  "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
+  "source_repository": "https://github.com/kennethli319/audio-jacobian-lens",
+  "published_on": "2026-07-11",
+  "publication_mode": "public_unlinked_noindex_review",
+  "report_counts": {
+    "asr": 3,
+    "speech": 3,
+    "tts": 3
+  },
+  "interaction_boundary": "Static report selection, audio playback, layer-cell hover, keyboard focus, and cached intervention inspection only; no model inference or visitor upload endpoints.",
+  "media_policy": "Only the three CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
+  "sha256": {
+    "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
+    "assets/app.js": "1546309f575b66aacfb106ca1ddb8190793851b46cb78e734a701fa978da760c",
+    "assets/styles.css": "1f2e7e49b49e55a1c58efe86c21e457e5f555a2100ec3c627ab7e8dbce47d8bc",
+    "index.html": "09d9f909598667071f570755cee048103ae24de67bbdbe9ab3f4e577e535fc56",
+    "speech/index.html": "8fe68530ddf38db3c0e58ff851080216ff92a19334fee31302076e8c9fa67dd8",
+    "tts/index.html": "6b17b944753f291281ed21be632a9d8fec72c3f263d14f706082c356878e84f3"
+  }
+}

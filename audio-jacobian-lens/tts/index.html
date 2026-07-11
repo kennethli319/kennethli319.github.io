@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore three recorded Chatterbox TTS J-lens reports, including a cached residual intervention.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f7f8fa">
+    <title>TTS reports · Audio Jacobian Lens</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <script src="../assets/app.js" defer></script>
+  </head>
+  <body data-family="tts" data-data-url="../data/reports.json">
+    <a class="skip-link" href="#main">Skip to reports</a>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="Audio Jacobian Lens ASR reports">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Recorded report explorer</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Model families">
+        <a href="../">ASR</a>
+        <a href="../speech/">Speech</a>
+        <a class="active" href="./" aria-current="page">TTS</a>
+      </nav>
+      <span class="static-badge">PREVIEW · RECORDED REPORTS</span>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Chatterbox T3 · acoustic-code evidence</p>
+          <h1 id="page-title">Follow one speech code—then replay a causal edit.</h1>
+          <p class="hero-copy">Three frozen TTS runs compare fitted acoustic-code readouts. The bridge report also connects depth, local text diagnostics, the actual head, and a recorded residual intervention.</p>
+        </div>
+        <aside class="static-note" aria-label="How to interpret acoustic codes">
+          <strong>Codes, not words</strong>
+          <p>An acoustic code ID has no published word or phoneme label. Text traces show association or sensitivity, while the residual replay tests causal influence.</p>
+        </aside>
+      </section>
+
+      <section class="explorer" aria-labelledby="reports-title">
+        <header class="section-heading">
+          <div><p class="section-label">THREE CURATED EXAMPLES</p><h2 id="reports-title">TTS reports</h2></div>
+          <p>Fitted layers and the actual HEAD answer different questions. Hover or focus each slice to inspect exact candidate rank and readout probability.</p>
+        </header>
+        <div class="report-shell">
+          <aside class="report-picker">
+            <p class="overline">Choose a report</p>
+            <div id="example-list" class="example-list" aria-label="TTS reports"></div>
+          </aside>
+          <article id="report-detail" class="report-detail" aria-live="polite" aria-busy="true">
+            <div class="loading-state"><span aria-hidden="true"></span><p>Loading recorded reports…</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="reading-guide" aria-labelledby="guide-title">
+        <div><p class="section-label">READING BOUNDARY</p><h2 id="guide-title">Three measurements, three claims.</h2></div>
+        <div class="guide-columns">
+          <p><strong>Fitted readout:</strong> which acoustic-code direction is readable from an intermediate residual.</p>
+          <p><strong>Text diagnostics:</strong> which prompt tokens receive local gradient sensitivity or within-text attention.</p>
+          <p><strong>Residual intervention:</strong> whether a small recorded edit changed the emitted code and its autoregressive continuation.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Audio Jacobian Lens · cached research preview</span><a href="#main">Back to top</a></footer>
+    <noscript><p class="noscript">JavaScript is required to read the cached report file. No model inference is performed.</p></noscript>
+  </body>
+</html>

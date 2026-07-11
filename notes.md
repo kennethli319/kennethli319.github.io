@@ -34,6 +34,35 @@ title: Notes
 .timeline-body h2 {
   margin: 0 0 0.35rem;
   font-size: 1.15rem;
+  scroll-margin-top: 1rem;
+}
+.timeline-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+.timeline-permalink {
+  margin-left: 0.2rem;
+  color: #267cb9;
+  font-weight: 400;
+  opacity: 0.45;
+}
+.timeline-title-link:hover,
+.timeline-title-link:focus,
+.timeline-body h2:target .timeline-title-link {
+  color: #069;
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.timeline-title-link:hover .timeline-permalink,
+.timeline-title-link:focus .timeline-permalink,
+.timeline-body h2:target .timeline-permalink {
+  opacity: 1;
+}
+.timeline-title-link:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid #267cb9;
+  outline-offset: 3px;
 }
 .timeline-summary {
   margin: 0 0 0.85rem;
@@ -66,7 +95,7 @@ title: Notes
     <div class="timeline-kicker">Thoughts from eval-focused roles</div>
   </aside>
   <div class="timeline-body">
-    <h2>Evaluation, memory, and agent loops</h2>
+    <h2 id="evaluation-memory-and-agent-loops"><a class="timeline-title-link" href="#evaluation-memory-and-agent-loops">Evaluation, memory, and agent loops <span class="timeline-permalink" aria-hidden="true">#</span></a></h2>
     <p class="timeline-summary">Notes on evaluation speed, portable memory, shared skills, interaction latency, automation harnesses, capital, infrastructure, and talent pools.</p>
     <ol>
       <li>Fast, valid evaluation is the outer-loop gradient descent of AI systems: the quicker we measure behavior, the quicker the system improves.</li>
@@ -87,7 +116,7 @@ title: Notes
     <div class="timeline-kicker">Experience & progress</div>
   </aside>
   <div class="timeline-body">
-    <h2>Beings as cumulative projections</h2>
+    <h2 id="beings-as-cumulative-projections"><a class="timeline-title-link" href="#beings-as-cumulative-projections">Beings as cumulative projections <span class="timeline-permalink" aria-hidden="true">#</span></a></h2>
     <p class="timeline-summary">A note cluster on experience, environmental shaping, technology as information transfer, and the unknowable scale of reality.</p>
     <ol>
       <li>We are the projection of our experience, both mental and physical.</li>
@@ -105,7 +134,7 @@ title: Notes
     <div class="timeline-kicker">Language & representation</div>
   </aside>
   <div class="timeline-body">
-    <h2>Compression, perspective, and information density</h2>
+    <h2 id="compression-perspective-and-information-density"><a class="timeline-title-link" href="#compression-perspective-and-information-density">Compression, perspective, and information density <span class="timeline-permalink" aria-hidden="true">#</span></a></h2>
     <p class="timeline-summary">Early notes on language as world compression, model weights as language, and meaning as a non-linear structure.</p>
     <ol>
       <li>Language is a condensed representation of the world.</li>

@@ -1,0 +1,85 @@
+{
+  "schema_id": "audio-jacobian-lens.cached-explorer-manifest",
+  "schema_version": 1,
+  "family": "speech",
+  "mode": "static_cached_explorer",
+  "provenance": {
+    "evaluated_on": "2026-07-11",
+    "model": {
+      "id": "mlx-community/LFM2.5-Audio-1.5B-8bit",
+      "revision": "a569a7805a8e3eae954c244e54ba811d479a12c2",
+      "text_vocabulary_size": 65536
+    },
+    "lens": {
+      "source_path": "artifacts/mlx/lfm2_5_audio_1clip_projected_rank512.pt",
+      "sha256": "2da88652aecfcc8ef634fd3e336983b02afbc505f6b1c86c8069f5b1e9d917cb",
+      "fit_examples": 1,
+      "fit_input": "samples/question.flac",
+      "fitted_target_positions": 6,
+      "source_layers": [
+        0,
+        4,
+        8,
+        12,
+        14
+      ],
+      "target_layer": 15,
+      "projection_method": "subsampled_hadamard_output_probe_vjp",
+      "projection_rank": 512,
+      "target_dimension": 2048,
+      "projection_seed": 29,
+      "fit_generation_max_new_tokens": 18
+    },
+    "evaluation_generation": {
+      "mode": "interleaved",
+      "max_new_tokens": 512,
+      "text_temperature": 0,
+      "text_top_k": 1,
+      "audio_temperature": 0,
+      "audio_top_k": 1,
+      "mlx_random_seed": 7,
+      "audio_frame_seconds": 0.08
+    },
+    "rank_semantics": {
+      "rank_space": "lexical_display_vocabulary",
+      "rank_denominator": 61690,
+      "tie_policy": "1_plus_count_strictly_greater",
+      "eligible_token_policy": "Decoded token is nonempty, contains no angle-bracket control marker or replacement character, and contains at least one Unicode alphanumeric character.",
+      "tracked_target_policy": "Realized generated text positions excluding LFM text controls 7 (IM_END), 128 (AUDIO_START), and 130 (TEXT_END), plus tokenizer-declared special IDs.",
+      "aggregate_policy": "Median rank, mean reciprocal rank, and threshold counts are computed over every tracked target in the example, not only favorable tokens.",
+      "head_rank_space": "full_model_vocabulary",
+      "head_rank_denominator": 65536
+    },
+    "rights_policy": {
+      "included_audio": "Only the three source-input references are cleared for a future static export under LibriSpeech CC BY 4.0.",
+      "excluded_audio": "Generated LFM speech and local macOS-TTS screening clips are intentionally absent pending model-output and voice-output redistribution review.",
+      "attribution": "LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings; CC BY 4.0."
+    }
+  },
+  "reports": [
+    {
+      "id": "speech-question",
+      "title": "A short question",
+      "audio_url": "/audio-jacobian-lens/audio/question.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/question.json",
+      "sha256": "3bfda05dcf8996ae225114a730d178a60dc44b93cbc2b02aaf831d356b1f0052",
+      "bytes": 511151
+    },
+    {
+      "id": "speech-universe",
+      "title": "Sir, I exist",
+      "audio_url": "/audio-jacobian-lens/audio/universe.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/universe.json",
+      "sha256": "486766aff93954c9f26fe832dfacab94ef8d0a2b7614c42550c53607b40d9c63",
+      "bytes": 1051132
+    },
+    {
+      "id": "speech-buzzer",
+      "title": "The buzzer's whirr",
+      "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/buzzer.json",
+      "sha256": "42fb7be0a0e83cdd09e3522e29956f1606656abb0615ab5db804fcafd8165255",
+      "bytes": 346850
+    }
+  ]
+}

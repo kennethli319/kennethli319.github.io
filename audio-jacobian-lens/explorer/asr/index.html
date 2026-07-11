@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Inspect cached Whisper J-lens reports across output positions and layers.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f7f8fa">
+    <title>Detailed ASR explorer · Audio Jacobian Lens</title>
+    <link rel="stylesheet" href="../../assets/styles.css">
+    <link rel="stylesheet" href="../../assets/explorer.css">
+    <script src="../../assets/explorer.js" defer></script>
+  </head>
+  <body class="detailed-explorer" data-family="asr" data-manifest-url="../data/asr/manifest.json">
+    <a class="skip-link" href="#main">Skip to cached explorer</a>
+    <header class="site-header">
+      <a class="brand" href="../../" aria-label="Audio Jacobian Lens ASR summary">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Detailed cached explorer</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Detailed model explorers">
+        <a class="active" href="../asr/" aria-current="page">ASR</a>
+        <a href="../speech/">Speech</a>
+        <a href="../tts/">TTS</a>
+      </nav>
+      <a class="summary-link" href="../../">Summary</a>
+      <span class="static-badge">PREVIEW · STATIC REPLAY</span>
+    </header>
+
+    <main id="main">
+      <section class="explorer-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Whisper Tiny · cached decoder reports</p>
+          <h1 id="page-title">Trace one realized token across every saved layer.</h1>
+          <p>Select an output token or its waveform span. The output timeline, layer matrix, and candidate inspector remain synchronized.</p>
+        </div>
+        <aside><strong>Static replay</strong><span>No upload, recording, generation, or model server. Every candidate was saved with the report.</span></aside>
+      </section>
+
+      <section class="sample-switcher" aria-labelledby="sample-title">
+        <div><p class="section-label">01 · REPORT</p><h2 id="sample-title">Choose a recorded example</h2></div>
+        <div id="sample-list" class="sample-buttons" aria-label="Cached ASR examples"></div>
+      </section>
+
+      <div id="explorer-error" class="error-state" role="alert" hidden></div>
+      <section id="explorer-workspace" class="explorer-workspace" aria-live="polite" aria-busy="true">
+        <div class="loading-state"><span aria-hidden="true"></span><p>Loading cached report…</p></div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Detailed cached explorer · no live inference</span><a href="#main">Back to top</a></footer>
+    <noscript><p class="noscript">JavaScript is required to inspect the cached report files.</p></noscript>
+  </body>
+</html>

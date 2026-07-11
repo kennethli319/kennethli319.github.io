@@ -1,0 +1,96 @@
+{
+  "description": "Three cached fitted-readout trajectories, including a recorded residual intervention; no generated WAV is shipped pending rights review.",
+  "family": "tts",
+  "label": "Chatterbox TTS",
+  "mode": "static_cached_explorer",
+  "provenance": {
+    "evaluated_on": "2026-07-11",
+    "lens": {
+      "capture_convention": "t3_post_block_speech_prediction_v1",
+      "examples_fingerprint": "9de6342be062cdf4efdf53ae01570cf47f96d0790cb6aa1093e253e4e03bedf7",
+      "fit_examples": 10,
+      "position_axis": "teacher_forced_speech_prediction_positions",
+      "projection_method": "subsampled_hadamard_output_probe_vjp",
+      "projection_rank": 128,
+      "projection_seed": 29,
+      "sha256": "ebf46e3e088106e270eff676b09bac9ff3f5ff5206e9e1f924d692ee9a7b2aa8",
+      "source_dimension": 1024,
+      "source_layers": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        22
+      ],
+      "source_path": "artifacts/chatterbox/chatterbox_turbo_10prompt_rank128_seed29.pt",
+      "source_stream": "t3_speech_position",
+      "target_dimension": 1024,
+      "target_layer": 23,
+      "target_stream": "t3_speech_position"
+    },
+    "model": {
+      "id": "mlx-community/chatterbox-turbo-8bit",
+      "model_config_fingerprint": "cb2d9e9bcc2db2c3",
+      "model_fingerprint": "47f1c6108840fae0",
+      "ordinary_acoustic_code_count": 6561,
+      "original_model_id": "ResembleAI/chatterbox-turbo",
+      "original_model_revision": "749d1c1a46eb10492095d68fbcf55691ccf137cd",
+      "quantization": {
+        "bits": 8,
+        "group_size": 64,
+        "mode": "affine"
+      },
+      "revision": "2f2e21a03863f86a1274d1060dcc188e7cde77e1",
+      "s3_tokenizer_id": "mlx-community/S3TokenizerV2",
+      "s3_tokenizer_revision": "e0c9886f0e1c35ae85b1f27277416fb19fc72bec",
+      "speech_code_rate_hz": 25,
+      "speech_head_vocabulary_size": 6563
+    },
+    "rank_semantics": {
+      "acoustic_code_warning": "Ordinary acoustic-code IDs are learned contextual symbols, not words or published phonemes.",
+      "fitted_score_kind": "fitted_full_speech_head_softmax_probability",
+      "head_score_kind": "raw_speech_head_softmax_probability_before_repetition_penalty_temperature_top_k_or_top_p",
+      "rank_denominator": 6563,
+      "rank_space": "full_raw_speech_head_vocabulary",
+      "tie_policy": "1_plus_count_strictly_greater"
+    },
+    "rights_policy": {
+      "audio": "Generated baseline and counterfactual WAV files are excluded from this preview pending conversion, S3-tokenizer, and derived-output redistribution review.",
+      "included_audio": false,
+      "prompts": "Project-authored text prompts may be displayed."
+    }
+  },
+  "reports": [
+    {
+      "audio_url": null,
+      "bytes": 952912,
+      "id": "tts-bridge-s9",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-bridge-s9.json",
+      "sha256": "cf58115149928f587e0f547ce3aba85e24fd4974b1939638c5b60312eab3d6e3",
+      "teaching_role": "canonical_fitted_and_causal_case",
+      "title": "A bridge at S9: emergence, sensitivity, and causal steering"
+    },
+    {
+      "audio_url": null,
+      "bytes": 1033968,
+      "id": "tts-turtles-monotonic",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-turtles-monotonic.json",
+      "sha256": "5d2ea9b6b01909d32f91f3053326ba5ee7ac3be84835d38d23289574aa40c4bf",
+      "teaching_role": "near_monotonic_secondary_case",
+      "title": "Tiny turtles: a nearly monotonic trajectory"
+    },
+    {
+      "audio_url": null,
+      "bytes": 855551,
+      "id": "tts-music-nonmonotonic",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-music-nonmonotonic.json",
+      "sha256": "5a4818e4c0cd3ae1824ca9ddde54d1bd4448709e24257b87b7ff9d997a128dc2",
+      "teaching_role": "non_monotonic_secondary_case",
+      "title": "Music fades: readability can reverse"
+    }
+  ],
+  "schema_id": "audio-jacobian-lens.cached-explorer-manifest",
+  "schema_version": 1
+}

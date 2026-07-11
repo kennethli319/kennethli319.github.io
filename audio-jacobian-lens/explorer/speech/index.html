@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Inspect cached LFM speech-to-speech lexical J-lens reports across output positions and layers.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f7f8fa">
+    <title>Detailed Speech explorer · Audio Jacobian Lens</title>
+    <link rel="stylesheet" href="../../assets/styles.css">
+    <link rel="stylesheet" href="../../assets/explorer.css">
+    <script src="../../assets/explorer.js" defer></script>
+  </head>
+  <body class="detailed-explorer" data-family="speech" data-manifest-url="../data/speech/manifest.json">
+    <a class="skip-link" href="#main">Skip to cached explorer</a>
+    <header class="site-header">
+      <a class="brand" href="../../speech/" aria-label="Audio Jacobian Lens Speech summary">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>Audio Jacobian Lens</strong><small>Detailed cached explorer</small></span>
+      </a>
+      <nav class="site-nav" aria-label="Detailed model explorers">
+        <a href="../asr/">ASR</a>
+        <a class="active" href="../speech/" aria-current="page">Speech</a>
+        <a href="../tts/">TTS</a>
+      </nav>
+      <a class="summary-link" href="../../speech/">Summary</a>
+      <span class="static-badge">PREVIEW · STATIC REPLAY</span>
+    </header>
+
+    <main id="main">
+      <section class="explorer-hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">LFM · cached lexical-readout reports</p>
+          <h1 id="page-title">Inspect where generated language becomes readable.</h1>
+          <p>Select a realized text piece to compare the projected intermediate readouts with the actual language head—while keeping lens failures visible.</p>
+        </div>
+        <aside><strong>Provisional lens</strong><span>The fit uses one clip. These frozen runs demonstrate integration and failure modes, not validated generalization.</span></aside>
+      </section>
+
+      <section class="sample-switcher" aria-labelledby="sample-title">
+        <div><p class="section-label">01 · REPORT</p><h2 id="sample-title">Choose a recorded example</h2></div>
+        <div id="sample-list" class="sample-buttons" aria-label="Cached Speech examples"></div>
+      </section>
+
+      <div id="explorer-error" class="error-state" role="alert" hidden></div>
+      <section id="explorer-workspace" class="explorer-workspace" aria-live="polite" aria-busy="true">
+        <div class="loading-state"><span aria-hidden="true"></span><p>Loading cached report…</p></div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>Detailed cached explorer · no live inference</span><a href="#main">Back to top</a></footer>
+    <noscript><p class="noscript">JavaScript is required to inspect the cached report files.</p></noscript>
+  </body>
+</html>

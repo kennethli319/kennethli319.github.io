@@ -181,6 +181,8 @@ main,
   letter-spacing: -.035em;
 }
 .section-heading > p { max-width: 570px; margin: 0; color: var(--muted); font-size: 13px; }
+.detailed-explorer-link { display: inline-flex; gap: 5px; align-items: center; margin-top: 9px; color: var(--lens); font-size: 11px; font-weight: 700; text-decoration: none; }
+.detailed-explorer-link:hover { text-decoration: underline; }
 
 .report-shell {
   display: grid;

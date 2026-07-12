@@ -62,6 +62,18 @@
     const text = String(value ?? "").replaceAll("\n", " ");
     return text.trim() ? text : fallback;
   };
+  const hasExactRank = (value, { requireScore = false } = {}) => Boolean(
+    value
+    && value.id !== null
+    && value.id !== undefined
+    && finite(value.rank) !== null
+    && finite(value.rank_denominator) !== null
+    && Number(value.rank) >= 1
+    && Number(value.rank_denominator) >= Number(value.rank)
+    && String(value.rank_space || "").trim()
+    && value.rank_tie_policy === "1_plus_count_strictly_greater"
+    && (!requireScore || finite(value.score) !== null),
+  );
 
   async function fetchJSON(url, options = {}) {
     const response = await fetch(url, {
@@ -99,6 +111,18 @@
     } else {
       if (!Array.isArray(payload.payload.transcription?.tokens) || !payload.payload.decoder) {
         throw new Error("The speech report is missing its token matrix.");
+      }
+      if (family === "speech") {
+        const tokens = payload.payload.transcription.tokens;
+        const rows = payload.payload.decoder?.cells || [];
+        const headRanksAreExact = tokens.every((token) => hasExactRank(token));
+        const layerRanksAreExact = rows.every((row) => row.length === tokens.length && row.every((cell, position) => (
+          hasExactRank(cell?.realized_token, { requireScore: true })
+          && Number(cell.realized_token.id) === Number(tokens[position]?.id)
+        )));
+        if (!headRanksAreExact || !layerRanksAreExact) {
+          throw new Error("The speech report is missing exact realized-token ranks.");
+        }
       }
     }
     return payload;
@@ -380,6 +404,15 @@
     const tokenPosition = kind === "encoder" ? state.selectedToken : position;
     const token = state.report.payload.transcription.tokens?.[tokenPosition];
     if (!token) return null;
+    if (family === "speech" && kind === "decoder") {
+      const realized = state.report.payload.decoder.cells?.[layerIndex]?.[position]?.realized_token;
+      return realized ? {
+        ...realized,
+        rankDenominator: realized.rank_denominator,
+        available: true,
+        label: compactText(realized.text),
+      } : null;
+    }
     if (kind === "encoder" || kind === "decoder") {
       const match = candidatesFor(kind, layerIndex, position).find((candidate) => Number(candidate.id) === Number(token.id));
       return {
@@ -426,12 +459,15 @@
   function matrixCellHTML({ kind, layerIndex, layerLabel, position, strength, label }) {
     const descriptor = descriptorFor(kind, layerIndex, position);
     const head = kind === "head" || kind === "tts-head";
+    const showSpeechRealizedRank = family === "speech" && (kind === "decoder" || kind === "head");
+    const realizedRank = showSpeechRealizedRank ? finite(descriptor.realized?.rank) : null;
     return `
       <button class="matrix-cell${head ? " head" : ""}" type="button"
         data-kind="${escapeHTML(kind)}" data-layer-index="${layerIndex}" data-position="${position}"
         style="--strength:${clamp(strength, 0, 1).toFixed(4)}"
         aria-label="${escapeHTML(`${layerLabel}, ${descriptor.coordinate}. ${descriptor.detail}`)}">
-        <span>${escapeHTML(label)}</span>
+        <span class="matrix-cell-label">${escapeHTML(label)}</span>
+        ${realizedRank === null ? "" : `<small class="realized-rank-badge">realized #${escapeHTML(formatInteger(realizedRank))}</small>`}
       </button>
     `;
   }
@@ -488,7 +524,7 @@
       }).join("");
       windows.push(`
         <section class="speech-matrix-window" aria-label="Generated token positions ${start + 1} through ${end}">
-          <header><strong>Tokens ${start + 1}–${end}</strong><span>Top candidate at every saved layer</span></header>
+          <header><strong>Tokens ${start + 1}–${end}</strong><span>Large: top candidate · small: realized rank</span></header>
           <div class="speech-matrix-scroll" tabindex="0" aria-label="Layer readouts for token positions ${start + 1} through ${end}">
             <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * 82}px">
               <div class="matrix-row speech-position-row" style="--position-count:${count}"><div class="matrix-layer-label">OUTPUT</div>${tokenHeaders}</div>
@@ -806,10 +842,14 @@
     const top = candidates[0];
     const code = kind.startsWith("tts");
     const coordinate = coordinateText(kind, layerIndex, position);
-    const detail = top
+    const topDetail = top
       ? `Top candidate ${candidateLabel(top, code)}, rank #${formatInteger(top.rank)} of ${formatInteger(top.rank_denominator)}, ${candidateScore(top)}.`
       : "No bounded candidates were retained.";
-    return { candidates, realized, top, code, coordinate, detail };
+    const realizedDetail = family === "speech" && (kind === "decoder" || kind === "head") && realized
+      ? `Realized target ${realized.label}, rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} logit`}.`
+      : "";
+    const detail = realizedDetail ? `${topDetail} ${realizedDetail}` : topDetail;
+    return { candidates, realized, top, code, coordinate, detail, realizedDetail };
   }
 
   function renderCandidateRows(descriptor) {

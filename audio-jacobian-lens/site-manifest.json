@@ -6,9 +6,9 @@
   "published_on": "2026-07-11",
   "publication_mode": "public_unlinked_noindex_review",
   "report_counts": {
-    "asr": 3,
-    "speech": 3,
-    "tts": 3
+    "asr": 10,
+    "speech": 10,
+    "tts": 10
   },
   "routes": {
     "detailed_cached_explorers": [
@@ -27,26 +27,26 @@
       "/audio-jacobian-lens/explorer/tts/"
     ]
   },
-  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, cached candidate inspection, ASR character-length reranking, readable banded speech-token matrices, TTS text diagnostics, and recorded intervention inspection. Findings pages explain the curated experiments. No model inference, upload, recording, generation, or intervention endpoint is present.",
-  "media_policy": "Only the three CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
-  "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes three reduced reports. ASR character-length buckets are separate, hash-pinned files loaded only when the filter is enabled. Ephemeral server IDs and embedded audio are excluded.",
+  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, cached candidate inspection, ASR character-length reranking, readable banded speech-token matrices with natural-EOS versus safety-cap status, TTS text diagnostics, and recorded intervention inspection. Findings pages explain the curated experiments. No model inference, upload, recording, generation, or intervention endpoint is present.",
+  "media_policy": "Only the ten CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
+  "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes ten reduced reports. ASR character-length buckets are separate, hash-pinned files loaded only when the filter is enabled. Ephemeral server IDs and embedded audio are excluded.",
   "sha256": {
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
     "assets/app.js": "1546309f575b66aacfb106ca1ddb8190793851b46cb78e734a701fa978da760c",
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
-    "assets/explorer.js": "b3e8a300ec9a812f10fa70c78cce59e4d0f4be005fb4f83d418fa5fb7110e9cf",
-    "assets/explorer.css": "f66cd4f3617e349997831a9f4e9475e7d7cbd5936b55a3af820557722c757f6c",
-    "index.html": "1e0c859c9128ee2a3828ffd07a106f60729ce6f38378437a2354216f5b060416",
-    "speech/index.html": "dc00e1792afc2b636119d06c4d0df0ab69e9919602421b909bd838fd491a0a37",
-    "tts/index.html": "e0366dae2cfb43541800f4d5ca8e31ab2dfce031a24050a629748ad91402c6c3",
+    "assets/explorer.js": "77a643bd597f97515ecace66c051789c2008579b91a3344e0c79d11a8a36a9dd",
+    "assets/explorer.css": "c9ae9089939aed26cc1645c181b750480ffae1959beaed112a528357998b791f",
+    "index.html": "34d5e3c7d571c0a7eccf1c8225b9ba7ed745e9b24a0c7a957ba9798ae91e607a",
+    "speech/index.html": "77d1f7bf7d08ac3d7b0308ca005b191756b270134ee637e4eea136ef443cbd1a",
+    "tts/index.html": "f3b8988c6124f33bd9d314f40ace0a5b0c9c0e76c360a3c9df10df0f8ed1d16b",
     "findings/index.html": "20c46db0f273a134912cd6ab7d90b6390e7a347d0655cc67a6541e6a0ff0ce31",
     "findings/speech/index.html": "18da502241e075b69d02e5e785b7c11c6e26ca86c669784bb592d5dbf5b4ae84",
     "findings/tts/index.html": "46ee067bb2e2bb90018d51fd23d3b9574575ac38088b3c3495699a487b71b90b",
-    "explorer/asr/index.html": "65b5884c85d2d0f9db61768e8863047a7fe51bc9ea6a4af646c2e3030218a7fc",
-    "explorer/speech/index.html": "0b2024ce9d6a86c111b15ecb43368535a9270cf0b480f78f6a170d64d3e19664",
-    "explorer/tts/index.html": "26b30de9c7fe35d21d7148371d6bf502274b8788341561ec64850d3850983475",
-    "explorer/data/asr/manifest.json": "f31b1e220e09773ff37c14bbebfcb680c1737626f628a64f5b664aeee67cd7bc",
-    "explorer/data/speech/manifest.json": "802fde24f36290734e9a7c926566f59154393c815db0369946bf2595028bd652",
-    "explorer/data/tts/manifest.json": "18e6569a82b863bbedf8576691cc4ab38d3e35a9a6aaae0ebe90c9098cf00e87"
+    "explorer/asr/index.html": "7a50b646da49abead555cfc1218fa8871e4204722c4a00eb216033c3738c32e1",
+    "explorer/speech/index.html": "ae83ac6262bfb9127e83bb0f8cd07696370b66bf086c455650bb119893355da2",
+    "explorer/tts/index.html": "53ee963f90e146d8abf48d1be8d2b419b47061ce5ee454176ff6fdf9c343fd35",
+    "explorer/data/asr/manifest.json": "3a4a508af724e991c687d95086ffcfa353af839e9f2af0c630ce7ffe615fc003",
+    "explorer/data/speech/manifest.json": "86905e9c29ebfe5700749b388d072800536385f9cb1e3c49aa65e32dd0eaf6b3",
+    "explorer/data/tts/manifest.json": "af6e1ee645dab01e067f8c2f9494ecf1b0e1ff0423e4cf53b5bcc22a2cb0a3bf"
   }
 }

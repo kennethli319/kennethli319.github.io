@@ -3,6 +3,13 @@
   "schema_version": 1,
   "family": "asr",
   "mode": "static_cached_explorer",
+  "report_count": 10,
+  "catalog": {
+    "schema_id": "audio-jacobian-lens.static-explorer-catalog",
+    "schema_version": 2,
+    "sha256": "2ca80989bbbceaf64c93cc00c0c81999bbb9d791d6b67273ba909bc42c8a5312",
+    "reports_per_family": 10
+  },
   "provenance": {
     "evaluated_on": "2026-07-11",
     "extraction": "Replayed locally through the pinned model and fitted artifact; each published realized-token rank is gathered from the complete scored vocabulary rather than inferred from the bounded visible candidates.",
@@ -58,13 +65,16 @@
       "license_url": "https://creativecommons.org/licenses/by/4.0/",
       "source_url": "https://www.openslr.org/12",
       "attribution": "LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings.",
-      "modification_notice": "The three published input FLAC files are copied without modification from the repository's bundled examples."
+      "modification_notice": "The 10 published input FLAC files are copied without modification from the pinned catalog source."
     }
   },
   "reports": [
     {
       "id": "asr-question",
       "title": "A short question",
+      "summary": "Clean short question",
+      "reference_transcript": "Where is my brother now?",
+      "utterance_id": "1272-135031-0012",
       "audio_url": "/audio-jacobian-lens/audio/question.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/question.json",
       "sha256": "69c8711b1ed85c2b01a60e36adc64d6aa7a339d421f021d512e297d6d064717a",
@@ -78,6 +88,9 @@
     {
       "id": "asr-universe",
       "title": "Sir, I exist",
+      "summary": "Measured declarative speech",
+      "reference_transcript": "A man said to the universe, sir, I exist.",
+      "utterance_id": "1272-141231-0000",
       "audio_url": "/audio-jacobian-lens/audio/universe.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/universe.json",
       "sha256": "fe90908289a719048eab6cd5111cb10b3b0a611b20f418e068d4d412bf34730d",
@@ -91,6 +104,9 @@
     {
       "id": "asr-buzzer",
       "title": "The buzzer's whirr",
+      "summary": "Consonant-heavy model-error path",
+      "reference_transcript": "The buzzer's whirr triggered his muscles into complete relaxation.",
+      "utterance_id": "1272-141231-0006",
       "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/buzzer.json",
       "sha256": "9ee330430084e4a3772b3e51a785fe93090d7dce3d0b685141fa315c04ded37a",
@@ -99,6 +115,118 @@
         "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json",
         "sha256": "5ad523346c627563886581145ccceb4c327eb3a09302e7a329268e87f103fca1",
         "bytes": 7489228
+      }
+    },
+    {
+      "id": "asr-raps",
+      "title": "The raps at the door",
+      "summary": "Homophone error: raps versus wraps",
+      "reference_transcript": "The little girl had been asleep, but she heard the raps and opened the door.",
+      "utterance_id": "1272-135031-0003",
+      "audio_url": "/audio-jacobian-lens/audio/raps.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/raps.json",
+      "sha256": "180e3c1d80b3dc61dafffe6a8f33b4e30d95d413c77ccce6f8dfb74615179e24",
+      "bytes": 1110645,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/raps.filters.json",
+        "sha256": "6bf03ac33ef314361417906452625e48027bbffcdc242ed97f16f35d3a54d609",
+        "bytes": 7917250
+      }
+    },
+    {
+      "id": "asr-one-minute",
+      "title": "One minute",
+      "summary": "Article substitution around the time buzzer",
+      "reference_transcript": "One minute, a voice said, and the time buzzer sounded.",
+      "utterance_id": "1272-141231-0004",
+      "audio_url": "/audio-jacobian-lens/audio/one-minute.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/one-minute.json",
+      "sha256": "047b559ec4254b1fd03a58bc37962927d503fae3e952c17fb6d14c3913c6d2d3",
+      "bytes": 1092800,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/one-minute.filters.json",
+        "sha256": "4c340344a0ab7717e740a09fda16f6af8aecaeb3bc054290fbc05704813d9f82",
+        "bytes": 8039179
+      }
+    },
+    {
+      "id": "asr-ten-seconds",
+      "title": "Ten seconds",
+      "summary": "Spoken-word versus numeral tokenization",
+      "reference_transcript": "Ten seconds.",
+      "utterance_id": "1272-141231-0016",
+      "audio_url": "/audio-jacobian-lens/audio/ten-seconds.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.json",
+      "sha256": "a6a4d7307f63671ad9f4833ef795ce0f1c5afcc60e3e9aa612420816117ad111",
+      "bytes": 350211,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.filters.json",
+        "sha256": "784e4c576780b446325244a53946004a5d488575b0b2d3efa38e17aca7be9c0d",
+        "bytes": 2689195
+      }
+    },
+    {
+      "id": "asr-oh-no",
+      "title": "Oh no, I'm quite sure",
+      "summary": "Short contractions and punctuation",
+      "reference_transcript": "Oh no, I'm quite sure he didn't.",
+      "utterance_id": "1272-135031-0018",
+      "audio_url": "/audio-jacobian-lens/audio/oh-no.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/oh-no.json",
+      "sha256": "56a19242bd3d398a8ea7fe160812664b74e84e0203e9062b6cc66e5ef3fc6096",
+      "bytes": 635745,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/oh-no.filters.json",
+        "sha256": "e39f453552ee7c5bfd6de21d766dc34aeddc220605ff80cd45f1773a2ec511ff",
+        "bytes": 4343645
+      }
+    },
+    {
+      "id": "asr-metal-forest",
+      "title": "The metal forest",
+      "summary": "Long utterance with proper-name substitutions",
+      "reference_transcript": "The metal forest is in the great domed cavern, the largest in all our dominions, replied Kaliko.",
+      "utterance_id": "1272-135031-0015",
+      "audio_url": "/audio-jacobian-lens/audio/metal-forest.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.json",
+      "sha256": "761322a89e1a826b46078502303754848d3c6b034836db85b1e2e6431ea8a21b",
+      "bytes": 1611847,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.filters.json",
+        "sha256": "b4d31fdc37f5984496193af92628f25a7210eb62e053aceaecba3413a87d4a74",
+        "bytes": 11717667
+      }
+    },
+    {
+      "id": "asr-inexhaustible",
+      "title": "An inexhaustible store",
+      "summary": "Rare multi-piece lexical item",
+      "reference_transcript": "A red-haired mountain of a man with an apparently inexhaustible store of energy.",
+      "utterance_id": "1272-141231-0018",
+      "audio_url": "/audio-jacobian-lens/audio/inexhaustible.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.json",
+      "sha256": "3d1822a7c35fce7bd320f76e383a6e9ab9919419c40fb84f3db0a4b1818e4af7",
+      "bytes": 1315350,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.filters.json",
+        "sha256": "3d6d4f32072512a06bfea5de4443cb09ecaf4ee622d5417ba9d4c727c218e4f1",
+        "bytes": 9599333
+      }
+    },
+    {
+      "id": "asr-impossible",
+      "title": "Physically impossible",
+      "summary": "Concise technical phrase",
+      "reference_transcript": "This is physically impossible when conscious.",
+      "utterance_id": "1272-141231-0024",
+      "audio_url": "/audio-jacobian-lens/audio/impossible.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/impossible.json",
+      "sha256": "4437e93915ed2c49319410984a134e28b61eb23adab9da0b80faa51259ab63d8",
+      "bytes": 724834,
+      "character_length_filter_cache": {
+        "url": "/audio-jacobian-lens/explorer/data/asr/impossible.filters.json",
+        "sha256": "8ef3403db371fd5e0b42ccf1d56d8388f7676a6f525f4f1e4078065ca73735f0",
+        "bytes": 5480296
       }
     }
   ]

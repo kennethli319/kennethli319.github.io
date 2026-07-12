@@ -1,5 +1,5 @@
 {
-  "description": "Three cached fitted-readout trajectories, including a recorded residual intervention; no generated WAV is shipped pending rights review.",
+  "description": "10 cached fitted-readout trajectories, including one recorded residual intervention; no generated WAV is shipped pending rights review.",
   "family": "tts",
   "label": "Chatterbox TTS",
   "mode": "static_cached_explorer",
@@ -62,13 +62,16 @@
       "prompts": "Project-authored text prompts may be displayed."
     }
   },
+  "report_count": 10,
   "reports": [
     {
       "audio_url": null,
       "bytes": 952912,
       "id": "tts-bridge-s9",
+      "prompt": "A bright red train crossed the narrow bridge.",
       "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-bridge-s9.json",
       "sha256": "cf58115149928f587e0f547ce3aba85e24fd4974b1939638c5b60312eab3d6e3",
+      "summary": "Keep three questions separate: when realized code ID 4106 becomes readable, which prompt tokens local diagnostics emphasize, and what a replayed residual edit causes.",
       "teaching_role": "canonical_fitted_and_causal_case",
       "title": "A bridge at S9: emergence, sensitivity, and causal steering"
     },
@@ -76,8 +79,10 @@
       "audio_url": null,
       "bytes": 1033968,
       "id": "tts-turtles-monotonic",
+      "prompt": "Tiny turtles travel together toward the tide.",
       "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-turtles-monotonic.json",
       "sha256": "5d2ea9b6b01909d32f91f3053326ba5ee7ac3be84835d38d23289574aa40c4bf",
+      "summary": "Give visitors a clean fitted-rank trajectory while disclosing that it is unusually tidy relative to the screened population.",
       "teaching_role": "near_monotonic_secondary_case",
       "title": "Tiny turtles: a nearly monotonic trajectory"
     },
@@ -85,10 +90,89 @@
       "audio_url": null,
       "bytes": 855551,
       "id": "tts-music-nonmonotonic",
+      "prompt": "Music fades as the evening grows quiet.",
       "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-music-nonmonotonic.json",
       "sha256": "5a4818e4c0cd3ae1824ca9ddde54d1bd4448709e24257b87b7ff9d997a128dc2",
+      "summary": "Counter the impression that fitted readouts must improve layer by layer: the realized code worsens at L4 and again at L12 before resolving late.",
       "teaching_role": "non_monotonic_secondary_case",
       "title": "Music fades: readability can reverse"
+    },
+    {
+      "audio_url": null,
+      "bytes": 869635,
+      "id": "tts-voice-question",
+      "prompt": "Which voice sounds clearer in this sentence?",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-voice-question.json",
+      "sha256": "6f78b4f80996ef995414aab034531fe1307f19e339b3cdd0d2d4202884efc63f",
+      "summary": "Add a held-out interrogative with final question punctuation.",
+      "teaching_role": "question_contour_explorer",
+      "title": "Which voice? Question contour"
+    },
+    {
+      "audio_url": null,
+      "bytes": 742897,
+      "id": "tts-record-in-context",
+      "prompt": "Record the new record before lunch.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-record-in-context.json",
+      "sha256": "34667932954fca30d0cc9f0170d3edd41da700d4b8524228cdccecfe1d751c4e",
+      "summary": "Compare identical spelling in two grammatical and pronunciation contexts.",
+      "teaching_role": "heteronym_context_explorer",
+      "title": "Record / record in context"
+    },
+    {
+      "audio_url": null,
+      "bytes": 1159344,
+      "id": "tts-code-nine-zero-four",
+      "prompt": "Enter code nine zero four, then press pound.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-code-nine-zero-four.json",
+      "sha256": "d6ee5af03bc60f4afc4cd68cf6a50553aa56720bac00098314e2cc3cdf810af2",
+      "summary": "Add ordered number words and code-like grouping.",
+      "teaching_role": "number_grouping_explorer",
+      "title": "Nine-zero-four as a code"
+    },
+    {
+      "audio_url": null,
+      "bytes": 595728,
+      "id": "tts-ruby-ribbon",
+      "prompt": "Ruby rolled the yellow ribbon.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-ruby-ribbon.json",
+      "sha256": "76e8815f18b5cb0f537b96af98d2922423f7423e9263f1964a0b332394cd96f2",
+      "summary": "Add repeated consonant structure across distinct words.",
+      "teaching_role": "repeated_consonant_explorer",
+      "title": "Ruby ribbon: repeated sounds"
+    },
+    {
+      "audio_url": null,
+      "bytes": 749988,
+      "id": "tts-door-two-clause",
+      "prompt": "The door is open. Please close it.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-door-two-clause.json",
+      "sha256": "8c07a3389952e3c2ebe5fa96141e3ec7536a463c5ad96befcf3c44cc13b215df",
+      "summary": "Add a short sentence boundary followed by an imperative.",
+      "teaching_role": "short_instruction_explorer",
+      "title": "Door left open: two clauses"
+    },
+    {
+      "audio_url": null,
+      "bytes": 826137,
+      "id": "tts-linh-nguyen",
+      "prompt": "Please welcome Linh Nguyen after lunch.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-linh-nguyen.json",
+      "sha256": "72a32afa16311f5914a0422678891b7addf39bb62e64ccc68d051b907b77885e",
+      "summary": "Add less-common proper-name tokens in a familiar context.",
+      "teaching_role": "proper_name_explorer",
+      "title": "Welcoming Linh Nguyen"
+    },
+    {
+      "audio_url": null,
+      "bytes": 1284124,
+      "id": "tts-first-then",
+      "prompt": "First, plug in the hub. Then wait ten seconds.",
+      "report_url": "/audio-jacobian-lens/explorer/data/tts/tts-first-then.json",
+      "sha256": "035f96e4e92b67c1408747a148c2213c497ff8877fd227f919b37538ab67c9c3",
+      "summary": "Add explicit procedural ordering and a clause boundary.",
+      "teaching_role": "procedural_order_explorer",
+      "title": "First, then: two steps"
     }
   ],
   "schema_id": "audio-jacobian-lens.cached-explorer-manifest",

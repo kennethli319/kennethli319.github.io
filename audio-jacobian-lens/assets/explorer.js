@@ -7,12 +7,14 @@
   const sampleList = document.querySelector("#sample-list");
   const workspace = document.querySelector("#explorer-workspace");
   const errorBox = document.querySelector("#explorer-error");
+  const expectedReportCount = 10;
 
   const state = {
     manifest: null,
     reportEntry: null,
     report: null,
     reportIndex: 0,
+    sampleQuery: "",
     reportController: null,
     filterController: null,
     filterEnabled: false,
@@ -75,6 +77,33 @@
     && (!requireScore || finite(value.score) !== null),
   );
 
+  function validSpeechGenerationDiagnostics(value) {
+    if (!value || typeof value !== "object") return false;
+    const generatedSteps = finite(value.generated_steps);
+    const maxNewTokens = finite(value.max_new_tokens);
+    const textTokens = finite(value.text_tokens);
+    const audioFrames = finite(value.audio_frames);
+    if (
+      !Number.isInteger(generatedSteps)
+      || !Number.isInteger(maxNewTokens)
+      || !Number.isInteger(textTokens)
+      || !Number.isInteger(audioFrames)
+      || generatedSteps < 1
+      || maxNewTokens < generatedSteps
+      || textTokens < 0
+      || audioFrames < 0
+      || generatedSteps !== textTokens + audioFrames + (value.audio_eos_seen ? 1 : 0)
+    ) return false;
+    const natural = value.termination_reason === "audio_eos"
+      && value.audio_eos_seen === true
+      && value.budget_exhausted === false;
+    const capped = value.termination_reason === "budget_exhausted"
+      && value.audio_eos_seen === false
+      && value.budget_exhausted === true
+      && generatedSteps === maxNewTokens;
+    return natural || capped;
+  }
+
   function nearestTokenIndexForWindow(tokens, window) {
     const start = finite(window?.start_seconds);
     const end = finite(window?.end_seconds);
@@ -111,8 +140,23 @@
     if (!payload || payload.schema_id !== "audio-jacobian-lens.cached-explorer-manifest") {
       throw new Error("The cached family manifest has an unsupported schema.");
     }
-    if (payload.family !== family || !Array.isArray(payload.reports) || payload.reports.length !== 3) {
+    if (
+      payload.family !== family
+      || payload.report_count !== expectedReportCount
+      || !Array.isArray(payload.reports)
+      || payload.reports.length !== expectedReportCount
+    ) {
       throw new Error("The cached family manifest does not match this explorer.");
+    }
+    const ids = payload.reports.map((entry) => String(entry?.id || ""));
+    const urls = payload.reports.map((entry) => String(entry?.report_url || ""));
+    if (
+      ids.some((id) => !id)
+      || urls.some((url) => !url)
+      || new Set(ids).size !== expectedReportCount
+      || new Set(urls).size !== expectedReportCount
+    ) {
+      throw new Error("The cached family manifest has duplicate or incomplete report entries.");
     }
     return payload;
   }
@@ -154,6 +198,9 @@
         if (!headRanksAreExact || !layerRanksAreExact || !encoderAlignmentIsExplicit || !encoderRanksAreExact) {
           throw new Error(`The ${family === "asr" ? "ASR" : "speech"} report is missing exact realized-token ranks.`);
         }
+      }
+      if (family === "speech" && !validSpeechGenerationDiagnostics(payload.payload.metadata?.generation_diagnostics)) {
+        throw new Error("The speech report has invalid or missing generation-termination diagnostics.");
       }
     }
     return payload;
@@ -202,14 +249,57 @@
     errorBox.textContent = "";
   }
 
+  function ensureSamplePicker() {
+    if (sampleList.querySelector("[data-sample-grid]")) return;
+    sampleList.innerHTML = `
+      <div class="sample-picker-tools">
+        <label class="sample-search">
+          <span class="visually-hidden">Filter cached examples</span>
+          <input id="sample-search" type="search" autocomplete="off" placeholder="Filter examples" aria-controls="sample-button-grid">
+        </label>
+        <span id="sample-results-count" class="sample-results-count" aria-live="polite"></span>
+      </div>
+      <div id="sample-button-grid" class="sample-button-grid" data-sample-grid></div>
+    `;
+  }
+
+  function sampleSearchText(entry) {
+    return [
+      entry?.id,
+      entry?.title,
+      entry?.summary,
+      entry?.reference_transcript,
+      entry?.prompt,
+      entry?.teaching_role,
+    ].filter(Boolean).join(" ").toLocaleLowerCase();
+  }
+
   function renderSampleButtons() {
+    ensureSamplePicker();
     const reports = state.manifest?.reports || [];
-    sampleList.innerHTML = reports.map((entry, index) => `
-      <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
-        <span>${escapeHTML(family === "tts" ? `Prompt ${index + 1}` : `Audio sample ${index + 1}`)}</span>
-        <strong>${escapeHTML(entry.title)}</strong>
-      </button>
-    `).join("");
+    const query = state.sampleQuery.trim().toLocaleLowerCase();
+    const visible = reports
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ entry }) => !query || sampleSearchText(entry).includes(query));
+    const focusedIndex = sampleList.contains(document.activeElement)
+      ? finite(document.activeElement?.dataset?.sampleIndex)
+      : null;
+    const grid = sampleList.querySelector("[data-sample-grid]");
+    grid.innerHTML = visible.length ? visible.map(({ entry, index }) => {
+      const detail = entry.summary || entry.reference_transcript || entry.prompt || entry.teaching_role || entry.id;
+      return `
+        <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
+          <span>${escapeHTML(`${family === "tts" ? "Prompt" : "Audio"} ${String(index + 1).padStart(2, "0")}`)}</span>
+          <strong>${escapeHTML(entry.title)}</strong>
+          <small>${escapeHTML(detail)}</small>
+        </button>
+      `;
+    }).join("") : '<p class="sample-empty">No cached examples match this filter.</p>';
+    const count = sampleList.querySelector("#sample-results-count");
+    if (count) count.textContent = `${visible.length} of ${reports.length}`;
+    if (focusedIndex !== null) {
+      grid.querySelector(`[data-sample-index="${focusedIndex}"]`)?.focus();
+    }
   }
 
   function fittedRows() {
@@ -791,6 +881,24 @@
     return state.report.payload.transcription?.text;
   }
 
+  function renderSpeechTerminationStatus() {
+    if (family !== "speech") return "";
+    const diagnostics = state.report.payload.metadata.generation_diagnostics;
+    const capped = diagnostics.termination_reason === "budget_exhausted";
+    const steps = `${formatInteger(diagnostics.generated_steps)} / ${formatInteger(diagnostics.max_new_tokens)} generation steps`;
+    return capped ? `
+      <section class="generation-status capped" data-speech-termination="budget-exhausted" role="status">
+        <span class="generation-status-mark" aria-hidden="true">!</span>
+        <div><strong>Safety cap reached · ${escapeHTML(steps)}</strong><p>Audio EOS was not observed. The displayed generated response may be truncated, so its last text piece is not evidence of natural completion.</p></div>
+      </section>
+    ` : `
+      <section class="generation-status natural" data-speech-termination="audio-eos" role="status">
+        <span class="generation-status-mark" aria-hidden="true">✓</span>
+        <div><strong>Natural audio EOS · ${escapeHTML(steps)}</strong><p>The model emitted its audio end-of-sequence marker before the ${escapeHTML(formatInteger(diagnostics.max_new_tokens))}-step safety cap.</p></div>
+      </section>
+    `;
+  }
+
   function renderOverview() {
     const provenance = state.manifest.provenance || state.report.provenance || {};
     const model = provenance.model || {};
@@ -812,6 +920,7 @@
           <p><span>Fit</span><strong>${escapeHTML(`${fit} examples · ${relation}`)}</strong></p>
         </div>
       </section>
+      ${renderSpeechTerminationStatus()}
       <div class="cached-banner"><strong>Static replay</strong><span>These values were inferred before publication. This page performs no model request, upload, recording, synthesis, or intervention.</span></div>
     `;
   }
@@ -1206,6 +1315,34 @@
     const button = event.target.closest("[data-sample-index]");
     if (!button) return;
     loadReport(Number(button.dataset.sampleIndex));
+  });
+
+  sampleList.addEventListener("input", (event) => {
+    if (event.target.id !== "sample-search") return;
+    state.sampleQuery = event.target.value;
+    renderSampleButtons();
+  });
+
+  sampleList.addEventListener("keydown", (event) => {
+    if (event.target.id === "sample-search" && event.key === "Escape" && state.sampleQuery) {
+      event.preventDefault();
+      state.sampleQuery = "";
+      event.target.value = "";
+      renderSampleButtons();
+      return;
+    }
+    const button = event.target.closest("[data-sample-index]");
+    if (!button || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+    const buttons = [...sampleList.querySelectorAll("[data-sample-index]")];
+    const current = buttons.indexOf(button);
+    if (current < 0 || !buttons.length) return;
+    event.preventDefault();
+    let next = current;
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = buttons.length - 1;
+    if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = Math.max(0, current - 1);
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = Math.min(buttons.length - 1, current + 1);
+    buttons[next].focus();
   });
 
   workspace.addEventListener("click", (event) => {

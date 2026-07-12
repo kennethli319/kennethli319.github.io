@@ -3,6 +3,13 @@
   "schema_version": 1,
   "family": "speech",
   "mode": "static_cached_explorer",
+  "report_count": 10,
+  "catalog": {
+    "schema_id": "audio-jacobian-lens.static-explorer-catalog",
+    "schema_version": 2,
+    "sha256": "2ca80989bbbceaf64c93cc00c0c81999bbb9d791d6b67273ba909bc42c8a5312",
+    "reports_per_family": 10
+  },
   "provenance": {
     "evaluated_on": "2026-07-11",
     "model": {
@@ -38,7 +45,8 @@
       "audio_temperature": 0,
       "audio_top_k": 1,
       "mlx_random_seed": 7,
-      "audio_frame_seconds": 0.08
+      "audio_frame_seconds": 0.08,
+      "system_prompt": "Respond briefly with interleaved text and audio."
     },
     "rank_semantics": {
       "rank_space": "lexical_display_vocabulary",
@@ -51,15 +59,20 @@
       "head_rank_denominator": 65536
     },
     "rights_policy": {
-      "included_audio": "Only the three source-input references are cleared for a future static export under LibriSpeech CC BY 4.0.",
+      "included_audio": "The 10 source-input FLAC files are distributed under CC BY 4.0 with attribution.",
       "excluded_audio": "Generated LFM speech and local macOS-TTS screening clips are intentionally absent pending model-output and voice-output redistribution review.",
-      "attribution": "LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings; CC BY 4.0."
+      "attribution": "LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings.",
+      "source_url": "https://www.openslr.org/12",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   "reports": [
     {
       "id": "speech-question",
       "title": "A short question",
+      "summary": "Clean short question",
+      "reference_transcript": "Where is my brother now?",
+      "utterance_id": "1272-135031-0012",
       "audio_url": "/audio-jacobian-lens/audio/question.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/speech/question.json",
       "sha256": "1bbb30c6ad30e363f1d4c128fc4b5c6524615bfb1b27122533692416c0bf7276",
@@ -68,6 +81,9 @@
     {
       "id": "speech-universe",
       "title": "Sir, I exist",
+      "summary": "Measured declarative speech",
+      "reference_transcript": "A man said to the universe, sir, I exist.",
+      "utterance_id": "1272-141231-0000",
       "audio_url": "/audio-jacobian-lens/audio/universe.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/speech/universe.json",
       "sha256": "ef75673c4d2ff0d2692805202e9edb417bb9bcf565ee485d8e8b2fcb70d697e4",
@@ -76,10 +92,90 @@
     {
       "id": "speech-buzzer",
       "title": "The buzzer's whirr",
+      "summary": "Consonant-heavy model-error path",
+      "reference_transcript": "The buzzer's whirr triggered his muscles into complete relaxation.",
+      "utterance_id": "1272-141231-0006",
       "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/speech/buzzer.json",
       "sha256": "31052a82be8042d9bd0fe017c17073d2bdc29373186ea7486e4bb648508093b0",
       "bytes": 418059
+    },
+    {
+      "id": "speech-raps",
+      "title": "The raps at the door",
+      "summary": "Homophone error: raps versus wraps",
+      "reference_transcript": "The little girl had been asleep, but she heard the raps and opened the door.",
+      "utterance_id": "1272-135031-0003",
+      "audio_url": "/audio-jacobian-lens/audio/raps.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/raps.json",
+      "sha256": "21b0f0b9fabc5560e5307721473277be56f7606e52ed96933919f3a25a70f062",
+      "bytes": 474987
+    },
+    {
+      "id": "speech-one-minute",
+      "title": "One minute",
+      "summary": "Article substitution around the time buzzer",
+      "reference_transcript": "One minute, a voice said, and the time buzzer sounded.",
+      "utterance_id": "1272-141231-0004",
+      "audio_url": "/audio-jacobian-lens/audio/one-minute.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/one-minute.json",
+      "sha256": "26370c5d772cbe7807cf3f513fa9162414ffd642e6b5ae780d97e5330baac9c0",
+      "bytes": 218574
+    },
+    {
+      "id": "speech-ten-seconds",
+      "title": "Ten seconds",
+      "summary": "Spoken-word versus numeral tokenization",
+      "reference_transcript": "Ten seconds.",
+      "utterance_id": "1272-141231-0016",
+      "audio_url": "/audio-jacobian-lens/audio/ten-seconds.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/ten-seconds.json",
+      "sha256": "0c041699ca9d5d3ede0ac7c7edc056a9004f443e20b938df9acc63c357975cb0",
+      "bytes": 1017203
+    },
+    {
+      "id": "speech-oh-no",
+      "title": "Oh no, I'm quite sure",
+      "summary": "Short contractions and punctuation",
+      "reference_transcript": "Oh no, I'm quite sure he didn't.",
+      "utterance_id": "1272-135031-0018",
+      "audio_url": "/audio-jacobian-lens/audio/oh-no.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/oh-no.json",
+      "sha256": "66cd18ea1fdadd9e0f2f78cb5809d033751df5b8a2cc0e82c933c91c42ffafdf",
+      "bytes": 417936
+    },
+    {
+      "id": "speech-metal-forest",
+      "title": "The metal forest",
+      "summary": "Long utterance with proper-name substitutions",
+      "reference_transcript": "The metal forest is in the great domed cavern, the largest in all our dominions, replied Kaliko.",
+      "utterance_id": "1272-135031-0015",
+      "audio_url": "/audio-jacobian-lens/audio/metal-forest.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/metal-forest.json",
+      "sha256": "8bf88a2d94942e7b7e3b54216cdd525984fb93ed33d51de8d47bbb292cd51d69",
+      "bytes": 589098
+    },
+    {
+      "id": "speech-inexhaustible",
+      "title": "An inexhaustible store",
+      "summary": "Rare multi-piece lexical item",
+      "reference_transcript": "A red-haired mountain of a man with an apparently inexhaustible store of energy.",
+      "utterance_id": "1272-141231-0018",
+      "audio_url": "/audio-jacobian-lens/audio/inexhaustible.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/inexhaustible.json",
+      "sha256": "b2989eda94e1e9534058bba0b4df9885a1dc3e0989c9aeb49922138f782057d2",
+      "bytes": 503686
+    },
+    {
+      "id": "speech-impossible",
+      "title": "Physically impossible",
+      "summary": "Concise technical phrase",
+      "reference_transcript": "This is physically impossible when conscious.",
+      "utterance_id": "1272-141231-0024",
+      "audio_url": "/audio-jacobian-lens/audio/impossible.flac",
+      "report_url": "/audio-jacobian-lens/explorer/data/speech/impossible.json",
+      "sha256": "a015f7c89423f7d10c342c43e8229395dc1bc0e0863cee190af1ecaeb74efdd5",
+      "bytes": 1560929
     }
   ]
 }

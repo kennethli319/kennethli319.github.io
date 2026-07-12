@@ -22,6 +22,7 @@
     filterCache: null,
     filterStatus: "idle",
     filterError: "",
+    phoneSignatureEnabled: false,
     selectedToken: 0,
     selectedEncoder: 0,
     selection: { kind: "head", layerIndex: 0, position: 0 },
@@ -158,6 +159,12 @@
     ) {
       throw new Error("The cached family manifest has duplicate or incomplete report entries.");
     }
+    if (family === "asr" && !payload.reports.some((entry) => (
+      Array.isArray(entry?.featured_views)
+      && entry.featured_views.includes("asr_phone_signature")
+    ))) {
+      throw new Error("The ASR explorer has no featured phone-signature example.");
+    }
     return payload;
   }
 
@@ -198,12 +205,86 @@
         if (!headRanksAreExact || !layerRanksAreExact || !encoderAlignmentIsExplicit || !encoderRanksAreExact) {
           throw new Error(`The ${family === "asr" ? "ASR" : "speech"} report is missing exact realized-token ranks.`);
         }
+        if (family === "asr") validatePhoneSignatureReport(payload.payload);
       }
       if (family === "speech" && !validSpeechGenerationDiagnostics(payload.payload.metadata?.generation_diagnostics)) {
         throw new Error("The speech report has invalid or missing generation-termination diagnostics.");
       }
     }
     return payload;
+  }
+
+  function validatePhoneSignatureReport(payload) {
+    const metadata = payload?.metadata?.phone_signature;
+    const expectedMetadata = [
+      "available", "display_unit", "effective_display_hop_seconds",
+      "effective_display_window_seconds", "interpretation", "method",
+      "phone_inventory", "phone_inventory_size",
+      "prototype_fit_opened_eval_splits", "prototype_fit_rows",
+      "prototype_fit_split", "prototype_lens_examples", "schema_version",
+      "score_kind", "signature_top_k", "silence_or_unknown_class_available",
+      "training_unit",
+    ].sort();
+    if (!metadata || Object.keys(metadata).sort().join("|") !== expectedMetadata.join("|")) {
+      throw new Error("The ASR report has unsupported phone-signature metadata.");
+    }
+    const labels = Array.isArray(metadata.phone_inventory) ? metadata.phone_inventory : [];
+    const publicPhoneInventory = [
+      "AA", "AE", "AH", "AO", "AW", "AY", "B", "CH", "D", "DH", "EH",
+      "ER", "EY", "F", "G", "HH", "IH", "IY", "K", "L", "M", "N",
+      "NG", "OW", "P", "R", "S", "SH", "T", "TH", "UW", "V", "W", "Z",
+    ];
+    const labelSet = new Set(labels);
+    if (
+      metadata.available !== true
+      || metadata.schema_version !== 1
+      || metadata.score_kind !== "phone_prototype_cosine_similarity"
+      || metadata.signature_top_k !== 100
+      || metadata.phone_inventory_size !== publicPhoneInventory.length
+      || labels.join("|") !== publicPhoneInventory.join("|")
+      || labelSet.size !== labels.length
+      || metadata.display_unit !== "pooled_encoder_window"
+      || metadata.method !== "nearest_frozen_top_k_j_signature_phone_prototype"
+      || metadata.training_unit !== "aligned_native_20_ms_phone_midpoint_state"
+      || String(metadata.interpretation || "").trim() === ""
+      || !Number.isFinite(Number(metadata.effective_display_window_seconds))
+      || Math.abs(Number(metadata.effective_display_window_seconds) - 0.2) > 1e-9
+      || !Number.isFinite(Number(metadata.effective_display_hop_seconds))
+      || Math.abs(Number(metadata.effective_display_hop_seconds) - 0.18) > 1e-9
+      || metadata.silence_or_unknown_class_available !== false
+      || metadata.prototype_fit_split !== "train"
+      || metadata.prototype_fit_rows !== 3400
+      || metadata.prototype_fit_opened_eval_splits !== false
+      || metadata.prototype_lens_examples !== 20
+    ) throw new Error("The ASR phone-signature contract is inconsistent.");
+    const candidateKeys = ["phone", "rank", "similarity"];
+    const cells = payload?.encoder?.cells || [];
+    if (!cells.length || !cells.every((row) => Array.isArray(row) && row.length)) {
+      throw new Error("The ASR phone-signature matrix is empty.");
+    }
+    cells.forEach((row) => row.forEach((cell) => {
+      const candidates = cell?.phone_signatures;
+      if (!Array.isArray(candidates) || candidates.length !== 5) {
+        throw new Error("An ASR encoder cell has no complete phone signature.");
+      }
+      const seen = new Set();
+      candidates.forEach((candidate, index) => {
+        const similarity = finite(candidate?.similarity);
+        const expectedRank = 1 + candidates.filter((other) => Number(other.similarity) > Number(candidate.similarity)).length;
+        if (
+          Object.keys(candidate || {}).sort().join("|") !== candidateKeys.join("|")
+          || !labelSet.has(candidate.phone)
+          || seen.has(candidate.phone)
+          || similarity === null
+          || similarity < -1
+          || similarity > 1
+          || (index > 0 && similarity > Number(candidates[index - 1].similarity) + 1e-8)
+          || candidate.rank !== expectedRank
+        ) throw new Error("An ASR phone-signature candidate is invalid.");
+        seen.add(candidate.phone);
+      });
+      if (candidates[0].rank !== 1) throw new Error("The nearest phone prototype must rank first.");
+    }));
   }
 
   function validateFilterCache(payload) {
@@ -287,8 +368,10 @@
     const grid = sampleList.querySelector("[data-sample-grid]");
     grid.innerHTML = visible.length ? visible.map(({ entry, index }) => {
       const detail = entry.summary || entry.reference_transcript || entry.prompt || entry.teaching_role || entry.id;
+      const phoneExample = family === "asr" && Array.isArray(entry.featured_views) && entry.featured_views.includes("asr_phone_signature");
       return `
-        <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
+        <button class="sample-button${phoneExample ? " phone-example" : ""}" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
+          ${phoneExample ? '<em>PHONE SIGNATURE EXAMPLE</em>' : ""}
           <span>${escapeHTML(`${family === "tts" ? "Prompt" : "Audio"} ${String(index + 1).padStart(2, "0")}`)}</span>
           <strong>${escapeHTML(entry.title)}</strong>
           <small>${escapeHTML(detail)}</small>
@@ -513,6 +596,27 @@
     return state.report.payload.fitted_speech_code_jlens.rows[layerIndex]?.positions?.[position];
   }
 
+  function phoneSignatureMetadata() {
+    return family === "asr" ? state.report?.payload?.metadata?.phone_signature : null;
+  }
+
+  function phoneSignaturesFor(layerIndex, position) {
+    const candidates = state.report?.payload?.encoder?.cells?.[layerIndex]?.[position]?.phone_signatures;
+    return Array.isArray(candidates) ? candidates : [];
+  }
+
+  function phoneSignatureAvailable() {
+    const metadata = phoneSignatureMetadata();
+    const cells = encoderCells();
+    return Boolean(metadata?.available && cells.length && cells.every((row) => (
+      Array.isArray(row) && row.length && row.every((cell) => Array.isArray(cell?.phone_signatures) && cell.phone_signatures.length === 5)
+    )));
+  }
+
+  function encoderPhoneMode(kind) {
+    return kind === "encoder" && state.phoneSignatureEnabled && phoneSignatureAvailable();
+  }
+
   function candidatesFor(kind, layerIndex, position) {
     if (kind === "encoder" || kind === "decoder") {
       const stream = state.report.payload[kind];
@@ -660,9 +764,10 @@
   function matrixCellHTML({ kind, layerIndex, layerLabel, position, strength, label }) {
     const descriptor = descriptorFor(kind, layerIndex, position);
     const head = kind === "head" || kind === "tts-head";
+    const phoneCell = encoderPhoneMode(kind);
     const asrDecoderCell = family === "asr" && kind === "decoder";
     const showSpeechRealizedRank = family === "speech" && (kind === "decoder" || kind === "head");
-    const showASRRealizedRank = family === "asr" && ["encoder", "decoder", "head"].includes(kind);
+    const showASRRealizedRank = family === "asr" && !phoneCell && ["encoder", "decoder", "head"].includes(kind);
     const realizedRank = showSpeechRealizedRank || showASRRealizedRank ? finite(descriptor.realized?.rank) : null;
     const mainLabel = asrDecoderCell
       ? compactText(descriptor.top?.text, `ID ${descriptor.top?.id ?? "—"}`)
@@ -678,7 +783,7 @@
           : `realized #${formatInteger(realizedRank)}`;
     }
     return `
-      <button class="matrix-cell${head ? " head" : ""}${asrDecoderCell ? " asr-decoder-cell" : ""}" type="button"
+      <button class="matrix-cell${head ? " head" : ""}${asrDecoderCell ? " asr-decoder-cell" : ""}${phoneCell ? " phone-signature-cell" : ""}" type="button"
         data-kind="${escapeHTML(kind)}" data-layer-index="${layerIndex}" data-position="${position}"
         style="--strength:${clamp(strength, 0, 1).toFixed(4)}"
         aria-label="${escapeHTML(`${layerLabel}, ${descriptor.coordinate}. ${descriptor.detail}`)}">
@@ -694,20 +799,27 @@
     return rows.map((cells, layerIndex) => {
       const boundedEnd = endPosition === null ? cells.length : Math.min(endPosition, cells.length);
       const positions = cells.slice(startPosition, boundedEnd).map((_, offset) => startPosition + offset);
-      const strengths = rowStrengths(cells.map((_, position) => finite(candidatesFor(streamName, layerIndex, position)[0]?.score) ?? 0), false);
+      const phoneMode = encoderPhoneMode(streamName);
+      const strengths = rowStrengths(cells.map((_, position) => (
+        phoneMode
+          ? finite(phoneSignaturesFor(layerIndex, position)[0]?.similarity) ?? 0
+          : finite(candidatesFor(streamName, layerIndex, position)[0]?.score) ?? 0
+      )), false);
       const layer = stream.layers?.[layerIndex] ?? layerIndex;
       const cellHTML = positions.map((position) => {
-        const top = candidatesFor(streamName, layerIndex, position)[0];
+        const top = phoneMode
+          ? phoneSignaturesFor(layerIndex, position)[0]
+          : candidatesFor(streamName, layerIndex, position)[0];
         return matrixCellHTML({
           kind: streamName,
           layerIndex,
           layerLabel: `${streamName === "encoder" ? "Encoder" : "Decoder"} L${layer}`,
           position,
           strength: strengths[position],
-          label: compactText(top?.text, `ID ${top?.id ?? "—"}`),
+          label: phoneMode ? compactText(top?.phone) : compactText(top?.text, `ID ${top?.id ?? "—"}`),
         });
       }).join("");
-      return `<div class="matrix-row" style="--position-count:${positions.length}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
+      return `<div class="matrix-row" style="--position-count:${positions.length}${phoneMode ? `;--matrix-min:${58 + positions.length * 28}px` : ""}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
     }).join("");
   }
 
@@ -782,14 +894,15 @@
     return `${rows}<div class="matrix-row" style="--position-count:${head.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false } = {}) {
+  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity" } = {}) {
     return `
-      <section class="matrix-panel">
+      <section class="matrix-panel${controls ? " phone-capable-panel" : ""}">
         <header class="explorer-panel-heading">
           <div><p class="section-label">LAYER × POSITION</p><h3>${escapeHTML(title)}</h3></div>
           <p>${escapeHTML(description)}</p>
         </header>
-        <div class="matrix-legend"><span><i></i> Fitted/readout intensity</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
+        ${controls}
+        <div class="matrix-legend"><span><i></i> ${escapeHTML(legendLabel)}</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
         <div class="layer-matrix${windowed ? " windowed" : ""}">${rows}</div>
       </section>
     `;
@@ -868,12 +981,34 @@
       ? '<p class="loading">Loading the cached exact-length vocabulary buckets…</p>'
       : state.filterStatus === "error"
         ? `<p class="error">${escapeHTML(state.filterError)}</p>`
-        : '<p>Applies to all encoder rows and decoder L0–L1 only. L2 and HEAD remain unfiltered controls. This is a vocabulary display aid—not a phoneme classifier or a model intervention.</p>';
+        : state.phoneSignatureEnabled
+          ? `<p>Encoder filtering is paused in Phone signature view. Decoder L0–L1 ${state.filterEnabled ? `remains limited to ≤${state.filterLimit} characters` : "remains unfiltered"}; L2 and HEAD are unchanged.</p>`
+          : '<p>Applies to all encoder rows and decoder L0–L1 only. L2 and HEAD remain unfiltered controls. This is a vocabulary display aid—not a phoneme classifier or a model intervention.</p>';
     return `
       <div class="static-filter">
         <label class="static-filter-toggle"><input id="static-filter-toggle" type="checkbox" ${state.filterEnabled ? "checked" : ""}> Token-length filter</label>
         <label class="static-filter-number">Maximum decoded characters <input id="static-filter-limit" type="number" min="1" max="64" step="1" value="${state.filterLimit}" ${state.filterEnabled ? "" : "disabled"}></label>
         ${message}
+      </div>
+    `;
+  }
+
+  function renderPhoneSignatureControl() {
+    if (family !== "asr") return "";
+    const metadata = phoneSignatureMetadata();
+    const available = phoneSignatureAvailable();
+    const enabled = available && state.phoneSignatureEnabled;
+    const filterMessage = state.filterEnabled
+      ? `Encoder token filtering is paused; decoder L0–L1 remains limited to ≤${state.filterLimit} characters.`
+      : "Encoder token readouts remain available when this view is off.";
+    return `
+      <div class="phone-signature-control${enabled ? " enabled" : ""}">
+        <button id="static-phone-signature-toggle" type="button" aria-pressed="${enabled}" ${available ? "" : "disabled"}>
+          <span><strong>Phone signature view</strong><small>Replace encoder token readouts with fitted phone prototypes</small></span>
+          <i aria-hidden="true">${enabled ? "ON" : "OFF"}</i>
+        </button>
+        <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Optional fitted encoder interpretation"}</strong><span>${escapeHTML(filterMessage)}</span></p>
+        <details><summary>What does this show?</summary><p>Nearest frozen ARPAbet phone prototypes ranked by cosine similarity. This is an exploratory fitted readout—not probability, confidence, or causal attribution. The ${escapeHTML(formatInteger((metadata?.effective_display_window_seconds || 0.2) * 1000))} ms pooled window may contain multiple phones, and the fit has no silence/unknown class.</p></details>
       </div>
     `;
   }
@@ -944,12 +1079,19 @@
     }
     const panels = [];
     if (state.report.payload.encoder?.layers?.length) {
+      const phoneMode = encoderPhoneMode("encoder");
       panels.push(renderMatrixPanel(
         "Across the audio representation",
-        family === "asr"
+        phoneMode
+          ? "Each cell shows the nearest frozen phone prototype. Blue tint is the within-layer percentile of cosine similarity; exact ranks and alternatives are in the tooltip and inspector."
+          : family === "asr"
           ? "Large text is the layer's top candidate. The small # is the exact rank of the realized output token aligned by greatest time overlap; blue tint is normalized within each row."
           : "Each row is one encoder layer and each column is an overlapping time window. Blue tint is normalized within each row; exact readout logits stay in the tooltip and inspector.",
         renderStandardRows("encoder"),
+        {
+          controls: renderPhoneSignatureControl(),
+          legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
+        },
       ));
     }
     panels.push(renderMatrixPanel(
@@ -980,11 +1122,22 @@
     const provenance = state.manifest.provenance || state.report.provenance || {};
     const model = provenance.model || {};
     const lens = provenance.lens || {};
+    const asrLensValues = family === "asr" ? [
+      ["Encoder lens", `${lens.encoder?.artifact || "—"} · ${lens.encoder?.fit_examples ?? "—"} examples`],
+      ["Encoder lens SHA-256", lens.encoder?.sha256 || "—"],
+      ["Decoder lens", `${lens.decoder?.artifact || "—"} · ${lens.decoder?.fit_examples ?? "—"} examples`],
+      ["Decoder lens SHA-256", lens.decoder?.sha256 || "—"],
+      ["Phone prototypes", `${lens.phone_signature?.artifact || "—"} · top ${lens.phone_signature?.signature_top_k ?? "—"} · ${lens.phone_signature?.phone_inventory_size ?? "—"} phones`],
+      ["Phone prototype SHA-256", lens.phone_signature?.sha256 || "—"],
+      ["Evaluation relationship", lens.encoder?.public_evaluation_relationship || "—"],
+    ] : [
+      ["Lens artifact", lens.source_path || lens.capture_convention || "—"],
+      ["Lens SHA-256", lens.sha256 || "—"],
+    ];
     const values = [
       ["Model", `${model.id || "—"}${model.revision ? ` @ ${model.revision}` : ""}`],
       ["Model fingerprint", model.model_fingerprint || model.weights_fingerprint || "—"],
-      ["Lens artifact", lens.source_path || lens.capture_convention || "—"],
-      ["Lens SHA-256", lens.sha256 || "—"],
+      ...asrLensValues,
       ...(family === "asr" ? [
         ["Encoder source layers", lens.encoder_source_layers || state.report.payload.encoder?.layers || []],
         ["Decoder source layers", lens.decoder_source_layers || state.report.payload.decoder?.layers || []],
@@ -993,11 +1146,24 @@
       ["Projection", lens.projection_method || state.report.payload.metadata?.projection || "dense / recorded"],
       ["Rank semantics", provenance.rank_semantics?.tie_policy || state.report.payload.metadata?.candidate_rank_semantics?.method || "recorded exact ranks"],
     ];
+    const rights = provenance.rights || {};
+    const safeExternal = (value) => typeof value === "string" && value.startsWith("https://") ? value : null;
+    const sourceUrl = safeExternal(rights.source_url);
+    const licenseUrl = safeExternal(rights.license_url);
+    const alignmentUrl = safeExternal(rights.alignment_source_url);
+    const rightsBlock = family === "asr" ? `
+      <div class="rights-block">
+        <strong>Audio and alignment attribution</strong>
+        <p>${escapeHTML(rights.attribution || "LibriSpeech attribution not recorded.")} ${escapeHTML(rights.modification_notice || "")}</p>
+        <p>${sourceUrl ? `<a href="${escapeHTML(sourceUrl)}">LibriSpeech source</a>` : ""}${licenseUrl ? ` · <a href="${escapeHTML(licenseUrl)}">${escapeHTML(rights.license || "License")}</a>` : ""}${alignmentUrl ? ` · <a href="${escapeHTML(alignmentUrl)}">${escapeHTML(rights.alignment_source || "Alignment source")}</a>` : ""}</p>
+      </div>
+    ` : "";
     return `
       <details class="report-provenance">
         <summary>Model, lens, rights, and interpretation details</summary>
         <div class="provenance-grid">${values.map(([label, value]) => `<div><span>${escapeHTML(label)}</span><strong>${escapeHTML(provenanceValue(value))}</strong></div>`).join("")}</div>
         <ul class="provenance-caveats">${reportWarnings().map((warning) => `<li>${escapeHTML(warning)}</li>`).join("")}</ul>
+        ${rightsBlock}
       </details>
     `;
   }
@@ -1078,6 +1244,17 @@
   }
 
   function descriptorFor(kind, layerIndex, position) {
+    if (encoderPhoneMode(kind)) {
+      const candidates = phoneSignaturesFor(layerIndex, position);
+      const top = candidates[0];
+      const denominator = phoneSignatureMetadata()?.phone_inventory_size;
+      const coordinate = coordinateText(kind, layerIndex, position);
+      const margin = candidates.length < 2 ? null : Number(candidates[0].similarity) - Number(candidates[1].similarity);
+      const detail = top
+        ? `Nearest frozen phone prototype ${top.phone}, rank #${formatInteger(top.rank)} of ${formatInteger(denominator)}, cosine similarity ${formatScore(top.similarity)}. Exploratory fitted readout; not probability or confidence.`
+        : "No bounded phone prototypes were retained.";
+      return { candidates, realized: null, top, code: false, phone: true, denominator, margin, coordinate, detail, realizedDetail: "", kind };
+    }
     const candidates = candidatesFor(kind, layerIndex, position);
     const realized = realizedFor(kind, layerIndex, position);
     const top = candidates[0];
@@ -1096,10 +1273,19 @@
         : `Realized target ${realized.label}, exact ${realized.filterApplied ? `≤${state.filterLimit}-character` : "unfiltered"} rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} ${kind === "encoder" ? "logit delta" : "logit"}`}.`;
     }
     const detail = realizedDetail ? `${topDetail} ${realizedDetail}` : topDetail;
-    return { candidates, realized, top, code, coordinate, detail, realizedDetail, kind };
+    return { candidates, realized, top, code, phone: false, coordinate, detail, realizedDetail, kind };
   }
 
   function renderCandidateRows(descriptor) {
+    if (descriptor.phone) {
+      return descriptor.candidates.map((candidate) => `
+        <div class="candidate-row phone-candidate-row">
+          <span class="candidate-rank">#${escapeHTML(formatInteger(candidate.rank))}<small>/ ${escapeHTML(formatInteger(descriptor.denominator))}</small></span>
+          <span class="candidate-label"><strong>${escapeHTML(candidate.phone)}</strong><small>frozen phone prototype</small></span>
+          <span class="candidate-score">cosine ${escapeHTML(formatScore(candidate.similarity))}</span>
+        </div>
+      `).join("");
+    }
     const realizedId = descriptor.realized?.id;
     return descriptor.candidates.map((candidate) => {
       const realized = Number(candidate.id) === Number(realizedId);
@@ -1118,6 +1304,25 @@
     if (!inspector) return;
     const { kind, layerIndex, position } = state.selection;
     const descriptor = descriptorFor(kind, layerIndex, position);
+    if (descriptor.phone) {
+      const top = descriptor.top;
+      inspector.innerHTML = `
+        <div class="inspector-top">
+          <div><p class="section-label">ENCODER · FITTED PHONE-PROTOTYPE READOUT</p><h3>${escapeHTML(descriptor.coordinate)} · phone ${escapeHTML(top?.phone || "—")}</h3></div>
+          <span class="inspector-kind">fitted/readout</span>
+        </div>
+        <div class="inspector-metrics">
+          <div class="inspector-metric"><span>Nearest prototype</span><strong>${escapeHTML(top?.phone || "—")}</strong></div>
+          <div class="inspector-metric"><span>Prototype rank</span><strong>#${escapeHTML(formatInteger(top?.rank))} / ${escapeHTML(formatInteger(descriptor.denominator))}</strong></div>
+          <div class="inspector-metric"><span>Cosine similarity</span><strong>${escapeHTML(formatScore(top?.similarity))}</strong></div>
+          <div class="inspector-metric"><span>Margin to #2</span><strong>${escapeHTML(formatScore(descriptor.margin))}</strong></div>
+        </div>
+        <div class="candidate-heading"><strong>Nearest phone prototypes</strong><span>cached fitted values</span></div>
+        <div class="candidate-list">${renderCandidateRows(descriptor)}</div>
+        <p class="inspector-note">ARPAbet phone-prototype rank and cosine similarity are exploratory fitted readouts, not model probabilities, confidence, or causal effects. A pooled 200 ms window may contain several phones; no silence/unknown prototype was fitted.</p>
+      `;
+      return;
+    }
     const realized = descriptor.realized;
     const head = kind === "head" || kind === "tts-head";
     const top = descriptor.top;
@@ -1296,7 +1501,9 @@
     tooltip.innerHTML = `
       <strong>${escapeHTML(descriptor.coordinate)}</strong>
       <span>${escapeHTML(descriptor.detail)}</span>
-      ${descriptor.candidates.slice(0, 3).map((candidate) => `<span>#${escapeHTML(formatInteger(candidate.rank))} · ${escapeHTML(candidateLabel(candidate, descriptor.code))} · ${escapeHTML(candidateScore(candidate, descriptor.kind))}</span>`).join("")}
+      ${descriptor.candidates.slice(0, 5).map((candidate) => descriptor.phone
+        ? `<span>#${escapeHTML(formatInteger(candidate.rank))} / ${escapeHTML(formatInteger(descriptor.denominator))} · ${escapeHTML(candidate.phone)} · cosine ${escapeHTML(formatScore(candidate.similarity))}</span>`
+        : `<span>#${escapeHTML(formatInteger(candidate.rank))} · ${escapeHTML(candidateLabel(candidate, descriptor.code))} · ${escapeHTML(candidateScore(candidate, descriptor.kind))}</span>`).join("")}
     `;
     tooltip.hidden = false;
   }
@@ -1354,6 +1561,13 @@
   });
 
   workspace.addEventListener("click", (event) => {
+    const phoneToggle = event.target.closest("#static-phone-signature-toggle");
+    if (phoneToggle) {
+      state.phoneSignatureEnabled = !state.phoneSignatureEnabled && phoneSignatureAvailable();
+      hideTooltip();
+      renderWorkspace();
+      return;
+    }
     const token = event.target.closest("[data-token-position]");
     if (token) {
       selectCoordinate(family === "tts" ? "tts-head" : "head", 0, Number(token.dataset.tokenPosition), { seek: family === "asr" });

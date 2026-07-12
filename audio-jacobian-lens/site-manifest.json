@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "description": "Unlinked public review build of the Audio Jacobian Lens, with full cached explorers as the primary routes and curated experiment findings as secondary interpretation pages.",
+  "description": "Unlinked public review build of the Audio Jacobian Lens, with full cached explorers, an optional fitted phone-signature view for ASR encoder states, and curated findings pages.",
   "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
   "source_repository": "https://github.com/kennethli319/audio-jacobian-lens",
-  "published_on": "2026-07-11",
+  "published_on": "2026-07-12",
   "publication_mode": "public_unlinked_noindex_review",
   "report_counts": {
     "asr": 10,
@@ -27,25 +27,25 @@
       "/audio-jacobian-lens/explorer/tts/"
     ]
   },
-  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, cached candidate inspection, ASR character-length reranking with readable top-candidate and realized-rank token bands, readable banded speech-token matrices with natural-EOS versus safety-cap status, TTS text diagnostics, and recorded intervention inspection. Findings pages explain the curated experiments. No model inference, upload, recording, generation, or intervention endpoint is present.",
+  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized waveform/token/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. ASR adds a toggleable fitted phone-signature encoder view whose cells show the top phone prototype and whose hover, focus, or pinned detail shows five candidates; decoder cells show the top lexical candidate plus the realized-token rank and expose five candidates in detail. Character-length reranking, readable speech-token bands, TTS diagnostics, and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present.",
   "media_policy": "Only the ten CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
-  "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes ten reduced reports. ASR character-length buckets are separate, hash-pinned files loaded only when the filter is enabled. Ephemeral server IDs and embedded audio are excluded.",
+  "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes ten reduced reports. ASR uses a speaker-held-out A2 encoder lens plus frozen train-only phone prototypes; reports publish only five bounded phone candidates per encoder cell and exclude prototype tensors, occurrence-level rows, private paths, ephemeral server IDs, and embedded audio. Character-length buckets remain separate hash-pinned files loaded only when enabled.",
   "sha256": {
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
     "assets/app.js": "1546309f575b66aacfb106ca1ddb8190793851b46cb78e734a701fa978da760c",
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
-    "assets/explorer.js": "14c8c098f387f053def2764b84d8dc51386a21d3b26cfd63faa7456f43fbe631",
-    "assets/explorer.css": "08741b6575e09d9e1a13a9c625195e5c27de0c67e3a1af4f8a382ecca48fa1d9",
-    "index.html": "bb727d9d8f0a134511741edb9e77af1443f2cfa5901bb89c7fd1ed9eed214720",
-    "speech/index.html": "e1c0fbe0d12554c94abacabb7ebe6b3c365628e67f4e78348acd5170e695ca91",
-    "tts/index.html": "e2c406d5708aabd6ac305a0961b30fc0af8b02d6a61f6e700a45b7ed33c05967",
+    "assets/explorer.js": "4c53034048b78740f6af207d6de61dfa3b46589c46c1cd79d0bd57ea34470e92",
+    "assets/explorer.css": "37bfd88b4485a06deeacbce5a6758a9a5a6e05303d5d3b68303f08879b8746c6",
+    "index.html": "37fe4091a9a11e67db55ceb6a7f539e03f7648078846896980c149e2a9a254ea",
+    "speech/index.html": "d4737173765cb523e68348883e2bd80aa48adccbdfb14784327efb7439416892",
+    "tts/index.html": "67bfe3e0374be9947a28fed6ff82198c531cf4a9815970ebfa0b3bb462cf48ed",
     "findings/index.html": "20c46db0f273a134912cd6ab7d90b6390e7a347d0655cc67a6541e6a0ff0ce31",
     "findings/speech/index.html": "18da502241e075b69d02e5e785b7c11c6e26ca86c669784bb592d5dbf5b4ae84",
     "findings/tts/index.html": "46ee067bb2e2bb90018d51fd23d3b9574575ac38088b3c3495699a487b71b90b",
-    "explorer/asr/index.html": "6131c9f6edf3f98c658d9defa7e50c8ba5c3afa2bf9349f323af74dfd932995c",
-    "explorer/speech/index.html": "100e9a92c73f57e34756db78a72a81f95380dfcb028b199a6a8781d08a5882b9",
-    "explorer/tts/index.html": "45f8b51d56cee4c8c96dbabc0470e6613f1bb67327b9cb3aef20e3fdbc887550",
-    "explorer/data/asr/manifest.json": "3a4a508af724e991c687d95086ffcfa353af839e9f2af0c630ce7ffe615fc003",
+    "explorer/asr/index.html": "3c63b1b96d1d6db5cf5a65a00534ee9d5707e8e2e9d50aa7432e77b5d0656095",
+    "explorer/speech/index.html": "c38fb6d5d7b3b137c85f85170286e3a6c21bf25afe72349aed8ca40c202c5d45",
+    "explorer/tts/index.html": "0ae66e42367931805949ba30b2ff85c46fea9a421f11d38e06f1bd2df58f1a39",
+    "explorer/data/asr/manifest.json": "18c94739888d483d4845433fb96cc24d17b50f6d274ff881be8e640193ae6339",
     "explorer/data/speech/manifest.json": "86905e9c29ebfe5700749b388d072800536385f9cb1e3c49aa65e32dd0eaf6b3",
     "explorer/data/tts/manifest.json": "af6e1ee645dab01e067f8c2f9494ecf1b0e1ff0423e4cf53b5bcc22a2cb0a3bf"
   }

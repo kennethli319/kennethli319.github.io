@@ -85,6 +85,8 @@
 }
 .sample-button:hover { border-color: var(--line-strong); }
 .sample-button[aria-pressed="true"] { border-color: rgba(var(--lens-rgb), .5); background: rgba(var(--lens-rgb), .055); box-shadow: inset 0 -3px 0 var(--lens); }
+.sample-button.phone-example { border-color: rgba(var(--lens-rgb), .34); background: rgba(var(--lens-rgb), .035); }
+.sample-button em { display: inline-block; margin-bottom: 5px; padding: 3px 5px; border: 1px solid rgba(var(--lens-rgb), .34); border-radius: 99px; color: var(--lens); font: 700 7px/1 var(--mono); font-style: normal; letter-spacing: .06em; }
 .sample-button span { display: block; color: var(--muted); font: 600 9px/1.35 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
 .sample-button strong { display: block; margin-top: 4px; overflow: hidden; font-size: 11px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .sample-button small { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font: 500 8px/1.35 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
@@ -305,6 +307,36 @@
 .static-filter p.loading { color: var(--lens); }
 .static-filter p.error { color: var(--danger); }
 
+.phone-signature-control {
+  display: grid;
+  grid-template-columns: minmax(250px, .9fr) minmax(210px, .8fr) minmax(180px, .7fr);
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 13px;
+  padding: 11px 13px;
+  border: 1px solid rgba(var(--lens-rgb), .28);
+  border-radius: 8px;
+  background: rgba(var(--lens-rgb), .035);
+}
+.phone-signature-control > button { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 9px 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--panel); color: var(--ink); text-align: left; cursor: pointer; }
+.phone-signature-control > button:hover:not(:disabled) { border-color: var(--lens); }
+.phone-signature-control > button[aria-pressed="true"] { border-color: var(--lens); box-shadow: inset 0 -2px 0 var(--lens); }
+.phone-signature-control > button:disabled { cursor: not-allowed; opacity: .55; }
+.phone-signature-control > button span,
+.phone-signature-control > button strong,
+.phone-signature-control > button small { display: block; }
+.phone-signature-control > button strong { font-size: 10px; }
+.phone-signature-control > button small { margin-top: 3px; color: var(--muted); font: 600 7px/1.3 var(--mono); text-transform: uppercase; }
+.phone-signature-control > button i { flex: none; padding: 5px 8px; border-radius: 99px; background: var(--line); color: var(--muted); font: 750 7px/1 var(--mono); font-style: normal; }
+.phone-signature-control.enabled > button i { background: var(--lens); color: #fff; }
+.phone-signature-control > p { margin: 0; color: var(--muted); font-size: 8px; line-height: 1.45; }
+.phone-signature-control > p strong,
+.phone-signature-control > p span { display: block; }
+.phone-signature-control > p strong { color: var(--ink-soft); }
+.phone-signature-control details { color: var(--muted); font-size: 8px; }
+.phone-signature-control summary { color: var(--lens); cursor: pointer; font-weight: 700; }
+.phone-signature-control details p { margin: 6px 0 0; line-height: 1.5; }
+
 .matrix-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
@@ -345,6 +377,10 @@
 .matrix-cell.same-position:not(.selected)::before { content: ""; position: absolute; inset: 3px; border: 1px solid rgba(24, 33, 42, .36); border-radius: 3px; }
 .matrix-cell .matrix-cell-label { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; color: var(--ink); font: 600 8px/1 var(--mono); text-overflow: clip; }
 .matrix-cell .realized-rank-badge { display: none; }
+.matrix-cell.phone-signature-cell .matrix-cell-label { inset: 0; display: grid; color: var(--ink); font-size: 8px; font-weight: 750; }
+.matrix-cell.phone-signature-cell .realized-rank-badge { display: none; }
+.phone-capable-panel .layer-matrix { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+.phone-capable-panel .matrix-row { min-width: max(100%, var(--matrix-min, 100%)); }
 
 [data-family="asr"] .matrix-cell .matrix-cell-label {
   inset: 1px 1px 13px;
@@ -364,6 +400,7 @@
   text-overflow: clip;
   white-space: nowrap;
 }
+[data-family="asr"] .matrix-cell.phone-signature-cell .matrix-cell-label { inset: 0; }
 [data-family="asr"] .matrix-cell.head .realized-rank-badge { color: var(--head); }
 
 .layer-matrix.windowed { gap: 18px; }
@@ -484,7 +521,11 @@
 .candidate-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; padding: 7px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-tint); }
 .candidate-row.realized { border-color: rgba(var(--accent-rgb), .42); background: rgba(var(--accent-rgb), .05); }
 .candidate-rank { color: var(--muted); font: 600 9px/1 var(--mono); }
+.candidate-rank small { display: block; margin-top: 2px; font-size: 6px; }
 .candidate-label { min-width: 0; overflow: hidden; font: 600 10px/1.3 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+.phone-candidate-row .candidate-label strong,
+.phone-candidate-row .candidate-label small { display: block; }
+.phone-candidate-row .candidate-label small { color: var(--muted); font-size: 6px; font-weight: 500; }
 .candidate-score { color: var(--ink-soft); font: 500 8px/1.3 var(--mono); text-align: right; white-space: nowrap; }
 .inspector-note { margin: 13px 0 0; color: var(--muted); font-size: 9px; }
 
@@ -541,8 +582,12 @@
 .provenance-grid strong { display: block; margin-top: 4px; overflow-wrap: anywhere; font: 500 8px/1.45 var(--mono); }
 .provenance-caveats { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: 9px; }
 .provenance-caveats li + li { margin-top: 5px; }
+.rights-block { margin-top: 13px; padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel-tint); }
+.rights-block strong { font-size: 10px; }
+.rights-block p { margin: 5px 0 0; color: var(--muted); font-size: 8px; line-height: 1.5; }
+.rights-block a { color: var(--lens); }
 
-.explorer-tooltip { position: fixed; z-index: 1000; width: min(270px, calc(100vw - 20px)); padding: 10px 11px; border: 1px solid #394956; border-radius: 7px; background: #18212a; color: #fff; box-shadow: 0 10px 26px rgba(24, 33, 42, .22); font-size: 10px; line-height: 1.45; pointer-events: none; }
+.explorer-tooltip { position: fixed; z-index: 1000; width: min(320px, calc(100vw - 20px)); padding: 10px 11px; border: 1px solid #394956; border-radius: 7px; background: #18212a; color: #fff; box-shadow: 0 10px 26px rgba(24, 33, 42, .22); font-size: 10px; line-height: 1.45; pointer-events: none; }
 .explorer-tooltip strong { display: block; }
 .explorer-tooltip span { display: block; margin-top: 2px; color: #d4dde4; }
 
@@ -565,6 +610,8 @@
   .timeline-audio { grid-template-columns: 1fr; }
   .static-filter { grid-template-columns: 1fr 1fr; }
   .static-filter p { grid-column: 1 / -1; }
+  .phone-signature-control { grid-template-columns: 1fr 1fr; }
+  .phone-signature-control details { grid-column: 1 / -1; }
   .explorer-panel-heading { display: block; }
   .explorer-panel-heading > p { margin-top: 7px; text-align: left; }
   .position-button { min-height: 46px; padding-inline: 2px; }
@@ -574,6 +621,7 @@
   .matrix-layer-label { font-size: 8px; }
   .matrix-cell { min-height: 36px; border-radius: 3px; }
   .matrix-cell .matrix-cell-label { display: none; }
+  .matrix-cell.phone-signature-cell .matrix-cell-label { display: grid; }
   [data-family="speech"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
   [data-family="asr"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
 }
@@ -593,6 +641,8 @@
   .detail-inspector { padding: 14px; }
   .cached-waveform { height: 88px; }
   .static-filter { grid-template-columns: 1fr; }
+  .phone-signature-control { grid-template-columns: 1fr; }
+  .phone-signature-control details { grid-column: auto; }
   .static-filter p { grid-column: auto; }
   .position-timeline { gap: 2px; }
   .position-button { border-radius: 3px; }

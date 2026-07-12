@@ -3,7 +3,7 @@ layout: default
 ---
 
 [Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Notes](./notes.html)<br>
-Resources: [Speech Timeline](./speech-timeline.html) · [ASR J-Lens Guide](./notes_asr.html) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio Benchmark Index](./audio-benchmark-index/)<br>
+Resources: Audio J-Lens Explorers: [ASR](./audio-jacobian-lens/explorer/asr/) · [Speech-to-Speech](./audio-jacobian-lens/explorer/speech/) · [TTS](./audio-jacobian-lens/explorer/tts/) · [Speech Timeline](./speech-timeline.html) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio Benchmark Index](./audio-benchmark-index/)<br>
 Courses: [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
 
 # About

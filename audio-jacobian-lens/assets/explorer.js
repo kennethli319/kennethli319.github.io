@@ -660,22 +660,29 @@
   function matrixCellHTML({ kind, layerIndex, layerLabel, position, strength, label }) {
     const descriptor = descriptorFor(kind, layerIndex, position);
     const head = kind === "head" || kind === "tts-head";
+    const asrDecoderCell = family === "asr" && kind === "decoder";
     const showSpeechRealizedRank = family === "speech" && (kind === "decoder" || kind === "head");
     const showASRRealizedRank = family === "asr" && ["encoder", "decoder", "head"].includes(kind);
     const realizedRank = showSpeechRealizedRank || showASRRealizedRank ? finite(descriptor.realized?.rank) : null;
-    const realizedBadge = descriptor.realized?.excludedByFilter
-      ? "out"
-      : realizedRank === null
-        ? ""
+    const mainLabel = asrDecoderCell
+      ? compactText(descriptor.top?.text, `ID ${descriptor.top?.id ?? "—"}`)
+      : label;
+    let realizedBadge = "";
+    if (descriptor.realized?.excludedByFilter) {
+      realizedBadge = asrDecoderCell ? "realized out" : "out";
+    } else if (realizedRank !== null) {
+      realizedBadge = asrDecoderCell || (family === "asr" && kind === "head")
+        ? `realized #${formatInteger(realizedRank)}`
         : showASRRealizedRank
           ? `#${formatInteger(realizedRank)}`
           : `realized #${formatInteger(realizedRank)}`;
+    }
     return `
-      <button class="matrix-cell${head ? " head" : ""}" type="button"
+      <button class="matrix-cell${head ? " head" : ""}${asrDecoderCell ? " asr-decoder-cell" : ""}" type="button"
         data-kind="${escapeHTML(kind)}" data-layer-index="${layerIndex}" data-position="${position}"
         style="--strength:${clamp(strength, 0, 1).toFixed(4)}"
         aria-label="${escapeHTML(`${layerLabel}, ${descriptor.coordinate}. ${descriptor.detail}`)}">
-        <span class="matrix-cell-label">${escapeHTML(label)}</span>
+        <span class="matrix-cell-label"${asrDecoderCell ? ' data-value-role="top-candidate"' : ""}>${escapeHTML(mainLabel)}</span>
         ${realizedBadge ? `<small class="realized-rank-badge">${escapeHTML(realizedBadge)}</small>` : ""}
       </button>
     `;
@@ -727,15 +734,16 @@
     for (let start = 0; start < tokens.length; start += windowSize) {
       const end = Math.min(start + windowSize, tokens.length);
       const count = end - start;
+      const cellWidth = family === "asr" ? 92 : 82;
       const tokenHeaders = tokens.slice(start, end).map((token, offset) => {
         const position = start + offset;
         return `<button class="speech-position-token" type="button" data-token-position="${position}" aria-label="Select token ${position + 1}, ${escapeHTML(compactText(token.text))}"><span>T${position + 1}</span><strong>${escapeHTML(compactText(token.text))}</strong></button>`;
       }).join("");
       windows.push(`
         <section class="speech-matrix-window" aria-label="Generated token positions ${start + 1} through ${end}">
-          <header><strong>Tokens ${start + 1}–${end}</strong><span>Large: top candidate · small: realized rank</span></header>
+          <header><strong>Tokens ${start + 1}–${end}</strong><span>${family === "asr" ? "Decoder large: top candidate · HEAD large: output · small: realized rank" : "Large: top candidate · small: realized rank"}</span></header>
           <div class="speech-matrix-scroll" tabindex="0" aria-label="Layer readouts for token positions ${start + 1} through ${end}">
-            <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * 82}px">
+            <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * cellWidth}px">
               <div class="matrix-row speech-position-row" style="--position-count:${count}"><div class="matrix-layer-label">OUTPUT</div>${tokenHeaders}</div>
               ${renderStandardRows("decoder", start, end)}
               ${renderHeadRow(start, end)}
@@ -948,9 +956,9 @@
       "As each token resolves",
       family === "speech"
         ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames."
-        : "Large text is each layer's top candidate; the small # is the exact rank of that column's realized token. Decoder and HEAD columns share one generated token position.",
-      family === "speech" ? renderSpeechRows() : `${renderStandardRows("decoder")}${renderHeadRow()}`,
-      { headLegend: true, windowed: family === "speech" },
+        : "Decoder boxes show each layer's top candidate in large text and the realized output token's exact rank below it. HEAD keeps the actual output token and probability semantics.",
+      renderSpeechRows(),
+      { headLegend: true, windowed: true },
     ));
     return panels.join("");
   }

@@ -441,6 +441,29 @@
   white-space: nowrap;
 }
 [data-family="speech"] .speech-matrix-grid .matrix-cell.head .realized-rank-badge { color: var(--head); }
+[data-family="asr"] .speech-matrix-grid .matrix-cell { min-height: 62px; }
+[data-family="asr"] .speech-matrix-grid .matrix-cell .matrix-cell-label {
+  inset: 2px 3px 18px;
+  display: grid;
+  padding: 4px 3px;
+  place-items: center;
+  font-size: 9px;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
+}
+[data-family="asr"] .speech-matrix-grid .matrix-cell .realized-rank-badge {
+  right: 4px;
+  bottom: 6px;
+  left: 4px;
+  overflow: hidden;
+  font-size: 7px;
+  line-height: 1.15;
+  letter-spacing: .01em;
+  text-overflow: ellipsis;
+}
+[data-family="asr"] .speech-matrix-grid .matrix-cell.head .realized-rank-badge { color: var(--head); }
 
 .detail-inspector { position: sticky; top: 12px; min-width: 0; padding: 20px; }
 .inspector-empty { min-height: 280px; display: grid; align-content: center; color: var(--muted); }
@@ -552,6 +575,7 @@
   .matrix-cell { min-height: 36px; border-radius: 3px; }
   .matrix-cell .matrix-cell-label { display: none; }
   [data-family="speech"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
+  [data-family="asr"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
 }
 
 @media (max-width: 500px) {

@@ -95,7 +95,7 @@ title: Notes
     <div class="timeline-kicker">Speech interpretability & psycholinguistics</div>
   </aside>
   <div class="timeline-body">
-    <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="#listening-inside-a-speech-model">Listening inside a speech model <span class="timeline-permalink" aria-hidden="true">#</span></a></h2>
+    <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Listening inside a speech model <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
     <p class="timeline-summary">A long-form note on J-lens readouts, decoder timing, distributed phone signatures, causal steering, and what psycholinguistic experiments might let us test next.</p>
     <p><a href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Read the full note &rarr;</a></p>
   </div>

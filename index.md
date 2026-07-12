@@ -2,8 +2,8 @@
 layout: default
 ---
 
-[Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Notes](./notes.md)<br>
-Resources: [Speech Timeline](./speech-timeline.md) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio Benchmark Index](./audio-benchmark-index/)<br>
+[Resume (PDF)](./assets/WangYauLi_Kenneth_latest.pdf) · [Notes](./notes.html)<br>
+Resources: [Speech Timeline](./speech-timeline.html) · [ASR J-Lens Guide](./notes_asr.html) · Open Audio Judge Demo: [TTS](./open-audio-judge/tts-leaderboard-demo.html) · [ASR](./open-audio-judge/asr-leaderboard-demo.html) · [Audio Benchmark Index](./audio-benchmark-index/)<br>
 Courses: [Audio ML Course](./audio-text-ml-course/) · [LLM Course](./llm-ml-course/)
 
 # About

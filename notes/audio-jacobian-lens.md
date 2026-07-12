@@ -15,7 +15,7 @@ permalink: /notes/audio-jacobian-lens/
     <a class="version-choice version-choice--metaphor" href="#metaphorical-version">
       <strong>Follow the metaphorical map →</strong>
       <span>Enter a city beneath the transcript, where acoustic constellations become words and internal switches can be tested.</span>
-      <small>Story version · about 6 minutes</small>
+      <small>Story version · about 4 minutes</small>
     </a>
     <a class="version-choice version-choice--technical" href="#technical-version">
       <strong>Read the technical report →</strong>
@@ -33,95 +33,72 @@ permalink: /notes/audio-jacobian-lens/
 
 <p class="version-deck">A metaphorical map of the same Audio Jacobian Lens experiments · July 2026</p>
 
+<figure class="note-figure note-figure--illustration">
+  <a href="{{ '/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg' | relative_url }}">
+    <img src="{{ '/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg' | relative_url }}" alt="Editorial illustration of a glowing sound wave entering a city at night, branching through layered neighborhoods, forming a constellation, and emerging as illuminated tiles." loading="lazy" decoding="async">
+  </a>
+  <figcaption><strong>Metaphorical illustration.</strong> Sound enters the city, travels through many possible routes, forms a distributed constellation, and reaches the output board. This is explanatory artwork, not model output or experimental evidence.</figcaption>
+</figure>
+
 Imagine that a speech model is a city at night.
 
-A sound enters through the outer gates. At first, it is not a sentence. It is pressure changing over time: fragments of frequency, rhythm, silence, and voice. The signal travels through several neighborhoods, changing form at every stop, until it eventually reaches a brightly lit departure board where words appear.
+A sound enters through the outer gates. At first, it is not a sentence---only pressure changing over time. The signal travels through several neighborhoods, changing form at every stop, until words appear on a brightly lit departure board.
 
 We can see the words on that board. What we usually cannot see is how the city arrived at them.
 
-Did it recognize the destination immediately and spend the remaining time confirming the route? Did several possible words compete along the way? What information did the acoustic districts preserve before anything looked like language?
+Did it recognize the destination early and spend the remaining time confirming the route? Did several words compete? What did the acoustic districts preserve before anything looked like language?
 
-During my linguistics degree, psycholinguistics taught me to study questions like these indirectly. Researchers could not inspect every neuron involved in human language processing, so they designed experiments around reaction time, priming, ambiguity, and mistakes. It was like watching traffic enter and leave a hidden city, then inferring its streets from the timing and pattern of the vehicles.
+During my linguistics degree, psycholinguistics taught me to study questions like these indirectly. Researchers could not inspect every neuron involved in language processing, so they used reaction time, priming, ambiguity, and mistakes to infer the hidden route.
 
-Modern neural models seem to offer the opposite situation. Every activation is available. We can inspect every layer and matrix. Yet the city is now so large---and so many signals move through it simultaneously---that access does not automatically give us understanding.
+Modern neural models seem to give us the opposite problem. Every activation is available, but the city is so large that access still does not automatically become understanding.
 
-In that sense, model interpretation can still resemble EEG or MEG. We see patterns of activation, but their meaning does not arrive with them. We need comparisons, controls, and interventions before we can say what a pattern represents.
+It can still feel like EEG or MEG: we see activation, but its meaning does not arrive with it. We need comparisons, controls, and interventions.
 
 The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) is my attempt to draw a more useful map.
 
-It adapts [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace) to speech models. The lens asks, approximately: if an intermediate state were allowed to continue through the model, which vocabulary directions is it currently positioned to influence?
+It adapts [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace) to speech models. It asks, approximately: which vocabulary directions is an intermediate state positioned to influence later?
 
-That does not make it a window into the model's thoughts. It is closer to laying a familiar coordinate grid over an unfamiliar city. The street names come from the model's vocabulary, but the underlying activity may represent acoustics, fragments of words, uncertainty, or combinations for which no single human label is correct.
+This is not a window into the model's thoughts. It is a familiar coordinate grid laid over unfamiliar terrain. The street names come from the model's vocabulary, but the activity beneath them may represent acoustics, fragments of words, uncertainty, or combinations with no single human label.
 
-Still, the map reveals some interesting traffic.
+### Different destinations form on different schedules
 
-### Some destinations appear early
+In Whisper's decoder, some final words become visible surprisingly early. In one example, `door` was already ranked fourth in the first decoder layer I inspected and moved to first in the next. Other words take a longer route. In "Where is my brother now?", `now` appeared late; earlier, `who` was near the top.
 
-In Whisper's decoder, certain final words become visible surprisingly early. In one example, `door` was already ranked fourth in the first decoder layer I inspected and moved to first in the next.
-
-Other words take a much longer route.
-
-For the sentence "Where is my brother now?", the final word `now` moved from rank 6,319 to 7,237, then suddenly to third before becoming the output-head winner. Early in that journey, `who` appeared near the top instead.
-
-It is tempting to tell a psychological story about that---to say the model was "thinking of who" before choosing "now." The evidence does not justify that claim. But the pattern does show that different lexical decisions form on different schedules. Sometimes later layers appear to confirm an early destination; sometimes the useful direction only emerges near the end.
-
-The intermediate candidates remind me of word-association and lexical-competition experiments in psycholinguistics. The resemblance gives us hypotheses to test, not proof that a model and a human use the same mechanism.
+It is tempting to say the model was "thinking of who." The evidence does not justify that. What it shows is simpler: lexical decisions form on different schedules. The resemblance to word-association experiments gives us a hypothesis to test, not proof of a human-like mechanism.
 
 ### The acoustic city has constellations, not street signs
 
-The encoder was harder to read.
+The encoder was harder to read. Looking for one highest-ranked word often produced a poor map, perhaps because an acoustic encoder is not yet choosing words. That is like identifying a whole neighborhood from its nearest street sign.
 
-Looking for one word or one highest-ranked token often produced a poor map. That may be because an acoustic encoder is not yet choosing vocabulary items. Asking it for a word is like asking someone to identify a whole neighborhood from the nearest street sign.
+The Phone Signature view instead compares a distributed pattern across 100 vocabulary-aligned coordinates with frozen phone prototypes. The result is closer to a constellation than a label: no single star gives the answer, but the arrangement carries information.
 
-The Phone Signature view instead looks at a distributed pattern across the top 100 vocabulary-aligned coordinates and compares that pattern with 34 frozen ARPAbet phone prototypes.
+At Whisper encoder layer 2, reading only the highest coordinate produced about 63.5% phone macro-F1. Reading the distributed pattern raised this to roughly 80% across independently fitted lenses.
 
-The result is closer to a constellation than a label. No individual star gives the answer, but the arrangement carries information.
+This does not mean the encoder literally stores phone symbols. The displayed phones are prototype similarities, not probabilities or causal labels. But the constellation preserves more phonetic structure than the single brightest coordinate.
 
-At Whisper encoder layer 2, using only the highest coordinate produced about 63.5% phone macro-F1. Reading the distributed top-100 pattern raised this to roughly 80% across independently fitted lenses, including strict unseen-word examples. Cross-speaker, cross-word comparisons reached approximately 90–92%, above matched random transports.
-
-This does not mean the encoder literally contains phone symbols. The displayed phones are prototype similarities---not probabilities, native phoneme predictions, or causal labels. The underlying representation remains continuous.
-
-But the distributed map appears to preserve substantially more phonetic structure than the single most visible token.
-
-That leads to a simple test. Hide the audio and transcript. Give a phonetician---or a capable language model---only the time-ordered Phone Signature sequence. Could they reconstruct most of the spoken words?
-
-If they can, the map may preserve a larger linguistic route, not merely isolated landmarks. If they cannot, then the signatures may be locally readable projections that fail to capture the journey as a whole.
+That suggests a simple next test: hide the audio and transcript, show only the time-ordered Phone Signature sequence, and ask a phonetician or language model to reconstruct the words. Success would suggest that the map preserves a route, not just isolated landmarks.
 
 ### What happens if we touch a switch?
 
-A map becomes more informative when it can guide an intervention.
-
-Using the ambiguous Laurel/Yanny recording, I edited an early residual state toward vocabulary directions beginning with Y. I did not boost `Yanny` at the final output. I moved an earlier internal state and allowed the rest of the model to recompute.
+A map becomes more informative when it guides an intervention. With the ambiguous Laurel/Yanny recording, I moved an early residual state toward vocabulary directions beginning with Y, then let the rest of the model recompute.
 
 The free decode changed from `Lily!` to `Yay!`
 
 It never became `Yanny`.
 
-That near-miss matters. The experiment shows that moving an early switch can propagate to the final output, but it does not show clean or semantically precise control. This is not "convincing" or manipulating a mind. It is a causal perturbation inside a computational system, followed by downstream recomputation.
+That near-miss is the point. An early edit propagated, but it was not clean semantic control. In Chatterbox TTS, a small late-layer edit similarly changed one acoustic-code winner and 43 later codes. Again, that shows propagation, not that a code has a proven word or phone meaning.
 
-The same idea extends to speech generation. In Chatterbox TTS, a small late-layer residual edit changed one selected acoustic-code winner and altered 43 later codes in the generated suffix. That demonstrates propagation through the autoregressive sequence. It does not tell us that an acoustic-code ID means a particular word or phone, nor does it yet establish end-to-end waveform attribution.
+### Why this map might matter
 
-The city's switches are real. Their labels are still being written.
+Psycholinguistics already gives us experiments for priming, ambiguity, phonetic competition, and adaptation. If we can locate related patterns inside a model and test them causally, those experiments may help us find useful internal controls.
 
-### Could old experiments help us find new controls?
+The longer-term possibility is not to eliminate data or training. It is to train a broad model, then locate a stable representation and adapt some behaviors without retraining the whole system for every deployment. That will work only when the representation already exists, stays stable across contexts, and can be moved without damaging the model.
 
-Psycholinguistics has spent decades developing experiments for priming, ambiguity resolution, phonetic competition, expectation, and adaptation.
-
-If we can find where related patterns appear inside a speech model---and then test them through controlled intervention---those old experimental designs might become guides for navigating a new kind of city.
-
-The longer-term possibility is not that data or training become unnecessary. It is that, when a useful representation already exists, we may be able to train a broad model once, locate a stable internal control afterward, and adapt some behaviors without retraining the entire system for every deployment.
-
-That remains a hypothesis. It would require the representation to be stable across speakers and contexts, causally connected to the behavior, and steerable without damaging the rest of the model.
-
-But it changes the question.
-
-Instead of always asking, "What more must we teach the model?", we can also ask, "What has the model already learned, where is it, and which switch lets us test that interpretation?"
+It changes the question from "What more must we teach?" to "What has the model already learned, where is it, and which switch lets us test that interpretation?"
 
 <div class="metaphor-key"><strong>Where the metaphor stops:</strong> this is not mind-reading, and the city has no claim to consciousness. The map is a measurement instrument. Its street signs are vocabulary-aligned coordinates; its constellations are fitted phone-prototype similarities; and its switches are residual interventions whose meaning must survive controls.</div>
 
-This is map-making under uncertainty.
-
-And unlike the hidden city of the human brain, this is a city we can rerun, compare, and---carefully---touch.
+This is map-making under uncertainty. Unlike the hidden city of the human brain, this is a city we can rerun, compare, and---carefully---touch.
 
 <div class="version-panel-nav">
   <a href="#technical-version">Continue with the technical report →</a>

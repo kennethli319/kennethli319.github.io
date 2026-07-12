@@ -1,13 +1,141 @@
 ---
 layout: default
 title: "Listening Inside a Speech Model with the Audio Jacobian Lens"
-description: "A psycholinguistic view of J-lens readouts, phone signatures, and steering in speech models."
+description: "One speech-interpretability project in two forms: a metaphorical story and a scientific report on J-lens readouts, phone signatures, and steering."
 permalink: /notes/audio-jacobian-lens/
 ---
 
 [Back to Notes]({{ '/notes.html' | relative_url }})
 
-# Listening Inside a Speech Model with the Audio Jacobian Lens
+<section class="version-gate" id="choose-version" aria-labelledby="note-title">
+  <p class="version-eyebrow">One investigation · two ways in</p>
+  <h1 id="note-title">Listening Inside a Speech Model with the Audio Jacobian Lens</h1>
+  <p class="version-intro">Read the same project as a shorter metaphorical story or as the complete scientific and technical report. The evidence and boundaries are the same; only the map changes.</p>
+  <nav class="version-chooser" aria-label="Choose a version of this note">
+    <a class="version-choice version-choice--metaphor" href="#metaphorical-version">
+      <strong>Follow the metaphorical map →</strong>
+      <span>Enter a city beneath the transcript, where acoustic constellations become words and internal switches can be tested.</span>
+      <small>Story version · about 6 minutes</small>
+    </a>
+    <a class="version-choice version-choice--technical" href="#technical-version">
+      <strong>Read the technical report →</strong>
+      <span>Methods, measurements, screenshots, controls, limitations, and the experiments I want to run next.</span>
+      <small>Scientific version · about 15 minutes</small>
+    </a>
+  </nav>
+</section>
+
+<article class="version-panel version-panel--metaphorical" id="metaphorical-version" tabindex="-1" aria-labelledby="metaphorical-title" markdown="1">
+
+<a class="version-back" href="#choose-version">← Back to the two maps</a>
+
+## The City Beneath the Transcript {#metaphorical-title}
+
+<p class="version-deck">A metaphorical map of the same Audio Jacobian Lens experiments · July 2026</p>
+
+Imagine that a speech model is a city at night.
+
+A sound enters through the outer gates. At first, it is not a sentence. It is pressure changing over time: fragments of frequency, rhythm, silence, and voice. The signal travels through several neighborhoods, changing form at every stop, until it eventually reaches a brightly lit departure board where words appear.
+
+We can see the words on that board. What we usually cannot see is how the city arrived at them.
+
+Did it recognize the destination immediately and spend the remaining time confirming the route? Did several possible words compete along the way? What information did the acoustic districts preserve before anything looked like language?
+
+During my linguistics degree, psycholinguistics taught me to study questions like these indirectly. Researchers could not inspect every neuron involved in human language processing, so they designed experiments around reaction time, priming, ambiguity, and mistakes. It was like watching traffic enter and leave a hidden city, then inferring its streets from the timing and pattern of the vehicles.
+
+Modern neural models seem to offer the opposite situation. Every activation is available. We can inspect every layer and matrix. Yet the city is now so large---and so many signals move through it simultaneously---that access does not automatically give us understanding.
+
+In that sense, model interpretation can still resemble EEG or MEG. We see patterns of activation, but their meaning does not arrive with them. We need comparisons, controls, and interventions before we can say what a pattern represents.
+
+The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) is my attempt to draw a more useful map.
+
+It adapts [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace) to speech models. The lens asks, approximately: if an intermediate state were allowed to continue through the model, which vocabulary directions is it currently positioned to influence?
+
+That does not make it a window into the model's thoughts. It is closer to laying a familiar coordinate grid over an unfamiliar city. The street names come from the model's vocabulary, but the underlying activity may represent acoustics, fragments of words, uncertainty, or combinations for which no single human label is correct.
+
+Still, the map reveals some interesting traffic.
+
+### Some destinations appear early
+
+In Whisper's decoder, certain final words become visible surprisingly early. In one example, `door` was already ranked fourth in the first decoder layer I inspected and moved to first in the next.
+
+Other words take a much longer route.
+
+For the sentence "Where is my brother now?", the final word `now` moved from rank 6,319 to 7,237, then suddenly to third before becoming the output-head winner. Early in that journey, `who` appeared near the top instead.
+
+It is tempting to tell a psychological story about that---to say the model was "thinking of who" before choosing "now." The evidence does not justify that claim. But the pattern does show that different lexical decisions form on different schedules. Sometimes later layers appear to confirm an early destination; sometimes the useful direction only emerges near the end.
+
+The intermediate candidates remind me of word-association and lexical-competition experiments in psycholinguistics. The resemblance gives us hypotheses to test, not proof that a model and a human use the same mechanism.
+
+### The acoustic city has constellations, not street signs
+
+The encoder was harder to read.
+
+Looking for one word or one highest-ranked token often produced a poor map. That may be because an acoustic encoder is not yet choosing vocabulary items. Asking it for a word is like asking someone to identify a whole neighborhood from the nearest street sign.
+
+The Phone Signature view instead looks at a distributed pattern across the top 100 vocabulary-aligned coordinates and compares that pattern with 34 frozen ARPAbet phone prototypes.
+
+The result is closer to a constellation than a label. No individual star gives the answer, but the arrangement carries information.
+
+At Whisper encoder layer 2, using only the highest coordinate produced about 63.5% phone macro-F1. Reading the distributed top-100 pattern raised this to roughly 80% across independently fitted lenses, including strict unseen-word examples. Cross-speaker, cross-word comparisons reached approximately 90–92%, above matched random transports.
+
+This does not mean the encoder literally contains phone symbols. The displayed phones are prototype similarities---not probabilities, native phoneme predictions, or causal labels. The underlying representation remains continuous.
+
+But the distributed map appears to preserve substantially more phonetic structure than the single most visible token.
+
+That leads to a simple test. Hide the audio and transcript. Give a phonetician---or a capable language model---only the time-ordered Phone Signature sequence. Could they reconstruct most of the spoken words?
+
+If they can, the map may preserve a larger linguistic route, not merely isolated landmarks. If they cannot, then the signatures may be locally readable projections that fail to capture the journey as a whole.
+
+### What happens if we touch a switch?
+
+A map becomes more informative when it can guide an intervention.
+
+Using the ambiguous Laurel/Yanny recording, I edited an early residual state toward vocabulary directions beginning with Y. I did not boost `Yanny` at the final output. I moved an earlier internal state and allowed the rest of the model to recompute.
+
+The free decode changed from `Lily!` to `Yay!`
+
+It never became `Yanny`.
+
+That near-miss matters. The experiment shows that moving an early switch can propagate to the final output, but it does not show clean or semantically precise control. This is not "convincing" or manipulating a mind. It is a causal perturbation inside a computational system, followed by downstream recomputation.
+
+The same idea extends to speech generation. In Chatterbox TTS, a small late-layer residual edit changed one selected acoustic-code winner and altered 43 later codes in the generated suffix. That demonstrates propagation through the autoregressive sequence. It does not tell us that an acoustic-code ID means a particular word or phone, nor does it yet establish end-to-end waveform attribution.
+
+The city's switches are real. Their labels are still being written.
+
+### Could old experiments help us find new controls?
+
+Psycholinguistics has spent decades developing experiments for priming, ambiguity resolution, phonetic competition, expectation, and adaptation.
+
+If we can find where related patterns appear inside a speech model---and then test them through controlled intervention---those old experimental designs might become guides for navigating a new kind of city.
+
+The longer-term possibility is not that data or training become unnecessary. It is that, when a useful representation already exists, we may be able to train a broad model once, locate a stable internal control afterward, and adapt some behaviors without retraining the entire system for every deployment.
+
+That remains a hypothesis. It would require the representation to be stable across speakers and contexts, causally connected to the behavior, and steerable without damaging the rest of the model.
+
+But it changes the question.
+
+Instead of always asking, "What more must we teach the model?", we can also ask, "What has the model already learned, where is it, and which switch lets us test that interpretation?"
+
+<div class="metaphor-key"><strong>Where the metaphor stops:</strong> this is not mind-reading, and the city has no claim to consciousness. The map is a measurement instrument. Its street signs are vocabulary-aligned coordinates; its constellations are fitted phone-prototype similarities; and its switches are residual interventions whose meaning must survive controls.</div>
+
+This is map-making under uncertainty.
+
+And unlike the hidden city of the human brain, this is a city we can rerun, compare, and---carefully---touch.
+
+<div class="version-panel-nav">
+  <a href="#technical-version">Continue with the technical report →</a>
+  <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Explore the live ASR map</a>
+  <a href="#choose-version">Back to the two maps</a>
+</div>
+
+</article>
+
+<article class="version-panel version-panel--technical" id="technical-version" tabindex="-1" aria-labelledby="technical-title" markdown="1">
+
+<a class="version-back" href="#choose-version">← Back to the two maps</a>
+
+## Scientific and technical report {#technical-title}
 
 *July 2026 · Psycholinguistics, mechanistic interpretability, and speech models*
 
@@ -231,4 +359,9 @@ Only now, we have more instruments---and we can sometimes reach inside the syste
 
 If you work in speech, interpretability, phonetics, or cognitive science: **what experiment would convince you that an internal direction reflects real acoustic structure, rather than merely a readable projection?**
 
-[Back to Notes]({{ '/notes.html' | relative_url }})
+<div class="version-panel-nav">
+  <a href="#metaphorical-version">Read the metaphorical map</a>
+  <a href="#choose-version">Back to the two maps</a>
+</div>
+
+</article>

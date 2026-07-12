@@ -75,6 +75,28 @@
     && (!requireScore || finite(value.score) !== null),
   );
 
+  function nearestTokenIndexForWindow(tokens, window) {
+    const start = finite(window?.start_seconds);
+    const end = finite(window?.end_seconds);
+    if (start === null || end === null) return -1;
+    const midpoint = (start + end) / 2;
+    let best = -1;
+    let bestKey = null;
+    tokens.forEach((token, position) => {
+      const tokenStart = finite(token?.start_seconds);
+      const tokenEnd = finite(token?.end_seconds);
+      if (tokenStart === null || tokenEnd === null || tokenEnd < tokenStart) return;
+      const overlap = Math.max(0, Math.min(end, tokenEnd) - Math.max(start, tokenStart));
+      const midpointDistance = Math.abs(midpoint - (tokenStart + tokenEnd) / 2);
+      const key = [-overlap, midpointDistance, position];
+      if (!bestKey || key.some((value, index) => value < bestKey[index] && key.slice(0, index).every((prefix, prefixIndex) => prefix === bestKey[prefixIndex]))) {
+        best = position;
+        bestKey = key;
+      }
+    });
+    return best;
+  }
+
   async function fetchJSON(url, options = {}) {
     const response = await fetch(url, {
       credentials: "same-origin",
@@ -112,7 +134,7 @@
       if (!Array.isArray(payload.payload.transcription?.tokens) || !payload.payload.decoder) {
         throw new Error("The speech report is missing its token matrix.");
       }
-      if (family === "speech") {
+      if (family === "speech" || family === "asr") {
         const tokens = payload.payload.transcription.tokens;
         const rows = payload.payload.decoder?.cells || [];
         const headRanksAreExact = tokens.every((token) => hasExactRank(token));
@@ -120,11 +142,51 @@
           hasExactRank(cell?.realized_token, { requireScore: true })
           && Number(cell.realized_token.id) === Number(tokens[position]?.id)
         )));
-        if (!headRanksAreExact || !layerRanksAreExact) {
-          throw new Error("The speech report is missing exact realized-token ranks.");
+        const encoderAlignmentIsExplicit = family !== "asr" || payload.payload.encoder?.realized_token_alignment?.method === "maximum_token_interval_overlap";
+        const encoderRanksAreExact = family !== "asr" || (payload.payload.encoder?.cells || []).every((row) => row.every((cell) => {
+          const tokenPosition = nearestTokenIndexForWindow(tokens, cell?.time_window);
+          return tokenPosition >= 0
+            && Number(cell.realized_token_position) === tokenPosition
+            && cell.realized_token_alignment && typeof cell.realized_token_alignment === "object"
+            && hasExactRank(cell?.realized_token, { requireScore: true })
+            && Number(cell.realized_token.id) === Number(tokens[tokenPosition]?.id);
+        }));
+        if (!headRanksAreExact || !layerRanksAreExact || !encoderAlignmentIsExplicit || !encoderRanksAreExact) {
+          throw new Error(`The ${family === "asr" ? "ASR" : "speech"} report is missing exact realized-token ranks.`);
         }
       }
     }
+    return payload;
+  }
+
+  function validateFilterCache(payload) {
+    if (payload.schema_id !== "audio-jacobian-lens.cached-explorer-filter-cache" || payload.example_id !== state.report.example_id) {
+      throw new Error("The cached character-length buckets do not match this report.");
+    }
+    ["encoder", "decoder"].forEach((streamName) => {
+      const filtered = payload.streams?.[streamName];
+      const base = state.report.payload[streamName];
+      (filtered?.layers || []).forEach((layer, filterLayerIndex) => {
+        const baseLayerIndex = base.layers?.findIndex((value) => Number(value) === Number(layer)) ?? -1;
+        if (baseLayerIndex < 0) throw new Error(`The ${streamName} filter cache has an unknown layer.`);
+        (filtered.cells?.[filterLayerIndex] || []).forEach((cell, position) => {
+          const ranks = cell?.realized_rank_by_max_length;
+          if (!ranks || typeof ranks !== "object" || !Object.keys(ranks).length) {
+            throw new Error(`The ${streamName} filter cache is missing exact realized-token ranks.`);
+          }
+          const denominators = state.report.payload.metadata?.display_vocabulary?.maximum_decoded_character_length_counts || {};
+          if (Object.keys(ranks).length !== Object.keys(denominators).length || Object.keys(ranks).some((limit) => !(limit in denominators))) {
+            throw new Error(`The ${streamName} filter cache does not cover every saved filter limit.`);
+          }
+          Object.entries(ranks).forEach(([limit, rank]) => {
+            const denominator = finite(denominators[limit]);
+            if (denominator === null || (rank !== null && (!Number.isInteger(Number(rank)) || Number(rank) < 1 || Number(rank) > denominator))) {
+              throw new Error(`The ${streamName} filter cache has invalid realized-token provenance.`);
+            }
+          });
+        });
+      });
+    });
     return payload;
   }
 
@@ -297,7 +359,10 @@
       const window = encoderWindow(bounded);
       if (window) {
         const midpoint = (window.start + window.end) / 2;
-        state.selectedToken = nearestTokenForTime(midpoint);
+        const recordedTokenPosition = finite(encoderCells()[0]?.[bounded]?.realized_token_position);
+        state.selectedToken = recordedTokenPosition === null
+          ? nearestTokenForTime(midpoint)
+          : clamp(Math.round(recordedTokenPosition), 0, Math.max(0, tokenList().length - 1));
         if (seek) seekAudio(midpoint);
       }
     } else {
@@ -401,6 +466,49 @@
         label: `ID ${selected.realized_code_id}`,
       } : null;
     }
+    if (family === "asr" && (kind === "encoder" || kind === "decoder")) {
+      const stream = state.report.payload[kind];
+      const cell = stream.cells?.[layerIndex]?.[position];
+      const recorded = cell?.realized_token;
+      if (!recorded) return null;
+      let active = recorded;
+      let excludedByFilter = false;
+      let filterApplied = false;
+      if (state.filterEnabled && state.filterCache) {
+        const layer = stream.layers?.[layerIndex];
+        const filterStream = state.filterCache.streams?.[kind];
+        const filterLayerIndex = filterStream?.layers?.findIndex((value) => Number(value) === Number(layer)) ?? -1;
+        if (filterLayerIndex >= 0) {
+          filterApplied = true;
+          const ranks = filterStream.cells?.[filterLayerIndex]?.[position]?.realized_rank_by_max_length;
+          const availableLimits = Object.keys(ranks || {})
+            .map(Number)
+            .filter((limit) => Number.isFinite(limit) && limit <= state.filterLimit)
+            .sort((left, right) => right - left);
+          const selectedLimit = availableLimits[0];
+          const filteredRank = selectedLimit === undefined ? null : ranks[String(selectedLimit)];
+          if (filteredRank !== null && filteredRank !== undefined) {
+            active = {
+              ...recorded,
+              rank: filteredRank,
+              rank_denominator: state.report.payload.metadata?.display_vocabulary?.maximum_decoded_character_length_counts?.[String(selectedLimit)],
+              rank_space: "maximum_decoded_character_length_vocabulary",
+            };
+          } else excludedByFilter = true;
+        }
+      }
+      return {
+        ...active,
+        rank: excludedByFilter ? null : active.rank,
+        rankDenominator: excludedByFilter ? null : active.rank_denominator,
+        available: !excludedByFilter,
+        excludedByFilter,
+        filterApplied,
+        unfilteredRank: recorded.rank,
+        unfilteredRankDenominator: recorded.rank_denominator,
+        label: compactText(recorded.text),
+      };
+    }
     const tokenPosition = kind === "encoder" ? state.selectedToken : position;
     const token = state.report.payload.transcription.tokens?.[tokenPosition];
     if (!token) return null;
@@ -442,9 +550,12 @@
     return `${compactText(candidate.text)} · ID ${candidate.id}`;
   }
 
-  function candidateScore(candidate) {
+  function candidateScore(candidate, kind = null) {
     if (finite(candidate.probability) !== null) return `${formatProbability(candidate.probability, 3)} · log p ${formatScore(candidate.log_probability)}`;
-    return `${formatScore(candidate.score)} logit`;
+    const unit = kind === "encoder" && candidate.score_kind === "target_mean_relative_logit_delta"
+      ? "logit delta"
+      : "logit";
+    return `${formatScore(candidate.score)} ${unit}`;
   }
 
   function rowStrengths(values, probability = false) {
@@ -460,14 +571,22 @@
     const descriptor = descriptorFor(kind, layerIndex, position);
     const head = kind === "head" || kind === "tts-head";
     const showSpeechRealizedRank = family === "speech" && (kind === "decoder" || kind === "head");
-    const realizedRank = showSpeechRealizedRank ? finite(descriptor.realized?.rank) : null;
+    const showASRRealizedRank = family === "asr" && ["encoder", "decoder", "head"].includes(kind);
+    const realizedRank = showSpeechRealizedRank || showASRRealizedRank ? finite(descriptor.realized?.rank) : null;
+    const realizedBadge = descriptor.realized?.excludedByFilter
+      ? "out"
+      : realizedRank === null
+        ? ""
+        : showASRRealizedRank
+          ? `#${formatInteger(realizedRank)}`
+          : `realized #${formatInteger(realizedRank)}`;
     return `
       <button class="matrix-cell${head ? " head" : ""}" type="button"
         data-kind="${escapeHTML(kind)}" data-layer-index="${layerIndex}" data-position="${position}"
         style="--strength:${clamp(strength, 0, 1).toFixed(4)}"
         aria-label="${escapeHTML(`${layerLabel}, ${descriptor.coordinate}. ${descriptor.detail}`)}">
         <span class="matrix-cell-label">${escapeHTML(label)}</span>
-        ${realizedRank === null ? "" : `<small class="realized-rank-badge">realized #${escapeHTML(formatInteger(realizedRank))}</small>`}
+        ${realizedBadge ? `<small class="realized-rank-badge">${escapeHTML(realizedBadge)}</small>` : ""}
       </button>
     `;
   }
@@ -710,7 +829,9 @@
     if (state.report.payload.encoder?.layers?.length) {
       panels.push(renderMatrixPanel(
         "Across the audio representation",
-        "Each row is one encoder layer and each column is an overlapping time window. Blue tint is normalized within each row; exact readout logits stay in the tooltip and inspector.",
+        family === "asr"
+          ? "Large text is the layer's top candidate. The small # is the exact rank of the realized output token aligned by greatest time overlap; blue tint is normalized within each row."
+          : "Each row is one encoder layer and each column is an overlapping time window. Blue tint is normalized within each row; exact readout logits stay in the tooltip and inspector.",
         renderStandardRows("encoder"),
       ));
     }
@@ -718,7 +839,7 @@
       "As each token resolves",
       family === "speech"
         ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames."
-        : "Decoder readout rows are followed by the actual teacher-forced output probability. Decoder and HEAD columns share the same generated token position.",
+        : "Large text is each layer's top candidate; the small # is the exact rank of that column's realized token. Decoder and HEAD columns share one generated token position.",
       family === "speech" ? renderSpeechRows() : `${renderStandardRows("decoder")}${renderHeadRow()}`,
       { headLegend: true, windowed: family === "speech" },
     ));
@@ -747,7 +868,10 @@
       ["Model fingerprint", model.model_fingerprint || model.weights_fingerprint || "—"],
       ["Lens artifact", lens.source_path || lens.capture_convention || "—"],
       ["Lens SHA-256", lens.sha256 || "—"],
-      ["Source layers", lens.source_layers || state.report.payload.fitted_speech_code_jlens?.layers || state.report.payload.decoder?.layers || []],
+      ...(family === "asr" ? [
+        ["Encoder source layers", lens.encoder_source_layers || state.report.payload.encoder?.layers || []],
+        ["Decoder source layers", lens.decoder_source_layers || state.report.payload.decoder?.layers || []],
+      ] : [["Source layers", lens.source_layers || state.report.payload.fitted_speech_code_jlens?.layers || state.report.payload.decoder?.layers || []]]),
       ["Target layer", lens.target_layer ?? state.report.payload.decoder?.target_layer ?? "—"],
       ["Projection", lens.projection_method || state.report.payload.metadata?.projection || "dense / recorded"],
       ["Rank semantics", provenance.rank_semantics?.tie_policy || state.report.payload.metadata?.candidate_rank_semantics?.method || "recorded exact ranks"],
@@ -843,13 +967,19 @@
     const code = kind.startsWith("tts");
     const coordinate = coordinateText(kind, layerIndex, position);
     const topDetail = top
-      ? `Top candidate ${candidateLabel(top, code)}, rank #${formatInteger(top.rank)} of ${formatInteger(top.rank_denominator)}, ${candidateScore(top)}.`
+      ? `Top candidate ${candidateLabel(top, code)}, rank #${formatInteger(top.rank)} of ${formatInteger(top.rank_denominator)}, ${candidateScore(top, kind)}.`
       : "No bounded candidates were retained.";
-    const realizedDetail = family === "speech" && (kind === "decoder" || kind === "head") && realized
-      ? `Realized target ${realized.label}, rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} logit`}.`
-      : "";
+    let realizedDetail = "";
+    if (family === "speech" && (kind === "decoder" || kind === "head") && realized) {
+      realizedDetail = `Realized target ${realized.label}, rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} logit`}.`;
+    }
+    if (family === "asr" && realized) {
+      realizedDetail = realized.excludedByFilter
+        ? `Realized target ${realized.label} is excluded by the active ≤${state.filterLimit}-character vocabulary; its unfiltered rank is #${formatInteger(realized.unfilteredRank)} of ${formatInteger(realized.unfilteredRankDenominator)}.`
+        : `Realized target ${realized.label}, exact ${realized.filterApplied ? `≤${state.filterLimit}-character` : "unfiltered"} rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} ${kind === "encoder" ? "logit delta" : "logit"}`}.`;
+    }
     const detail = realizedDetail ? `${topDetail} ${realizedDetail}` : topDetail;
-    return { candidates, realized, top, code, coordinate, detail, realizedDetail };
+    return { candidates, realized, top, code, coordinate, detail, realizedDetail, kind };
   }
 
   function renderCandidateRows(descriptor) {
@@ -860,7 +990,7 @@
         <div class="candidate-row${realized ? " realized" : ""}">
           <span class="candidate-rank">#${escapeHTML(formatInteger(candidate.rank))}</span>
           <span class="candidate-label">${escapeHTML(candidateLabel(candidate, descriptor.code))}</span>
-          <span class="candidate-score">${escapeHTML(candidateScore(candidate))}</span>
+          <span class="candidate-score">${escapeHTML(candidateScore(candidate, descriptor.kind))}</span>
         </div>
       `;
     }).join("");
@@ -874,13 +1004,17 @@
     const realized = descriptor.realized;
     const head = kind === "head" || kind === "tts-head";
     const top = descriptor.top;
-    const scoreLabel = head ? "Actual probability" : descriptor.code ? "Fitted probability" : "Readout logit";
-    const realizedScore = finite(realized?.probability) !== null
+    const scoreLabel = head ? "Actual probability" : descriptor.code ? "Fitted probability" : kind === "encoder" ? "Readout-logit delta" : "Readout logit";
+    const realizedScore = realized?.excludedByFilter
+      ? `Excluded by ≤${state.filterLimit} filter`
+      : finite(realized?.probability) !== null
       ? formatProbability(realized.probability, 3)
       : finite(realized?.score) !== null
         ? `${formatScore(realized.score)} logit`
         : "Not in saved top 5";
-    const realizedRank = realized?.available === false
+    const realizedRank = realized?.excludedByFilter
+      ? `Excluded · unfiltered #${formatInteger(realized?.unfilteredRank)}`
+      : realized?.available === false
       ? "Not in saved top 5"
       : `#${formatInteger(realized?.rank)} / ${formatInteger(realized?.rankDenominator)}`;
     inspector.innerHTML = `
@@ -1022,10 +1156,7 @@
     state.filterStatus = "loading";
     renderWorkspace();
     try {
-      const payload = await fetchJSON(cache.url, { signal: controller.signal });
-      if (payload.schema_id !== "audio-jacobian-lens.cached-explorer-filter-cache" || payload.example_id !== state.report.example_id) {
-        throw new Error("The cached character-length buckets do not match this report.");
-      }
+      const payload = validateFilterCache(await fetchJSON(cache.url, { signal: controller.signal }));
       state.filterCache = payload;
       state.filterStatus = "ready";
       state.filterError = "";
@@ -1048,7 +1179,7 @@
     tooltip.innerHTML = `
       <strong>${escapeHTML(descriptor.coordinate)}</strong>
       <span>${escapeHTML(descriptor.detail)}</span>
-      ${descriptor.candidates.slice(0, 3).map((candidate) => `<span>#${escapeHTML(formatInteger(candidate.rank))} · ${escapeHTML(candidateLabel(candidate, descriptor.code))} · ${escapeHTML(candidateScore(candidate))}</span>`).join("")}
+      ${descriptor.candidates.slice(0, 3).map((candidate) => `<span>#${escapeHTML(formatInteger(candidate.rank))} · ${escapeHTML(candidateLabel(candidate, descriptor.code))} · ${escapeHTML(candidateScore(candidate, descriptor.kind))}</span>`).join("")}
     `;
     tooltip.hidden = false;
   }

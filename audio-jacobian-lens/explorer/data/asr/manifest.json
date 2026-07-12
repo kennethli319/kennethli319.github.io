@@ -5,7 +5,7 @@
   "mode": "static_cached_explorer",
   "provenance": {
     "evaluated_on": "2026-07-11",
-    "extraction": "Replayed locally through the pinned model and fitted artifact; semantic realized-token ranks were recomputed over the full vocabulary because the browser API serializes only bounded lens candidates.",
+    "extraction": "Replayed locally through the pinned model and fitted artifact; each published realized-token rank is gathered from the complete scored vocabulary rather than inferred from the bounded visible candidates.",
     "model": {
       "id": "openai/whisper-tiny.en",
       "revision": "87c7102498dcde7456f24cfd30239ca606ed9063",
@@ -23,7 +23,13 @@
       "fit_examples": 10,
       "fit_corpus_fingerprint": "46640e2cbca442f599ef",
       "decoder_examples_fingerprint": "9e351a804731ec0622fdb9fdb5daa6ce1b78823efcb73beda4e8f0443fe73555",
-      "source_layers": [
+      "encoder_source_layers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "decoder_source_layers": [
         0,
         1,
         2
@@ -61,12 +67,12 @@
       "title": "A short question",
       "audio_url": "/audio-jacobian-lens/audio/question.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/question.json",
-      "sha256": "2535a6e05a2fd6756ee4df4bc6e3a58e0de83d0b9551250884a283cc5eb4d871",
-      "bytes": 388274,
+      "sha256": "69c8711b1ed85c2b01a60e36adc64d6aa7a339d421f021d512e297d6d064717a",
+      "bytes": 468281,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/question.filters.json",
-        "sha256": "de14177160e94b80418a67f99b8bde0b1042c1a84f2cdb3fffe2b56342e8e020",
-        "bytes": 3310314
+        "sha256": "e15d25fe65849f9aaee014976d263345e11d976d3f8268e88cea017c080f6719",
+        "bytes": 3350486
       }
     },
     {
@@ -74,12 +80,12 @@
       "title": "Sir, I exist",
       "audio_url": "/audio-jacobian-lens/audio/universe.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/universe.json",
-      "sha256": "af991ba2da018346c2e64a02104ecb96c7c9c42bc60ee71803864e28da44c694",
-      "bytes": 798849,
+      "sha256": "fe90908289a719048eab6cd5111cb10b3b0a611b20f418e068d4d412bf34730d",
+      "bytes": 969037,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/universe.filters.json",
-        "sha256": "7d644696cf48b6af29c041d2c10df1635461dab52fd969bc2e2f897101b6a5ae",
-        "bytes": 7063088
+        "sha256": "c3dd4b678cf494acd435564857ab3b2100163b814839c8ee14297501364d3217",
+        "bytes": 7149314
       }
     },
     {
@@ -87,12 +93,12 @@
       "title": "The buzzer's whirr",
       "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/buzzer.json",
-      "sha256": "7f6ccd84a66b6365fd4f1738bcd680d5cff71f9f25253a62077a6a06df98d264",
-      "bytes": 819678,
+      "sha256": "9ee330430084e4a3772b3e51a785fe93090d7dce3d0b685141fa315c04ded37a",
+      "bytes": 998229,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json",
-        "sha256": "046edb52565f6b675edae5c2900bbf744d74f11856617d14dcaa3302dc24ef89",
-        "bytes": 7398178
+        "sha256": "5ad523346c627563886581145ccceb4c327eb3a09302e7a329268e87f103fca1",
+        "bytes": 7489228
       }
     }
   ]

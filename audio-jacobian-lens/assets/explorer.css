@@ -276,6 +276,26 @@
 .matrix-cell .matrix-cell-label { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; color: var(--ink); font: 600 8px/1 var(--mono); text-overflow: clip; }
 .matrix-cell .realized-rank-badge { display: none; }
 
+[data-family="asr"] .matrix-cell .matrix-cell-label {
+  inset: 1px 1px 13px;
+  font-size: 7px;
+}
+[data-family="asr"] .matrix-cell .realized-rank-badge {
+  position: absolute;
+  right: 1px;
+  bottom: 5px;
+  left: 1px;
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font: 650 6px/1 var(--mono);
+  letter-spacing: -.015em;
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+[data-family="asr"] .matrix-cell.head .realized-rank-badge { color: var(--head); }
+
 .layer-matrix.windowed { gap: 18px; }
 .speech-matrix-window { min-width: 0; }
 .speech-matrix-window + .speech-matrix-window { padding-top: 18px; border-top: 1px solid var(--line); }

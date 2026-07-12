@@ -65,6 +65,13 @@ That reminded me of psycholinguistic word-association experiments: related lexic
 
 The safer conclusion is that lexical readability varies sharply by token. Sometimes later layers sharpen an early candidate. Sometimes the decisive lexical direction only appears late.
 
+<figure class="note-figure">
+  <a href="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}">
+    <img src="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}" alt="Whisper decoder layer-by-position matrix for Where is my brother now, with now selected. Who is the top early-layer candidate before now becomes top-ranked later." loading="lazy" decoding="async">
+  </a>
+  <figcaption><strong>Figure 1.</strong> The public explorer makes the schedule visible: at the position where Whisper eventually emits <code>now</code>, <code>who</code> is the early top candidate before <code>now</code> resolves in later layers. The screenshot uses the explorer's display vocabulary; the full-vocabulary ranks reported above are #6,319 → #7,237 → #3 → #1. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive report</a>.</figcaption>
+</figure>
+
 ### The Phone Signature view gets closer to encoder-native information
 
 The ordinary encoder-to-decoder view initially looked disappointing. A single emitted word was usually ranked poorly, and even silence could sometimes look spuriously readable.
@@ -85,7 +92,14 @@ Even coordinates ranked 51–100 retain substantial phone information. That is i
 
 This view is closer to the kind of information we would expect an acoustic encoder to preserve. It does **not** mean that Whisper literally stores phone labels or token IDs. The encoder remains a continuous representation, and the displayed phones are prototype similarities---not probabilities, a native phoneme head, or causal proof.
 
-The Phone Signature result is also still exploratory. The locked test split and causal intervention gates remain open. The view is currently a local, opt-in experiment rather than part of the public cached explorer while I finish those controls.
+<figure class="note-figure">
+  <a href="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}">
+    <img src="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}" alt="Audio Jacobian Lens Phone Signature view for the buzzer example. Four encoder layers show time-ordered ARPAbet phone prototypes, with an L3 B cell selected and its nearest alternatives shown in the inspector." loading="lazy" decoding="async">
+  </a>
+  <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature for the buzzer example. Each cell is the nearest frozen ARPAbet prototype derived from a distributed top-100 J-signature; the right-hand inspector shows the alternatives for one selected L3 window. These are similarities, not phone probabilities or causal labels. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
+</figure>
+
+The Phone Signature result is still exploratory. The public cached explorer now exposes it as an opt-in diagnostic, while the locked test split and causal intervention gates remain open.
 
 ### Inspection can become intervention
 
@@ -106,6 +120,13 @@ In Chatterbox TTS, the realized acoustic-code direction becomes progressively mo
 But an acoustic-code ID is not a word or phone, and this is not yet end-to-end waveform attribution.
 
 The Apple-silicon MLX path for LFM2.5 Audio also works end to end across its language backbone. However, its current lens is a one-clip integration pilot rather than a validated scientific result. It does not yet explain the audio encoder, adapter, acoustic codebooks, or generated waveform.
+
+<figure class="note-figure">
+  <a href="{{ '/assets/img/audio-jacobian-lens/tts-residual-steering.png' | relative_url }}">
+    <img src="{{ '/assets/img/audio-jacobian-lens/tts-residual-steering.png' | relative_url }}" alt="Recorded Chatterbox TTS causal replay showing a small L20 plus L22 residual edit changing the actual speech-head winner from acoustic code 4106 to 4358 and changing 43 downstream codes." loading="lazy" decoding="async">
+  </a>
+  <figcaption><strong>Figure 3.</strong> A recorded Chatterbox causal replay. A 0.002×-relative-norm edit at L20 + L22 changes the speech-head winner from acoustic code 4106 to 4358, followed by 43 changed downstream codes. This demonstrates propagation through the autoregressive suffix; it does not give acoustic-code IDs word or phone meaning, or establish waveform attribution. <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">Open the interactive TTS report</a>.</figcaption>
+</figure>
 
 Failures and evidence boundaries are part of the project rather than details to hide.
 

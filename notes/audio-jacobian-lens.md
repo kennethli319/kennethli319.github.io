@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "I Tried to Make Whisper Hear ‘Yanny.’ It Said ‘Yay.’"
-description: "What a failed steering experiment taught me about reading representations, retraining models, and finding real internal controls."
+title: "Listening Inside a Speech Model with the Audio Jacobian Lens"
+description: "One speech-interpretability project in two forms: a metaphorical story and a scientific report on J-lens readouts, phone signatures, and steering."
 image: https://kennethli319.github.io/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg
 permalink: /notes/audio-jacobian-lens/
 ---
@@ -10,43 +10,29 @@ permalink: /notes/audio-jacobian-lens/
 
 <section class="version-gate" id="choose-version" aria-labelledby="note-title">
   <p class="version-eyebrow">One investigation · two ways in</p>
-  <h1 id="note-title">I Tried to Make Whisper Hear “Yanny.” It Said “Yay.”</h1>
-  <p class="version-intro">The failure became a more interesting question: can we distinguish a readable internal <strong>gauge</strong> from a reliable causal <strong>knob</strong>? Read the investigation as a shorter story or as the full methods-and-evidence report.</p>
+  <h1 id="note-title">Listening Inside a Speech Model with the Audio Jacobian Lens</h1>
+  <p class="version-intro">Read the same project as a shorter metaphorical story or as the complete scientific and technical report. The evidence and boundaries are the same; only the map changes.</p>
   <nav class="version-chooser" aria-label="Choose a version of this note">
     <a class="version-choice version-choice--metaphor" href="#metaphorical-version">
-      <strong>Enter the city beneath the transcript →</strong>
-      <span>Follow the sound through acoustic neighborhoods, distributed constellations, fitted gauges, and one switch that did not behave as cleanly as I hoped.</span>
-      <small>Story version · about 7 minutes</small>
+      <strong>Follow the metaphorical map →</strong>
+      <span>Enter a city beneath the transcript, where acoustic constellations become words and internal switches can be tested.</span>
+      <small>Story version · about 5 minutes</small>
     </a>
     <a class="version-choice version-choice--technical" href="#technical-version">
-      <strong>Read the methods and evidence →</strong>
-      <span>Frozen-model methodology, exact measurements, controls, fine-tuning comparison, limitations, and falsifiable next experiments.</span>
-      <small>Scientific version · about 16 minutes</small>
+      <strong>Read the technical report →</strong>
+      <span>Methods, measurements, screenshots, controls, limitations, and the experiments I want to run next.</span>
+      <small>Scientific version · about 14 minutes</small>
     </a>
   </nav>
 </section>
 
 <article class="version-panel version-panel--metaphorical" id="metaphorical-version" tabindex="-1" aria-labelledby="metaphorical-title" markdown="1">
 
-<a class="version-back" href="#choose-version">← Back to the two versions</a>
+<a class="version-back" href="#choose-version">← Back to the two maps</a>
 
 ## The City Beneath the Transcript {#metaphorical-title}
 
-<p class="version-deck">What a failed steering experiment taught me about reading a representation and controlling it · July 2026</p>
-
-The unedited model heard the famous Laurel/Yanny recording and produced `Lily!`
-
-I changed neither the audio nor the model's weights. Instead, I used a 20%-relative total residual-norm budget across an L1–L3 schedule in the recording's first half. At each site, I nudged the encoder toward the equal-weight mean of vocabulary tokens whose decoded strings begin with Y and away from the corresponding La-prefix family, then let the rest of Whisper recompute normally.
-
-The result was `Yay!`
-
-It never became `Yanny`.
-
-The near-miss exposed the more useful question. Something I touched early in the model changed what appeared at the end—but I had not found a reliable semantic control. I had found a signal that propagated.
-
-Was it merely a gauge, or was it the beginning of a knob?
-
-That question became the organizing idea for this [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) investigation.
+<p class="version-deck">A metaphorical map of the same Audio Jacobian Lens experiments · July 2026</p>
 
 <figure class="note-figure note-figure--illustration">
   <a href="{{ '/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg' | relative_url }}">
@@ -55,189 +41,129 @@ That question became the organizing idea for this [Audio Jacobian Lens](https://
   <figcaption><strong>Metaphorical illustration.</strong> Sound enters the city, travels through many possible routes, forms a distributed constellation, and reaches the output board. This is explanatory artwork, not model output or experimental evidence.</figcaption>
 </figure>
 
-### A city at night
+Imagine that a speech model is a city at night.
 
-Imagine that a speech model is a city after dark.
+A sound enters through the outer gates. At first, it is not a sentence---only pressure changing over time. The signal travels through several neighborhoods, changing form at every stop, until words appear on a brightly lit departure board.
 
-Sound enters through the outer gates. At first it is not a sentence—only pressure changing over time. The signal moves through acoustic neighborhoods, crosses bridges into language, and eventually reaches a brightly lit departure board where words appear.
+We can see the words on that board. What we usually cannot see is how the city arrived at them.
 
-We can read the board. What we usually cannot see is how the city arrived there.
+Did it recognize the destination early and spend the remaining time confirming the route? Did several words compete? What did the acoustic districts preserve before anything looked like language?
 
-Did it recognize the destination early and spend the remaining time confirming the route? Did several destinations compete? What did the acoustic districts preserve before anything looked like a word?
+During my linguistics degree, psycholinguistics taught me to study questions like these indirectly. Researchers could not inspect every neuron involved in language processing, so they used reaction time, priming, ambiguity, and mistakes to infer the hidden route.
 
-During my linguistics degree, psycholinguistics taught me to approach hidden processes indirectly. Researchers used reaction time, priming, ambiguity, and mistakes to infer how language might be processed inside the brain.
+Modern neural models seem to give us the opposite problem. Every activation is available, but the city is so large that access still does not automatically become understanding.
 
-With a local, instrumented open model, every activation can be recorded. Yet there are so many layers, positions, and interacting representations that access still does not become understanding. The activity does not arrive with its meaning attached. We still need comparisons, controls, and interventions.
+It can still feel like EEG or MEG: we see activation, but its meaning does not arrive with it. We need comparisons, controls, and interventions.
 
-The [Jacobian Lens](https://www.anthropic.com/research/global-workspace) offers one kind of map. It fits an approximate route from an intermediate state toward a later state that can be read through the model's vocabulary head. In rough terms, it asks:
+The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) is my attempt to draw a more useful map.
 
-> Under this fitted map, which vocabulary directions become readable from here?
+It adapts [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace) to speech models. It asks, approximately: which vocabulary directions become readable from an intermediate state under a fitted map?
 
-Those vocabulary directions are not transcripts of thought. They are more like street names printed on a map. The traffic below them may represent acoustics, fragments of words, uncertainty, or combinations for which no single human label exists.
+This is not a window into the model's thoughts. It is a familiar coordinate grid laid over unfamiliar terrain. The street names come from the model's vocabulary, but the activity beneath them may represent acoustics, fragments of words, uncertainty, or combinations with no single human label.
 
-### Words arrive on different schedules
+### Different destinations form on different schedules
 
-Whisper's decoder is the part of the city closest to the departure board. Here, some final words become readable surprisingly early.
+In Whisper's decoder, some final words become visible surprisingly early. In one example, `door` was already ranked fourth within the explorer's display vocabulary in the first decoder layer I inspected and moved to first in the next. Other words take a longer route. In “Where is my brother now?”, `now` appeared late; earlier, `who` was near the top.
 
-In one example, `door` was already ranked fourth within the explorer's display vocabulary in the first decoder layer I inspected. One layer later, it was first.
+It is tempting to say the model was “thinking of who.” The evidence does not justify that. What it shows is simpler: lexical directions become readable on different schedules. The resemblance to word-association experiments gives us a hypothesis to test, not proof of a human-like mechanism.
 
-Other words take a longer route. In “Where is my brother now?”, `now` did not become clearly readable until late. Earlier at the same output position, `who` appeared near the top.
+### The acoustic city has constellations, not street signs
 
-It is tempting to say the model was “thinking of who.” The evidence does not support that claim. What the map shows is more modest and still interesting: lexical directions become readable on different schedules. Some later layers sharpen a direction that was already visible. In other cases, a different direction becomes readable only much closer to the output.
+The encoder was harder to read. Looking for one highest-ranked word often produced a poor map, perhaps because an acoustic encoder is not yet choosing words. That is like identifying a whole neighborhood from its nearest street sign.
 
-A displayed token is therefore a clue about geometry, not a quotation from an internal monologue.
+The Phone Signature view instead compares a distributed pattern across 100 vocabulary-aligned coordinates with frozen phone prototypes. The result is closer to a constellation than a label: no single star gives the answer, but the arrangement carries information.
 
-### The acoustic districts use constellations, not street signs
+On held-out speakers, the single brightest coordinate carried some phone information, but the distributed constellation carried much more: about **63.5% versus roughly 80% phone macro-F1**. The result held across two separately fitted maps and remained near 80% on strict unseen-word examples.
 
-The encoder was much harder to read.
+The model itself stayed frozen, although the map and phone prototypes were fitted with supervised examples. The public explorer groups native 20 ms states into overlapping, phoneme-scale 100 ms windows so the route is easier to see. Those windows are not predicted phone boundaries, and their labels are similarities rather than probabilities.
 
-Its states correspond to positions in an audio representation, before the decoder has committed to a sequence of words. Looking only at the highest vocabulary-aligned coordinate often produced strange lexical labels. That may be because asking for one token is like trying to identify an entire neighborhood from its nearest street sign.
+The conclusion is modest but useful: more phone identity is recoverable from the constellation than from its brightest coordinate. It does not mean that the encoder literally stores phone symbols.
 
-My hypothesis became that the useful unit was not the brightest coordinate, but the pattern across many coordinates—a constellation.
+That suggests a simple next test: hide the audio and transcript, show only the time-ordered Phone Signature sequence, and ask a phonetician or language model to reconstruct the words. Success would suggest that the map preserves a route, not just isolated landmarks.
 
-The Phone Signature view keeps a distributed pattern across the top 100 vocabulary-aligned J-lens coordinates and compares it with 34 supervised, frozen ARPAbet phone prototypes. No single star supplies the label. The arrangement carries the evidence.
+### What happens if we touch a switch?
 
-At Whisper encoder layer 2, a phone-prototype classifier using only the highest-ranked coordinate as a sparse signature produced about **63.5% phone macro-F1**. Using the distributed signature raised the result to roughly **80% across two transports fitted on non-overlapping examples and evaluated on the same speaker-held-out development set**.
+A map becomes more informative when it guides an intervention. With the ambiguous Laurel/Yanny recording, the unedited model produced `Lily!` I nudged earlier encoder states toward a broad Y-prefix vocabulary direction and then let the rest of the model recompute.
 
-The precise conclusion matters: more phone identity is *recoverable from the constellation* than from its brightest coordinate. That does not mean the encoder literally stores phone symbols.
+The free decode changed to `Yay!`
 
-Whisper itself remained frozen, but the instrument did not appear without supervision: the phone prototypes were fitted from **3,400 automatically aligned phone states in a prototype-training partition of LibriSpeech dev-clean** and frozen before evaluation. The reported measurements use aligned native 20 ms states; the public explorer pools them into overlapping 100 ms display cells for readability. Its labels are prototype similarities, not phoneme probabilities or validated phone boundaries.
+It never became `Yanny`.
 
-That is why I call the result a Phone Signature rather than a phoneme prediction.
+That near-miss is the point. The edit propagated, but propagation is not the same as semantic control. A gauge tells us where a pattern is readable; a reliable knob must change the intended behavior repeatedly and selectively. This steering direction was separate from the fitted Phone Signature prototypes, so the result does not validate the phone map.
 
-### Reading a model is different from retraining it
+In one recorded Chatterbox TTS replay, a small late-layer edit also changed an acoustic-code winner and what followed it. Again, that shows propagation, not that a code has a proven word or phone meaning.
 
-This distinction becomes clearer when comparing the project with [`ipa-whisper-base`](https://huggingface.co/neurlang/ipa-whisper-base).
+### Why this map might matter
 
-That checkpoint was produced by fine-tuning Whisper Base on 15,000 Common Voice recordings paired with synthetic IPA transcriptions. It asks an engineering question:
+Psycholinguistics already gives us experiments for priming, ambiguity, phonetic competition, and adaptation. If we can locate related patterns inside a model and test them causally, those experiments may help us find useful internal controls.
 
-> Can Whisper be trained to produce IPA?
+Fine-tuning remodels the city to produce a new behavior. This lens instead leaves the original city frozen and asks what its existing roads already make readable—and whether a small intervention changes the route as predicted.
 
-Audio Jacobian Lens asks a different question:
+The longer-term possibility is not to eliminate data or training. It is to train a broad model, then locate a stable representation and adapt some behaviors without retraining the whole system for every deployment. That will work only when the representation already exists, stays stable across contexts, and can be moved without damaging the model.
 
-> Is phone-related structure already recoverable inside the original frozen model, where does it become readable, and can an intervention show that the structure matters?
-
-IPA Whisper does not necessarily replace the architecture or install a special phoneme head. It reuses Whisper's byte-level vocabulary to spell IPA. Its output loss could update whichever encoder, decoder, and output-projection parameters were left unfrozen; the published checkpoint does not document a head-only or frozen-encoder experiment.
-
-In the city metaphor, fine-tuning remodels the city so its departure board prints a new kind of answer. J-lens leaves the city intact and installs measurement equipment along its existing roads.
-
-Successful fine-tuning demonstrates **adaptability**: the model can learn the new behavior.
-
-A successful fitted readout demonstrates **decodability**: information associated with the target can be recovered from a frozen state.
-
-Neither result alone demonstrates that the original model naturally uses that representation in the way we imagine. For that, the map must predict what happens when we touch the system.
-
-### A gauge is not automatically a knob
-
-The Phone Signature view is a gauge. It measures a relationship between an internal state and fitted phone prototypes.
-
-The Laurel/Yanny edit was a first propagation test, not yet a causal intervention on the fitted phone prototypes. It used a broad Y-prefix vocabulary direction as a candidate knob.
-
-Applying that L1–L3 Y*-versus-La* schedule changed `Lily!` into `Yay!`, so the intervention propagated through the unchanged remainder of the model. But it did not produce `Yanny`, and the direction was not selective enough to deserve a semantic label.
-
-A real knob would need to work repeatedly across speakers and contexts. It would need to outperform matched-norm random directions, avoid unrelated damage, and change the intended behavior more than off-target behaviors. Its effect should be predicted before the intervention—not explained after seeing the result.
-
-The same boundary appears in one recorded Chatterbox TTS replay. A small late-layer edit changed one winning acoustic code and 43 codes that followed it. In that replay, the edit propagated downstream. It does not prove that the selected code has a particular word or phone meaning or that the effect generalizes.
-
-This is the difference between drawing a beautiful map and building an instrument that can guide an experiment.
-
-### Why finding the city's controls might matter
-
-Fine-tuning remains the stronger engineering approach when the goal is reliable production of a new output such as IPA. Audio Jacobian Lens is aimed at another possibility.
-
-A broadly trained model may already contain representations associated with phonetic distinctions, ambiguity, lexical competition, speaking style, or pronunciation—even when its normal output does not expose them directly.
-
-If we can locate those representations, test them across contexts, and intervene without changing the weights, we may sometimes adapt behavior with much less task supervision than end-to-end retraining.
-
-That is still a hypothesis. It will work only when the relevant information already exists, when the readout generalizes, and when moving the state does not push the model into an unnatural region.
-
-Psycholinguistics may offer useful experimental templates here. Priming, ambiguity, adaptation, and phonetic competition were designed to turn hidden processes into falsifiable predictions. In an artificial model, we can go one step further: rerun the same process, perturb a suspected representation, and see whether the rest of the computation responds as predicted.
+It changes the question from “What more must we teach?” to “What has the model already learned, where is it, and which switch lets us test that interpretation?”
 
 <div class="metaphor-key"><strong>Where the metaphor stops:</strong> this is not mind-reading, and the city has no claim to consciousness. A token is not a thought. A prototype match is not a phoneme probability. A readable direction is a gauge, not yet a knob. The interpretation becomes stronger only when it generalizes and survives controlled causal tests.</div>
 
-Fine-tuning asks what we can teach a model to say.
-
-The Audio Jacobian Lens asks what the original computation already makes recoverable about sound, where that information becomes readable, and what would count as proof that touching it matters.
-
-A map that merely labels the city is interesting. A map that predicts how one small intervention will change the final route is the beginning of an instrument.
-
-This is still map-making under uncertainty. But unlike the hidden city of the human brain, this is a city we can rerun, compare, and—carefully—touch.
+This is map-making under uncertainty. Unlike the hidden city of the human brain, this is a city we can rerun, compare, and---carefully---touch.
 
 <div class="version-panel-nav">
-  <a href="#technical-version">Continue with the methods and evidence →</a>
+  <a href="#technical-version">Continue with the technical report →</a>
   <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Explore the live ASR map</a>
-  <a href="#choose-version">Back to the two versions</a>
+  <a href="#choose-version">Back to the two maps</a>
 </div>
 
 </article>
 
 <article class="version-panel version-panel--technical" id="technical-version" tabindex="-1" aria-labelledby="technical-title" markdown="1">
 
-<a class="version-back" href="#choose-version">← Back to the two versions</a>
+<a class="version-back" href="#choose-version">← Back to the two maps</a>
 
-## Methods and evidence: from readable gauges to tested knobs {#technical-title}
+## Scientific and technical report {#technical-title}
 
 *July 2026 · Psycholinguistics, mechanistic interpretability, and speech models*
 
-I tried to make Whisper hear `Yanny`.
+I often think back to the psycholinguistic experiments I learned to design during my linguistics degree.
 
-The unedited model transcribed the ambiguous recording as `Lily!` After I edited a schedule of encoder residual sites across L1–L3 and allowed the unchanged remainder of the model to recompute, it produced `Yay!`
+We wanted to understand how human language processing worked somewhere inside the brain, but we could not inspect the activation of every neuron. Researchers instead designed experiments around reaction time, priming, ambiguity, errors, and carefully controlled contrasts. We observed behavior and worked backward toward a possible processing mechanism.
 
-It never said `Yanny`.
+The evidence was often indirect and sometimes underdetermined. But those constraints trained a particular kind of thinking: how do we extract the maximum information from limited observations without pretending that a promising hypothesis is already a fact?
 
-That near-miss captures the central problem of this project. Finding an internal signal that correlates with a concept is not the same as finding a reliable control for that concept. A readable signal is a **gauge**. Only a selective, repeatable intervention that survives controls begins to establish that it is a **knob**.
+I miss that kind of puzzle-solving.
 
-The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) is an attempt to build those gauges, test candidate knobs, and keep the difference between them visible.
+At first, studying neural language models seems completely different. We can inspect their architecture, activations, logits, attention patterns, and query/key/value matrices directly.
 
-It grew from a question I learned to ask through psycholinguistics: when the process itself is difficult to interpret, what combination of contrasts, errors, timing effects, and interventions would make one explanation more credible than another?
+**Yet access is not understanding.**
 
-With a local, instrumented model we can record internal states, but access is still not understanding. The volume of activation across layers, positions, and interacting representations exceeds what a person can interpret directly. An activation map does not arrive with its meaning attached.
+Modern models produce so much information across layers, positions, and interacting representations that following everything back to a human-language explanation quickly exceeds what any researcher can hold in working memory.
 
-Unlike human neuroimaging, however, we can rerun the exact computation and perturb one internal state.
+Paradoxically, this can feel less like reading ordinary software and more like doing EEG or MEG on an artificial language system. We can see activation patterns changing, but activation does not arrive with its meaning attached. We still need contrasts, decoding analyses, controls, and interventions to infer what a pattern represents.
 
-That makes a progression of claims possible:
+The important difference is that, with a model, we can rerun the exact system and directly perturb an internal state.
 
-1. **Readable:** information is statistically recoverable from an internal state.
-2. **Transportable:** it remains readable through a fitted approximation of the model's downstream geometry.
-3. **Causally relevant:** perturbing the state changes later computation in a predicted direction.
-4. **Controllable:** the intervention is selective, repeatable, robust across contexts, and does not broadly damage the model.
+That is where the Jacobian Lens became useful.
 
-The current project has preliminary controlled evidence for the first two levels, early propagation evidence for the third, and no claim yet to the fourth.
+## A vocabulary-indexed measurement instrument
 
-## The model is frozen; the instrument is fitted
-
-Anthropic's [Jacobian Lens, or J-lens](https://www.anthropic.com/research/global-workspace), uses a context-averaged first-order transport from an intermediate residual state toward a later residual space. The transported state can then be read through the model's existing vocabulary head.
-
-The decoder view in this project is the closest paper-style, same-stream adaptation. The phone results use a separately fitted, generally rectangular **encoder-to-decoder cross-modal transport**: an extension developed in this repository, not a configuration validated by the source paper. That distinction matters because the encoder and decoder do not share positions or a natural residual-space origin.
+Anthropic's [Jacobian Lens, or J-lens](https://www.anthropic.com/research/global-workspace), fits a context-averaged first-order transport from an intermediate residual state toward a later residual space. The transported state can then be read through the model's vocabulary head.
 
 In simplified terms, it asks:
 
-> Under this fitted first-order approximation, which vocabulary directions become readable from an intermediate state?
+> Under this fitted map, which vocabulary directions become readable from here?
 
-The resulting values are not calibrated next-token probabilities, literal transcripts of thought, or direct proof of downstream causation. They are readout scores under a fitted, context-averaged Jacobian transport.
+It is not a literal transcript of thought, and its scores are not calibrated next-token probabilities or direct proof of causation. They are measurements made through a fitted approximation.
 
-I adapted the method to speech systems, beginning with a frozen `openai/whisper-tiny.en` and later adding experimental paths for LFM2.5 Audio on Apple-silicon MLX and Chatterbox TTS.
+I adapted the method to speech systems in [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), beginning with Whisper ASR and later adding experimental paths for LFM2.5 Audio on Apple-silicon MLX and Chatterbox TTS. The encoder-to-decoder transport used for the Phone Signature is an extension developed in this repository, not a configuration validated by Anthropic's source paper.
 
-An important distinction runs through every result:
+Throughout these experiments, Whisper's original weights stay frozen. The J-lens map is fitted externally, the phone prototypes are fitted from automatically aligned speech supervision, and residual steering changes an activation during one inference run rather than changing the stored weights. In other words, the model is frozen, but the instrument is learned.
 
-- Whisper's original encoder, decoder, tokenizer, and output head remain frozen.
-- The J-lens transport is a fitted external measurement instrument.
-- The Phone Signature prototypes are fitted externally using aligned speech supervision.
-- Residual steering changes an activation during one inference run, not the model's stored weights.
+Two encoder transports were fitted separately on non-overlapping examples and evaluated on the same speaker-held-out development set. This is a useful consistency check across separately fitted maps, not an independent-corpus replication.
 
-The instrument therefore did not emerge without data. It was fitted so that I could test what is recoverable from the original frozen model. That differs from retraining the model to perform a new output task.
+The results below first cover what the experiments show, then return to the hypotheses they make possible.
 
-### How the phone instrument was constructed
+## Part I: What the project shows today
 
-Two encoder transports were fitted separately on disjoint 20-clip, five-speaker sets. They share the same Whisper model and are evaluated on the same development rows, so this is replication across disjoint lens fits—not independent-corpus replication.
-
-For each aligned encoder state, the fitted transport produces target-mean-relative readout scores across Whisper Tiny's full **51,864-token vocabulary**. The signature keeps the top 100 coordinates, thresholds them relative to the next rank, and normalizes the remaining distributed pattern.
-
-Phone prototypes were then fitted from **3,400 non-silence midpoint states in a prototype-training partition of LibriSpeech dev-clean** covering 34 stress-collapsed ARPAbet classes. A separate 3,400-state development partition uses disjoint speakers. The boundaries come from automatic MFA alignment rather than hand-corrected phonetic annotation, and the locked test speakers remain untouched.
-
-The public explorer uses the A2 transport because its ten cached clips share speaker 1272, who was excluded from that lens fit. The public examples demonstrate the instrument; they are not population-level evaluation.
-
-## Evidence I: decoder decisions form on different schedules
+### Decoder decisions form on different schedules
 
 Some realized words become readable surprisingly early.
 
@@ -258,15 +184,9 @@ At the early decoder position after `my brother`, the word `who` appeared near t
   <figcaption><strong>Figure 1.</strong> The public explorer makes the schedule visible: at the position where Whisper eventually emits <code>now</code>, <code>who</code> is the early top candidate before <code>now</code> resolves in later layers. The screenshot uses the explorer's display vocabulary; the full-vocabulary ranks reported above are #6,319 → #7,237 → #3 → #1. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive report</a>.</figcaption>
 </figure>
 
-**Observed:** lexical readability varies sharply by token and depth.
+The resemblance to psycholinguistic word-association experiments is useful for generating hypotheses. It is not evidence that Whisper and humans implement the same mechanism, or that the model was literally “thinking of who.” The safer conclusion is that lexical readability varies sharply by token and depth: some output directions are sharpened from an early candidate, while others become readable only later.
 
-**Suggests:** some output directions are sharpened from an early candidate, while others become readable only in later decoder layers.
-
-**Would establish more:** replication across a larger held-out corpus, controls for token frequency and position, and interventions that selectively alter the predicted lexical competition.
-
-The resemblance to psycholinguistic word-association experiments is useful for generating hypotheses. It is not evidence that Whisper and humans implement the same mechanism, or that the model was literally “thinking of who.”
-
-## Evidence II: encoder information is distributed
+### The Phone Signature view gets closer to encoder-native information
 
 The ordinary encoder-to-decoder view initially looked disappointing. A single emitted word was often ranked poorly, and silence could sometimes appear spuriously readable.
 
@@ -276,58 +196,41 @@ Whisper's encoder is not yet selecting the next written word. It is building a c
 
 The experimental **Phone Signature view** therefore takes the distributed pattern across the top 100 vocabulary-aligned J-lens coordinates and compares it with 34 frozen ARPAbet phone prototypes.
 
-The preliminary speaker-disjoint development results separate two related measurements:
+The preliminary speaker-held-out development results tell a consistent story:
 
-- A supervised residual-state readout rises from **31.9% macro-F1 for central log-Mel features** to **91.0% at encoder L3**.
-- At L2, a frozen phone-prototype classifier applied to a rank-1-only sparse J-signature gives **63.5% and 63.6% phone macro-F1** across the two lens fits.
-- The distributed top-100 J-signature raises this to **81.1% and 80.5%**.
-- On 1,155 strict unseen-word occurrences, the result remains **79.8% and 79.6%**.
-- In 330 matched cross-speaker, cross-word ABX triplets, L2 reaches **91.5% and 91.4%**, versus **76.2% and 76.6%** means from five spectrum-matched random transports. L3 reaches **90.8% and 90.2%**, versus **67.1% and 68.3%**.
+- Phone information decoded directly from the encoder residual states rises to about **91% macro-F1 at L3**.
+- At L2, using only the highest J-lens coordinate gives about **63.5% phone macro-F1**.
+- Using the distributed top-100 signature raises this to about **81% across two separately fitted maps**.
+- The distributed result stays near **80% on strict unseen-word examples** and reaches roughly **90–92% in matched cross-speaker, cross-word ABX tests**, above spectrum-matched random transports.
 
-The random transports are not chance baselines: high-dimensional linear maps can preserve substantial information. The relevant comparison is the fitted transport's advantage over alternatives with matched singular spectra.
+The random transports are strong structured baselines rather than chance: a high-dimensional linear map can preserve substantial information. The relevant result is that the fitted maps preserve more of the phone structure.
 
-Even coordinates ranked 51–100 retain substantial phone information. More phone identity is therefore recoverable from the distributed constellation than from its brightest coordinate alone.
+The direct residual-state result and the J-signature result answer different questions. The first asks whether phone identity is decodable from the encoder at all. The second asks how much of that structure remains readable after the state is expressed through the fitted vocabulary geometry. Even coordinates ranked 51–100 retain useful phone information, so the brightest coordinate does not tell the whole story.
 
-The residual-state result and the J-signature result should not be conflated. The first asks whether phone identity is decodable from the encoder at all. The second asks how much of that structure remains readable after expressing the state through the fitted downstream vocabulary geometry.
-
-The public explorer uses phoneme-scale **100 ms display cells**. Each cell mean-pools five native 20 ms encoder states, and the 80 ms hop means adjacent cells share one state. A cell may contain multiple phones, and Whisper's bidirectional receptive field is not restricted to those 100 ms.
-
-The reported validation metrics come from aligned **native 20 ms midpoint states**, not the pooled public cells. The ten public examples use one speaker held out from the A2 lens fit; they are not a broad evaluation set or a separately validated 100 ms phone classifier.
+The reported validation metrics come from automatically aligned **native 20 ms midpoint states**. The public explorer instead mean-pools five native states into overlapping, phoneme-scale **100 ms display cells** with an 80 ms hop. A cell can contain more than one phone, and Whisper's receptive field is not confined to that window. The public labels are therefore similarities for visualization—not probabilities, predicted phone boundaries, or a separately validated 100 ms phone classifier.
 
 <figure class="note-figure">
   <a href="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}">
     <img src="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}" alt="Audio Jacobian Lens Phone Signature view for the buzzer example using 100 millisecond display cells. Encoder L3 from 0.56 to 0.66 seconds is selected, with B as the nearest prototype at cosine similarity 0.565." loading="lazy" decoding="async">
   </a>
-  <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature using 100 ms display cells with an 80 ms hop. In the selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest frozen ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). Each cell comes from a distributed top-100 J-signature. These are similarities—not probabilities, framewise votes, phone boundaries, local-only receptive fields, or causal labels. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
+  <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature using 100 ms display cells with an 80 ms hop. In the selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest frozen ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). The scores are similarities, and a window may contain multiple phones; it is not a predicted phone boundary. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
 </figure>
 
-**Observed:** distributed J-signatures classify aligned phones substantially better than rank-1-only sparse signatures, generalize to unseen words, and outperform matched-spectrum random transports.
+The strongest conclusion is that substantial phonetic structure is recoverable from the frozen encoder under a supervised, fitted instrument, and that more of it survives in the distributed constellation than in the brightest coordinate. This does not show that Whisper stores literal phone symbols or that its decoder naturally uses exactly these fitted prototypes. The locked test split, broader languages and speakers, and phone-directed causal tests remain open.
 
-**Suggests:** phonetic structure is recoverable through a distributed pattern in the frozen model's vocabulary-aligned readout geometry.
+### Inspection can become intervention
 
-**Does not establish:** that Whisper stores literal phone symbols, that the displayed label is a probability, that one public cell marks a phone boundary, or that Whisper's decoder naturally uses exactly the fitted prototype representation.
+A fitted readout is a gauge, not automatically a knob. I tested a candidate direction with the ambiguous Laurel/Yanny recording, but this intervention was separate from the fitted Phone Signature prototypes.
 
-**Would establish more:** replication on the locked test, additional speakers and languages, phone-contrast interventions, and controls showing that the effect cannot be explained by speaker, word, timing, or phonotactic regularities.
+Instead of increasing `Yanny` at the final output head, I nudged earlier encoder states toward a broad Y-prefix vocabulary direction, away from a La-prefix direction, and let the unchanged later layers recompute normally.
 
-## Evidence III: intervention changes what follows
+The free decode moved from `Lily!` to `Yay!`, and Y-related downstream scores increased—but the model never produced `Yanny`.
 
-A fitted readout is a gauge, not automatically a knob. To test whether it identifies a causally relevant direction, I performed residual steering on the ambiguous Laurel/Yanny recording.
+That near-miss is useful. It shows that an early edit can propagate into final behavior while also showing that the current steering is neither clean nor semantically specific. It does not validate the Phone Signature, establish a `Yanny` representation, or demonstrate phone-level control.
 
-Instead of increasing `Yanny` at the final output head, I used a separate vocabulary-direction intervention—not the fitted phone prototypes. The canonical encoder run applied a coordinated edit across L1–L3 over the first half of the recording. Its 20%-relative total residual-norm budget was normalized across those layers; at each site, the direction contrasted the equal-weight mean of the Y-prefix vocabulary family against the La-prefix family. The unchanged later layers then recomputed normally.
+A reliable knob would need repeatable, selective effects across recordings and contexts, dose-response behavior, and advantages over matched-norm random, off-time, and off-layer controls. One propagated edit is not yet a stable control surface.
 
-The free decode moved from `Lily!` to `Yay!`, and Y-related downstream scores increased. The model never produced `Yanny`.
-
-**Observed:** this early multi-site residual schedule propagated into a related final output.
-
-**Suggests:** the selected sites and vocabulary-family direction can influence downstream computation.
-
-**Does not establish:** a clean internal `Yanny` representation, phone-specific control, or reliable semantic steering. The displayed conditions include only one matched random seed each, and a broad Y-prefix direction can affect many lexical possibilities or push the activation off its learned distribution.
-
-**Would establish a knob:** consistent target changes across recordings and contexts, dose-response behavior, reversibility, specificity against nearby alternatives, and superiority over random-direction, matched-norm, off-time, off-layer, and unrelated-prefix controls.
-
-A useful map should predict interventions. But one propagated edit—even an interesting one—is not yet a stable control surface.
-
-## Evidence IV: the framework extends beyond text transcription
+### The framework extends beyond ASR, with different evidence boundaries
 
 In one recorded Chatterbox TTS replay, the realized acoustic-code direction becomes progressively more readable through depth. A small late-layer residual intervention flipped a selected acoustic-code winner and regenerated a different autoregressive suffix.
 
@@ -344,92 +247,79 @@ The Apple-silicon MLX path for LFM2.5 Audio also runs end to end across its lang
 
 These boundaries are part of the result. A common interface can expose related measurements across ASR, speech-to-speech, and TTS, while the scientific meaning of each measurement remains model-specific.
 
-## Reading a model is different from retraining it
+Failures and evidence boundaries are part of the project rather than details to hide.
 
-A checkpoint such as [`ipa-whisper-base`](https://huggingface.co/neurlang/ipa-whisper-base) asks a different question: can Whisper be fine-tuned to emit a phonetic transcription?
+## Part II: Putting my psycholinguistics and cognitive-science hat back on
 
-Its model card describes a Whisper Base checkpoint fine-tuned using synthetic IPA targets derived from 15,000 Common Voice 21 recordings spanning more than 70 languages. Whisper's existing byte-level vocabulary can spell IPA, so this does not require a clean one-phone-per-token output head.
-
-The published material does not document a head-only or frozen-encoder ablation. We should therefore not assume that only the LM head changed. Output supervision could update whichever encoder, decoder, and output-projection parameters were left unfrozen.
-
-The contrast is:
-
-- **IPA fine-tuning:** change model weights so phonetic spelling becomes an observable behavior.
-- **Audio J-Lens:** keep the original model weights frozen, fit an external instrument, and test whether phone-related structure is already recoverable from the existing computation.
-- **Residual intervention:** temporarily alter one or more activations and test whether the unchanged remainder of the model responds as predicted.
-
-Fine-tuning demonstrates **adaptability**: the model can be taught the task.
-
-A fitted readout demonstrates **decodability**: information associated with the task can be recovered from a frozen state.
-
-A controlled intervention begins to test **functional use**: changing that state changes behavior in a specific predicted way.
-
-These are complementary experiments, not competitors. An IPA-fine-tuned model could serve as a useful positive control. Comparing ordinary Whisper, an encoder-frozen IPA fine-tune, and an end-to-end IPA fine-tune could help separate information already present in the original encoder from information made more explicit or newly organized through training.
-
-The comparison is conceptual rather than an accuracy benchmark. The IPA model card does not report a usable phonetic error rate, and its displayed WER entries are placeholders, so I do not treat the checkpoint as phonetic ground truth.
-
-## The next reconstruction test
+### A concrete reconstruction prediction
 
 The experiment I most want to run next is deliberately behavioral:
 
-1. Hide the audio and transcript.
-2. Provide only the time-ordered Phone Signature candidates and similarity scores from encoder L2 or L3.
-3. Run two separate reconstruction arms: one with phoneticians and one with a language model, then compare their characteristically different priors.
+1. Hide the original audio and transcript.
+2. Give only the time-ordered Phone Signature candidates and similarity scores from encoder L2 or L3 to a phonetician or language model.
+3. Ask them to reconstruct the spoken word sequence.
 
-Success would show that the visualization preserves temporally organized information another system can integrate into lexical hypotheses. It would not prove that Whisper's own decoder uses the same route: a human or language model could exploit English phonotactics and prior knowledge.
+My prediction is that they should recover substantially more than chance and more than they could recover from a shuffled sequence or a matched random transport.
 
-The experiment therefore needs controls:
+That would mean the Phone Signature view contains more than isolated, locally classifiable phones. It would preserve temporally organized phonetic information that another system can integrate into lexical hypotheses. It would not prove that Whisper's own decoder uses the same route, because a human or language model could also exploit English phonotactics and prior knowledge.
 
-- top-1 phone labels versus the full similarity vector derived from the distributed top-100 J-signature;
-- L2 versus L3;
-- real temporal order versus shuffled windows;
-- phone-frequency-matched but sequence-disrupted controls;
-- the fitted J-lens versus spectrum-matched random transports;
-- a human-corrected phonetic transcription as an upper bound, if available, or an automatic alignment clearly labeled as a noisy reference;
-- a text-only phonotactic baseline with no acoustic evidence;
-- unseen speakers, words, and recording conditions; and
-- both phone-error and word-error recovery.
+A proper test should compare the top-1 phone sequence with the full distributed signature, real temporal order with shuffled order, and the fitted map with matched random maps. It should also use unseen speakers and words, and include a text-only baseline to measure how much reconstruction comes from language priors rather than acoustic evidence.
 
-**If real ordered signatures beat all matched controls:** the display preserves useful temporal phonetic structure.
+If reconstruction succeeds under those controls, that would support the view as a useful measurement of encoder information. If it fails, the signatures may be locally readable projections that do not preserve the larger linguistic sequence.
 
-**If only the independent phone upper bound reconstructs well:** the fitted view is losing important sequence information.
+### Vocabulary may be a coordinate system, not an internal sentence
 
-**If shuffled or text-only controls perform similarly:** reconstruction is driven largely by language priors rather than by the encoder measurement.
+My current hypothesis is not that the encoder “thinks in words.”
 
-This is the kind of experiment that can turn an attractive visualization into a falsifiable instrument.
+Instead, the model's roughly 52K BPE vocabulary may provide a borrowed, human-readable coordinate system. A single coordinate comes from the human linguistic world, but combinations of coordinates and their rankings may describe acoustic states, subword evidence, or attributes that have no single human word.
 
-## What would change my mind
+The Phone Signature result makes this hypothesis more concrete: the informative unit may be the distributed signature rather than the top token label.
 
-My current hypothesis is that Whisper's vocabulary can serve as a borrowed coordinate system: individual coordinates inherit human-readable token labels, while combinations of coordinates may describe acoustic or subword states with no single token name.
+This is almost a translation problem. We are translating a machine-readable continuous pattern into a representation that a human researcher can inspect, while trying not to mistake the translation for the original code.
 
-The Phone Signature results support the possibility that distributed patterns carry more stable phonetic structure than the highest coordinate alone.
+### From readable gauges to useful controls
 
-I would weaken or reject that interpretation if:
+Early computers exposed many low-level switches. Useful interfaces eventually combined thousands of underlying operations into one understandable button.
 
-- performance collapses on the untouched test or on broader speaker and language populations;
-- matched random or shuffled controls recover the same information;
-- the effect is explained primarily by speaker, word identity, timing, or dataset leakage;
-- independently fitted lenses do not reproduce the geometry;
-- phone-directed interventions fail to produce contrast-specific downstream effects; or
-- matched-norm random interventions work equally well.
+Modern speech systems already offer high-level controls such as emotion, speaking style, or expressiveness. Each simple control may correspond to many hidden changes inside the model.
 
-I would strengthen it if frozen-model measurements replicate across datasets, predict selective causal interventions, and remain stable across speakers, contexts, and independently fitted instruments.
+J-lens-style analysis may help us work in the reverse direction: start with a human-facing concept, identify candidate internal patterns associated with it, perturb the earlier “knobs,” and test which changes actually propagate.
 
-## What I am—and am not—claiming
+That is the *Inception*-like part. Instead of changing the final output probability, make a small edit earlier in the computation and let later layers recompute around it.
+
+But readability and control are different standards. A fitted readout is a **gauge**. It becomes a plausible **knob** only when an intervention changes the intended behavior selectively, repeatedly, and better than matched controls.
+
+If stable directions can be found, they could help debug why a speech model chose one interpretation, test whether a suspected representation is causal, and provide more precise controls for a deployment.
+
+### Train once, find the knobs later?
+
+One further possibility is that we may not need a new training dataset for every behavior we want to study or customize.
+
+Psycholinguistics and psychology have spent decades developing controlled paradigms for lexical association, priming, ambiguity resolution, phonetic competition, expectation, and adaptation. If we can identify where similar patterns appear inside a model—and demonstrate that they are causal—those paradigms could become templates for finding useful internal controls.
+
+The representation may already exist. The problem may be less about teaching the model something new and more about finding the right knob after training.
+
+That could make some forms of customization more data-efficient. A team might adapt ambiguity resolution, pronunciation bias, speaking style, or domain-specific behavior without retraining the full system for every deployment.
+
+This remains a hypothesis, not a replacement for training or data. It would work only when the relevant representation already exists, remains stable across contexts, and can be steered without pushing the model off its learned distribution. The current results do not yet establish those conditions.
+
+## What I am, and am not, claiming
 
 This is not mind-reading.
 
-I am not claiming that speech models are conscious, that they contain literal phone symbols, that every displayed token is an internal concept, or that the current steering system has found dependable semantic controls.
+I am not claiming that speech models are conscious, that they contain literal phone symbols, that every displayed token is a faithful internal concept, or that the current steering system has found dependable semantic controls.
 
 The strongest current claim is narrower:
 
 > In this speaker-disjoint LibriSpeech dev-clean development experiment, phone identity is recoverable from frozen Whisper encoder states, and substantially more of it remains readable through a distributed fitted J-signature than through a rank-1-only sparse signature.
 
-The steering results add evidence that some early interventions propagate. They do not yet show that the fitted phone prototypes identify the model's own causal code.
+The steering results add evidence that some early interventions propagate. They do not show that the fitted phone prototypes identify the model's own causal code; the two experiments use different directions.
+
+A J-lens readout is a measurement instrument. Like EEG or MEG analysis, its meaning comes from experimental design, replication, controls, and the predictions it survives. Unlike human neuroimaging, we can also intervene directly, rerun the same computation, and observe how the rest of the system responds.
 
 A token on a screen is not a thought. A prototype match is not a phoneme, and a readable direction is not yet a knob. But a map that predicts where an intervention will selectively change behavior would be more than a picture: it would be the beginning of an instrument.
 
-Fine-tuning asks what we can teach a model to say. The Audio Jacobian Lens asks what the original computation already makes recoverable about sound, where that information becomes readable, and what would count as proof that touching it matters.
+That combination brings me back to what I enjoyed about psycholinguistics: designing experiments that turn an inaccessible process into a testable hypothesis. Only now, we have more instruments—and we can sometimes reach inside the system and move one of the knobs.
 
 ## Explore the project
 
@@ -438,13 +328,12 @@ Fine-tuning asks what we can teach a model to say. The Audio Jacobian Lens asks 
 - [TTS / Chatterbox explorer](https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9)
 - [Audio Jacobian Lens code and local Apple-silicon MLX setup](https://github.com/kennethli319/audio-jacobian-lens)
 - [Anthropic's original Global Workspace research](https://www.anthropic.com/research/global-workspace)
-- [`ipa-whisper-base` model card](https://huggingface.co/neurlang/ipa-whisper-base)
 
 If you work in speech, interpretability, phonetics, or cognitive science: **what experiment would convince you that an internal direction reflects real acoustic structure, rather than merely a readable projection?**
 
 <div class="version-panel-nav">
   <a href="#metaphorical-version">Read the metaphorical map</a>
-  <a href="#choose-version">Back to the two versions</a>
+  <a href="#choose-version">Back to the two maps</a>
 </div>
 
 </article>

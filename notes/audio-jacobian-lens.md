@@ -158,14 +158,10 @@ For Laurel, however, I optimized 20 nonnegative phone-basis coefficients directl
 
 This is stronger than the old `Yay!` near-miss, but it is still one recording explored after seeing the target. The phone order and timing were developed on this clip. A fitted phone prototype is not a native phone symbol, and differentiating its readout back into the encoder does not by itself prove that Whisper uses that direction as a clean internal control. The result establishes that this fitted phonetic subspace contains a route that can cross the model's real output boundary under these conditions.
 
-A separate recorded Chatterbox TTS replay showed the temporal side of the same question. For “A bright red train crossed the narrow bridge,” a roughly **0.002×-relative-norm residual edit at L20 + L22** changed the actual speech-head winner at S9 from acoustic code `4106` to the previous #2 candidate, `4358`. After that first change, **43 downstream codes** also changed.
-
-<figure class="note-figure note-explorer">
-  <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/tts/' | relative_url }}?sample=tts-bridge-s9&amp;embed=article&amp;panel=tts&amp;kind=tts-head&amp;layer=0&amp;position=8" title="Interactive cached Chatterbox TTS Explorer focused on the residual intervention at speech-code position S9" aria-describedby="tts-steering-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-  <figcaption id="tts-steering-caption"><strong>Figure 4 — An anchor reaching later time steps.</strong> The recorded edit changes S9 from code <code>4106</code> to <code>4358</code>, followed by 43 changed downstream codes. Select another saved position or <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">open the full TTS replay</a>.</figcaption>
-</figure>
-
-This tells me that an intervention can propagate through an autoregressive suffix. It does not tell me what those code IDs mean, whether the change survives at the waveform level, or whether the effect is useful rather than ordinary autoregressive sensitivity. The edit used a context-specific gradient-proposed direction, not a direction learned by the fitted J-lens; the code IDs are learned acoustic symbols, not published words or phonemes.
+I also ran a local Chatterbox TTS pilot, but its learned acoustic-code IDs do not
+yet support a clear word-, phone-, or waveform-level interpretation. I am
+keeping that explorer out of the public site until the readout and intervention
+results survive stronger controls and can tell a useful scientific story.
 
 So the next question is not simply, “Can I make the output change?”
 
@@ -213,7 +209,7 @@ The deeper layers are harder to name. But every time a pattern becomes partly re
 
 ## Enter the project
 
-**Explore:** [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [Phonetic steering](https://kennethli319.github.io/audio-jacobian-lens/steering/) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question) · [Chatterbox TTS](https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9)
+**Explore:** [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [Phonetic steering](https://kennethli319.github.io/audio-jacobian-lens/steering/) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question)
 
 **Build it:** [Audio Jacobian Lens code and local Apple-silicon MLX setup](https://github.com/kennethli319/audio-jacobian-lens) · **Starting point:** [Anthropic's Global Workspace research](https://www.anthropic.com/research/global-workspace)
 

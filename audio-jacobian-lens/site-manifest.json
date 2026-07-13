@@ -1,31 +1,27 @@
 {
   "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
-  "description": "Public static ASR, speech-to-speech, TTS, and recorded phone-steering Audio Jacobian Lens explorers.",
-  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. TTS synchronizes its acoustic-code timeline with all fitted T3 layers, the speech HEAD, candidate detail, and selected-position text trace. Phone signatures, TTS diagnostics, and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. The steering route replays only saved checkpoints and never performs inference or interpolates an unmeasured intervention.",
+  "description": "Public static ASR, speech-to-speech, and recorded phone-steering Audio Jacobian Lens explorers.",
+  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every published family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. Phone signatures and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. The steering route replays only saved checkpoints and never performs inference or interpolates an unmeasured intervention. Chatterbox/TTS remains an unpublished local experiment until its acoustic-code readouts support a clearer interpretation.",
   "media_policy": "Only the ten CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review. The external Laurel/Yanny source recording is linked but not embedded or redistributed.",
   "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes ten reduced reports. ASR uses a speaker-held-out A2 encoder lens plus frozen train-only phone prototypes; all encoder reports were recomputed at five-state 100 ms pooling with one-state overlap and a 100-bin safety limit. Reports publish only five bounded phone candidates per encoder cell and exclude prototype tensors, occurrence-level rows, private paths, ephemeral server IDs, and embedded audio. Legacy character-length sidecars remain hash-pinned for reproducibility but are no longer exposed or loaded by the Explorer. The steering payload contains only recorded schedules, scalar coefficients, bounded candidates, output metrics, and compact controls; it excludes residuals, prototype tensors, private paths, and audio.",
   "publication_mode": "public_linked_noindex_review",
   "published_on": "2026-07-13",
   "report_counts": {
     "asr": 10,
-    "speech": 10,
-    "tts": 10
+    "speech": 10
   },
   "routes": {
     "detailed_cached_explorers": [
       "/audio-jacobian-lens/",
-      "/audio-jacobian-lens/speech/",
-      "/audio-jacobian-lens/tts/"
+      "/audio-jacobian-lens/speech/"
     ],
     "findings": [
       "/audio-jacobian-lens/findings/",
-      "/audio-jacobian-lens/findings/speech/",
-      "/audio-jacobian-lens/findings/tts/"
+      "/audio-jacobian-lens/findings/speech/"
     ],
     "legacy_explorer_aliases": [
       "/audio-jacobian-lens/explorer/asr/",
-      "/audio-jacobian-lens/explorer/speech/",
-      "/audio-jacobian-lens/explorer/tts/"
+      "/audio-jacobian-lens/explorer/speech/"
     ],
     "recorded_interventions": [
       "/audio-jacobian-lens/steering/"
@@ -41,19 +37,15 @@
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
     "data/phone-steering-results.json": "ef0499b1dce6dfe241284d58aa508ad266507a118a456c4fb41edeb3f6eddea7",
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
-    "explorer/asr/index.html": "0de28d64c6514a7de910a5ac0cb26a0d145f649e1397cc3c6abf08badefa070e",
+    "explorer/asr/index.html": "083a29afac040f91c788a29a503d00ebb40a52bec919ef0b4dbacdc9da0b4b1b",
     "explorer/data/asr/manifest.json": "eab665dd0269e588d7cd8518e0fe45cdf748c6906ae00774741570f43f95ffa8",
     "explorer/data/speech/manifest.json": "86905e9c29ebfe5700749b388d072800536385f9cb1e3c49aa65e32dd0eaf6b3",
-    "explorer/data/tts/manifest.json": "af6e1ee645dab01e067f8c2f9494ecf1b0e1ff0423e4cf53b5bcc22a2cb0a3bf",
-    "explorer/speech/index.html": "a09bd256608382eab0674f37d8a56167795e1b05d4450ed70c87e260bc7c4540",
-    "explorer/tts/index.html": "3bc655ba891839c140939b03bbd6855f3349d4fc0f575c4217a192ac71afb9f2",
-    "findings/index.html": "20c46db0f273a134912cd6ab7d90b6390e7a347d0655cc67a6541e6a0ff0ce31",
-    "findings/speech/index.html": "18da502241e075b69d02e5e785b7c11c6e26ca86c669784bb592d5dbf5b4ae84",
-    "findings/tts/index.html": "46ee067bb2e2bb90018d51fd23d3b9574575ac38088b3c3495699a487b71b90b",
-    "index.html": "c67bfabec0028ddb532f39c54604668121a4f9996932533d148d79df1b3baf64",
-    "speech/index.html": "9c7b47b46ac9715a8363820d6524ce33c3981ab84074c0602e2fd46802217d65",
-    "steering/index.html": "5174397cfb08462d9ebccc36e4282da66ef518ef7d61d9dc8e1a055367b0ad53",
-    "tts/index.html": "d786656251a22db9bfba296a2525445b6ff5a99a58f8d0af252122f01e7599e4"
+    "explorer/speech/index.html": "0f3b6b726033c4f86104959d022dbeaca14cbdaa48e46c47611a78fb9fb46b52",
+    "findings/index.html": "ae96710e2d0b8ccd2e59ada94e71fe21abb6f37540b5563563786a5662e78400",
+    "findings/speech/index.html": "490b8f64428a870c077a86cc8e1c47988230b2d8678973db3085bba31d11f41c",
+    "index.html": "556213be364077b0dab798483e79f81c2b32bca5b3fbfa6a0ccc19fba1583d53",
+    "speech/index.html": "ff4bff035fe854eca5e586c6664903cf2be99471ab070fa49fad97d2260bd958",
+    "steering/index.html": "365947db3205070fb6ae675839327464a4f33e474a4d3a8a81282e05c91344c2"
   },
   "source_repository": "https://github.com/kennethli319/audio-jacobian-lens"
 }

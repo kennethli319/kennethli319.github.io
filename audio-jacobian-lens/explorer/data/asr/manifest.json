@@ -79,7 +79,7 @@
     "timing_semantics": {
       "source": "whisper_cross_attention_dtw",
       "quality": "model_derived",
-      "warning": "Token times are Whisper-derived and are not independent alignment evidence. Phone prototypes were validated on native aligned 20 ms midpoint states, while the explorer displays pooled 200 ms windows that may contain multiple phones."
+      "warning": "Token times are Whisper-derived and are not independent alignment evidence. Each explorer cell mean-pools five native 20 ms encoder states over 100 ms; adjacent cells share one state. Phone prototypes were validated on aligned native midpoint states, so the displayed nearest prototype is not a probability, framewise vote, phoneme boundary, causal attribution, or local-only receptive field."
     },
     "rights": {
       "source_collection": "LibriSpeech dev-clean (OpenSLR SLR12)",
@@ -102,12 +102,12 @@
       "utterance_id": "1272-135031-0012",
       "audio_url": "/audio-jacobian-lens/audio/question.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/question.json",
-      "sha256": "18b15c85b8a9ebec1c2da361343d7ad5d42ea009061aa6a6f0ff4dec182cc6bb",
-      "bytes": 505743,
+      "sha256": "bb0035ad63cff919c636a68869e3fb06cafaf08fd94f6d804a727d5d56c16bed",
+      "bytes": 908262,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/question.filters.json",
-        "sha256": "59467e55e1200bc73c61692a4855fc50d36018c210b007d184ee70dc7aeb07f2",
-        "bytes": 3356204
+        "sha256": "148b8050f60df8103853f98e4bf912c14b3cf6d51adfd736d086cbc6c8bf7b31",
+        "bytes": 6507155
       }
     },
     {
@@ -118,12 +118,12 @@
       "utterance_id": "1272-141231-0000",
       "audio_url": "/audio-jacobian-lens/audio/universe.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/universe.json",
-      "sha256": "e6ed466be85640ff5e939d684c5fe404c8820ec4ac7afe0c0e831675ce49559d",
-      "bytes": 1048228,
+      "sha256": "d7de01e6192888c048e1c27337e7332ed590a00d297ee68d6378067e1d1f9b13",
+      "bytes": 1968752,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/universe.filters.json",
-        "sha256": "21622fdbafd9cb0c80d1694a9f0ac7ba5a6c73ac4e3c218482bce23ecc36aea8",
-        "bytes": 7164521
+        "sha256": "38b5efc869083099825690734e71e21f4d5fab1b2975ec9fe954ccffb665abe0",
+        "bytes": 14368617
       }
     },
     {
@@ -134,12 +134,12 @@
       "utterance_id": "1272-141231-0006",
       "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/buzzer.json",
-      "sha256": "144678b2bb72334967b3177a26097ef755b3c5647e1148875243072e8ecea4c0",
-      "bytes": 1083022,
+      "sha256": "e6439ef2d86ad63460cbfd6449c31654b61d8c9b774462f9862bf84a55112019",
+      "bytes": 2061429,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json",
-        "sha256": "e6859c34671cdcd1516f5328957d21a15b6ef2b4fba2563052f622464d35ff19",
-        "bytes": 7506276
+        "sha256": "c5efb745b6aead5f797958c2878088c3d157250f7cce14cfb7ad4cf871fd5d21",
+        "bytes": 15160124
       },
       "featured_views": [
         "asr_phone_signature"
@@ -153,12 +153,12 @@
       "utterance_id": "1272-135031-0003",
       "audio_url": "/audio-jacobian-lens/audio/raps.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/raps.json",
-      "sha256": "3cd73e7640dc6ca463b0c4a95bb1930e7819b09e42717904aa6e20ba21eb3de3",
-      "bytes": 1192600,
+      "sha256": "4bd934d38737dc65df285087bb535edb34e3901eae4258ea0c27707993cc15f1",
+      "bytes": 2141314,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/raps.filters.json",
-        "sha256": "c420a1bef331f7261b9a47b44aa3ec4bd4dbe6d9c05ef5c65e27964b0cb34e52",
-        "bytes": 7932224
+        "sha256": "68d135fa4ebce9c955ca22bdf5e4f1b82d3fca3bff4032ec1a1179a4e02ba8b2",
+        "bytes": 15358765
       }
     },
     {
@@ -169,12 +169,12 @@
       "utterance_id": "1272-141231-0004",
       "audio_url": "/audio-jacobian-lens/audio/one-minute.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/one-minute.json",
-      "sha256": "50bd15bb9e8a0cf3a079f2adc3371b67164eda8e1b42ed18d315cd0ec4692794",
-      "bytes": 1180721,
+      "sha256": "e3c13c10918041fe97ca8918cfad2f587b17c87adbd90e4fa7a325a69097ece3",
+      "bytes": 2186931,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/one-minute.filters.json",
-        "sha256": "310c908eb19b97f71dd65080c2c787b3c818ce6979ab7797fc0d3d28f0517832",
-        "bytes": 8058137
+        "sha256": "df4f223292595472c51487b20bee13251a550282da9abbf007d745a3f8a499eb",
+        "bytes": 15935627
       }
     },
     {
@@ -185,12 +185,12 @@
       "utterance_id": "1272-141231-0016",
       "audio_url": "/audio-jacobian-lens/audio/ten-seconds.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.json",
-      "sha256": "047f5e43b4d350bdf9b912d14ad1052381923fab6d6bf9d9d13f432cfa98b1b8",
-      "bytes": 384937,
+      "sha256": "9dcc7bef759ef1bbb4857a5a7d25ae94759282e45c8b73c8d8890b7b794a85ce",
+      "bytes": 729871,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.filters.json",
-        "sha256": "a574f0622ccff40b1763721dd338424f5bcbd68e7c96c0e1fb2f952bb256a45b",
-        "bytes": 2695123
+        "sha256": "82c24089ce398bf659e298d4591ba2c34ee2a7afe45a97354eae594ad4b0dde1",
+        "bytes": 5396389
       }
     },
     {
@@ -201,12 +201,12 @@
       "utterance_id": "1272-135031-0018",
       "audio_url": "/audio-jacobian-lens/audio/oh-no.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/oh-no.json",
-      "sha256": "79950ccabe612bd77cf09d70e6ff4bc69eb0ac509e1fe0fe1b823a3f38ff239b",
-      "bytes": 679283,
+      "sha256": "e990247258fff9c6995ce1fb259bbda80a82f6feccc3ce065774897632dda987",
+      "bytes": 1168259,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/oh-no.filters.json",
-        "sha256": "915c96af39df4400b98f25a49e1b3a3b9b24fcf53eb928a2ea0f9c3eb6bc4f6a",
-        "bytes": 4351223
+        "sha256": "2155af8a6a025130270b59e8acc9d8ea357113008ab7e1bfc138d1e935f7c17e",
+        "bytes": 8176788
       }
     },
     {
@@ -217,12 +217,12 @@
       "utterance_id": "1272-135031-0015",
       "audio_url": "/audio-jacobian-lens/audio/metal-forest.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.json",
-      "sha256": "a8e9abee4bb1a2cd824ae64359c2f2dddb5e738656e4bb699b68191f07a9b857",
-      "bytes": 1735190,
+      "sha256": "d482bc0f41d6231b70af59364f8a392fe15caeafc32272e9cc17844c4f706581",
+      "bytes": 3202064,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.filters.json",
-        "sha256": "ebb3f6e9713f8be7f31081bfde42c7fb0ea77ace5a00ca27d8742076ea7dfe96",
-        "bytes": 11740110
+        "sha256": "d2b611509eaa5bdff6d5543172c169c3f7eb418d492d55349a949688f8235651",
+        "bytes": 23218123
       }
     },
     {
@@ -233,12 +233,12 @@
       "utterance_id": "1272-141231-0018",
       "audio_url": "/audio-jacobian-lens/audio/inexhaustible.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.json",
-      "sha256": "15f8de56e6ba3de2fa9bda6a681f0b0ac317bc6ba196a6c5abf7bb2ca7cb1631",
-      "bytes": 1418034,
+      "sha256": "b583740a24fef784e00477bec9e9a6fbe5f3d2f021e6ddd681fcf8e14adcd7e3",
+      "bytes": 2597310,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.filters.json",
-        "sha256": "dd15d3ce4cac7faebea425f107493cdbc26e674d578bba6c5496a5a6497a881d",
-        "bytes": 9617964
+        "sha256": "fae9cf7d29379cfbc31c0c249488ed01464b9d775ddf87c815b56f68156b3730",
+        "bytes": 18844396
       }
     },
     {
@@ -249,12 +249,12 @@
       "utterance_id": "1272-141231-0024",
       "audio_url": "/audio-jacobian-lens/audio/impossible.flac",
       "report_url": "/audio-jacobian-lens/explorer/data/asr/impossible.json",
-      "sha256": "37c7365fab19fda1ed3f3ffa3107e730da2015cb500e0cbb9e33639030d70bae",
-      "bytes": 788895,
+      "sha256": "246f6577b6fd419625d766ee847e00f96951df4c35434e91b1e9a507ed0e9bb6",
+      "bytes": 1508486,
       "character_length_filter_cache": {
         "url": "/audio-jacobian-lens/explorer/data/asr/impossible.filters.json",
-        "sha256": "0c91084e477cff93cc037ca013bda7071fd0c9f81e038634a1e14a006677326d",
-        "bytes": 5492373
+        "sha256": "abde25017b36e2194523e21a710544206ed1711352a12dd9d1f1e915c9340457",
+        "bytes": 11120101
       }
     }
   ]

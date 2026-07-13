@@ -216,6 +216,18 @@
 
   function validatePhoneSignatureReport(payload) {
     const metadata = payload?.metadata?.phone_signature;
+    const pooling = payload?.encoder?.pooling;
+    const poolingGeometryIsExact = pooling
+      && Math.abs(Number(pooling.requested_window_seconds) - 0.1) <= 1e-9
+      && Math.abs(Number(pooling.requested_overlap_seconds) - 0.02) <= 1e-9
+      && Math.abs(Number(pooling.effective_window_seconds) - 0.1) <= 1e-9
+      && Math.abs(Number(pooling.effective_overlap_seconds) - 0.02) <= 1e-9
+      && Math.abs(Number(pooling.effective_hop_seconds) - 0.08) <= 1e-9
+      && pooling.adaptive_for_max_bins === false
+      && pooling.max_time_bins === 100;
+    if (!poolingGeometryIsExact) {
+      throw new Error("The ASR report does not use exact 100/20/80 ms encoder pooling.");
+    }
     const expectedMetadata = [
       "available", "display_unit", "effective_display_hop_seconds",
       "effective_display_window_seconds", "interpretation", "method",
@@ -248,9 +260,9 @@
       || metadata.training_unit !== "aligned_native_20_ms_phone_midpoint_state"
       || String(metadata.interpretation || "").trim() === ""
       || !Number.isFinite(Number(metadata.effective_display_window_seconds))
-      || Math.abs(Number(metadata.effective_display_window_seconds) - 0.2) > 1e-9
+      || Math.abs(Number(metadata.effective_display_window_seconds) - 0.1) > 1e-9
       || !Number.isFinite(Number(metadata.effective_display_hop_seconds))
-      || Math.abs(Number(metadata.effective_display_hop_seconds) - 0.18) > 1e-9
+      || Math.abs(Number(metadata.effective_display_hop_seconds) - 0.08) > 1e-9
       || metadata.silence_or_unknown_class_available !== false
       || metadata.prototype_fit_split !== "train"
       || metadata.prototype_fit_rows !== 3400
@@ -259,7 +271,7 @@
     ) throw new Error("The ASR phone-signature contract is inconsistent.");
     const candidateKeys = ["phone", "rank", "similarity"];
     const cells = payload?.encoder?.cells || [];
-    if (!cells.length || !cells.every((row) => Array.isArray(row) && row.length)) {
+    if (!cells.length || !cells.every((row) => Array.isArray(row) && row.length && row.length <= 100)) {
       throw new Error("The ASR phone-signature matrix is empty.");
     }
     cells.forEach((row) => row.forEach((cell) => {
@@ -1008,7 +1020,7 @@
           <i aria-hidden="true">${enabled ? "ON" : "OFF"}</i>
         </button>
         <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Optional fitted encoder interpretation"}</strong><span>${escapeHTML(filterMessage)}</span></p>
-        <details><summary>What does this show?</summary><p>Nearest frozen ARPAbet phone prototypes ranked by cosine similarity. This is an exploratory fitted readout—not probability, confidence, or causal attribution. The ${escapeHTML(formatInteger((metadata?.effective_display_window_seconds || 0.2) * 1000))} ms pooled window may contain multiple phones, and the fit has no silence/unknown class.</p></details>
+        <details><summary>What does this show?</summary><p>Nearest frozen ARPAbet phone prototypes ranked by cosine similarity. Each ${escapeHTML(formatInteger((metadata?.effective_display_window_seconds || 0.1) * 1000))} ms cell pools five native 20 ms states; neighboring cells share one state. This is an exploratory fitted readout—not probability, a framewise vote, phoneme boundary, causal attribution, or local-only receptive field. The fit has no silence/unknown class.</p></details>
       </div>
     `;
   }
@@ -1319,7 +1331,7 @@
         </div>
         <div class="candidate-heading"><strong>Nearest phone prototypes</strong><span>cached fitted values</span></div>
         <div class="candidate-list">${renderCandidateRows(descriptor)}</div>
-        <p class="inspector-note">ARPAbet phone-prototype rank and cosine similarity are exploratory fitted readouts, not model probabilities, confidence, or causal effects. A pooled 200 ms window may contain several phones; no silence/unknown prototype was fitted.</p>
+        <p class="inspector-note">ARPAbet phone-prototype rank and cosine similarity are exploratory fitted readouts, not model probabilities, framewise votes, phoneme boundaries, confidence, or causal effects. Each pooled 100 ms cell shares one native 20 ms state with its neighbor and may still contain several phones; no silence/unknown prototype was fitted.</p>
       `;
       return;
     }

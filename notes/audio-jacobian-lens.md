@@ -20,9 +20,9 @@ The more I use it, the more I keep thinking about *Inception*.
 
 In the movie, you enter one dream, then another inside it, and then another. The surface still looks familiar. But as you descend, things become less literal. An object can be a projection. Several objects can combine to express something that none of them means alone. And something small, placed deep enough, can reorganize what happens in every level above it.
 
-Three observations keep pulling me back into the model. After `brother`, an early decoder layer surfaces `who` before the final word resolves to `now`. Deeper in the encoder, a distributed pattern carries much more recoverable phone information than its brightest human-readable label. And when I place a small intervention below the surface, its effect can travel through later layers and later time steps.
+Three observations keep pulling me back into the model. Near the output, an early decoder layer surfaces `who` after `brother`, before the final word resolves to `now`. Deeper down—away from the language-model head and into the encoder—a distributed pattern carries much more recoverable phone information than its brightest human-readable label. And when I place a small intervention below the surface, its effect can travel through later layers and later time steps.
 
-I do not take these as three conclusions. I take them as three places where the model gives us a better experiment.
+I do not treat these as conclusions. I treat each as a clue for designing the next, sharper experiment.
 
 <figure class="note-figure note-figure--illustration">
   <a href="{{ '/assets/img/audio-jacobian-lens/inception-into-j-space-hand-drawn.jpg' | relative_url }}">
@@ -39,7 +39,7 @@ Models give us almost the opposite problem. We can record nearly every activatio
 
 ## At the surface, `now`. One layer down, `who`.
 
-I gave Whisper the question:
+I played Whisper an audio recording in which the speaker asks:
 
 > Where is my brother now?
 
@@ -51,30 +51,24 @@ But when I followed that word through the full vocabulary, its rank moved like t
 #6,319 → #7,237 → #3 → #1
 ```
 
-At the first plotted decoder layer, the top candidate in the Explorer's lexical display is `who`; across Whisper's full vocabulary it is #4 there, then #1 at the next layer. Meanwhile, `now` is still #6,319, falls to #7,237, then suddenly rises to #3 and finally #1 at the output head.
+At the first plotted decoder layer, the Explorer's top displayed candidate is `who`; across Whisper's full vocabulary it is #4 there, then #1 at the next layer. While `now` is still thousands of places down the list, `who` has already surfaced.
 
 <figure class="note-figure note-explorer">
   <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/' | relative_url }}?sample=asr-question&amp;embed=article&amp;panel=decoder&amp;kind=decoder&amp;layer=0&amp;position=4" title="Interactive cached Whisper Explorer focused on decoder layer 0 at the token now" aria-describedby="decoder-now-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
   <figcaption id="decoder-now-caption"><strong>Figure 1 — The answer takes layers to settle.</strong> The large L0 label is the top displayed candidate; the smaller line tracks the realized token <code>now</code>. Select another cell to inspect its saved candidate details, or <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">open the full example</a>.</figcaption>
 </figure>
 
-My current reading is that the decoder is acting very much like a language model. After `brother`, it follows an association toward identity: *brother → who*. It is almost as if that association gives the model a hint about what kind of information might come next.
+My current reading is that the decoder is behaving much like a language model following a word association. After `brother`, it searches in the direction of identity: *brother → who*. That association may act as a hint about what kind of information should come next.
 
-This reminds me of word association in psycholinguistics. I am not saying that the mechanism is exactly the same, but the shape is surprisingly similar.
+This reminds me of word-association experiments in psycholinguistics. I am not claiming that the underlying mechanisms are identical, but the shape is surprisingly similar: an association appears before the final answer settles.
 
-Then the encoder supplies another part of the puzzle. In the same clip, encoder L2 contains a suggestive `N → AW`-like run: an N-like cell at 1.44–1.54 seconds, followed by AW-like cells from roughly 1.52–1.78 seconds. This comes shortly before Whisper's model-derived interval for `now`, around 1.88–2.02 seconds.
-
-I do not read that as a neatly aligned phonetic spelling of the word. The encoder is bidirectional, its states are nonlocal, the display windows overlap, and the timing comes from Whisper's own alignment. I read it as possible acoustic evidence relevant to the answer.
-
-Put beside `brother → who`, it suggests a two-stream experiment: language association pulling from context and acoustic evidence constraining it from the encoder. One clip does not establish two independent streams or tell us their weights. But it tells us what to manipulate next.
-
-My guess is that when the sound is ambiguous, context will pull harder; when the cue is clear, acoustic evidence will constrain the answer more strongly. The experiment is to cross clear versus ambiguous audio with supportive versus conflicting linguistic context, then watch where and when the balance changes.
+This is what I can see near the language-model head, where the directions still look like ordinary words. To ask what the sound itself contributes, I have to descend farther—away from the output head and into the encoder.
 
 ## Deeper down, words stop behaving like words
 
-The decoder is already close to language output. The encoder is still working with sound.
+Here, “deeper” does not only mean an earlier decoder layer. It means moving away from the language-model head and eventually into the encoder, where the model is organizing sound before the decoder turns it into words.
 
-As I descend into its earlier layers, it becomes less useful to ask, “Which word is the model thinking about?” The lens still gives me vocabulary-aligned directions because vocabulary is a coordinate system that humans can read. But a token direction deep in the encoder does not have to carry that token's ordinary surface meaning.
+The deeper I go, the less useful it becomes to ask, “Which word is the model thinking about?” The lens still gives me vocabulary-aligned directions because vocabulary is a coordinate system that humans can read. But a token direction deep in the encoder does not have to carry that token's ordinary surface meaning.
 
 One direction might mark an acoustic attribute. Another might be one piece of a subword state. Several directions, their rankings, and the way they move across time may need to combine before the representation becomes useful.
 
@@ -97,7 +91,19 @@ A direct residual probe reaches **91.0% macro-F1 at L3**. In matched cross-speak
 
 The observation I care about is not simply that phone identity can be decoded. It is that the combination carries substantially more recoverable phone information than its single brightest human-readable label.
 
-Maybe these vocabulary directions, through the fitted projection, are being borrowed to describe something more acoustic and less literal. Maybe the supervised phone map contributes part of that structure. Maybe another explanation fits better. Instead of choosing one interpretation now, I want experiments that force them apart.
+It reminds me of a spy forced to use an ordinary Bible as a codebook. The words are familiar, but the message is not their surface story. One word can stand for an acoustic attribute; several references together can encode something that none of them says alone. In this metaphor, rank 1 is only one printed word; the full Phone Signature is closer to the coded sentence.
+
+The model is not trying to hide anything. It can only build with the representational tools available to it. Through the fitted lens, familiar vocabulary directions become one such alphabet: their identities, rankings, and movement across time can combine to mark information for which no single human token exists.
+
+The fitted lens is also what places the encoder into these vocabulary-aligned coordinates. So I cannot conclude that Whisper literally stores a secret sentence in tokens. The experiment is to separate structure the model actually reuses from structure the fitted map merely makes readable.
+
+The same spoken question gives one concrete place to look. In encoder L2, the Phone Signature contains a suggestive `N → AW`-like run: an N-like cell at 1.44–1.54 seconds, followed by AW-like cells from roughly 1.52–1.78 seconds. This comes shortly before Whisper's model-derived interval for `now`, around 1.88–2.02 seconds.
+
+I do not read that as a neatly aligned phonetic spelling of the word. The encoder is bidirectional, its states are nonlocal, the display windows overlap, and the timing comes from Whisper's own alignment. I read it as possible acoustic evidence relevant to the answer.
+
+Put beside the decoder's `brother → who` association, it suggests a two-stream experiment: language context pulling toward one continuation while acoustic evidence constrains it from the encoder. One recording does not establish two independent streams or tell us their weights. But it tells us what to manipulate next.
+
+My guess is that when the sound is ambiguous, context will pull harder; when the cue is clear, acoustic evidence will constrain the answer more strongly. The experiment is to cross clear versus ambiguous audio with supportive versus conflicting linguistic context, then watch where and when the balance changes.
 
 One experiment is to hide the original audio and transcript, then give only the ordered Phone Signature sequence to a phonetician or a capable language model. Could they reconstruct most of the words without hearing the audio? What survives if I shuffle the sequence, replace the map with a matched random one, or use unseen speakers and words? A text-only baseline could show how much reconstruction comes from language priors rather than the acoustic pattern.
 

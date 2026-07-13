@@ -133,7 +133,7 @@ If we can locate those patterns and validate them causally, perhaps they can bec
 
 The same question extends to reasoning models. The lens is not a literal transcript of thought, but it lets us inspect which concepts become readable internally and test what happens when we intervene. Concepts related to human interaction may already be present before we know how to name them.
 
-That is why I keep descending. Every pattern that becomes partly readable gives us another experiment—and perhaps another place to plant an anchor before the model returns to the surface.
+Every pattern that becomes partly readable gives us another experiment—and perhaps another place to plant an anchor before the model returns to the surface.
 
 ## Enter the project
 

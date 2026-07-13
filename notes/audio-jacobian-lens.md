@@ -105,7 +105,11 @@ This is the model's limbo in my metaphor: familiar language is still visible, bu
 
 ## Planting an anchor
 
-Descending is only half of *Inception*. The more interesting question is whether something placed at one depth can change what the higher levels eventually construct.
+Descending is only half of *Inception*. At this point, the Phone Signature starts to feel like functional imaging for a speech model. I present a linguistic event—a phone, word, ambiguity, or acoustic cue—and look for the distributed activation pattern that repeatedly appears with it. Like an fMRI map, the pattern does not interpret itself: a repeatable signature tells me that information is readable there, not yet that the model uses that pattern to produce its behavior.
+
+The steering experiment is closer to stimulation. If examples of another event produce a reliable fitted signature, that signature gives me a candidate target. I can pull it back through the fitted lens into the model's residual space, nudge the current state toward it, and let later layers and later time steps recompute. I am not forcing the final word. I am testing what the model builds around an anchor placed below the surface.
+
+So inspection and intervention become two halves of the same experiment. **Functional imaging shows me the pattern. *Inception* asks what happens if I plant it at the right depth.** A selective edit that survives matched controls begins to tell me whether that pattern participates in causing what returns to the surface.
 
 I tried this with the ambiguous [Laurel/Yanny
 recording](https://hrbosker.github.io/demos/laurel-yanny/).
@@ -175,7 +179,7 @@ The decoder rows are fitted readouts from a teacher-forced trace. The HEAD row i
 
 The experimental MLX path for LFM2.5 Audio runs end to end on Apple silicon, but it remains a one-clip integration pilot. It does not yet explain the model's FastConformer, audio adapter, codebooks, or played waveform.
 
-In other words, the lens gives me a place to observe patterns, form hypotheses, and design interventions that can prove those hypotheses wrong.
+These qualifications are why I separate a readable signature from a causal knob: the first tells me what the fitted instrument can recover; only a controlled intervention can test whether the model relies on it.
 
 ## Returning to the surface
 

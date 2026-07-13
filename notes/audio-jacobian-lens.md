@@ -20,7 +20,7 @@ The more I use it, the more I keep thinking about *Inception*.
 
 In the movie, you enter one dream, then another inside it, and then another. Near the surface, things still look familiar. Deeper down, an object can become a projection, several objects can express something none means alone, and one small anchor can reorganize the levels above it.
 
-Three things keep pulling me deeper: a word association that appears before the answer settles, a phonetic pattern that only becomes readable as a constellation, and an anchor that changes what returns to the surface.
+As I inspect Whisper, three observations make the *Inception* metaphor feel especially fitting: a word association that appears before the answer settles, a phonetic pattern that only becomes readable as a constellation, and an anchor that changes what returns to the surface.
 
 <figure class="note-figure note-figure--illustration">
   <a href="{{ '/assets/img/audio-jacobian-lens/inception-into-j-space-hand-drawn.jpg' | relative_url }}">

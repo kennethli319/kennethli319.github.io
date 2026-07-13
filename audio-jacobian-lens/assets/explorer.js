@@ -855,7 +855,8 @@
 
   function renderSpeechRows() {
     const tokens = state.report.payload.transcription.tokens || [];
-    const windowSize = family === "asr" ? Math.max(tokens.length, 1) : 8;
+    const continuous = family === "asr" || family === "speech";
+    const windowSize = continuous ? Math.max(tokens.length, 1) : 8;
     const windows = [];
     for (let start = 0; start < tokens.length; start += windowSize) {
       const end = Math.min(start + windowSize, tokens.length);
@@ -867,7 +868,7 @@
       }).join("");
       windows.push(`
         <section class="speech-matrix-window" aria-label="Generated token positions ${start + 1} through ${end}">
-          <header><strong>${family === "asr" ? `All ${count} tokens · scroll horizontally` : `Tokens ${start + 1}–${end}`}</strong><span>${family === "asr" ? "Decoder large: top candidate · HEAD large: output · small: realized rank" : "Large: top candidate · small: realized rank"}</span></header>
+          <header><strong>${continuous ? `All ${count} ${family === "speech" ? "generated text positions" : "tokens"} · scroll horizontally` : `Tokens ${start + 1}–${end}`}</strong><span>${family === "asr" ? "Decoder large: top candidate · HEAD large: output · small: realized rank" : "Large: top candidate · small: realized rank"}</span></header>
           <div class="speech-matrix-scroll" tabindex="0" aria-label="Layer readouts for token positions ${start + 1} through ${end}">
             <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * cellWidth}px">
               <div class="matrix-row speech-position-row" style="--position-count:${count}"><div class="matrix-layer-label">OUTPUT</div>${tokenHeaders}</div>
@@ -883,6 +884,7 @@
 
   function renderTTSRows() {
     const fitted = state.report.payload.fitted_speech_code_jlens;
+    const ttsCellWidth = 54;
     const rows = (fitted.rows || []).map((row, layerIndex) => {
       const strengths = rowStrengths(row.positions.map((position) => position.realized_probability), true);
       const cells = row.positions.map((position, index) => matrixCellHTML({
@@ -893,7 +895,7 @@
         strength: strengths[index],
         label: `#${position.realized_rank}`,
       })).join("");
-      return `<div class="matrix-row" style="--position-count:${row.positions.length}"><div class="matrix-layer-label">L${escapeHTML(row.layer)}</div>${cells}</div>`;
+      return `<div class="matrix-row" style="--position-count:${row.positions.length};--matrix-min:${58 + row.positions.length * ttsCellWidth}px"><div class="matrix-layer-label">L${escapeHTML(row.layer)}</div>${cells}</div>`;
     }).join("");
     const head = state.report.payload.output.speech_head_candidates.positions || [];
     const strengths = rowStrengths(head.map((position) => position.realized_probability), true);
@@ -905,10 +907,10 @@
       strength: strengths[index],
       label: `#${position.realized_rank}`,
     })).join("");
-    return `${rows}<div class="matrix-row" style="--position-count:${head.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
+    return `${rows}<div class="matrix-row" style="--position-count:${head.length};--matrix-min:${58 + head.length * ttsCellWidth}px"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false } = {}) {
+  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false, scrollLabel = "Layer positions; scroll horizontally for later positions" } = {}) {
     return `
       <section class="matrix-panel${controls ? " phone-capable-panel" : ""}${scrollable ? " scrollable-matrix-panel" : ""}">
         <header class="explorer-panel-heading">
@@ -917,7 +919,7 @@
         </header>
         ${controls}
         <div class="matrix-legend"><span><i></i> ${escapeHTML(legendLabel)}</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
-        <div class="layer-matrix${windowed ? " windowed" : ""}"${scrollable ? ' tabindex="0" aria-label="Encoder layers across audio windows; scroll horizontally for later windows"' : ""}>${rows}</div>
+        <div class="layer-matrix${windowed ? " windowed" : ""}"${scrollable ? ` tabindex="0" aria-label="${escapeHTML(scrollLabel)}"` : ""}>${rows}</div>
       </section>
     `;
   }
@@ -950,7 +952,8 @@
   function renderTimeline() {
     const positions = tokenList();
     const readableSpeech = family === "speech";
-    const dense = positions.length > 24 && !readableSpeech;
+    const positionCellWidth = family === "speech" ? 112 : family === "tts" ? 72 : 88;
+    const positionTimelineLabel = `${family === "tts" ? "Realized speech-code positions" : "Generated output positions"}; scroll horizontally for later positions`;
     const buttons = positions.map((item, position) => {
       const label = family === "tts" ? `S${position + 1}` : `T${position + 1}`;
       const value = family === "tts" ? `ID ${item.id}` : compactText(item.text);
@@ -978,8 +981,8 @@
           <p>${family === "asr" ? "Waveform windows, decoder pieces, and layer cells share one pinned time coordinate." : family === "speech" ? "Input audio and generated text are separate streams; no word-to-input alignment is claimed." : "Click any saved output position to update all fitted layers, HEAD candidates, and text diagnostics."}</p>
         </header>
         ${audio}
-        <div class="position-heading"><strong>${family === "tts" ? "Realized acoustic-code IDs" : "Generated output pieces"}</strong><span>${positions.length} saved positions</span></div>
-        <div class="position-timeline${dense ? " dense" : ""}${readableSpeech ? " speech-readable" : ""}" style="--position-count:${positions.length}">${buttons}</div>
+        <div class="position-heading"><strong>${family === "tts" ? "Realized acoustic-code IDs" : "Generated output pieces"}</strong><span>${positions.length} saved positions · scroll horizontally</span></div>
+        <div class="position-timeline scrollable${readableSpeech ? " speech-readable" : ""}" style="--position-count:${positions.length};--position-cell-min:${positionCellWidth}px" tabindex="0" aria-label="${escapeHTML(positionTimelineLabel)}">${buttons}</div>
         <p id="selected-position-line" class="selected-position-line"></p>
         ${renderFilterControl()}
       </section>
@@ -1086,9 +1089,13 @@
     if (family === "tts") {
       return renderMatrixPanel(
         "Fitted readout probability through T3",
-        "Each cell shows the exact global rank of the realized code. Blue intensity uses a square-root display scale of its fitted probability; hover for the unrounded value.",
+        "Each cell shows the exact global rank of the realized code. Blue intensity uses a square-root display scale of its fitted probability; hover for the unrounded value and scroll horizontally for later speech-code positions.",
         renderTTSRows(),
-        { headLegend: true },
+        {
+          headLegend: true,
+          scrollable: true,
+          scrollLabel: "Fitted T3 layers across speech-code positions; scroll horizontally for later positions",
+        },
       );
     }
     const panels = [];
@@ -1106,13 +1113,14 @@
           controls: renderPhoneSignatureControl(),
           legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
           scrollable: family === "asr",
+          scrollLabel: "Encoder layers across audio windows; scroll horizontally for later windows",
         },
       ));
     }
     panels.push(renderMatrixPanel(
       "As each token resolves",
       family === "speech"
-        ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames."
+        ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames. Scroll horizontally to follow the complete generated sequence."
         : "Decoder boxes show each layer's top candidate in large text and the realized output token's exact rank below it. HEAD keeps the actual output token and probability semantics.",
       renderSpeechRows(),
       { headLegend: true, windowed: true },
@@ -1432,10 +1440,19 @@
   }
 
   function revealSynchronizedSelection({ behavior = "auto" } = {}) {
-    if (family !== "asr") return;
-    const encoderScroller = workspace.querySelector(".scrollable-matrix-panel .layer-matrix");
-    const encoderTarget = encoderScroller?.querySelector(`.matrix-cell[data-kind="encoder"][data-position="${state.selectedEncoder}"]`);
-    scrollTargetIntoHorizontalView(encoderScroller, encoderTarget, { behavior });
+    const positionScroller = workspace.querySelector(".position-timeline.scrollable");
+    const positionTarget = positionScroller?.querySelector(`.position-button[data-token-position="${state.selectedToken}"]`);
+    scrollTargetIntoHorizontalView(positionScroller, positionTarget, { behavior });
+
+    workspace.querySelectorAll(".scrollable-matrix-panel .layer-matrix").forEach((matrixScroller) => {
+      const matrixTarget = family === "asr"
+        ? matrixScroller.querySelector(`.matrix-cell[data-kind="encoder"][data-position="${state.selectedEncoder}"]`)
+        : family === "tts"
+          ? matrixScroller.querySelector(`.matrix-cell[data-kind="tts-layer"][data-position="${state.selectedToken}"]`)
+            || matrixScroller.querySelector(`.matrix-cell[data-kind="tts-head"][data-position="${state.selectedToken}"]`)
+          : null;
+      scrollTargetIntoHorizontalView(matrixScroller, matrixTarget, { behavior });
+    });
 
     workspace.querySelectorAll(".speech-matrix-scroll").forEach((decoderScroller) => {
       const decoderTarget = decoderScroller.querySelector(`.speech-position-token[data-token-position="${state.selectedToken}"]`)

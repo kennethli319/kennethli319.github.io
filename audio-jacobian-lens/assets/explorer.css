@@ -285,6 +285,16 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+.position-timeline.scrollable {
+  max-width: 100%;
+  grid-template-columns: repeat(var(--position-count), minmax(var(--position-cell-min), 1fr));
+  padding: 1px 1px 7px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+.position-timeline.scrollable:focus-visible { border-radius: 6px; outline: 2px solid rgba(var(--head-rgb), .42); outline-offset: 3px; }
 .selected-position-line { min-height: 20px; margin: 9px 0 0; color: var(--ink-soft); font-size: 10px; }
 .selected-position-line strong { color: var(--ink); }
 
@@ -622,8 +632,10 @@
   .matrix-layer-label { font-size: 8px; }
   .matrix-cell { min-height: 36px; border-radius: 3px; }
   .matrix-cell .matrix-cell-label { display: none; }
-  [data-family="asr"] .scrollable-matrix-panel .matrix-cell { min-height: 44px; }
-  [data-family="asr"] .scrollable-matrix-panel .matrix-cell .matrix-cell-label { display: grid; }
+  [data-family="asr"] .scrollable-matrix-panel .matrix-cell,
+  [data-family="tts"] .scrollable-matrix-panel .matrix-cell { min-height: 44px; }
+  [data-family="asr"] .scrollable-matrix-panel .matrix-cell .matrix-cell-label,
+  [data-family="tts"] .scrollable-matrix-panel .matrix-cell .matrix-cell-label { display: grid; }
   .matrix-cell.phone-signature-cell .matrix-cell-label { display: grid; }
   [data-family="speech"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
   [data-family="asr"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
@@ -650,7 +662,8 @@
   .position-timeline { gap: 2px; }
   .position-button { border-radius: 3px; }
   .position-button strong { writing-mode: vertical-rl; max-height: 28px; margin-inline: auto; }
-  .position-timeline.speech-readable { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .position-timeline.speech-readable:not(.scrollable) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .position-timeline.scrollable .position-button strong { max-height: none; margin-inline: 0; writing-mode: horizontal-tb; }
   .position-timeline.speech-readable .position-button strong { max-height: none; margin-inline: 0; writing-mode: horizontal-tb; }
   .provenance-grid { grid-template-columns: 1fr; }
 }

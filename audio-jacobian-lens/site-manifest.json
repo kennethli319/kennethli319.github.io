@@ -1,10 +1,10 @@
 {
   "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
-  "description": "Public static ASR, speech-to-speech, and recorded phone-steering Audio Jacobian Lens explorers.",
-  "interaction_boundary": "The primary pages provide static sample selection, source-attributed input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every published family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. Phone signatures and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. The steering route replays only saved checkpoints and never performs inference or interpolates an unmeasured intervention. Chatterbox/TTS remains an unpublished local experiment until its acoustic-code readouts support a clearer interpretation.",
+  "description": "Public static ASR and speech-to-speech Audio Jacobian Lens explorers, with the recorded phone-steering experiment integrated into ASR Audio 10.",
+  "interaction_boundary": "The primary pages provide static sample selection, source-attributed input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every published family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. Phone signatures and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. Chatterbox/TTS remains an unpublished local experiment until its acoustic-code readouts support a clearer interpretation.",
   "media_policy": "The detailed explorers contain ten ASR reports and ten speech-to-speech reports. Their referenced media comprises ten CC BY 4.0 LibriSpeech FLACs plus the unchanged Laurel/Yanny Audio S7 MP3 reproduced from Hans Rutger Bosker's demo using that page's CC BY 4.0 notice. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
-  "payload_policy": "Each family manifest hash-pins ten reduced reports. The Laurel/Yanny ASR report adds three recorded, non-interpolated conditions with bounded encoder, decoder, and HEAD views; residual edits, coefficient audits, prototype tensors, private paths, and embedded audio are excluded. The steering payload contains only recorded schedules, scalar coefficients, bounded candidates, output metrics, and compact controls; it excludes residuals, prototype tensors, private paths, and audio.",
-  "publication_mode": "public_linked_noindex_review",
+  "payload_policy": "Each family manifest hash-pins ten reduced reports. The Laurel/Yanny ASR report adds three recorded, non-interpolated conditions with bounded encoder, decoder, and HEAD views; residual edits, coefficient audits, prototype tensors, private paths, and embedded audio are excluded. The archived steering payload contains only recorded schedules, scalar coefficients, bounded candidates, output metrics, and compact controls; it excludes residuals, prototype tensors, private paths, and audio.",
+  "publication_mode": "public_static_cached_explorers",
   "published_on": "2026-07-13",
   "report_counts": {
     "asr": 10,
@@ -24,6 +24,9 @@
       "/audio-jacobian-lens/explorer/speech/"
     ],
     "recorded_interventions": [
+      "/audio-jacobian-lens/?sample=asr-laurel-yanny"
+    ],
+    "retired_redirects": [
       "/audio-jacobian-lens/steering/"
     ]
   },
@@ -37,15 +40,15 @@
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
     "data/phone-steering-results.json": "ef0499b1dce6dfe241284d58aa508ad266507a118a456c4fb41edeb3f6eddea7",
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
-    "explorer/asr/index.html": "0f85b2c87b98f7b6c8d198650a68b74b525bb4e13406caf7b88c74a5c24a6f60",
+    "explorer/asr/index.html": "707bced8b621fdf78a264f816bedeb6f46f9401eff1c23349a084f2c87edb786",
     "explorer/data/asr/manifest.json": "a717210e4920e3e63e214809726f8ddcb9efe8124ec9ee5c816c907a78536ba1",
     "explorer/data/speech/manifest.json": "9fb472bbebf6627fe4dd3fb0e3510cafe28cf53ce4a6b66e931effe5fde52a66",
-    "explorer/speech/index.html": "3ece996d0e705cf3576335ddf8800d2e388819c0a150f09986c0af993dfb779a",
+    "explorer/speech/index.html": "1e56df89eb1ad9a96637fe6cadd7a7d323994fbf8893fe45b2aa8b9e4068aa44",
     "findings/index.html": "ae96710e2d0b8ccd2e59ada94e71fe21abb6f37540b5563563786a5662e78400",
     "findings/speech/index.html": "490b8f64428a870c077a86cc8e1c47988230b2d8678973db3085bba31d11f41c",
-    "index.html": "9dce08316209f419fee2466d2a7d263f8892825f1c71c8b6be44df4181057797",
-    "speech/index.html": "e5780e8607f2eb76cef0449fc537f86da4a87f6cd37a84945a4c542042d7ed89",
-    "steering/index.html": "af6c514d007186d13447e5980c7f010161268259b4adb20bd3c085950d75fe89"
+    "index.html": "14e695d6a5e7ac09300ff6f5b6753486665361c6523a120a81378bb5d3643004",
+    "speech/index.html": "185333ba0e68e68a202a23618143efbf5c66227bf9727c318d20833730d7fe79",
+    "steering/index.html": "5cbe2b75059ad5e9ef09f7f61dfe6fc599d67bf7cdd25290c71a5da67e04de02"
   },
   "source_repository": "https://github.com/kennethli319/audio-jacobian-lens"
 }

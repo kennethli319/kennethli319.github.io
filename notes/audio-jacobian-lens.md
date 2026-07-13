@@ -59,7 +59,7 @@ In Whisper's decoder, some destinations become readable early. In one example, `
 
 Other words take longer. In “Where is my brother now?”, `now` became readable only near the end, while `who` appeared near the top earlier.
 
-This resembles a word-association experiment, but it does not show that Whisper was “thinking of who.” What we can observe is that different lexical directions become readable at different depths; what that schedule represents is still open to interpretation.
+To me, this makes the decoder look surprisingly language-model-like. After `brother`, it surfaced `who`—almost like an internal hint asking whether the next word would concern the brother's identity—before it arrived at `now`. It reminds me of word association in psycholinguistics: not exactly the same process, but surprisingly similar in shape.
 
 ### The encoder looks more like a constellation
 
@@ -146,7 +146,9 @@ At that output position, `who` appeared near the top early, although Whisper ult
   <figcaption><strong>Figure 1.</strong> The public explorer makes the schedule visible: at the position where Whisper eventually emits <code>now</code>, <code>who</code> is the early top candidate before <code>now</code> resolves in later layers. The screenshot uses the explorer's display vocabulary; the full-vocabulary ranks reported above are #6,319 → #7,237 → #3 → #1. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive report</a>.</figcaption>
 </figure>
 
-One interpretation is lexical competition; another is simply that the fitted readout exposes different vocabulary directions at different depths. Repeating this across controlled minimal pairs—and testing whether early competitors predict later errors or priming—could separate those readings.
+What surprised me was how language-model-like the sequence looked. After `brother`, the decoder surfaced `who`, almost as if it were using a short internal chain of thought: is the next word about the brother's identity? It then resolved to `now`.
+
+This reminds me of word-association behavior in psycholinguistics. The mechanisms are not necessarily identical, but the shape is surprisingly similar. I want to test that resemblance with controlled sentences: change the kinship word, change whether the continuation asks about identity, and see whether associated question words still appear before the final token.
 
 ### A distributed signature predicts phones better than its brightest coordinate
 

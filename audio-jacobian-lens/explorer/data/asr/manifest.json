@@ -140,10 +140,7 @@
         "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json",
         "sha256": "c5efb745b6aead5f797958c2878088c3d157250f7cce14cfb7ad4cf871fd5d21",
         "bytes": 15160124
-      },
-      "featured_views": [
-        "asr_phone_signature"
-      ]
+      }
     },
     {
       "id": "asr-raps",

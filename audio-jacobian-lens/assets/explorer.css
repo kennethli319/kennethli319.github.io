@@ -122,8 +122,6 @@
 }
 .sample-button:hover { border-color: var(--line-strong); }
 .sample-button[aria-pressed="true"] { border-color: rgba(var(--lens-rgb), .5); background: rgba(var(--lens-rgb), .055); box-shadow: inset 0 -3px 0 var(--lens); }
-.sample-button.phone-example { border-color: rgba(var(--lens-rgb), .34); background: rgba(var(--lens-rgb), .035); }
-.sample-button em { display: inline-block; margin-bottom: 5px; padding: 3px 5px; border: 1px solid rgba(var(--lens-rgb), .34); border-radius: 99px; color: var(--lens); font: 700 7px/1 var(--mono); font-style: normal; letter-spacing: .06em; }
 .sample-button span { display: block; color: var(--muted); font: 600 9px/1.35 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
 .sample-button strong { display: block; margin-top: 4px; overflow: hidden; font-size: 11px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .sample-button small { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font: 500 8px/1.35 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
@@ -374,6 +372,19 @@
 }
 .matrix-stack { min-width: 0; display: grid; gap: 14px; }
 .matrix-panel { min-width: 0; padding: clamp(17px, 2.5vw, 24px); }
+.matrix-architecture {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 12px;
+  margin: -2px 0 13px;
+  padding: 8px 10px;
+  border-block: 1px solid var(--line);
+  color: var(--muted);
+  font: 600 8px/1.4 var(--mono);
+}
+.matrix-architecture strong { color: var(--ink); font-size: 9px; text-transform: uppercase; }
+.matrix-architecture span + span::before { content: "·"; margin-right: 12px; color: var(--line-strong); }
 .matrix-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 13px; color: var(--muted); font-size: 9px; }
 .matrix-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .matrix-legend i { width: 18px; height: 6px; border-radius: 99px; background: var(--lens); }

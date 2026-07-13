@@ -160,12 +160,6 @@
     ) {
       throw new Error("The cached family manifest has duplicate or incomplete report entries.");
     }
-    if (family === "asr" && !payload.reports.some((entry) => (
-      Array.isArray(entry?.featured_views)
-      && entry.featured_views.includes("asr_phone_signature")
-    ))) {
-      throw new Error("The ASR explorer has no featured phone-signature example.");
-    }
     return payload;
   }
 
@@ -350,10 +344,8 @@
     const grid = sampleList.querySelector("[data-sample-grid]");
     grid.innerHTML = visible.length ? visible.map(({ entry, index }) => {
       const detail = entry.summary || entry.reference_transcript || entry.prompt || entry.teaching_role || entry.id;
-      const phoneExample = family === "asr" && Array.isArray(entry.featured_views) && entry.featured_views.includes("asr_phone_signature");
       return `
-        <button class="sample-button${phoneExample ? " phone-example" : ""}" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
-          ${phoneExample ? '<em>PHONE SIGNATURE EXAMPLE</em>' : ""}
+        <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
           <span>${escapeHTML(`${family === "tts" ? "Prompt" : "Audio"} ${String(index + 1).padStart(2, "0")}`)}</span>
           <strong>${escapeHTML(entry.title)}</strong>
           <small>${escapeHTML(detail)}</small>
@@ -862,13 +854,40 @@
     return `${rows}<div class="matrix-row" style="--position-count:${head.length};--matrix-min:${58 + head.length * ttsCellWidth}px"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { panel = "", headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false, scrollLabel = "Layer positions; scroll horizontally for later positions" } = {}) {
+  function asrArchitecture(kind) {
+    if (family !== "asr") return "";
+    if (kind === "encoder") {
+      const layers = state.report.payload.encoder?.layers || [];
+      const range = layers.length ? `L${layers[0]}–L${layers[layers.length - 1]}` : "saved layers";
+      return `
+        <div class="matrix-architecture" aria-label="Encoder architecture">
+          <strong>Whisper encoder</strong>
+          <span>${escapeHTML(`${layers.length} residual blocks · displayed ${range}`)}</span>
+          <span>Bidirectional audio-time states</span>
+        </div>
+      `;
+    }
+    const sourceLayers = state.report.payload.decoder?.layers || [];
+    const first = sourceLayers[0] ?? 0;
+    const lastSource = sourceLayers[sourceLayers.length - 1] ?? 0;
+    const finalLayer = lastSource + 1;
+    return `
+      <div class="matrix-architecture" aria-label="Decoder architecture">
+        <strong>Whisper decoder</strong>
+        <span>${escapeHTML(`${sourceLayers.length + 1} residual blocks · fitted source readouts L${first}–L${lastSource}`)}</span>
+        <span>${escapeHTML(`Final L${finalLayer} state → LM head · causal token time`)}</span>
+      </div>
+    `;
+  }
+
+  function renderMatrixPanel(title, description, rows, { panel = "", headLegend = false, windowed = false, controls = "", architecture = "", legendLabel = "Fitted/readout intensity", scrollable = false, scrollLabel = "Layer positions; scroll horizontally for later positions" } = {}) {
     return `
       <section class="matrix-panel${controls ? " phone-capable-panel" : ""}${scrollable ? " scrollable-matrix-panel" : ""}"${panel ? ` data-explorer-panel="${escapeHTML(panel)}"` : ""}>
         <header class="explorer-panel-heading">
           <div><p class="section-label">LAYER × POSITION</p><h3>${escapeHTML(title)}</h3></div>
           <p>${escapeHTML(description)}</p>
         </header>
+        ${architecture}
         ${controls}
         <div class="matrix-legend"><span><i></i> ${escapeHTML(legendLabel)}</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
         <div class="layer-matrix${windowed ? " windowed" : ""}"${scrollable ? ` tabindex="0" aria-label="${escapeHTML(scrollLabel)}"` : ""}>${rows}</div>
@@ -1030,7 +1049,7 @@
     if (state.report.payload.encoder?.layers?.length) {
       const phoneMode = encoderPhoneMode("encoder");
       panels.push(renderMatrixPanel(
-        "Across the audio representation",
+        family === "asr" ? "Encoder: Across the audio representation" : "Across the audio representation",
         phoneMode
           ? "Each cell shows the nearest frozen phone prototype. Blue tint is the within-layer percentile of cosine similarity; exact ranks and alternatives are in the tooltip and inspector. Scroll horizontally for later audio windows."
           : family === "asr"
@@ -1039,6 +1058,7 @@
         renderStandardRows("encoder"),
         {
           panel: "encoder",
+          architecture: asrArchitecture("encoder"),
           controls: renderPhoneSignatureControl(),
           legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
           scrollable: family === "asr",
@@ -1047,12 +1067,12 @@
       ));
     }
     panels.push(renderMatrixPanel(
-      "As each token resolves",
+      family === "asr" ? "Decoder: As each token resolves" : "As each token resolves",
       family === "speech"
         ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames. Scroll horizontally to follow the complete generated sequence."
         : "Decoder boxes show each layer's top candidate in large text and the realized output token's exact rank below it. HEAD keeps the actual output token and probability semantics.",
       renderSpeechRows(),
-      { panel: "decoder", headLegend: true, windowed: true },
+      { panel: "decoder", headLegend: true, windowed: true, architecture: asrArchitecture("decoder") },
     ));
     return panels.join("");
   }

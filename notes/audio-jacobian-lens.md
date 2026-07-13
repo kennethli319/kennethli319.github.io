@@ -1,139 +1,155 @@
 ---
 layout: default
-title: "Listening Inside a Speech Model with the Audio Jacobian Lens"
-description: "One speech-interpretability project in two forms: a metaphorical story and a scientific report on J-lens readouts, phone signatures, and steering."
-image: https://kennethli319.github.io/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg
+title: "Inception into J-Space"
+description: "A layer-by-layer descent through a speech model: from readable words to nonliteral acoustic representations, and from inspection to steering."
+image: https://kennethli319.github.io/assets/img/audio-jacobian-lens/inception-into-j-space-hand-drawn.jpg
 permalink: /notes/audio-jacobian-lens/
 ---
 
 [Back to Notes]({{ '/notes.html' | relative_url }})
 
 <section class="version-gate" id="choose-version" aria-labelledby="note-title">
-  <p class="version-eyebrow">One investigation · two ways in</p>
-  <h1 id="note-title">Listening Inside a Speech Model with the Audio Jacobian Lens</h1>
-  <p class="version-intro">Read the same project as a short metaphorical story or a concise technical report. The evidence and boundaries are the same; only the map changes.</p>
+  <p class="version-eyebrow">One investigation · two ways down</p>
+  <h1 id="note-title">Inception into J-Space</h1>
+  <p class="version-intro">I use <em>Inception</em> as a way to think about descending through a speech model: readable language at the surface, stranger projections below, and the possibility that one well-placed anchor can change what later layers build.</p>
   <nav class="version-chooser" aria-label="Choose a version of this note">
     <a class="version-choice version-choice--metaphor" href="#metaphorical-version">
-      <strong>Follow the metaphorical map →</strong>
-      <span>Enter a city beneath the transcript, where acoustic constellations become words and internal switches can be tested.</span>
-      <small>Story version · about 3 minutes</small>
+      <strong>Enter through the metaphor →</strong>
+      <span>A shorter descent through the surface, the dream layers, encoder limbo, and the idea of planting an anchor.</span>
+      <small>Story version · about 4 minutes</small>
     </a>
     <a class="version-choice version-choice--technical" href="#technical-version">
-      <strong>Read the technical report →</strong>
-      <span>Methods, measurements, screenshots, controls, limitations, and the experiments I want to run next.</span>
-      <small>Scientific version · about 8 minutes</small>
+      <strong>Take the technical descent →</strong>
+      <span>The same journey with measurements, screenshots, controls, limitations, and the experiments I want to run next.</span>
+      <small>Technical version · about 9 minutes</small>
     </a>
   </nav>
 </section>
 
 <article class="version-panel version-panel--metaphorical" id="metaphorical-version" tabindex="-1" aria-labelledby="metaphorical-title" markdown="1">
 
-<a class="version-back" href="#choose-version">← Back to the two maps</a>
+<a class="version-back" href="#choose-version">← Back to the two descents</a>
 
-## The City Beneath the Transcript {#metaphorical-title}
+## A Descent into J-Space {#metaphorical-title}
 
-<p class="version-deck">A metaphorical map of the same Audio Jacobian Lens experiments · July 2026</p>
+<p class="version-deck">A metaphorical version of the Audio Jacobian Lens experiments · July 2026</p>
 
 <figure class="note-figure note-figure--illustration">
-  <a href="{{ '/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg' | relative_url }}">
-    <img src="{{ '/assets/img/audio-jacobian-lens/city-beneath-transcript.jpg' | relative_url }}" alt="Editorial illustration of a glowing sound wave entering a city at night, branching through layered neighborhoods, forming a constellation, and emerging as illuminated tiles." loading="lazy" decoding="async">
+  <a href="{{ '/assets/img/audio-jacobian-lens/inception-into-j-space-hand-drawn.jpg' | relative_url }}">
+    <img src="{{ '/assets/img/audio-jacobian-lens/inception-into-j-space-hand-drawn.jpg' | relative_url }}" alt="Hand-drawn editorial illustration of four computational levels: readable speech tiles at the surface, projected objects below, distributed acoustic constellations deeper down, and a glowing anchor in the lowest level sending a signal upward." loading="lazy" decoding="async">
   </a>
-  <figcaption><strong>Metaphorical illustration.</strong> Sound enters the city, travels through many possible routes, forms a distributed constellation, and reaches the output board. This is explanatory artwork, not model output or experimental evidence.</figcaption>
+  <figcaption><strong>Hand-drawn metaphorical illustration.</strong> At the surface, language is readable. Deeper down, familiar objects become projections and distributed patterns. One anchor planted at a particular depth sends an effect through the levels above. This is explanatory artwork, not experimental evidence.</figcaption>
 </figure>
 
-Imagine that a speech model is a city at night.
+I keep thinking about *Inception*.
 
-Sound enters through the outer gates—not yet as words, only pressure changing over time. It travels through layered neighborhoods until a sentence appears on a brightly lit departure board. We can read the board. What we usually cannot see is the route beneath it.
+In the movie, you enter one dream, then another inside it, and then another. The surface still looks familiar. As you descend, however, things become less literal. An object can be a projection. Several objects can combine to express something that none of them means alone. And something small, placed deep enough, can reorganize what happens in every level above it.
 
-During my linguistics degree, psycholinguistics taught me to study hidden language processes indirectly. Researchers used reaction time, priming, ambiguity, and mistakes because they could not inspect every neuron. I miss that kind of puzzle-solving.
+That is almost how I now imagine looking through a speech model with the [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), which I adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace).
 
-Neural models give us the opposite problem: almost every activation is available, but there are too many to interpret. It can still feel like EEG or MEG. We see activity, but meaning does not arrive with it.
+I am borrowing *Inception* as a map. I am not saying that Whisper dreams or has a human subconscious. The metaphor is useful because it gives me two questions: **what changes as we descend, and what can an intervention placed at one level change after it?**
 
-The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace), is my attempt to draw a more useful map of that city.
+During my linguistics degree, psycholinguistics taught me to study language processes that we could not inspect directly. Researchers designed experiments around reaction time, priming, ambiguity, and mistakes, then tried to infer the hidden sequence underneath. I miss that kind of puzzle-solving.
 
-It does not reveal the model's thoughts. It places human-readable vocabulary coordinates over unfamiliar internal terrain, where the activity may represent acoustics, fragments of words, uncertainty, or mixtures without a single human name.
+Neural models give us the opposite problem. We can record almost every activation, but there are too many of them and most do not come with names. It still feels a little like functional EEG or MEG: we see something light up, and then we have to guess what the pattern means.
 
-### Words appear on different schedules
+### The surface world
 
-In Whisper's decoder, some destinations become readable early. In one example, `door` moved from fourth to first in the explorer's display vocabulary between two layers.
+At the surface is the transcript. Here, a word mostly means what we expect: it is the token the model is about to say.
 
-Other words take longer. In “Where is my brother now?”, `now` became readable only near the end, while `who` appeared near the top earlier.
+But move one level down through Whisper's decoder and the schedule becomes interesting. In “Where is my brother now?”, the final token `now` moved through the full vocabulary like this:
 
-To me, this makes the decoder look surprisingly language-model-like. After `brother`, it surfaced `who`—almost like an internal hint asking whether the next word would concern the brother's identity—before it arrived at `now`. It reminds me of word association in psycholinguistics: not exactly the same process, but surprisingly similar in shape.
+```text
+#6,319 → #7,237 → #3 → #1
+```
 
-At the same time, the encoder's Phone Signature showed a suggestive `N → AW`-like pattern near the end, and the decoder eventually resolved to `now`. The timing is not clean enough to call that direct proof for the word, but it makes me think two sources of evidence are meeting: language-context associations from the decoder and acoustic cues from the encoder.
+Before `now` resolved, `who` appeared near the top at that output position.
 
-That leads to a simple experiment. Vary acoustic clarity and linguistic context independently. My expectation is that a less clear acoustic cue will give the language-model side more influence, while a clearer cue will let the acoustic evidence dominate.
+To me, this looks surprisingly language-model-like. After `brother`, the decoder surfaces `who`, almost as if one level is leaving a hint for the next: *brother—identity—who*. Then the later levels settle on `now`.
 
-### The encoder looks more like a constellation
+It reminds me of word association in psycholinguistics. I am not saying the mechanisms are exactly the same, but the shape is surprisingly similar, and that resemblance gives us an experiment rather than a conclusion.
 
-The acoustic encoder was harder to read. Looking only for its highest-ranked word was like identifying a neighborhood from its nearest street sign.
+The encoder gives another part of the puzzle. Near the end of the same clip, its Phone Signature shows an earlier, suggestive `N → AW`-like sequence. The timing is not clean enough to call this direct proof for `now`: the displayed 100 ms windows overlap, the encoder is nonlocal, and the token timing is model-derived.
 
-The Phone Signature view instead compares a distributed pattern across 100 vocabulary-aligned coordinates with frozen phone prototypes. No single star gives the answer; the constellation carries the information.
+Still, it makes me wonder if two streams are meeting. One comes from language association in the decoder. The other comes from acoustic evidence in the encoder. If the sound is unclear, perhaps the association stream pulls harder; if the acoustic cue is clear, perhaps it constrains the answer more strongly. A clear-versus-ambiguous audio × supportive-versus-conflicting context experiment could test that.
 
-On held-out speakers, the brightest coordinate reached about **63.5% phone macro-F1**, while the distributed signature reached roughly **80%**, including on strict unseen-word examples. In these tests, the overall pattern carried more recoverable phone information than its top label. Whether that pattern is best understood as phonetic structure, an acoustic correlate, or something else needs further experiments.
+### Encoder limbo
 
-The model stayed frozen, but the map and prototypes were fitted with supervised examples. The measurements use native 20 ms states; the public map groups them into overlapping 100 ms windows for readability. Those windows are not phone boundaries, and their labels are similarities, not probabilities.
+The further I descend from the output, the less useful it becomes to ask, “Which word is the model thinking about?” The lens still shows vocabulary directions because vocabulary is a human coordinate system we can read. But a token direction deep in the encoder does not have to carry that token's surface meaning.
 
-One experiment I want to try next is to hide the audio and transcript, then ask a phonetician or language model to reconstruct the words from the Phone Signature sequence alone.
+It may be more like a familiar object projected into a dream. We recognize its form, but it is doing another job at that level. One token may be an acoustic attribute or one piece of a subword state. Multiple tokens, their rankings, and the way they move across time may have to combine before the pattern means anything.
 
-### What happens if we touch a switch?
+That is why the Phone Signature view looks at a constellation rather than only its brightest star. At encoder layer 2, the top coordinate alone recovered phone identity at about **63.5% macro-F1**. The distributed pattern across the top 100 coordinates reached roughly **80–81%**, including strict unseen-word examples.
 
-With the ambiguous Laurel/Yanny recording, the unedited model produced `Lily!` I nudged earlier encoder states toward a broad Y-prefix direction, then let the remaining layers recompute.
+To me, the important observation is that the combination carries much more recoverable phone information than the top label. Maybe human vocabulary directions are being borrowed to describe something more acoustic and less literal. Maybe the fitted map contributes part of that structure. The point is to design an experiment that separates those possibilities.
 
-The result changed to `Yay!`—but never to `Yanny`.
+If I keep descending toward the first encoder layer, that is the model's limbo in this metaphor: furthest from the transcript, hardest to name in human terms, but still part of everything that will be built above it.
 
-The near-miss gives us an observation: the intervention changed what followed, but not to the intended word. That could reflect weak directional control, a broad phonetic bias, or an unstable perturbation. The steering direction was also separate from the Phone Signature prototypes, so it does not validate that map.
+One experiment I especially want to try is to hide the original audio and transcript, then give only the ordered Phone Signature sequence to a phonetician or a capable language model. Could they reconstruct most of the words that appeared in the audio without listening to it? What survives if I shuffle the sequence, swap in a random map, or use unseen speakers and words?
 
-The next experiment is to treat a readable direction as a gauge, then test whether moving it changes behavior repeatedly, selectively, and more than controlled alternatives. Only then could we ask whether it also works as a knob.
+### Planting an anchor
 
-### Experiments the map makes possible
+Going down is only half of *Inception*. The more interesting question is whether the right object, planted at the right depth, changes what the higher levels build around it.
 
-Psycholinguistics already gives us experiments for priming, ambiguity, phonetic competition, and adaptation. We can look for related patterns inside a model, perturb them, and compare the results with competing predictions about what the model has learned.
+With the ambiguous Laurel/Yanny recording, the unedited model produced `Lily!` I nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction, then let all the remaining layers recompute.
 
-A longer-term experiment would ask whether a broadly trained model contains stable internal representations that can support debugging or adaptation without full retraining for every deployment. That remains a hypothesis, not a result of the current work.
+The result became `Yay!`, not `Yanny`.
 
-<div class="metaphor-key"><strong>Where the metaphor stops:</strong> A token is not a thought. A prototype match is not a phoneme probability. A model that can be steered is not necessarily a model we understand.</div>
+That is not precise semantic control, but it is also not nothing. Something placed early changed the surface transcript, while the model still decided what surface object to construct from it. The anchor caught somewhere, but the model interpreted it in its own way.
 
-Unlike the hidden city of the human brain, this one can be rerun, compared, and—carefully—touched. The point is not to settle on one story, but to design the next experiment that can distinguish among several.
+The temporal side appears in one Chatterbox TTS replay. A small residual edit changed one acoustic-code winner from `4106` to `4358`, followed by 43 changed downstream codes. This does not tell us what those codes mean. It shows why I want to test both **layer and time**: a local edit can alter the autoregressive future built after it.
+
+So the experiment I want is not simply “can I make the output change?” It is: **which anchor, at which layer, at which time, and at which strength produces a repeatable and selective change?** Then test the opposite direction, an orthogonal direction, a random direction with the same norm, and the same anchor at the wrong time.
+
+This is where the old psycholinguistic puzzles become useful again. We can borrow paradigms for priming, ambiguity, phonetic competition, and adaptation, but now we can locate an association, touch it, and see whether the rest of the computation reorganizes in the way we predicted.
+
+The question is no longer only, “What does this activation mean?”
+
+It is also: **how deep do we need to go, what should we place there, and what survives when the model returns to the surface?**
 
 <div class="version-panel-nav">
-  <a href="#technical-version">Continue with the technical report →</a>
-  <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Explore the live ASR map</a>
-  <a href="#choose-version">Back to the two maps</a>
+  <a href="#technical-version">Continue with the technical descent →</a>
+  <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Explore the live ASR layers</a>
+  <a href="#choose-version">Back to the two descents</a>
 </div>
 
 </article>
 
 <article class="version-panel version-panel--technical" id="technical-version" tabindex="-1" aria-labelledby="technical-title" markdown="1">
 
-<a class="version-back" href="#choose-version">← Back to the two maps</a>
+<a class="version-back" href="#choose-version">← Back to the two descents</a>
 
-## Scientific and technical report {#technical-title}
+## A Technical Descent Through the Audio Jacobian Lens {#technical-title}
 
 *July 2026 · Psycholinguistics, mechanistic interpretability, and speech models*
 
-During my linguistics degree, psycholinguistics taught me how to study a system we could not inspect directly. Researchers used reaction time, priming, ambiguity, and errors to infer how language might be processed inside the brain.
+During my linguistics degree, psycholinguistics taught me to study a system we could not open. Researchers used reaction time, priming, ambiguity, and mistakes to infer the hidden sequence of language processing. I miss that kind of puzzle-solving.
 
-Neural models present the opposite problem: almost every activation is available, but there is too much to interpret directly. It can still resemble EEG or MEG—we see patterns changing, but their meaning does not arrive with them.
+With neural models, we have the opposite problem. We can record almost every activation, but there are too many of them and most do not come with names. It is almost like functional EEG or MEG: we can see something light up, but we still have to work out what the pattern means.
 
-The important difference is that a model can be rerun exactly and perturbed internally. The Audio Jacobian Lens is my attempt to turn that access into a useful measurement instrument.
+The metaphor I keep returning to is *Inception*. At the surface is the transcript: ordinary words, close to the model's final decision. Descend one level and the same vocabulary begins to look more like associations, hints, and competing possibilities. Go deeper toward the encoder and human words may still appear in the projection, but I no longer think they should always be read literally. A token direction can be a borrowed coordinate. Several directions and their rankings may need to combine before the pattern means an acoustic state, a subword fragment, or an attribute for which we do not have one clean human label.
 
-## What the lens measures
+Metaphorically, the earliest encoder layer is limbo: furthest from the output, hardest to name, and still capable of shaping everything built above it. The [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) is the instrument I am using to descend through those levels. It also lets me ask the causal question I find more interesting: if I find the right anchor and place it at the right layer and time step, will later layers—and later time steps—reorganize around it?
+
+## The instrument
 
 Anthropic's [Jacobian Lens](https://www.anthropic.com/research/global-workspace) fits a first-order map from an intermediate residual state toward a later space that can be read through the vocabulary head. In practical terms, it asks:
 
 > Under this fitted map, which vocabulary directions become readable from here?
 
-I adapted it in [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens) for Whisper ASR, Chatterbox TTS, and an experimental Apple-silicon MLX path for LFM2.5 Audio. The encoder-to-decoder transport used for Phone Signature is my extension, not a configuration validated by Anthropic's paper.
+I adapted it for Whisper ASR, Chatterbox TTS, and an experimental Apple-silicon MLX path for LFM2.5 Audio. The encoder-to-decoder transport used for Phone Signature is my extension, not a configuration validated by Anthropic's paper.
 
-The original model remains frozen, but the lens and phone prototypes are fitted from data, including automatically aligned speech supervision. This is a learned instrument applied to a frozen model—not a transcript of the model's thoughts or direct proof of causation.
+The original model remains frozen, but the lens and phone prototypes are fitted from data, including automatically aligned speech supervision. This does not make the lens a transcript of hidden thought. It makes it a fitted instrument: the map gives us human-readable coordinates from which we can form and test hypotheses.
 
 Two encoder maps were fitted on non-overlapping examples and evaluated on the same speaker-held-out development set. Their agreement is a consistency check, not an independent-corpus replication.
 
-## What I observed—and what might explain it
+## The descent
 
-### Words become readable at different depths
+### At the surface: the transcript
+
+The output head is the surface world. Here a vocabulary item means almost exactly what we expect it to mean: the token the model is about to emit. The interesting questions are how early that final object becomes readable and what occupies its place before it does.
+
+### One level down: associations before decisions
 
 In “Where is my brother now?”, the realized token `now` moved through the full vocabulary as follows:
 
@@ -147,20 +163,24 @@ At that output position, `who` appeared near the top early, although Whisper ult
   <a href="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}">
     <img src="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}" alt="Whisper decoder layer-by-position matrix for Where is my brother now, with now selected. Who is the top early-layer candidate before now becomes top-ranked later." loading="lazy" decoding="async">
   </a>
-  <figcaption><strong>Figure 1.</strong> The public explorer makes the schedule visible: at the position where Whisper eventually emits <code>now</code>, <code>who</code> is the early top candidate before <code>now</code> resolves in later layers. The screenshot uses the explorer's display vocabulary; the full-vocabulary ranks reported above are #6,319 → #7,237 → #3 → #1. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive report</a>.</figcaption>
+  <figcaption><strong>Figure 1.</strong> At the position where Whisper eventually emits <code>now</code>, <code>who</code> is the early top candidate before <code>now</code> resolves in later layers. The screenshot uses the explorer's display vocabulary; the full-vocabulary ranks are #6,319 → #7,237 → #3 → #1. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive report</a>.</figcaption>
 </figure>
 
-What surprised me was how language-model-like the sequence looked. After `brother`, the decoder surfaced `who`, almost as if it were using a short internal chain of thought: is the next word about the brother's identity? It then resolved to `now`.
+This makes the decoder look surprisingly language-model-like to me. After `brother`, it surfaces `who`, almost as if the model is following an association—*brother, identity, who*—before the acoustic and linguistic evidence settles on `now`. It is not exactly the same as a psycholinguistic word-association experiment, but the sequence is surprisingly similar, and that similarity gives us experiments to run.
 
-This reminds me of word-association behavior in psycholinguistics. The mechanisms are not necessarily identical, but the shape is surprisingly similar. I want to test that resemblance with controlled sentences: change the kinship word, change whether the continuation asks about identity, and see whether associated question words still appear before the final token.
+The encoder offers a different kind of clue. Near the end of the same clip, L2 contains an earlier, suggestive `N → AW`-like prototype run, while the decoder eventually resolves to `now`. I would not call this a clean token alignment: the displayed 100 ms cells overlap, the encoder receptive field is nonlocal, and the token timing is model-derived.
 
-The acoustic side adds another piece. Near the end of the clip, encoder L2 shows a suggestive `N → AW`-like prototype sequence while the decoder ultimately resolves to `now`. The timing does not align cleanly enough to treat this as direct token-level evidence: the 100 ms cells overlap, the encoder receptive field is nonlocal, and the token timing is model-derived.
+But taken together, the two views make me think about two streams meeting at the prediction: language association in the decoder and acoustic evidence in the encoder. A 2×2 experiment can vary acoustic clarity—clear versus ambiguous—and context—supportive versus conflicting—independently. If the acoustic cue is weak, I expect the decoder's language associations to pull harder; if the cue is clear, I expect the encoder evidence to constrain the answer more strongly.
 
-Still, it motivates a two-source hypothesis. The decoder may be balancing language-context associations against acoustic evidence from the encoder. A 2×2 experiment could vary acoustic clarity—clear versus ambiguous—and context—supportive versus conflicting—independently. If the hypothesis is right, weakening the acoustic cue should increase the contextual influence, while clearer speech should pull the prediction toward the acoustic evidence.
+### Deeper down: vocabulary becomes a borrowed coordinate system
 
-### A distributed signature predicts phones better than its brightest coordinate
+The further I descend from the output, the less useful it becomes to ask, “Which word is the model thinking about?” The lens still reports vocabulary directions because vocabulary is the human coordinate system available to it. But at encoder depth, a direction named by a word does not have to carry that word's surface meaning.
 
-A single vocabulary coordinate was a poor description of Whisper's acoustic encoder, so the **Phone Signature view** compares the distributed pattern across its top 100 vocabulary-aligned coordinates with frozen phone prototypes.
+It may be one projection of an acoustic or subword state. Several directions, their relative strengths, and their order across time may have to be read together—more like a constellation than a label. In the *Inception* framing, recognizable objects still appear in the lower levels, but the rules connecting object and meaning have changed.
+
+### Encoder limbo: the Phone Signature
+
+The **Phone Signature view** is my first attempt to read that deeper space without pretending its brightest human label is the whole answer. It compares the distributed pattern across the top 100 vocabulary-aligned coordinates with frozen phone prototypes.
 
 The preliminary speaker-held-out results are:
 
@@ -169,9 +189,9 @@ The preliminary speaker-held-out results are:
 - Using the distributed top-100 signature raises this to about **81% across two separately fitted maps**.
 - The distributed result stays near **80% on strict unseen-word examples** and reaches roughly **90–92% in matched cross-speaker, cross-word ABX tests**, above spectrum-matched random transports.
 
-On these held-out evaluations, the fitted maps expose more phone-predictive structure than spectrum-matched random transports, and the top-100 signature predicts phones better than rank 1 alone. That pattern could reflect distributed phone coding, correlated acoustic cues, or structure introduced by the supervised alignment and prototypes.
+To me, the important observation is compositional: the distributed pattern carries much more recoverable phone information than its brightest coordinate. One interpretation is that human vocabulary directions are being borrowed to describe something more acoustic and less literal. Other interpretations remain possible—the supervised alignment and prototypes may contribute structure—which is why the next experiments should test reconstruction, transfer, and controlled contrasts rather than settle the meaning by description alone.
 
-These measurements use automatically aligned **native 20 ms states**. The explorer pools five states into overlapping **100 ms display cells**. Those cells aid visualization but are not phone boundaries, probabilities, or a separately validated classifier.
+These measurements use automatically aligned **native 20 ms states**. The public explorer pools five states into overlapping **100 ms display cells with an 80 ms hop**. Those cells aid visualization but are not phone boundaries, probabilities, or a separately validated classifier.
 
 <figure class="note-figure">
   <a href="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}">
@@ -180,17 +200,19 @@ These measurements use automatically aligned **native 20 ms states**. The explor
   <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature using 100 ms display cells with an 80 ms hop. In the selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest frozen ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). The scores are similarities, and a window may contain multiple phones; it is not a predicted phone boundary. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
 </figure>
 
-For now, I treat this as an observation about recoverability, not a conclusion about how Whisper represents phones. Cross-corpus transfer and controlled single-phone contrasts could help separate phone-like structure from speaker, context, or alignment cues.
+I use “limbo” conceptually for the furthest descent toward the first encoder layer, not as a claim that these L2/L3 measurements fully explain L1. It names the problem: the further we move from the output, the more the information may be present without having a direct human name.
 
-### Steering changes what follows
+### Planting an anchor
 
-With the ambiguous Laurel/Yanny recording, I nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction, then let the frozen model recompute. The free decode changed from `Lily!` to `Yay!`, but never to `Yanny`.
+In *Inception*, reaching a deeper level is not only about observing it. A small object planted there can change what the higher levels build around it. That is also the steering question here: can I place an anchor at one layer and one time step, then let the untouched part of the model carry it forward?
 
-In this clip, an early edit was followed by a different final decode. That could be targeted phonetic influence, a shift in language priors, or generic disruption. The steering direction was separate from the Phone Signature prototypes. Dose-response sweeps with opposite, orthogonal, and norm-matched random directions across many ambiguous clips could tell these possibilities apart.
+With the ambiguous Laurel/Yanny clip, the unedited model decoded `Lily!` I nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction, then allowed the remaining layers to recompute. The output changed to `Yay!`, but never to `Yanny`.
 
-### Beyond ASR
+The near miss is useful. It shows that an early edit can propagate into the surface transcript, but it does not yet tell us whether I found a phonetic anchor, shifted a language prior, or simply disturbed the computation. The steering direction was separate from the Phone Signature prototypes. The experiment now is to find which anchors are stable: at what layer, at what time, at what dose, and against which controlled alternatives.
 
-In one recorded Chatterbox TTS replay, a small late-layer residual edit flipped an acoustic-code winner and regenerated a different autoregressive suffix.
+### Propagation beyond ASR
+
+The same layer-and-time question appears in TTS. In one recorded Chatterbox replay, a **0.002×-relative-norm** residual edit at L20 + L22 changed the speech-head winner from code `4106` to `4358`, followed by **43 changed downstream codes**.
 
 <figure class="note-figure">
   <a href="{{ '/assets/img/audio-jacobian-lens/tts-residual-steering.png' | relative_url }}">
@@ -199,35 +221,39 @@ In one recorded Chatterbox TTS replay, a small late-layer residual edit flipped 
   <figcaption><strong>Figure 3.</strong> A recorded Chatterbox causal replay. A 0.002×-relative-norm edit at L20 + L22 changes the speech-head winner from acoustic code 4106 to 4358, followed by 43 changed downstream codes. This demonstrates propagation through the autoregressive suffix; it does not give acoustic-code IDs word or phone meaning, or establish waveform attribution. <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">Open the interactive TTS report</a>.</figcaption>
 </figure>
 
-In this replay, the edit changed a code winner and the downstream suffix. The open question is whether this reflects meaningful acoustic control or ordinary autoregressive sensitivity; repeated clips, matched perturbations, and waveform-level evaluation are the next test. The MLX path for LFM2.5 Audio also runs end to end, but it remains a one-clip integration pilot.
+The edit reached the future, but the code IDs do not yet tell us what acoustic object changed. Repeated clips, matched perturbations, and waveform-level evaluation are needed to tell meaningful control from ordinary autoregressive sensitivity. The MLX path for LFM2.5 Audio also runs end to end, but it remains a one-clip integration pilot.
 
-## What I want to test next
+## Experiments that could test the metaphor
 
-### Reconstructing words from Phone Signatures
+### 1. Acoustics × context
 
-My next test is behavioral: hide the audio and transcript, show only the ordered Phone Signature sequence, and ask a phonetician or language model to reconstruct the words.
+Cross clear versus ambiguous audio with supportive versus conflicting linguistic context. This would test whether the relative influence of encoder acoustic evidence and decoder language association changes as the cue becomes easier or harder to hear.
 
-Success against shuffled sequences, matched random maps, and unseen speakers and words would suggest that the view preserves an organized phonetic route rather than isolated labels. A text-only baseline would show how much reconstruction comes from language priors instead of acoustic evidence.
+### 2. Reconstruct the surface from limbo
 
-Failure would also be informative: the signatures might be locally readable without preserving a larger linguistic sequence.
+Hide the audio and transcript, show only the ordered Phone Signature sequence, and ask a phonetician or capable language model to reconstruct the words. Compare with shuffled sequences, matched random maps, unseen speakers and words, and a text-only baseline that measures how much reconstruction comes from language priors.
 
-### From readable directions to useful controls
+If people can mostly guess the word sequence from late encoder Phone Signatures without hearing the audio, that would be a practical test of how close the view comes to the acoustic-linguistic information used by the decoder.
 
-One possibility is that vocabulary acts as a borrowed coordinate system: combinations of token directions may describe acoustic or subword states without carrying a single word-level meaning. Another is that the lens mainly supplies a convenient supervised readout.
+### 3. Find the anchor by depth and time
 
-Psycholinguistics offers controlled paradigms for priming, ambiguity, phonetic competition, and adaptation. In a model, we can use those paradigms to locate a pattern, perturb it, and test whether the rest of the computation changes as predicted.
+Run interventions across a grid of layer × time × dose. Compare the intended direction with opposite, orthogonal, norm-matched random, and off-time controls. Measure not only whether the target changes, but also downstream damage and how long the effect persists into later time steps.
 
-If stable directions can be found and tested causally, some behaviors might eventually be adjusted after training without retraining the entire model. That could support more efficient debugging or adaptation.
+### 4. Test whether the combination has meaning
 
-This is a possibility, not a current result. It depends on the representation already existing, generalizing across contexts, and tolerating intervention without damaging the system.
+Hold the top coordinate fixed while perturbing the rest of the signature, then preserve the distributed neighborhood while changing rank 1. If the constellation matters, behavior should follow the combination more than the brightest label.
 
-## How I am reading the results for now
+### 5. Reuse psycholinguistic paradigms inside the model
 
-The most stable observation is descriptive: in this speaker-disjoint LibriSpeech development experiment, phone identity is more recoverable from the distributed fitted J-signature than from rank 1 alone.
+Priming, ambiguity, phonetic competition, and adaptation already give us controlled ways to separate possible explanations of human language behavior. Here we can use similar designs to locate the association sequence, perturb it, and see whether the later computation changes as predicted.
 
-What that means internally is still open. It may reflect a distributed phone-like code, correlated acoustic evidence, or a useful coordinate system imposed by the fitted instrument. The steering result is similarly an observation about propagation, not evidence that the readable phone directions are the model's causal code.
+## How I am reading it now
 
-Like EEG or MEG, the J-lens is a measurement instrument whose interpretation depends on the predictions it survives. The advantage here is that we can rerun the same computation, perturb it, and design the next experiment to separate competing explanations.
+I do not think the most useful question is whether a token at an early layer is secretly a word. The useful question is what combination it participates in, when that combination becomes stable, and what changes if we touch it.
+
+That is why the *Inception* metaphor works for me. Later computation depends on what earlier layers pass forward, although the encoder and decoder are not one simple stack. The objects also do not keep the same meaning as we descend. If we can learn where a linguistic association or acoustic sequence appears—and find the right anchor at the right layer and time—we may be able to debug or adapt a trained model without asking for a new dataset and retraining the whole system each time.
+
+That is still a hypothesis. But unlike the human brain, this descent can be replayed, perturbed, and tested.
 
 ## Explore the project
 
@@ -237,11 +263,11 @@ Like EEG or MEG, the J-lens is a measurement instrument whose interpretation dep
 - [Audio Jacobian Lens code and local Apple-silicon MLX setup](https://github.com/kennethli319/audio-jacobian-lens)
 - [Anthropic's original Global Workspace research](https://www.anthropic.com/research/global-workspace)
 
-If you work in speech, interpretability, phonetics, or cognitive science: **what experiment would convince you that an internal direction reflects real acoustic structure, rather than merely a readable projection?**
+If you work in speech, interpretability, phonetics, or cognitive science: **what experiment would convince you that an internal direction is more than a readable projection—and is instead a useful anchor for the model's own computation?**
 
 <div class="version-panel-nav">
-  <a href="#metaphorical-version">Read the metaphorical map</a>
-  <a href="#choose-version">Back to the two maps</a>
+  <a href="#metaphorical-version">Read the metaphorical descent</a>
+  <a href="#choose-version">Back to the two descents</a>
 </div>
 
 </article>

@@ -95,8 +95,8 @@ title: Notes
     <div class="timeline-kicker">Speech interpretability & psycholinguistics</div>
   </aside>
   <div class="timeline-body">
-    <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Listening Inside a Speech Model with the Audio Jacobian Lens <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
-    <p class="timeline-summary">Tracing when words become readable, comparing distributed phone signatures, and proposing experiments to distinguish what steering changes actually mean.</p>
+    <h2 id="inception-into-j-space"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Inception into J-Space <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
+    <p class="timeline-summary">A layer-by-layer descent from readable words to nonliteral acoustic representations—and experiments asking whether the right anchor, placed at the right layer and time, can steer what emerges.</p>
     <p><a href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Read the full note &rarr;</a></p>
   </div>
 </section>

@@ -169,6 +169,8 @@ The frozen-map transfer, CPU reproduction, and exact-norm random schedules answe
 
 One anchor has crossed one real decision boundary. A reusable knob must survive the rest of those controls and work beyond the clip on which it was found.
 
+So far, though, I am asking phoneme-scale questions of Whisper. What happens when the same experiment moves into an LLM capable of extended reasoning? If a stable higher-level signature can be found and implanted, perhaps its effect will travel farther—across more layers, more tokens, and a longer sequence of later decisions. That is a hypothesis I want to test, not a result I have yet.
+
 ## How to read the evidence
 
 The Audio Jacobian Lens is a fitted instrument. It uses a first-order map from an intermediate residual state toward a later space that can be read through the vocabulary head. The underlying model stays frozen, but the lens and the 34-phone public ARPAbet prototypes are fitted from data, including automatically aligned speech supervision. The Yanny steering pilot uses a separate development-only extension for ARPAbet `Y`; it does not modify Whisper or turn the public prototype bank into a phone recognizer.

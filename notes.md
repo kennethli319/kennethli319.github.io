@@ -95,8 +95,8 @@ title: Notes
     <div class="timeline-kicker">Speech interpretability & psycholinguistics</div>
   </aside>
   <div class="timeline-body">
-    <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">I tried to make Whisper hear “Yanny.” It said “Yay.” <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
-    <p class="timeline-summary">A failed steering experiment becomes a test of readable gauges versus causal knobs—with frozen-model phone signatures, a fine-tuning comparison, and the controls needed to tell a map from an instrument.</p>
+    <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Listening Inside a Speech Model with the Audio Jacobian Lens <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
+    <p class="timeline-summary">Tracing when words become readable, how distributed phone signatures emerge in Whisper's encoder, and what steering reveals—and does not reveal—about internal control.</p>
     <p><a href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Read the full note &rarr;</a></p>
   </div>
 </section>

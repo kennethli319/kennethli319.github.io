@@ -61,6 +61,10 @@ Other words take longer. In “Where is my brother now?”, `now` became readabl
 
 To me, this makes the decoder look surprisingly language-model-like. After `brother`, it surfaced `who`—almost like an internal hint asking whether the next word would concern the brother's identity—before it arrived at `now`. It reminds me of word association in psycholinguistics: not exactly the same process, but surprisingly similar in shape.
 
+At the same time, the encoder's Phone Signature showed a suggestive `N → AW`-like pattern near the end, and the decoder eventually resolved to `now`. The timing is not clean enough to call that direct proof for the word, but it makes me think two sources of evidence are meeting: language-context associations from the decoder and acoustic cues from the encoder.
+
+That leads to a simple experiment. Vary acoustic clarity and linguistic context independently. My expectation is that a less clear acoustic cue will give the language-model side more influence, while a clearer cue will let the acoustic evidence dominate.
+
 ### The encoder looks more like a constellation
 
 The acoustic encoder was harder to read. Looking only for its highest-ranked word was like identifying a neighborhood from its nearest street sign.
@@ -149,6 +153,10 @@ At that output position, `who` appeared near the top early, although Whisper ult
 What surprised me was how language-model-like the sequence looked. After `brother`, the decoder surfaced `who`, almost as if it were using a short internal chain of thought: is the next word about the brother's identity? It then resolved to `now`.
 
 This reminds me of word-association behavior in psycholinguistics. The mechanisms are not necessarily identical, but the shape is surprisingly similar. I want to test that resemblance with controlled sentences: change the kinship word, change whether the continuation asks about identity, and see whether associated question words still appear before the final token.
+
+The acoustic side adds another piece. Near the end of the clip, encoder L2 shows a suggestive `N → AW`-like prototype sequence while the decoder ultimately resolves to `now`. The timing does not align cleanly enough to treat this as direct token-level evidence: the 100 ms cells overlap, the encoder receptive field is nonlocal, and the token timing is model-derived.
+
+Still, it motivates a two-source hypothesis. The decoder may be balancing language-context associations against acoustic evidence from the encoder. A 2×2 experiment could vary acoustic clarity—clear versus ambiguous—and context—supportive versus conflicting—independently. If the hypothesis is right, weakening the acoustic cue should increase the contextual influence, while clearer speech should pull the prediction toward the acoustic evidence.
 
 ### A distributed signature predicts phones better than its brightest coordinate
 

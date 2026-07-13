@@ -62,7 +62,7 @@ This is not a window into the model's thoughts. It is a familiar coordinate grid
 
 ### Different destinations form on different schedules
 
-In Whisper's decoder, some final words become visible surprisingly early. In one example, `door` was already ranked fourth in the first decoder layer I inspected and moved to first in the next. Other words take a longer route. In "Where is my brother now?", `now` appeared late; earlier, `who` was near the top.
+In Whisper's decoder, some final words become visible surprisingly early. In one example, `door` was already ranked fourth within the explorer's display vocabulary in the first decoder layer I inspected and moved to first in the next. Other words take a longer route. In "Where is my brother now?", `now` appeared late; earlier, `who` was near the top.
 
 It is tempting to say the model was "thinking of who." The evidence does not justify that. What it shows is simpler: lexical decisions form on different schedules. The resemblance to word-association experiments gives us a hypothesis to test, not proof of a human-like mechanism.
 
@@ -73,6 +73,8 @@ The encoder was harder to read. Looking for one highest-ranked word often produc
 The Phone Signature view instead compares a distributed pattern across 100 vocabulary-aligned coordinates with frozen phone prototypes. The result is closer to a constellation than a label: no single star gives the answer, but the arrangement carries information.
 
 At Whisper encoder layer 2, reading only the highest coordinate produced about 63.5% phone macro-F1. Reading the distributed pattern raised this to roughly 80% across independently fitted lenses.
+
+Those validation numbers come from aligned native 20 ms midpoint states. The public map groups five states into each phoneme-scale 100 ms display cell and advances by 80 ms, so neighboring cells share one state. A cell can still contain more than one phone; it is a visualization, not a separately validated 100 ms phone classifier or boundary detector.
 
 This does not mean the encoder literally stores phone symbols. The displayed phones are prototype similarities, not probabilities or causal labels. But the constellation preserves more phonetic structure than the single brightest coordinate.
 
@@ -156,7 +158,7 @@ The results below fall into two categories. The first section covers what the cu
 
 Some realized words become readable surprisingly early.
 
-In one held-out Whisper example, the realized token `door` moved from rank **#4** in the first decoder layer I inspected to **#1** one layer later.
+In one held-out Whisper example, the realized token `door` moved from rank **#4** within the explorer's display vocabulary in the first decoder layer I inspected to **#1** one layer later.
 
 But that is not the story for every word. In the utterance "Where is my brother now?", the realized token `now` moved:
 
@@ -185,6 +187,10 @@ But perhaps one BPE token was the wrong unit of analysis.
 
 Whisper's encoder is not choosing a word. It is building a continuous representation from acoustic frames. The new experimental **Phone Signature view** therefore looks at a distributed pattern across the top 100 vocabulary-aligned J-lens coordinates and compares that pattern with 34 frozen ARPAbet phone prototypes.
 
+The public explorer now uses phoneme-scale **100 ms display cells**. Each cell mean-pools five native 20 ms encoder states, and the 80 ms hop means adjacent cells share one state. A cell may still contain multiple phones, and the receptive field behind it is not local to those 100 ms.
+
+The validation numbers below come from phone-aligned **native 20 ms midpoint states**, not from the pooled 100 ms display cells. The public cell labels apply the same frozen prototypes after pooling, so they are a visualization rather than a separately validated 100 ms phone classifier.
+
 The preliminary speaker-disjoint development results are much stronger:
 
 - Phone information decoded directly from the encoder residual states rises to about **91% macro-F1 at L3**.
@@ -199,9 +205,9 @@ This view is closer to the kind of information we would expect an acoustic encod
 
 <figure class="note-figure">
   <a href="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}">
-    <img src="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}" alt="Audio Jacobian Lens Phone Signature view for the buzzer example. Four encoder layers show time-ordered ARPAbet phone prototypes, with an L3 B cell selected and its nearest alternatives shown in the inspector." loading="lazy" decoding="async">
+    <img src="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}" alt="Audio Jacobian Lens Phone Signature view for the buzzer example using 100 millisecond display cells. Encoder L3 from 0.56 to 0.66 seconds is selected, with B as the nearest prototype at cosine similarity 0.565." loading="lazy" decoding="async">
   </a>
-  <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature for the buzzer example. Each cell is the nearest frozen ARPAbet prototype derived from a distributed top-100 J-signature; the right-hand inspector shows the alternatives for one selected L3 window. These are similarities, not phone probabilities or causal labels. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
+  <figcaption><strong>Figure 2.</strong> A time-ordered Phone Signature using 100 ms display cells with an 80 ms hop. In the selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest frozen ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). Each cell comes from a distributed top-100 J-signature. These are similarities—not probabilities, framewise votes, phone boundaries, local-only receptive fields, or causal labels. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open the interactive report and switch on Phone Signature view</a>.</figcaption>
 </figure>
 
 The Phone Signature result is still exploratory. The public cached explorer now exposes it as an opt-in diagnostic, while the locked test split and causal intervention gates remain open.

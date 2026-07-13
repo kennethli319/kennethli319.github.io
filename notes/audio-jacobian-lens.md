@@ -52,7 +52,7 @@ At the first plotted decoder layer, `who` is already the Explorer's top displaye
   <figcaption id="decoder-now-caption"><strong>Figure 1 — The answer takes layers to settle.</strong> The large L0 label is the top displayed candidate; the smaller line tracks the realized token <code>now</code>. Select another cell to inspect its saved candidates, or <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">open the full example</a>.</figcaption>
 </figure>
 
-To me, `brother → who` looks like the decoder using a familiar word association as a hint before the answer settles. The resemblance to psycholinguistic association is what makes it interesting—and sends me farther from the language-model head, into the encoder.
+To me, `brother → who` looks like the decoder using a familiar word association as a hint before the answer settles. That alone is not new: language models learn from patterns of co-occurrence and can reproduce some of the same word associations we observe in human behavior. What interests me is how that text-learned expectation competes with the acoustic cue arriving from the encoder. Across the layers, the model has to determine how much to trust what it seems to hear and how much to trust what its training history says is likely. Watching that balance shift is what sends me farther from the language-model head, into the encoder.
 
 ## Deeper down, words stop behaving like words
 

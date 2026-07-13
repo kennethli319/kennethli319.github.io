@@ -853,7 +853,7 @@
 
   function renderSpeechRows() {
     const tokens = state.report.payload.transcription.tokens || [];
-    const windowSize = 8;
+    const windowSize = family === "asr" ? Math.max(tokens.length, 1) : 8;
     const windows = [];
     for (let start = 0; start < tokens.length; start += windowSize) {
       const end = Math.min(start + windowSize, tokens.length);
@@ -865,7 +865,7 @@
       }).join("");
       windows.push(`
         <section class="speech-matrix-window" aria-label="Generated token positions ${start + 1} through ${end}">
-          <header><strong>Tokens ${start + 1}–${end}</strong><span>${family === "asr" ? "Decoder large: top candidate · HEAD large: output · small: realized rank" : "Large: top candidate · small: realized rank"}</span></header>
+          <header><strong>${family === "asr" ? `All ${count} tokens · scroll horizontally` : `Tokens ${start + 1}–${end}`}</strong><span>${family === "asr" ? "Decoder large: top candidate · HEAD large: output · small: realized rank" : "Large: top candidate · small: realized rank"}</span></header>
           <div class="speech-matrix-scroll" tabindex="0" aria-label="Layer readouts for token positions ${start + 1} through ${end}">
             <div class="speech-matrix-grid" style="--position-count:${count};--speech-window-min:${58 + count * cellWidth}px">
               <div class="matrix-row speech-position-row" style="--position-count:${count}"><div class="matrix-layer-label">OUTPUT</div>${tokenHeaders}</div>

@@ -1,9 +1,9 @@
 {
   "canonical_url": "https://kennethli319.github.io/audio-jacobian-lens/",
   "description": "Public static ASR, speech-to-speech, and recorded phone-steering Audio Jacobian Lens explorers.",
-  "interaction_boundary": "The primary pages provide static sample selection, cleared-input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every published family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. Phone signatures and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. The steering route replays only saved checkpoints and never performs inference or interpolates an unmeasured intervention. Chatterbox/TTS remains an unpublished local experiment until its acoustic-code readouts support a clearer interpretation.",
-  "media_policy": "Only the ten CC BY 4.0 LibriSpeech input FLACs are included. Generated LFM and Chatterbox audio remains excluded pending derived-output review. The external Laurel/Yanny source recording is linked but not embedded or redistributed.",
-  "payload_policy": "Each detailed family manifest pins model/lens provenance and hashes ten reduced reports. ASR uses a speaker-held-out A2 encoder lens plus frozen train-only phone prototypes; all encoder reports were recomputed at five-state 100 ms pooling with one-state overlap and a 100-bin safety limit. Reports publish only five bounded phone candidates per encoder cell and exclude prototype tensors, occurrence-level rows, private paths, ephemeral server IDs, and embedded audio. Legacy character-length sidecars remain hash-pinned for reproducibility but are no longer exposed or loaded by the Explorer. The steering payload contains only recorded schedules, scalar coefficients, bounded candidates, output metrics, and compact controls; it excludes residuals, prototype tensors, private paths, and audio.",
+  "interaction_boundary": "The primary pages provide static sample selection, source-attributed input playback, synchronized position/layer selection, cell-local hover and keyboard detail, and click-pinned candidate inspection. Every published family uses contained horizontal position and layer scrollers whose selected timestep auto-reveals without moving the page. ASR uses exact 100 ms encoder windows with 20 ms overlap and an 80 ms hop, adds a toggleable fitted phone-signature view, and synchronizes its waveform, encoder window, decoder, and HEAD through approximate DTW timing. Speech-to-speech keeps its complete generated-text sequence in one continuous language-layer/HEAD matrix but does not claim alignment to the input waveform. Phone signatures and recorded intervention inspection remain cached interactions. No model inference, upload, recording, generation, or intervention endpoint is present. The steering route replays only saved checkpoints and never performs inference or interpolates an unmeasured intervention. Chatterbox/TTS remains an unpublished local experiment until its acoustic-code readouts support a clearer interpretation.",
+  "media_policy": "The detailed explorers contain ten ASR reports and ten speech-to-speech reports. Their referenced media comprises ten CC BY 4.0 LibriSpeech FLACs plus the unchanged Laurel/Yanny Audio S7 MP3 reproduced from Hans Rutger Bosker's demo using that page's CC BY 4.0 notice. Generated LFM and Chatterbox audio remains excluded pending derived-output review.",
+  "payload_policy": "Each family manifest hash-pins ten reduced reports. The Laurel/Yanny ASR report adds three recorded, non-interpolated conditions with bounded encoder, decoder, and HEAD views; residual edits, coefficient audits, prototype tensors, private paths, and embedded audio are excluded. The steering payload contains only recorded schedules, scalar coefficients, bounded candidates, output metrics, and compact controls; it excludes residuals, prototype tensors, private paths, and audio.",
   "publication_mode": "public_linked_noindex_review",
   "published_on": "2026-07-13",
   "report_counts": {
@@ -30,22 +30,22 @@
   "schema_version": 2,
   "sha256": {
     "assets/app.js": "1546309f575b66aacfb106ca1ddb8190793851b46cb78e734a701fa978da760c",
-    "assets/explorer.css": "b2b8fe323ce615d16c3c183b6e4d2487067cd8b9bd05f71b7d914b6b26bf2c8b",
-    "assets/explorer.js": "81b26293c09a7b697ee3bd53eeccb3f866cfcef880f73df287f827f2ff732b9f",
+    "assets/explorer.css": "c32fd0ced8e2988076a1061832712bb8c07080f8eca604c673047a792b4c9ad3",
+    "assets/explorer.js": "0960f17fda8c8263d8ea88a2a90311caac55631a4cfb1d0e4c455f5dfc345217",
     "assets/steering.css": "bf83c6811f7e5965bf994e96e03acd32250f65399d5c894401ecd9ba248ca32d",
     "assets/steering.js": "c84fad8951508eb1883dee2f93ea251693f5d1f04d0cd0d26384dc7a70c9b15e",
     "assets/styles.css": "654bc0296eec6eb98e16105cda8a7f858f72100ac2b9d6be26c7f0ca989a50fe",
     "data/phone-steering-results.json": "ef0499b1dce6dfe241284d58aa508ad266507a118a456c4fb41edeb3f6eddea7",
     "data/reports.json": "3a58cb65d2533f9e06ac0275813ee633d7ec53cd3cbfb1400d9b6d7a04e88a97",
-    "explorer/asr/index.html": "083a29afac040f91c788a29a503d00ebb40a52bec919ef0b4dbacdc9da0b4b1b",
-    "explorer/data/asr/manifest.json": "eab665dd0269e588d7cd8518e0fe45cdf748c6906ae00774741570f43f95ffa8",
-    "explorer/data/speech/manifest.json": "86905e9c29ebfe5700749b388d072800536385f9cb1e3c49aa65e32dd0eaf6b3",
-    "explorer/speech/index.html": "0f3b6b726033c4f86104959d022dbeaca14cbdaa48e46c47611a78fb9fb46b52",
+    "explorer/asr/index.html": "b6a0bbaeaeb85958a2e20153a1b47c629e1b43018d3ddbc3c8f5e2638b54261d",
+    "explorer/data/asr/manifest.json": "a717210e4920e3e63e214809726f8ddcb9efe8124ec9ee5c816c907a78536ba1",
+    "explorer/data/speech/manifest.json": "9fb472bbebf6627fe4dd3fb0e3510cafe28cf53ce4a6b66e931effe5fde52a66",
+    "explorer/speech/index.html": "06c9e08f32e7e84c60780ceb9bba14884261024b3b22c071b244c71158240d0a",
     "findings/index.html": "ae96710e2d0b8ccd2e59ada94e71fe21abb6f37540b5563563786a5662e78400",
     "findings/speech/index.html": "490b8f64428a870c077a86cc8e1c47988230b2d8678973db3085bba31d11f41c",
-    "index.html": "556213be364077b0dab798483e79f81c2b32bca5b3fbfa6a0ccc19fba1583d53",
-    "speech/index.html": "ff4bff035fe854eca5e586c6664903cf2be99471ab070fa49fad97d2260bd958",
-    "steering/index.html": "365947db3205070fb6ae675839327464a4f33e474a4d3a8a81282e05c91344c2"
+    "index.html": "5a022b8cbbba94d9bafbaa2914cee1309fcc471f6c6ae13f735588920a96e72b",
+    "speech/index.html": "c797ba4af2b38a50cfef74f99f9a0b39de30573795f37e2ebde49a86beb93e51",
+    "steering/index.html": "af6c514d007186d13447e5980c7f010161268259b4adb20bd3c085950d75fe89"
   },
   "source_repository": "https://github.com/kennethli319/audio-jacobian-lens"
 }

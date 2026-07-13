@@ -19,11 +19,13 @@
   const state = {
     manifest: null,
     reportEntry: null,
+    baseReport: null,
     report: null,
     reportIndex: 0,
     sampleQuery: "",
     reportController: null,
     phoneSignatureEnabled: false,
+    activeConditionId: null,
     selectedToken: 0,
     selectedEncoder: 0,
     selection: { kind: "head", layerIndex: 0, position: 0 },
@@ -65,6 +67,11 @@
   const compactText = (value, fallback = "∅") => {
     const text = String(value ?? "").replaceAll("\n", " ");
     return text.trim() ? text : fallback;
+  };
+  const safeExternal = (value) => typeof value === "string" && value.startsWith("https://") ? value : null;
+  const safeClassName = (value, fallback = "neutral") => {
+    const normalized = String(value || "").trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
+    return normalized || fallback;
   };
   const hasExactRank = (value, { requireScore = false } = {}) => Boolean(
     value
@@ -207,6 +214,82 @@
       }
     }
     return payload;
+  }
+
+  function replayDefinition(report = state.baseReport) {
+    return report?.recorded_intervention_replay || null;
+  }
+
+  function replayConditions(report = state.baseReport) {
+    const conditions = replayDefinition(report)?.conditions;
+    return Array.isArray(conditions) ? conditions : [];
+  }
+
+  function replayCondition(conditionId, report = state.baseReport) {
+    return replayConditions(report).find((condition) => condition.id === conditionId) || null;
+  }
+
+  function composeReplayReport(baseReport, condition) {
+    if (!baseReport || !condition?.analysis) return baseReport;
+    const analysis = condition.analysis;
+    return {
+      ...baseReport,
+      payload: {
+        ...baseReport.payload,
+        ...analysis,
+        metadata: {
+          ...(baseReport.payload?.metadata || {}),
+          ...(analysis.metadata || {}),
+        },
+        audio: {
+          ...(baseReport.payload?.audio || {}),
+          ...(analysis.audio || {}),
+        },
+      },
+    };
+  }
+
+  function validateReplayDefinition(report, entry) {
+    const replay = replayDefinition(report);
+    if (!replay) return;
+    if (
+      family !== "asr"
+      || replay.schema_id !== "audio-jacobian-lens.recorded-asr-intervention-replay"
+      || replay.schema_version !== 1
+      || replay.default_condition !== "baseline"
+      || !Array.isArray(replay.conditions)
+    ) {
+      throw new Error("The recorded intervention replay has an unsupported schema.");
+    }
+    const expectedIds = ["baseline", "yanny", "laurel"];
+    const ids = replay.conditions.map((condition) => condition?.id);
+    if (
+      ids.length !== expectedIds.length
+      || new Set(ids).size !== expectedIds.length
+      || expectedIds.some((id) => !ids.includes(id))
+    ) {
+      throw new Error("The recorded intervention replay must contain baseline, Yanny, and Laurel conditions.");
+    }
+    replay.conditions.forEach((condition) => {
+      const generated = condition.generated;
+      const evidence = condition.evidence;
+      if (
+        condition.recorded !== true
+        || condition.interpolated !== false
+        || !generated
+        || typeof generated.text !== "string"
+        || !Array.isArray(generated.token_ids)
+        || !evidence
+        || typeof evidence.badge !== "string"
+        || typeof evidence.summary !== "string"
+      ) {
+        throw new Error(`Recorded intervention condition ${condition.id || "unknown"} is incomplete.`);
+      }
+      if (condition.id !== "baseline" && !condition.analysis) {
+        throw new Error(`Recorded intervention condition ${condition.id} is missing its cached analysis.`);
+      }
+      validateReport(composeReplayReport(report, condition), entry);
+    });
   }
 
   function validatePhoneSignatureReport(payload) {
@@ -382,7 +465,7 @@
     return bestIndex;
   }
 
-  async function loadReport(index) {
+  async function loadReport(index, { useUrlCondition = false } = {}) {
     const entry = state.manifest.reports[index];
     if (!entry) return;
     state.reportController?.abort();
@@ -390,7 +473,9 @@
     state.reportController = controller;
     state.reportIndex = index;
     state.reportEntry = entry;
+    state.baseReport = null;
     state.report = null;
+    state.activeConditionId = null;
     state.audioTime = 0;
     renderSampleButtons();
     clearError();
@@ -399,7 +484,15 @@
     try {
       const report = validateReport(await fetchJSON(entry.report_url, { signal: controller.signal }), entry);
       if (controller.signal.aborted) return;
-      state.report = report;
+      validateReplayDefinition(report, entry);
+      state.baseReport = report;
+      const replay = replayDefinition(report);
+      const urlCondition = useUrlCondition ? new URL(window.location.href).searchParams.get("condition") : null;
+      const requestedCondition = replayCondition(urlCondition, report);
+      const defaultCondition = replayCondition(replay?.default_condition, report);
+      const condition = requestedCondition || defaultCondition;
+      state.activeConditionId = condition?.id || null;
+      state.report = composeReplayReport(report, condition);
       if (family === "tts") {
         state.selectedToken = defaultTTSPosition();
         state.selectedEncoder = 0;
@@ -412,6 +505,8 @@
       applyRequestedView();
       const url = new URL(window.location.href);
       url.searchParams.set("sample", entry.id);
+      if (state.activeConditionId) url.searchParams.set("condition", state.activeConditionId);
+      else url.searchParams.delete("condition");
       window.history.replaceState(null, "", url);
       renderWorkspace();
     } catch (error) {
@@ -424,6 +519,48 @@
   function tokenList() {
     if (family === "tts") return state.report?.payload?.output?.speech_codes || [];
     return state.report?.payload?.transcription?.tokens || [];
+  }
+
+  function selectedEncoderMidpoint() {
+    const window = encoderWindow(state.selectedEncoder);
+    return window ? (window.start + window.end) / 2 : null;
+  }
+
+  function activateReplayCondition(conditionId) {
+    const condition = replayCondition(conditionId);
+    if (!condition || condition.id === state.activeConditionId) return;
+    const previousTokenPosition = state.selectedToken;
+    const previousTokenCount = tokenList().length;
+    const tokenAnchor = tokenMidpoint(previousTokenPosition);
+    const encoderAnchor = selectedEncoderMidpoint();
+    const previousSelection = { ...state.selection };
+
+    state.activeConditionId = condition.id;
+    state.report = composeReplayReport(state.baseReport, condition);
+    state.phoneSignatureEnabled = state.phoneSignatureEnabled && phoneSignatureAvailable();
+
+    if (tokenAnchor !== null) {
+      state.selectedToken = clamp(nearestTokenForTime(tokenAnchor), 0, Math.max(0, tokenList().length - 1));
+    } else {
+      const ratio = previousTokenCount > 1 ? previousTokenPosition / (previousTokenCount - 1) : 0;
+      state.selectedToken = clamp(
+        Math.round(ratio * Math.max(0, tokenList().length - 1)),
+        0,
+        Math.max(0, tokenList().length - 1),
+      );
+    }
+    state.selectedEncoder = nearestEncoderForTime(encoderAnchor ?? tokenAnchor ?? state.audioTime);
+
+    const layerCount = Math.max(1, selectionLayerCount(previousSelection.kind));
+    const layerIndex = clamp(previousSelection.layerIndex, 0, layerCount - 1);
+    const position = previousSelection.kind === "encoder" ? state.selectedEncoder : state.selectedToken;
+    state.selection = { kind: previousSelection.kind, layerIndex, position };
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("condition", condition.id);
+    window.history.replaceState(null, "", url);
+    hideTooltip();
+    renderWorkspace();
   }
 
   function encoderCells() {
@@ -935,7 +1072,7 @@
     ` : `
       <div class="timeline-audio">
         <audio id="cached-input-audio" controls preload="metadata" src="${escapeHTML(state.reportEntry.audio_url)}"></audio>
-        <span>Rights-cleared input · ${escapeHTML(formatSeconds(state.report.payload.audio?.duration_seconds))}</span>
+        <span>${escapeHTML(audioSourceTimelineLabel())} · ${escapeHTML(formatSeconds(state.report.payload.audio?.duration_seconds))}</span>
       </div>
       <div class="cached-waveform" aria-label="Cached input waveform preview">
         <div class="wave-bars" aria-hidden="true">${waveformBars()}</div>
@@ -976,6 +1113,129 @@
     `;
   }
 
+  function reportSourceRights() {
+    const source = state.baseReport?.source || state.report?.source || {};
+    const keys = [
+      "source_collection", "license", "license_url", "source_url", "attribution",
+      "rights_status", "modification_notice", "alignment_source", "alignment_source_url",
+      "alignment_license",
+    ];
+    return Object.fromEntries(keys.filter((key) => source[key] !== undefined).map((key) => [key, source[key]]));
+  }
+
+  function effectiveProvenance() {
+    const manifest = state.manifest?.provenance || {};
+    const report = state.baseReport?.provenance || state.report?.provenance || {};
+    const sourceRights = reportSourceRights();
+    const reportHasDistinctSource = Boolean(
+      replayDefinition()
+      || (sourceRights.source_url && sourceRights.source_url !== manifest.rights?.source_url),
+    );
+    const rights = reportHasDistinctSource
+      ? { ...(report.rights || {}), ...sourceRights }
+      : { ...(manifest.rights || {}), ...(report.rights || {}), ...sourceRights };
+    return {
+      ...manifest,
+      ...report,
+      model: { ...(manifest.model || {}), ...(report.model || {}) },
+      lens: { ...(manifest.lens || {}), ...(report.lens || {}) },
+      rank_semantics: { ...(manifest.rank_semantics || {}), ...(report.rank_semantics || {}) },
+      rights,
+    };
+  }
+
+  function audioSourceTimelineLabel() {
+    const source = state.baseReport?.source || state.report?.source || {};
+    if (source.rights_status === "cleared_with_attribution") return "Rights-cleared input";
+    if (source.license) return `${source.license} source audio`;
+    return "Source-attributed input";
+  }
+
+  function canonicalConditionLabel(condition) {
+    if (condition.id === "baseline") return "Original";
+    if (condition.id === "yanny") return "Steer toward Yanny";
+    if (condition.id === "laurel") return "Steer toward Laurel";
+    return condition.label || condition.id;
+  }
+
+  function activeReplayCondition() {
+    return replayCondition(state.activeConditionId);
+  }
+
+  function formatReplayBudget(condition) {
+    const budget = finite(condition?.budget_fraction);
+    return budget === null || budget === 0
+      ? "0% · no residual edit"
+      : `${(budget * 100).toFixed(budget < 0.1 ? 2 : 3)}% relative residual norm`;
+  }
+
+  function renderReplayAttribution() {
+    if (!replayDefinition()) return "";
+    const source = state.baseReport?.source || {};
+    const sourceUrl = safeExternal(source.source_url);
+    const licenseUrl = safeExternal(source.license_url);
+    return `
+      <aside class="replay-attribution" aria-label="Source audio attribution">
+        <div>
+          <p class="section-label">SOURCE AUDIO · ATTRIBUTION</p>
+          <strong>${escapeHTML(source.reference_transcript || "Laurel / Yanny demonstration")}</strong>
+          <p>${escapeHTML(source.attribution || "Source attribution was not recorded.")}</p>
+        </div>
+        <div class="replay-attribution-links">
+          ${sourceUrl ? `<a href="${escapeHTML(sourceUrl)}" target="_blank" rel="noreferrer">Original Laurel/Yanny post <span aria-hidden="true">↗</span></a>` : ""}
+          ${licenseUrl ? `<a href="${escapeHTML(licenseUrl)}" target="_blank" rel="noreferrer">${escapeHTML(source.license || "License")} <span aria-hidden="true">↗</span></a>` : `<span>${escapeHTML(source.license || "No separate license link recorded")}</span>`}
+        </div>
+        <p class="replay-change-notice"><strong>Published copy:</strong> ${escapeHTML(source.modification_notice || "No change notice was recorded.")}</p>
+      </aside>
+    `;
+  }
+
+  function renderReplayControl() {
+    const replay = replayDefinition();
+    const condition = activeReplayCondition();
+    if (!replay || !condition) return "";
+    const evidence = condition.evidence || {};
+    const method = condition.method || {};
+    const generated = condition.generated || {};
+    const buttons = replayConditions().map((option) => `
+      <button type="button" class="replay-condition-button" data-replay-condition="${escapeHTML(option.id)}" aria-pressed="${option.id === condition.id}">
+        <span>${escapeHTML(canonicalConditionLabel(option))}</span>
+        <small>${option.id === "baseline" ? "No intervention" : "Recorded intervention"}</small>
+      </button>
+    `).join("");
+    return `
+      <section class="recorded-replay replay-tone-${escapeHTML(safeClassName(evidence.tone))}" data-replay-active="${escapeHTML(condition.id)}" aria-labelledby="recorded-replay-heading">
+        <header class="recorded-replay-heading">
+          <div>
+            <p class="section-label">RECORDED PHONETIC STEERING REPLAY</p>
+            <h3 id="recorded-replay-heading">Replay the original run or either saved intervention</h3>
+          </div>
+          <span>Cached analyses · never live inference</span>
+        </header>
+        <div class="replay-condition-buttons" role="group" aria-label="Recorded intervention condition">${buttons}</div>
+        <div class="replay-active-summary" aria-live="polite">
+          <div class="replay-output">
+            <span>Generated transcript</span>
+            <strong>${escapeHTML(generated.text || overviewText())}</strong>
+            <small>${generated.target_match === true ? "Recorded target match" : condition.id === "baseline" ? "Original model output" : "Recorded post-intervention output"}</small>
+          </div>
+          <div><span>Steering budget</span><strong>${escapeHTML(formatReplayBudget(condition))}</strong><small>coefficient scale ${escapeHTML(formatScore(condition.coefficient_scale))}</small></div>
+          <div class="replay-evidence">
+            <span>Evidence tier</span>
+            <strong>${escapeHTML(evidence.badge || evidence.tier || "Recorded result")}</strong>
+            <small>${escapeHTML(evidence.summary || "")}</small>
+          </div>
+        </div>
+        <details class="replay-method">
+          <summary>How this cached condition was produced</summary>
+          <p><strong>${escapeHTML(method.label || "Recorded residual intervention")}</strong> ${escapeHTML(method.description || "")}</p>
+          <p>${escapeHTML(method.coefficient_policy || "")} ${Array.isArray(condition.layers) && condition.layers.length ? `Applied at encoder layers ${escapeHTML(condition.layers.join(", "))}.` : ""}</p>
+        </details>
+        ${renderReplayAttribution()}
+      </section>
+    `;
+  }
+
   function overviewPurpose() {
     if (family === "tts") return state.report.teaching_purpose;
     if (family === "speech") return "Compare a provisional projected language-backbone readout with the actual generated-text head. The generated response audio is intentionally excluded.";
@@ -984,6 +1244,8 @@
 
   function overviewText() {
     if (family === "tts") return state.report.source?.prompt || state.report.payload.input?.raw_text;
+    const generated = activeReplayCondition()?.generated?.text;
+    if (generated) return generated;
     return state.report.payload.transcription?.text;
   }
 
@@ -1006,7 +1268,7 @@
   }
 
   function renderOverview() {
-    const provenance = state.manifest.provenance || state.report.provenance || {};
+    const provenance = effectiveProvenance();
     const model = provenance.model || {};
     const lens = provenance.lens || {};
     const source = state.report.source || {};
@@ -1091,7 +1353,7 @@
   }
 
   function renderProvenance() {
-    const provenance = state.manifest.provenance || state.report.provenance || {};
+    const provenance = effectiveProvenance();
     const model = provenance.model || {};
     const lens = provenance.lens || {};
     const asrLensValues = family === "asr" ? [
@@ -1119,15 +1381,15 @@
       ["Rank semantics", provenance.rank_semantics?.tie_policy || state.report.payload.metadata?.candidate_rank_semantics?.method || "recorded exact ranks"],
     ];
     const rights = provenance.rights || {};
-    const safeExternal = (value) => typeof value === "string" && value.startsWith("https://") ? value : null;
     const sourceUrl = safeExternal(rights.source_url);
     const licenseUrl = safeExternal(rights.license_url);
     const alignmentUrl = safeExternal(rights.alignment_source_url);
+    const sourceLinkLabel = replayDefinition() ? "Original Laurel/Yanny post" : "LibriSpeech source";
     const rightsBlock = family === "asr" ? `
       <div class="rights-block">
         <strong>Audio and alignment attribution</strong>
-        <p>${escapeHTML(rights.attribution || "LibriSpeech attribution not recorded.")} ${escapeHTML(rights.modification_notice || "")}</p>
-        <p>${sourceUrl ? `<a href="${escapeHTML(sourceUrl)}">LibriSpeech source</a>` : ""}${licenseUrl ? ` · <a href="${escapeHTML(licenseUrl)}">${escapeHTML(rights.license || "License")}</a>` : ""}${alignmentUrl ? ` · <a href="${escapeHTML(alignmentUrl)}">${escapeHTML(rights.alignment_source || "Alignment source")}</a>` : ""}</p>
+        <p>${escapeHTML(rights.attribution || "Audio attribution not recorded.")} ${escapeHTML(rights.modification_notice || "")}</p>
+        <p>${sourceUrl ? `<a href="${escapeHTML(sourceUrl)}">${escapeHTML(sourceLinkLabel)}</a>` : ""}${licenseUrl ? ` · <a href="${escapeHTML(licenseUrl)}">${escapeHTML(rights.license || "License")}</a>` : ""}${alignmentUrl ? ` · <a href="${escapeHTML(alignmentUrl)}">${escapeHTML(rights.alignment_source || "Alignment source")}</a>` : ""}</p>
       </div>
     ` : "";
     return `
@@ -1166,6 +1428,7 @@
     const audioTime = state.audioTime;
     workspace.innerHTML = `
       ${renderOverview()}
+      ${renderReplayControl()}
       ${renderTimeline()}
       <div class="matrix-layout">
         <div class="matrix-stack">${renderMatrices()}</div>
@@ -1530,6 +1793,11 @@
   });
 
   workspace.addEventListener("click", (event) => {
+    const replayButton = event.target.closest("[data-replay-condition]");
+    if (replayButton) {
+      activateReplayCondition(replayButton.dataset.replayCondition);
+      return;
+    }
     const phoneToggle = event.target.closest("#static-phone-signature-toggle");
     if (phoneToggle) {
       state.phoneSignatureEnabled = !state.phoneSignatureEnabled && phoneSignatureAvailable();
@@ -1608,7 +1876,7 @@
       const requestedIndex = state.manifest.reports.findIndex((entry) => entry.id === requested);
       state.reportIndex = requestedIndex >= 0 ? requestedIndex : 0;
       renderSampleButtons();
-      await loadReport(state.reportIndex);
+      await loadReport(state.reportIndex, { useUrlCondition: true });
     } catch (error) {
       showError(error);
     }

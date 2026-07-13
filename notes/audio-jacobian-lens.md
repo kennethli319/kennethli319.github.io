@@ -119,8 +119,21 @@ The steering experiment is closer to stimulation. If examples of another event p
 
 So inspection and intervention become two halves of the same experiment. **Functional imaging shows me the pattern. *Inception* asks what happens if I plant it at the right depth.** A selective edit that survives matched controls begins to tell me whether that pattern participates in causing what returns to the surface.
 
-I tried this with the ambiguous [Laurel/Yanny
-recording](https://hrbosker.github.io/demos/laurel-yanny/).
+I tried this with exact **Audio S7** from Hans Rutger Bosker's [Laurel or Yanny?
+demo](https://hrbosker.github.io/demos/laurel-yanny/), republished here unchanged
+using the demo page's [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+notice. See [Bosker
+(2018)](https://doi.org/10.1121/1.5070144) for the experiment behind the demo.
+Bosker describes the underlying viral clip as originating from Vocabulary.com;
+that is source history reported by Bosker, not a separate permission claim. The
+J-lens overlays, cached model outputs, and controls below are my additions.
+
+The primary hands-on view is the [full Laurel/Yanny ASR
+Explorer]({{ '/audio-jacobian-lens/?sample=asr-laurel-yanny' | relative_url }}).
+Its Original, Yanny, and Laurel buttons swap complete recorded encoder, decoder,
+and HEAD matrices while keeping the selected audio/token coordinate synchronized.
+The [checkpoint replay]({{ '/audio-jacobian-lens/steering/' | relative_url }})
+is the more detailed view of timing, edit budgets, target ranks, and controls.
 
 Without intervention, Whisper transcribed it as `Lily!`. My first anchor nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction. The result became `Yay!`, not `Yanny`.
 
@@ -153,7 +166,7 @@ For Laurel, however, I optimized 20 nonnegative phone-basis coefficients directl
       <tr><td>Optimized L / AO / R / AH / L · 14.53%</td><td><code>Laurel</code></td><td><code>Laurel</code> #1</td><td>Target-conditioned; exact result did not transfer across fits</td></tr>
     </tbody>
   </table>
-  <figcaption id="phone-steering-caption"><strong>Figure 3 — Two anchors, two evidence levels.</strong> The Yanny and Laurel controls replay recorded model runs; they do not run Whisper in your browser or interpolate unmeasured strengths. <a href="{{ '/audio-jacobian-lens/steering/' | relative_url }}">Open the cached phonetic-steering experiment</a>.</figcaption>
+  <figcaption id="phone-steering-caption"><strong>Figure 3 — Two anchors, two evidence levels.</strong> The Yanny and Laurel controls replay recorded model runs; they do not run Whisper in your browser or interpolate unmeasured strengths. <a href="{{ '/audio-jacobian-lens/?sample=asr-laurel-yanny' | relative_url }}">Open the full layer-by-layer ASR replay</a>, or inspect the <a href="{{ '/audio-jacobian-lens/steering/' | relative_url }}">detailed recorded checkpoints</a>.</figcaption>
 </figure>
 
 This is stronger than the old `Yay!` near-miss, but it is still one recording explored after seeing the target. The phone order and timing were developed on this clip. A fitted phone prototype is not a native phone symbol, and differentiating its readout back into the encoder does not by itself prove that Whisper uses that direction as a clean internal control. The result establishes that this fitted phonetic subspace contains a route that can cross the model's real output boundary under these conditions.
@@ -209,7 +222,7 @@ The deeper layers are harder to name. But every time a pattern becomes partly re
 
 ## Enter the project
 
-**Explore:** [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [Phonetic steering](https://kennethli319.github.io/audio-jacobian-lens/steering/) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question)
+**Explore:** [Laurel/Yanny full ASR replay](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-laurel-yanny) · [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [Detailed steering checkpoints](https://kennethli319.github.io/audio-jacobian-lens/steering/) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question)
 
 **Build it:** [Audio Jacobian Lens code and local Apple-silicon MLX setup](https://github.com/kennethli319/audio-jacobian-lens) · **Starting point:** [Anthropic's Global Workspace research](https://www.anthropic.com/research/global-workspace)
 

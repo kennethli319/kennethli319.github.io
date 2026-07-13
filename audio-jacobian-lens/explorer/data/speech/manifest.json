@@ -7,7 +7,7 @@
   "catalog": {
     "schema_id": "audio-jacobian-lens.static-explorer-catalog",
     "schema_version": 2,
-    "sha256": "2ca80989bbbceaf64c93cc00c0c81999bbb9d791d6b67273ba909bc42c8a5312",
+    "sha256": "663b40d4126f993a11b2f10f7d6aa6df407958fb795dd01b94a3e1d5c1f6785d",
     "reports_per_family": 10
   },
   "provenance": {

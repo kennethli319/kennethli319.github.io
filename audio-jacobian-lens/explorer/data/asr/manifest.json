@@ -1,59 +1,42 @@
 {
-  "schema_id": "audio-jacobian-lens.cached-explorer-manifest",
-  "schema_version": 1,
-  "family": "asr",
-  "mode": "static_cached_explorer",
-  "report_count": 10,
   "catalog": {
+    "reports_per_family": 10,
     "schema_id": "audio-jacobian-lens.static-explorer-catalog",
     "schema_version": 2,
-    "sha256": "39e5ee1f4fa4d97167d4dd7db058d9750d613dd62f05b1514177b0e36716783b",
-    "reports_per_family": 10
+    "sha256": "663b40d4126f993a11b2f10f7d6aa6df407958fb795dd01b94a3e1d5c1f6785d"
   },
+  "family": "asr",
+  "mode": "static_cached_explorer",
   "provenance": {
     "evaluated_on": "2026-07-12",
     "extraction": "Replayed locally through the pinned Whisper model, the speaker-held-out natural-speech A2 encoder lens, the existing decoder lens, and frozen train-only A2 phone prototypes. Published phone values are bounded scored candidates; prototype tensors and occurrence-level training data are excluded.",
-    "model": {
-      "id": "openai/whisper-tiny.en",
-      "revision": "87c7102498dcde7456f24cfd30239ca606ed9063",
-      "weights_fingerprint": "hf-commit:87c7102498dcde7456f24cfd30239ca606ed9063",
-      "model_fingerprint": "5a77767bfe9c962d",
-      "model_config_fingerprint": "a3d3a1205eaef828",
-      "tokenizer_fingerprint": "290cd13e6eb0aa9c",
-      "vocabulary_size": 51864,
-      "encoder_layers": 4,
-      "decoder_layers": 4
-    },
     "lens": {
+      "audio_preprocessing_version": "mono-polyphase-16khz-v1",
       "capture_convention": "separately fitted encoder and decoder streams combined only at analysis time",
-      "encoder": {
-        "artifact": "speaker-held-out natural-speech A2 global-mean encoder lens",
-        "sha256": "89774a2ebf02818acd5b17bfeb40de671f678ce1efd12e5d419d5bbd8bb56400",
-        "semantic_fingerprint": "0bd2b634e27e51565501e896f7f35612344d5d96416483e114b667049a3ad4f1",
-        "fit_examples": 20,
-        "corpus_fingerprint": "a52b159995f9ee66873a",
-        "examples_fingerprint": "7541d4cd52a10d71c5cda95a9e1bf1ef44ba3f008322a578d2939b66de1122ee",
-        "estimator": "encoder-global-all-targets",
-        "target_reduction": "mean",
-        "public_evaluation_relationship": "speaker-held-out; all ten public clips use speaker 1272, which is excluded from the A2 fit"
-      },
       "decoder": {
         "artifact": "10-clip aligned Whisper pilot decoder lens",
-        "sha256": "489582ce50736e8e7b78b7cb9d0140b963d99c5d7784635ed93e71710ab293a2",
-        "fit_examples": 10,
         "corpus_fingerprint": "46640e2cbca442f599ef",
-        "examples_fingerprint": "9e351a804731ec0622fdb9fdb5daa6ce1b78823efcb73beda4e8f0443fe73555",
         "estimator": "decoder-causal-all-targets",
+        "examples_fingerprint": "9e351a804731ec0622fdb9fdb5daa6ce1b78823efcb73beda4e8f0443fe73555",
+        "fit_examples": 10,
+        "sha256": "489582ce50736e8e7b78b7cb9d0140b963d99c5d7784635ed93e71710ab293a2",
         "target_reduction": "sum"
       },
-      "phone_signature": {
-        "artifact": "A2 frozen top-100 phone prototypes",
-        "sha256": "d628b6c0c90b397695375987d8ed180d3368f3961a27470c0bce5f905e449cf3",
-        "signature_top_k": 100,
-        "phone_inventory_size": 34,
-        "training_split": "train",
-        "training_rows": 3400,
-        "development_or_test_opened_for_fit": false
+      "decoder_source_layers": [
+        0,
+        1,
+        2
+      ],
+      "encoder": {
+        "artifact": "speaker-held-out natural-speech A2 global-mean encoder lens",
+        "corpus_fingerprint": "a52b159995f9ee66873a",
+        "estimator": "encoder-global-all-targets",
+        "examples_fingerprint": "7541d4cd52a10d71c5cda95a9e1bf1ef44ba3f008322a578d2939b66de1122ee",
+        "fit_examples": 20,
+        "public_evaluation_relationship": "speaker-held-out; all ten public clips use speaker 1272, which is excluded from the A2 fit",
+        "semantic_fingerprint": "0bd2b634e27e51565501e896f7f35612344d5d96416483e114b667049a3ad4f1",
+        "sha256": "89774a2ebf02818acd5b17bfeb40de671f678ce1efd12e5d419d5bbd8bb56400",
+        "target_reduction": "mean"
       },
       "encoder_source_layers": [
         0,
@@ -61,198 +44,215 @@
         2,
         3
       ],
-      "decoder_source_layers": [
-        0,
-        1,
-        2
-      ],
-      "target_layer": 3,
-      "audio_preprocessing_version": "mono-polyphase-16khz-v1"
+      "phone_signature": {
+        "artifact": "A2 frozen top-100 phone prototypes",
+        "development_or_test_opened_for_fit": false,
+        "phone_inventory_size": 34,
+        "sha256": "d628b6c0c90b397695375987d8ed180d3368f3961a27470c0bce5f905e449cf3",
+        "signature_top_k": 100,
+        "training_rows": 3400,
+        "training_split": "train"
+      },
+      "target_layer": 3
+    },
+    "model": {
+      "decoder_layers": 4,
+      "encoder_layers": 4,
+      "id": "openai/whisper-tiny.en",
+      "model_config_fingerprint": "a3d3a1205eaef828",
+      "model_fingerprint": "5a77767bfe9c962d",
+      "revision": "87c7102498dcde7456f24cfd30239ca606ed9063",
+      "tokenizer_fingerprint": "290cd13e6eb0aa9c",
+      "vocabulary_size": 51864,
+      "weights_fingerprint": "hf-commit:87c7102498dcde7456f24cfd30239ca606ed9063"
     },
     "rank_semantics": {
-      "tie_policy": "1_plus_count_strictly_greater",
-      "lens_score_kind": "target_mean_relative_logit_delta for encoder; raw_readout_logit for decoder",
       "head_score_kind": "raw_teacher_forced_probability",
+      "lens_score_kind": "target_mean_relative_logit_delta for encoder; raw_readout_logit for decoder",
+      "phone_rank_space": "34 frozen phone prototypes",
       "phone_score_kind": "phone_prototype_cosine_similarity",
-      "phone_rank_space": "34 frozen phone prototypes"
-    },
-    "timing_semantics": {
-      "source": "whisper_cross_attention_dtw",
-      "quality": "model_derived",
-      "warning": "Token times are Whisper-derived and are not independent alignment evidence. Each explorer cell mean-pools five native 20 ms encoder states over 100 ms; adjacent cells share one state. Phone prototypes were validated on aligned native midpoint states, so the displayed nearest prototype is not a probability, framewise vote, phoneme boundary, causal attribution, or local-only receptive field."
+      "tie_policy": "1_plus_count_strictly_greater"
     },
     "rights": {
-      "source_collection": "LibriSpeech dev-clean (OpenSLR SLR12)",
-      "license": "CC BY 4.0",
-      "license_url": "https://creativecommons.org/licenses/by/4.0/",
-      "source_url": "https://www.openslr.org/12",
-      "attribution": "LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings.",
+      "alignment_license": "CC BY 4.0",
       "alignment_source": "LibriSpeech Alignments (MFA), Zenodo record 2619474",
       "alignment_source_url": "https://zenodo.org/records/2619474",
-      "alignment_license": "CC BY 4.0",
-      "modification_notice": "The 10 published input FLAC files are copied without modification from the pinned catalog source."
+      "attribution": "Per-report source metadata is authoritative. 9 inputs: LibriSpeech dev-clean, prepared by Vassil Panayotov, Guoguo Chen, Daniel Povey, and Sanjeev Khudanpur; derived from public-domain LibriVox recordings. Laurel or Yanny? (laurel-yanny.mp3): ‘Laurel/Yanny — original’ (Audio S7), reproduced from Hans Rutger Bosker's ‘Laurel or Yanny?’ demo. Bosker (2018) describes the viral clip as originating from Vocabulary.com's ‘laurel’ pronunciation.",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "modification_notice": "The 9 published input FLAC files are copied without modification from the pinned catalog source. Audio S7 MP3 is reproduced byte-for-byte unchanged; the cached model analysis and steering overlays are project-authored.",
+      "source_collection": "9 LibriSpeech dev-clean (OpenSLR SLR12) inputs plus 1 individually attributed input",
+      "source_url": "https://github.com/kennethli319/audio-jacobian-lens/blob/main/data/static_explorer_catalog_v2.json"
+    },
+    "timing_semantics": {
+      "quality": "model_derived",
+      "source": "whisper_cross_attention_dtw",
+      "warning": "Token times are Whisper-derived and are not independent alignment evidence. Each explorer cell mean-pools five native 20 ms encoder states over 100 ms; adjacent cells share one state. Phone prototypes were validated on aligned native midpoint states, so the displayed nearest prototype is not a probability, framewise vote, phoneme boundary, causal attribution, or local-only receptive field."
     }
   },
+  "report_count": 10,
   "reports": [
     {
-      "id": "asr-question",
-      "title": "A short question",
-      "summary": "Clean short question",
-      "reference_transcript": "Where is my brother now?",
-      "utterance_id": "1272-135031-0012",
       "audio_url": "/audio-jacobian-lens/audio/question.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/question.json",
-      "sha256": "bb0035ad63cff919c636a68869e3fb06cafaf08fd94f6d804a727d5d56c16bed",
       "bytes": 908262,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/question.filters.json",
+        "bytes": 6507155,
         "sha256": "148b8050f60df8103853f98e4bf912c14b3cf6d51adfd736d086cbc6c8bf7b31",
-        "bytes": 6507155
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/question.filters.json"
+      },
+      "id": "asr-question",
+      "reference_transcript": "Where is my brother now?",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/question.json",
+      "sha256": "bb0035ad63cff919c636a68869e3fb06cafaf08fd94f6d804a727d5d56c16bed",
+      "summary": "Clean short question",
+      "title": "A short question",
+      "utterance_id": "1272-135031-0012"
     },
     {
-      "id": "asr-universe",
-      "title": "Sir, I exist",
-      "summary": "Measured declarative speech",
-      "reference_transcript": "A man said to the universe, sir, I exist.",
-      "utterance_id": "1272-141231-0000",
       "audio_url": "/audio-jacobian-lens/audio/universe.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/universe.json",
-      "sha256": "d7de01e6192888c048e1c27337e7332ed590a00d297ee68d6378067e1d1f9b13",
       "bytes": 1968752,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/universe.filters.json",
+        "bytes": 14368617,
         "sha256": "38b5efc869083099825690734e71e21f4d5fab1b2975ec9fe954ccffb665abe0",
-        "bytes": 14368617
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/universe.filters.json"
+      },
+      "id": "asr-universe",
+      "reference_transcript": "A man said to the universe, sir, I exist.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/universe.json",
+      "sha256": "d7de01e6192888c048e1c27337e7332ed590a00d297ee68d6378067e1d1f9b13",
+      "summary": "Measured declarative speech",
+      "title": "Sir, I exist",
+      "utterance_id": "1272-141231-0000"
     },
     {
-      "id": "asr-buzzer",
-      "title": "The buzzer's whirr",
-      "summary": "Consonant-heavy model-error path",
-      "reference_transcript": "The buzzer's whirr triggered his muscles into complete relaxation.",
-      "utterance_id": "1272-141231-0006",
       "audio_url": "/audio-jacobian-lens/audio/buzzer.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/buzzer.json",
-      "sha256": "e6439ef2d86ad63460cbfd6449c31654b61d8c9b774462f9862bf84a55112019",
       "bytes": 2061429,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json",
+        "bytes": 15160124,
         "sha256": "c5efb745b6aead5f797958c2878088c3d157250f7cce14cfb7ad4cf871fd5d21",
-        "bytes": 15160124
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/buzzer.filters.json"
+      },
+      "id": "asr-buzzer",
+      "reference_transcript": "The buzzer's whirr triggered his muscles into complete relaxation.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/buzzer.json",
+      "sha256": "e6439ef2d86ad63460cbfd6449c31654b61d8c9b774462f9862bf84a55112019",
+      "summary": "Consonant-heavy model-error path",
+      "title": "The buzzer's whirr",
+      "utterance_id": "1272-141231-0006"
     },
     {
-      "id": "asr-raps",
-      "title": "The raps at the door",
-      "summary": "Homophone error: raps versus wraps",
-      "reference_transcript": "The little girl had been asleep, but she heard the raps and opened the door.",
-      "utterance_id": "1272-135031-0003",
       "audio_url": "/audio-jacobian-lens/audio/raps.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/raps.json",
-      "sha256": "4bd934d38737dc65df285087bb535edb34e3901eae4258ea0c27707993cc15f1",
       "bytes": 2141314,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/raps.filters.json",
+        "bytes": 15358765,
         "sha256": "68d135fa4ebce9c955ca22bdf5e4f1b82d3fca3bff4032ec1a1179a4e02ba8b2",
-        "bytes": 15358765
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/raps.filters.json"
+      },
+      "id": "asr-raps",
+      "reference_transcript": "The little girl had been asleep, but she heard the raps and opened the door.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/raps.json",
+      "sha256": "4bd934d38737dc65df285087bb535edb34e3901eae4258ea0c27707993cc15f1",
+      "summary": "Homophone error: raps versus wraps",
+      "title": "The raps at the door",
+      "utterance_id": "1272-135031-0003"
     },
     {
-      "id": "asr-one-minute",
-      "title": "One minute",
-      "summary": "Article substitution around the time buzzer",
-      "reference_transcript": "One minute, a voice said, and the time buzzer sounded.",
-      "utterance_id": "1272-141231-0004",
       "audio_url": "/audio-jacobian-lens/audio/one-minute.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/one-minute.json",
-      "sha256": "e3c13c10918041fe97ca8918cfad2f587b17c87adbd90e4fa7a325a69097ece3",
       "bytes": 2186931,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/one-minute.filters.json",
+        "bytes": 15935627,
         "sha256": "df4f223292595472c51487b20bee13251a550282da9abbf007d745a3f8a499eb",
-        "bytes": 15935627
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/one-minute.filters.json"
+      },
+      "id": "asr-one-minute",
+      "reference_transcript": "One minute, a voice said, and the time buzzer sounded.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/one-minute.json",
+      "sha256": "e3c13c10918041fe97ca8918cfad2f587b17c87adbd90e4fa7a325a69097ece3",
+      "summary": "Article substitution around the time buzzer",
+      "title": "One minute",
+      "utterance_id": "1272-141231-0004"
     },
     {
-      "id": "asr-ten-seconds",
-      "title": "Ten seconds",
-      "summary": "Spoken-word versus numeral tokenization",
-      "reference_transcript": "Ten seconds.",
-      "utterance_id": "1272-141231-0016",
       "audio_url": "/audio-jacobian-lens/audio/ten-seconds.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.json",
-      "sha256": "9dcc7bef759ef1bbb4857a5a7d25ae94759282e45c8b73c8d8890b7b794a85ce",
       "bytes": 729871,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.filters.json",
+        "bytes": 5396389,
         "sha256": "82c24089ce398bf659e298d4591ba2c34ee2a7afe45a97354eae594ad4b0dde1",
-        "bytes": 5396389
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.filters.json"
+      },
+      "id": "asr-ten-seconds",
+      "reference_transcript": "Ten seconds.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/ten-seconds.json",
+      "sha256": "9dcc7bef759ef1bbb4857a5a7d25ae94759282e45c8b73c8d8890b7b794a85ce",
+      "summary": "Spoken-word versus numeral tokenization",
+      "title": "Ten seconds",
+      "utterance_id": "1272-141231-0016"
     },
     {
-      "id": "asr-oh-no",
-      "title": "Oh no, I'm quite sure",
-      "summary": "Short contractions and punctuation",
-      "reference_transcript": "Oh no, I'm quite sure he didn't.",
-      "utterance_id": "1272-135031-0018",
       "audio_url": "/audio-jacobian-lens/audio/oh-no.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/oh-no.json",
-      "sha256": "e990247258fff9c6995ce1fb259bbda80a82f6feccc3ce065774897632dda987",
       "bytes": 1168259,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/oh-no.filters.json",
+        "bytes": 8176788,
         "sha256": "2155af8a6a025130270b59e8acc9d8ea357113008ab7e1bfc138d1e935f7c17e",
-        "bytes": 8176788
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/oh-no.filters.json"
+      },
+      "id": "asr-oh-no",
+      "reference_transcript": "Oh no, I'm quite sure he didn't.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/oh-no.json",
+      "sha256": "e990247258fff9c6995ce1fb259bbda80a82f6feccc3ce065774897632dda987",
+      "summary": "Short contractions and punctuation",
+      "title": "Oh no, I'm quite sure",
+      "utterance_id": "1272-135031-0018"
     },
     {
-      "id": "asr-metal-forest",
-      "title": "The metal forest",
-      "summary": "Long utterance with proper-name substitutions",
-      "reference_transcript": "The metal forest is in the great domed cavern, the largest in all our dominions, replied Kaliko.",
-      "utterance_id": "1272-135031-0015",
       "audio_url": "/audio-jacobian-lens/audio/metal-forest.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.json",
-      "sha256": "d482bc0f41d6231b70af59364f8a392fe15caeafc32272e9cc17844c4f706581",
       "bytes": 3202064,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.filters.json",
+        "bytes": 23218123,
         "sha256": "d2b611509eaa5bdff6d5543172c169c3f7eb418d492d55349a949688f8235651",
-        "bytes": 23218123
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.filters.json"
+      },
+      "id": "asr-metal-forest",
+      "reference_transcript": "The metal forest is in the great domed cavern, the largest in all our dominions, replied Kaliko.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/metal-forest.json",
+      "sha256": "d482bc0f41d6231b70af59364f8a392fe15caeafc32272e9cc17844c4f706581",
+      "summary": "Long utterance with proper-name substitutions",
+      "title": "The metal forest",
+      "utterance_id": "1272-135031-0015"
     },
     {
-      "id": "asr-inexhaustible",
-      "title": "An inexhaustible store",
-      "summary": "Rare multi-piece lexical item",
-      "reference_transcript": "A red-haired mountain of a man with an apparently inexhaustible store of energy.",
-      "utterance_id": "1272-141231-0018",
       "audio_url": "/audio-jacobian-lens/audio/inexhaustible.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.json",
-      "sha256": "b583740a24fef784e00477bec9e9a6fbe5f3d2f021e6ddd681fcf8e14adcd7e3",
       "bytes": 2597310,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.filters.json",
+        "bytes": 18844396,
         "sha256": "fae9cf7d29379cfbc31c0c249488ed01464b9d775ddf87c815b56f68156b3730",
-        "bytes": 18844396
-      }
+        "url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.filters.json"
+      },
+      "id": "asr-inexhaustible",
+      "reference_transcript": "A red-haired mountain of a man with an apparently inexhaustible store of energy.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/inexhaustible.json",
+      "sha256": "b583740a24fef784e00477bec9e9a6fbe5f3d2f021e6ddd681fcf8e14adcd7e3",
+      "summary": "Rare multi-piece lexical item",
+      "title": "An inexhaustible store",
+      "utterance_id": "1272-141231-0018"
     },
     {
-      "id": "asr-impossible",
-      "title": "Physically impossible",
-      "summary": "Concise technical phrase",
-      "reference_transcript": "This is physically impossible when conscious.",
-      "utterance_id": "1272-141231-0024",
-      "audio_url": "/audio-jacobian-lens/audio/impossible.flac",
-      "report_url": "/audio-jacobian-lens/explorer/data/asr/impossible.json",
-      "sha256": "246f6577b6fd419625d766ee847e00f96951df4c35434e91b1e9a507ed0e9bb6",
-      "bytes": 1508486,
+      "audio_url": "/audio-jacobian-lens/audio/laurel-yanny.mp3",
+      "bytes": 1336808,
       "character_length_filter_cache": {
-        "url": "/audio-jacobian-lens/explorer/data/asr/impossible.filters.json",
-        "sha256": "abde25017b36e2194523e21a710544206ed1711352a12dd9d1f1e915c9340457",
-        "bytes": 11120101
-      }
+        "bytes": 2921134,
+        "sha256": "519791607f87327c106f84fbe1a555940a5b85a68092f529fb6125d7d321f065",
+        "url": "/audio-jacobian-lens/explorer/data/asr/laurel-yanny.filters.json"
+      },
+      "id": "asr-laurel-yanny",
+      "reference_transcript": "Ambiguous source clip; listeners report ‘Laurel’ or ‘Yanny’.",
+      "report_url": "/audio-jacobian-lens/explorer/data/asr/laurel-yanny.json",
+      "sha256": "26579775b1d166b054ca6a1cbe7bd66252165d53127371758eadf82d9c15bb41",
+      "summary": "Ambiguous speech illusion with recorded phonetic steering",
+      "title": "Laurel or Yanny?",
+      "utterance_id": "bosker-audio-s7"
     }
-  ]
+  ],
+  "schema_id": "audio-jacobian-lens.cached-explorer-manifest",
+  "schema_version": 1
 }

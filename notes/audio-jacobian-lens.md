@@ -123,6 +123,10 @@ A separately optimized anchor also produced `Laurel`, but it required a much lar
 
 This is one recording, but it establishes something concrete: a fitted, distributed phonetic intervention crossed a real decoding boundary without changing weights or forcing output tokens.
 
+At a product level, I can imagine two immediate directions. If an accent has consistent, well-studied vowel shifts, we may be able to steer the encoder toward those phonetic patterns so the same model recognizes speech in that accent more reliably—without retraining the whole model.
+
+The same approach could move contextual or keyword biasing much earlier in the stack. Instead of boosting a target only at the final logits, we could give the same base model a lightweight, deployment-specific anchor and let the later layers incorporate it. That could make it possible to customize one model for a domain or deployment with much less effort.
+
 ## Beyond phonemes
 
 The implication may be larger than phonemes.

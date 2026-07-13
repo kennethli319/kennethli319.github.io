@@ -10,7 +10,7 @@ permalink: /notes/audio-jacobian-lens/
 
 # Inception into J-Space
 
-<p class="note-deck">What I saw while descending through a speech model—from readable words at the surface to distributed acoustic patterns below, and what happened when I tried planting an anchor · July 2026 · about 9 minutes</p>
+<p class="note-deck">What I saw while descending through a speech model—from readable words at the surface to distributed acoustic patterns below, and what happened when I tried planting an anchor · July 2026 · about 11 minutes</p>
 
 I have been using the [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace), to look through layer after layer of speech models.
 
@@ -107,25 +107,50 @@ This is the model's limbo in my metaphor: familiar language is still visible, bu
 
 Descending is only half of *Inception*. The more interesting question is whether something placed at one depth can change what the higher levels eventually construct.
 
-I tried this with the ambiguous Laurel/Yanny recording.
+I tried this with the ambiguous [Laurel/Yanny
+recording](https://hrbosker.github.io/demos/laurel-yanny/).
 
-Without intervention, Whisper transcribed it as `Lily!` I then nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction, and let the rest of the frozen model recompute.
+Without intervention, Whisper transcribed it as `Lily!`. My first anchor nudged early encoder states toward a broad Y-prefix direction and away from a La-prefix direction. The result became `Yay!`, not `Yanny`.
 
-The output became `Yay!`
+That first attempt showed propagation, but not precise control. A vocabulary-prefix family contains many possible words, and Whisper represents `Yanny` as two real tokenizer pieces: ` Y` followed by `anny`. Winning the first decision does not guarantee the second.
 
-Not `Yanny`. `Yay`.
+Then I changed what the anchor was made of.
 
-I did not boost `Yanny` at the final language-model head. The intervention happened earlier, and the model chose the surface word that followed from it.
+Instead of steering through text-token families, I used the fitted Phone Signature itself. I differentiated each complete target-versus-other phone-prototype readout through the matching centered encoder lens, Whisper's final decoder normalization, and output head. That pullback gives a proposed direction in the model's 384-dimensional encoder residual space. I then placed the sequence `Y → AE → N → IY` across the active 0.08–0.68 seconds of the recording, applied the same strength at encoder L0–L3, and let the untouched remainder of the encoder, decoder, and output head recompute normally.
 
-My current interpretation is modest: the anchor caught somewhere, but the model interpreted it in its own way. The edit may have shifted a phonetic direction, changed a language prior, or simply disturbed the computation. The direction used broad token-prefix groups, not phoneme classes; `Yanny` itself splits into ` Y` + `anny`. Only one matched random seed is archived per condition, and some random controls also move the candidate contrast, so this is not yet direction-specific semantic control.
+At a **3.5% aggregate edited-residual norm**, ordinary greedy generation returned `Yanny!`. No token was forced, no decoder state or language-model-head logit was edited, and no model weights changed.
 
-But it is also not nothing. A small edit placed below the surface changed what appeared at the surface.
+The two real tokenizer decisions show what changed. At baseline, ` Y` was rank #3 at 12.33%, while conditional `anny` was rank #42 at 0.266%. After steering, both were rank #1, at 51.60% and 7.37%. Their joint two-piece path rose from 0.0328% to 3.803%: about **116 times larger**.
+
+The boundary was sharp. A 3.18842% run still produced `Yelly!`; a 3.18848% run produced `Yanny!` I use 3.5% for the demonstration because it gives the second piece a clearer margin.
+
+I froze that equal-strength recipe before checking it again. Replacing the fitted phone map with a second map trained on disjoint examples—without retuning the timing, layers, or strength—still produced `Yanny!` A fresh CPU run matched the Apple-silicon run. None of ten random residual schedules at the same coordinates and exact norm produced Yanny: nine remained `Lily!`, one became `Yelly!`, and conditional `anny` remained between ranks #38 and #55 across all ten.
+
+The opposite route exists too, but the evidence is not symmetrical. A `L → AO → R → AH → L` phone-basis schedule can make ordinary generation return `Laurel`. At the recommended recorded point, ` Laurel` moves from rank #2,463 at 0.00109% to rank #1 at 10.60%, using a 14.53% aggregate edit.
+
+For Laurel, however, I optimized 20 nonnegative phone-basis coefficients directly against the desired final token. Three separately optimized random bases failed to generate Laurel even with much larger edits, but the frozen Laurel coefficients did not preserve the exact result when I swapped in the second fitted phone map: the output became `Lori`, with ` Laurel` at rank #10. I therefore read Laurel as a clip-specific existence result. The equal-strength, cross-fit Yanny result is the cleaner causal pilot.
+
+<figure class="note-figure" aria-labelledby="phone-steering-caption">
+  <table>
+    <thead>
+      <tr><th scope="col">Recorded condition</th><th scope="col">Free output</th><th scope="col">Target readout</th><th scope="col">Evidence status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Baseline</td><td><code>Lily!</code></td><td><code>Y</code> #3; <code>anny | Y</code> #42; <code>Laurel</code> #2,463</td><td>No intervention</td></tr>
+      <tr><td>Equal Y / AE / N / IY · 3.5%</td><td><code>Yanny!</code></td><td><code>Y</code> #1; <code>anny | Y</code> #1</td><td>Frozen cross-fit recipe; 0/10 random controls succeeded</td></tr>
+      <tr><td>Optimized L / AO / R / AH / L · 14.53%</td><td><code>Laurel</code></td><td><code>Laurel</code> #1</td><td>Target-conditioned; exact result did not transfer across fits</td></tr>
+    </tbody>
+  </table>
+  <figcaption id="phone-steering-caption"><strong>Figure 3 — Two anchors, two evidence levels.</strong> The Yanny and Laurel controls replay recorded model runs; they do not run Whisper in your browser or interpolate unmeasured strengths. <a href="{{ '/audio-jacobian-lens/steering/' | relative_url }}">Open the cached phonetic-steering experiment</a>.</figcaption>
+</figure>
+
+This is stronger than the old `Yay!` near-miss, but it is still one recording explored after seeing the target. The phone order and timing were developed on this clip. A fitted phone prototype is not a native phone symbol, and differentiating its readout back into the encoder does not by itself prove that Whisper uses that direction as a clean internal control. The result establishes that this fitted phonetic subspace contains a route that can cross the model's real output boundary under these conditions.
 
 A separate recorded Chatterbox TTS replay showed the temporal side of the same question. For “A bright red train crossed the narrow bridge,” a roughly **0.002×-relative-norm residual edit at L20 + L22** changed the actual speech-head winner at S9 from acoustic code `4106` to the previous #2 candidate, `4358`. After that first change, **43 downstream codes** also changed.
 
 <figure class="note-figure note-explorer">
   <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/tts/' | relative_url }}?sample=tts-bridge-s9&amp;embed=article&amp;panel=tts&amp;kind=tts-head&amp;layer=0&amp;position=8" title="Interactive cached Chatterbox TTS Explorer focused on the residual intervention at speech-code position S9" aria-describedby="tts-steering-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-  <figcaption id="tts-steering-caption"><strong>Figure 3 — An anchor reaching later time steps.</strong> The recorded edit changes S9 from code <code>4106</code> to <code>4358</code>, followed by 43 changed downstream codes. Select another saved position or <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">open the full TTS replay</a>.</figcaption>
+  <figcaption id="tts-steering-caption"><strong>Figure 4 — An anchor reaching later time steps.</strong> The recorded edit changes S9 from code <code>4106</code> to <code>4358</code>, followed by 43 changed downstream codes. Select another saved position or <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">open the full TTS replay</a>.</figcaption>
 </figure>
 
 This tells me that an intervention can propagate through an autoregressive suffix. It does not tell me what those code IDs mean, whether the change survives at the waveform level, or whether the effect is useful rather than ordinary autoregressive sensitivity. The edit used a context-specific gradient-proposed direction, not a direction learned by the fitted J-lens; the code IDs are learned acoustic symbols, not published words or phonemes.
@@ -134,13 +159,13 @@ So the next question is not simply, “Can I make the output change?”
 
 It is: **Which anchor, at which layer, at which time, and at which strength produces a repeatable and selective change?**
 
-Then I want the matched controls: the opposite direction, an orthogonal direction, a random direction with the same norm, and the same anchor at the wrong layer or time. I want repeated clips, waveform-level evaluation, and measurements of what persists, what breaks, and how much downstream behavior changes along with the intended effect.
+The frozen-map transfer, CPU reproduction, and exact-norm random schedules answer part of that question for Yanny. I still want the opposite sign, unrelated phone orders, the same anchor at the wrong time, many more random directions, spectral variants of the recording, and held-out audio and models. I also want complete output-distribution and transcript-damage measurements, not only success on the requested word.
 
-If the intervention follows the predicted layer, timing, and direction while surviving those controls, then we may have found a real knob rather than ordinary model sensitivity.
+One anchor has crossed one real decision boundary. A reusable knob must survive the rest of those controls and work beyond the clip on which it was found.
 
 ## How to read the evidence
 
-The Audio Jacobian Lens is a fitted instrument. It uses a first-order map from an intermediate residual state toward a later space that can be read through the vocabulary head. The underlying model stays frozen, but the lens and the 34-phone ARPAbet prototypes are fitted from data, including automatically aligned speech supervision.
+The Audio Jacobian Lens is a fitted instrument. It uses a first-order map from an intermediate residual state toward a later space that can be read through the vocabulary head. The underlying model stays frozen, but the lens and the 34-phone public ARPAbet prototypes are fitted from data, including automatically aligned speech supervision. The Yanny steering pilot uses a separate development-only extension for ARPAbet `Y`; it does not modify Whisper or turn the public prototype bank into a phone recognizer.
 
 The encoder-to-decoder transport behind Phone Signature is my speech-specific extension, not a setup already validated in Anthropic's paper. The two encoder maps above were fitted on disjoint examples but evaluated on the same development set. Their agreement is a fit-sensitivity check, not an independent-corpus replication. The locked test split has not been evaluated.
 
@@ -158,13 +183,13 @@ Right now, I think the work gives us three observations:
 
 1. At the step after `brother`, the decoder surfaces a `who`-shaped association before the output resolves to `now`, while an N → AW-like acoustic pattern is also readable in the encoder.
 2. Distributed vocabulary-aligned patterns in the encoder carry considerably more recoverable phone information than the brightest coordinate alone.
-3. Small edits at intermediate states can change later layers and later time steps, although repeatable, selective semantic control has not been established.
+3. On one ambiguous recording, a timed equal-strength phone-direction edit can cross Whisper's real output boundary to `Yanny!` and survive a second fitted map and initial random controls; a target-optimized Laurel route also exists, but does not transfer as cleanly.
 
 Each observation allows more than one interpretation. That is the interesting part.
 
 The old psycholinguistic experiments—priming, ambiguity, phonetic competition, adaptation—may give us a library of questions to bring into the model. The difference is that now we can do more than observe the final behavior and work backward. We can try to locate an association, touch it, and see whether the remaining computation reorganizes in the way we predicted.
 
-If stable anchors exist, perhaps they could eventually help us debug, adapt, or customize a trained model without collecting another dataset and retraining the whole system for every deployment.
+If stable anchors exist beyond this clip, perhaps they could eventually help us debug, adapt, or customize a trained model without collecting another dataset and retraining the whole system for every deployment.
 
 But first we need to learn which knobs are real, what they control, and what else they disturb.
 
@@ -174,7 +199,7 @@ The deeper layers are harder to name. But every time a pattern becomes partly re
 
 ## Enter the project
 
-**Explore:** [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question) · [Chatterbox TTS](https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9)
+**Explore:** [Whisper / ASR](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question) · [Phone Signature](https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&phone=1&kind=encoder&layer=2&position=18) · [Phonetic steering](https://kennethli319.github.io/audio-jacobian-lens/steering/) · [LFM2.5 Audio](https://kennethli319.github.io/audio-jacobian-lens/speech/?sample=speech-question) · [Chatterbox TTS](https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9)
 
 **Build it:** [Audio Jacobian Lens code and local Apple-silicon MLX setup](https://github.com/kennethli319/audio-jacobian-lens) · **Starting point:** [Anthropic's Global Workspace research](https://www.anthropic.com/research/global-workspace)
 

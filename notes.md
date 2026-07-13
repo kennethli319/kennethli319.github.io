@@ -96,7 +96,7 @@ title: Notes
   </aside>
   <div class="timeline-body">
     <h2 id="listening-inside-a-speech-model"><a class="timeline-title-link" href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Listening Inside a Speech Model with the Audio Jacobian Lens <span class="timeline-permalink" aria-hidden="true">&rarr;</span></a></h2>
-    <p class="timeline-summary">Tracing when words become readable, how distributed phone signatures emerge in Whisper's encoder, and what steering reveals—and does not reveal—about internal control.</p>
+    <p class="timeline-summary">Tracing when words become readable, comparing distributed phone signatures, and proposing experiments to distinguish what steering changes actually mean.</p>
     <p><a href="{{ '/notes/audio-jacobian-lens/' | relative_url }}">Read the full note &rarr;</a></p>
   </div>
 </section>

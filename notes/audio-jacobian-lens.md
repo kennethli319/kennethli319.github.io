@@ -12,6 +12,8 @@ permalink: /notes/audio-jacobian-lens/
 
 <p class="note-deck">What I saw while descending through a speech model—from readable words at the surface to distributed acoustic patterns below, and what happened when I tried planting an anchor · July 2026 · about 11 minutes</p>
 
+<hr class="note-deck-separator">
+
 I have been using the [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace), to look through layer after layer of speech models.
 
 The more I use it, the more I keep thinking about *Inception*.

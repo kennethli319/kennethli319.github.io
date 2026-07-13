@@ -24,7 +24,8 @@
     reportIndex: 0,
     sampleQuery: "",
     reportController: null,
-    phoneSignatureEnabled: false,
+    phoneSignatureEnabled: family === "asr"
+      && !["0", "false", "off"].includes(String(queryParams.get("phone")).toLowerCase()),
     activeConditionId: null,
     selectedToken: 0,
     selectedEncoder: 0,
@@ -427,9 +428,12 @@
     const grid = sampleList.querySelector("[data-sample-grid]");
     grid.innerHTML = visible.length ? visible.map(({ entry, index }) => {
       const detail = entry.summary || entry.reference_transcript || entry.prompt || entry.teaching_role || entry.id;
+      const steeringTag = family === "asr" && entry.id === "asr-laurel-yanny"
+        ? '<em class="sample-tag">steering exp</em>'
+        : "";
       return `
         <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
-          <span>${escapeHTML(`${family === "tts" ? "Prompt" : "Audio"} ${String(index + 1).padStart(2, "0")}`)}</span>
+          <span class="sample-button-kicker">${escapeHTML(`${family === "tts" ? "Prompt" : "Audio"} ${String(index + 1).padStart(2, "0")}`)}${steeringTag}</span>
           <strong>${escapeHTML(entry.title)}</strong>
           <small>${escapeHTML(detail)}</small>
         </button>
@@ -644,7 +648,7 @@
   function applyRequestedView() {
     if (!state.report) return;
     if (family === "asr") {
-      state.phoneSignatureEnabled = ["1", "true", "on"].includes(String(queryParams.get("phone")).toLowerCase())
+      state.phoneSignatureEnabled = !["0", "false", "off"].includes(String(queryParams.get("phone")).toLowerCase())
         && phoneSignatureAvailable();
     }
 
@@ -1104,10 +1108,10 @@
     return `
       <div class="phone-signature-control${enabled ? " enabled" : ""}">
         <button id="static-phone-signature-toggle" type="button" aria-pressed="${enabled}" ${available ? "" : "disabled"}>
-          <span><strong>Phone signature view</strong><small>Replace encoder token readouts with fitted phone prototypes</small></span>
+          <span><strong>Phone signature view</strong><small>On by default · turn off for normal token J-Lens readouts</small></span>
           <i aria-hidden="true">${enabled ? "ON" : "OFF"}</i>
         </button>
-        <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Optional fitted encoder interpretation"}</strong><span>Encoder token readouts remain available when this view is off.</span></p>
+        <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Normal token J-Lens readout enabled"}</strong><span>${enabled ? "Turn this view off to restore the encoder's vocabulary-token candidates." : "Turn phone signatures on to replace encoder token candidates with fitted phone prototypes."}</span></p>
         <details><summary>What does this show?</summary><p>Nearest frozen ARPAbet phone prototypes ranked by cosine similarity. Each ${escapeHTML(formatInteger((metadata?.effective_display_window_seconds || 0.1) * 1000))} ms cell pools five native 20 ms states; neighboring cells share one state. This is an exploratory fitted readout—not probability, a framewise vote, phoneme boundary, causal attribution, or local-only receptive field. The fit has no silence/unknown class.</p></details>
       </div>
     `;
@@ -1207,10 +1211,10 @@
       <section class="recorded-replay replay-tone-${escapeHTML(safeClassName(evidence.tone))}" data-replay-active="${escapeHTML(condition.id)}" aria-labelledby="recorded-replay-heading">
         <header class="recorded-replay-heading">
           <div>
-            <p class="section-label">RECORDED PHONETIC STEERING REPLAY</p>
-            <h3 id="recorded-replay-heading">Replay the original run or either saved intervention</h3>
+            <p class="section-label">RECORDED ENCODER STEERING</p>
+            <h3 id="recorded-replay-heading">Choose a state, then compare the encoder cells below</h3>
           </div>
-          <span>Cached analyses · never live inference</span>
+          <span>Updates encoder · decoder · HEAD</span>
         </header>
         <div class="replay-condition-buttons" role="group" aria-label="Recorded intervention condition">${buttons}</div>
         <div class="replay-active-summary" aria-live="polite">
@@ -1321,7 +1325,7 @@
         {
           panel: "encoder",
           architecture: asrArchitecture("encoder"),
-          controls: renderPhoneSignatureControl(),
+          controls: `${renderReplayControl()}${renderPhoneSignatureControl()}`,
           legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
           scrollable: family === "asr",
           scrollLabel: "Encoder layers across audio windows; scroll horizontally for later windows",
@@ -1428,7 +1432,6 @@
     const audioTime = state.audioTime;
     workspace.innerHTML = `
       ${renderOverview()}
-      ${renderReplayControl()}
       ${renderTimeline()}
       <div class="matrix-layout">
         <div class="matrix-stack">${renderMatrices()}</div>
@@ -1801,6 +1804,11 @@
     const phoneToggle = event.target.closest("#static-phone-signature-toggle");
     if (phoneToggle) {
       state.phoneSignatureEnabled = !state.phoneSignatureEnabled && phoneSignatureAvailable();
+      const phoneQueryValue = state.phoneSignatureEnabled ? "1" : "0";
+      queryParams.set("phone", phoneQueryValue);
+      const url = new URL(window.location.href);
+      url.searchParams.set("phone", phoneQueryValue);
+      window.history.replaceState(null, "", url);
       hideTooltip();
       renderWorkspace();
       return;

@@ -123,6 +123,8 @@
 .sample-button:hover { border-color: var(--line-strong); }
 .sample-button[aria-pressed="true"] { border-color: rgba(var(--lens-rgb), .5); background: rgba(var(--lens-rgb), .055); box-shadow: inset 0 -3px 0 var(--lens); }
 .sample-button span { display: block; color: var(--muted); font: 600 9px/1.35 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.sample-button .sample-button-kicker { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.sample-tag { flex: none; padding: 2px 5px; border: 1px solid rgba(var(--lens-rgb), .3); border-radius: 999px; background: rgba(var(--lens-rgb), .08); color: var(--lens); font: 700 7px/1.2 var(--mono); letter-spacing: .06em; }
 .sample-button strong { display: block; margin-top: 4px; overflow: hidden; font-size: 11px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .sample-button small { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font: 500 8px/1.35 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
 .sample-empty { grid-column: 1 / -1; margin: 0; padding: 18px 12px; border: 1px dashed var(--line); border-radius: 7px; color: var(--muted); font-size: 10px; text-align: center; }
@@ -200,6 +202,7 @@
   border-radius: 10px;
   background: linear-gradient(135deg, rgba(var(--lens-rgb), .045), rgba(var(--accent-rgb), .018) 58%, var(--panel));
 }
+.matrix-panel .recorded-replay { margin: 2px 0 12px; padding: 14px; }
 .recorded-replay[data-replay-active="laurel"] { border-color: rgba(var(--accent-rgb), .32); }
 .recorded-replay-heading {
   display: flex;

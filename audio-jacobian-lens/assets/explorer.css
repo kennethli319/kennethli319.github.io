@@ -335,25 +335,6 @@
 .selected-position-line { min-height: 20px; margin: 9px 0 0; color: var(--ink-soft); font-size: 10px; }
 .selected-position-line strong { color: var(--ink); }
 
-.static-filter {
-  display: grid;
-  grid-template-columns: auto minmax(150px, .45fr) minmax(220px, 1fr);
-  gap: 14px;
-  align-items: center;
-  margin-top: 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel-tint);
-}
-.static-filter-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; }
-.static-filter-toggle input { width: 16px; height: 16px; accent-color: var(--lens); }
-.static-filter-number { display: grid; grid-template-columns: 1fr 62px; gap: 8px; align-items: center; color: var(--muted); font-size: 9px; }
-.static-filter-number input { width: 100%; min-height: 30px; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--panel); padding: 4px 6px; }
-.static-filter p { margin: 0; color: var(--muted); font-size: 9px; }
-.static-filter p.loading { color: var(--lens); }
-.static-filter p.error { color: var(--danger); }
-
 .phone-signature-control {
   display: grid;
   grid-template-columns: minmax(250px, .9fr) minmax(210px, .8fr) minmax(180px, .7fr);
@@ -656,8 +637,6 @@
   .detail-inspector { position: static; }
   .trace-pair { grid-template-columns: 1fr; }
   .timeline-audio { grid-template-columns: 1fr; }
-  .static-filter { grid-template-columns: 1fr 1fr; }
-  .static-filter p { grid-column: 1 / -1; }
   .phone-signature-control { grid-template-columns: 1fr 1fr; }
   .phone-signature-control details { grid-column: 1 / -1; }
   .explorer-panel-heading { display: block; }
@@ -692,10 +671,8 @@
   .matrix-panel,
   .detail-inspector { padding: 14px; }
   .cached-waveform { height: 88px; }
-  .static-filter { grid-template-columns: 1fr; }
   .phone-signature-control { grid-template-columns: 1fr; }
   .phone-signature-control details { grid-column: auto; }
-  .static-filter p { grid-column: auto; }
   .position-timeline { gap: 2px; }
   .position-button { border-radius: 3px; }
   .position-button strong { writing-mode: vertical-rl; max-height: 28px; margin-inline: auto; }

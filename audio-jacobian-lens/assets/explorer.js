@@ -23,12 +23,6 @@
     reportIndex: 0,
     sampleQuery: "",
     reportController: null,
-    filterController: null,
-    filterEnabled: false,
-    filterLimit: 2,
-    filterCache: null,
-    filterStatus: "idle",
-    filterError: "",
     phoneSignatureEnabled: false,
     selectedToken: 0,
     selectedEncoder: 0,
@@ -306,37 +300,6 @@
     }));
   }
 
-  function validateFilterCache(payload) {
-    if (payload.schema_id !== "audio-jacobian-lens.cached-explorer-filter-cache" || payload.example_id !== state.report.example_id) {
-      throw new Error("The cached character-length buckets do not match this report.");
-    }
-    ["encoder", "decoder"].forEach((streamName) => {
-      const filtered = payload.streams?.[streamName];
-      const base = state.report.payload[streamName];
-      (filtered?.layers || []).forEach((layer, filterLayerIndex) => {
-        const baseLayerIndex = base.layers?.findIndex((value) => Number(value) === Number(layer)) ?? -1;
-        if (baseLayerIndex < 0) throw new Error(`The ${streamName} filter cache has an unknown layer.`);
-        (filtered.cells?.[filterLayerIndex] || []).forEach((cell, position) => {
-          const ranks = cell?.realized_rank_by_max_length;
-          if (!ranks || typeof ranks !== "object" || !Object.keys(ranks).length) {
-            throw new Error(`The ${streamName} filter cache is missing exact realized-token ranks.`);
-          }
-          const denominators = state.report.payload.metadata?.display_vocabulary?.maximum_decoded_character_length_counts || {};
-          if (Object.keys(ranks).length !== Object.keys(denominators).length || Object.keys(ranks).some((limit) => !(limit in denominators))) {
-            throw new Error(`The ${streamName} filter cache does not cover every saved filter limit.`);
-          }
-          Object.entries(ranks).forEach(([limit, rank]) => {
-            const denominator = finite(denominators[limit]);
-            if (denominator === null || (rank !== null && (!Number.isInteger(Number(rank)) || Number(rank) < 1 || Number(rank) > denominator))) {
-              throw new Error(`The ${streamName} filter cache has invalid realized-token provenance.`);
-            }
-          });
-        });
-      });
-    });
-    return payload;
-  }
-
   function showError(error) {
     errorBox.hidden = false;
     errorBox.textContent = error instanceof Error ? error.message : String(error);
@@ -431,17 +394,11 @@
     const entry = state.manifest.reports[index];
     if (!entry) return;
     state.reportController?.abort();
-    state.filterController?.abort();
     const controller = new AbortController();
     state.reportController = controller;
     state.reportIndex = index;
     state.reportEntry = entry;
     state.report = null;
-    state.filterEnabled = false;
-    state.filterLimit = 2;
-    state.filterCache = null;
-    state.filterStatus = "idle";
-    state.filterError = "";
     state.audioTime = 0;
     renderSampleButtons();
     clearError();
@@ -629,38 +586,6 @@
     syncPlayheadDOM();
   }
 
-  function mergeLengthBuckets(streamName, layer, position, fallback) {
-    if (!state.filterEnabled || !state.filterCache) return fallback;
-    const stream = state.filterCache.streams?.[streamName];
-    const rowIndex = stream?.layers?.findIndex((value) => Number(value) === Number(layer)) ?? -1;
-    if (rowIndex < 0) return fallback;
-    const buckets = stream.cells?.[rowIndex]?.[position]?.top_tokens_by_length;
-    if (!buckets || typeof buckets !== "object") return fallback;
-    const byId = new Map();
-    Object.entries(buckets).forEach(([length, candidates]) => {
-      if (Number(length) > state.filterLimit || !Array.isArray(candidates)) return;
-      candidates.forEach((candidate) => {
-        const previous = byId.get(candidate.id);
-        if (!previous || Number(candidate.score) > Number(previous.score)) byId.set(candidate.id, candidate);
-      });
-    });
-    const merged = [...byId.values()].sort((left, right) => Number(right.score) - Number(left.score));
-    const denominator = state.report.payload.metadata?.display_vocabulary
-      ?.maximum_decoded_character_length_counts?.[String(state.filterLimit)]
-      ?? merged.length;
-    return merged.slice(0, 5).map((candidate) => ({
-      ...candidate,
-      rank: 1 + merged.filter((other) => Number(other.score) > Number(candidate.score)).length,
-      rank_denominator: denominator,
-      rank_space: `lexical tokens ≤ ${state.filterLimit} characters`,
-      vocabulary_filter: {
-        ...(candidate.vocabulary_filter || {}),
-        character_length_filter_applied: true,
-        character_length_constraint: { operator: "less_than_or_equal", value: state.filterLimit },
-      },
-    }));
-  }
-
   function ttsPosition(kind, layerIndex, position) {
     if (kind === "tts-head") {
       return state.report.payload.output.speech_head_candidates.positions[position];
@@ -693,7 +618,7 @@
     if (kind === "encoder" || kind === "decoder") {
       const stream = state.report.payload[kind];
       const cell = stream.cells?.[layerIndex]?.[position];
-      return mergeLengthBuckets(kind, stream.layers?.[layerIndex], position, cell?.top_tokens || []);
+      return cell?.top_tokens || [];
     }
     if (kind === "head") return state.report.payload.transcription.tokens?.[position]?.top_tokens || [];
     if (kind === "tts-layer" || kind === "tts-head") {
@@ -737,41 +662,10 @@
       const cell = stream.cells?.[layerIndex]?.[position];
       const recorded = cell?.realized_token;
       if (!recorded) return null;
-      let active = recorded;
-      let excludedByFilter = false;
-      let filterApplied = false;
-      if (state.filterEnabled && state.filterCache) {
-        const layer = stream.layers?.[layerIndex];
-        const filterStream = state.filterCache.streams?.[kind];
-        const filterLayerIndex = filterStream?.layers?.findIndex((value) => Number(value) === Number(layer)) ?? -1;
-        if (filterLayerIndex >= 0) {
-          filterApplied = true;
-          const ranks = filterStream.cells?.[filterLayerIndex]?.[position]?.realized_rank_by_max_length;
-          const availableLimits = Object.keys(ranks || {})
-            .map(Number)
-            .filter((limit) => Number.isFinite(limit) && limit <= state.filterLimit)
-            .sort((left, right) => right - left);
-          const selectedLimit = availableLimits[0];
-          const filteredRank = selectedLimit === undefined ? null : ranks[String(selectedLimit)];
-          if (filteredRank !== null && filteredRank !== undefined) {
-            active = {
-              ...recorded,
-              rank: filteredRank,
-              rank_denominator: state.report.payload.metadata?.display_vocabulary?.maximum_decoded_character_length_counts?.[String(selectedLimit)],
-              rank_space: "maximum_decoded_character_length_vocabulary",
-            };
-          } else excludedByFilter = true;
-        }
-      }
       return {
-        ...active,
-        rank: excludedByFilter ? null : active.rank,
-        rankDenominator: excludedByFilter ? null : active.rank_denominator,
-        available: !excludedByFilter,
-        excludedByFilter,
-        filterApplied,
-        unfilteredRank: recorded.rank,
-        unfilteredRankDenominator: recorded.rank_denominator,
+        ...recorded,
+        rankDenominator: recorded.rank_denominator,
+        available: true,
         label: compactText(recorded.text),
       };
     }
@@ -845,9 +739,7 @@
       ? compactText(descriptor.top?.text, `ID ${descriptor.top?.id ?? "—"}`)
       : label;
     let realizedBadge = "";
-    if (descriptor.realized?.excludedByFilter) {
-      realizedBadge = asrDecoderCell ? "realized out" : "out";
-    } else if (realizedRank !== null) {
+    if (realizedRank !== null) {
       realizedBadge = asrDecoderCell || (family === "asr" && kind === "head")
         ? `realized #${formatInteger(realizedRank)}`
         : showASRRealizedRank
@@ -1044,29 +936,7 @@
         <div class="position-heading"><strong>${family === "tts" ? "Realized acoustic-code IDs" : "Generated output pieces"}</strong><span>${positions.length} saved positions · scroll horizontally</span></div>
         <div class="position-timeline scrollable${readableSpeech ? " speech-readable" : ""}" style="--position-count:${positions.length};--position-cell-min:${positionCellWidth}px" tabindex="0" aria-label="${escapeHTML(positionTimelineLabel)}">${buttons}</div>
         <p id="selected-position-line" class="selected-position-line"></p>
-        ${renderFilterControl()}
       </section>
-    `;
-  }
-
-  function renderFilterControl() {
-    if (family !== "asr") {
-      if (family === "speech") return '<div class="static-filter"><p>Character-length reranking is unavailable for this projected LFM pilot; every displayed rank uses its recorded lexical vocabulary.</p></div>';
-      return "";
-    }
-    const message = state.filterStatus === "loading"
-      ? '<p class="loading">Loading the cached exact-length vocabulary buckets…</p>'
-      : state.filterStatus === "error"
-        ? `<p class="error">${escapeHTML(state.filterError)}</p>`
-        : state.phoneSignatureEnabled
-          ? `<p>Encoder filtering is paused in Phone signature view. Decoder L0–L1 ${state.filterEnabled ? `remains limited to ≤${state.filterLimit} characters` : "remains unfiltered"}; L2 and HEAD are unchanged.</p>`
-          : '<p>Applies to all encoder rows and decoder L0–L1 only. L2 and HEAD remain unfiltered controls. This is a vocabulary display aid—not a phoneme classifier or a model intervention.</p>';
-    return `
-      <div class="static-filter">
-        <label class="static-filter-toggle"><input id="static-filter-toggle" type="checkbox" ${state.filterEnabled ? "checked" : ""}> Token-length filter</label>
-        <label class="static-filter-number">Maximum decoded characters <input id="static-filter-limit" type="number" min="1" max="64" step="1" value="${state.filterLimit}" ${state.filterEnabled ? "" : "disabled"}></label>
-        ${message}
-      </div>
     `;
   }
 
@@ -1075,16 +945,13 @@
     const metadata = phoneSignatureMetadata();
     const available = phoneSignatureAvailable();
     const enabled = available && state.phoneSignatureEnabled;
-    const filterMessage = state.filterEnabled
-      ? `Encoder token filtering is paused; decoder L0–L1 remains limited to ≤${state.filterLimit} characters.`
-      : "Encoder token readouts remain available when this view is off.";
     return `
       <div class="phone-signature-control${enabled ? " enabled" : ""}">
         <button id="static-phone-signature-toggle" type="button" aria-pressed="${enabled}" ${available ? "" : "disabled"}>
           <span><strong>Phone signature view</strong><small>Replace encoder token readouts with fitted phone prototypes</small></span>
           <i aria-hidden="true">${enabled ? "ON" : "OFF"}</i>
         </button>
-        <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Optional fitted encoder interpretation"}</strong><span>${escapeHTML(filterMessage)}</span></p>
+        <p><strong>${enabled ? "Nearest frozen top-100 J-signature phone prototype enabled" : "Optional fitted encoder interpretation"}</strong><span>Encoder token readouts remain available when this view is off.</span></p>
         <details><summary>What does this show?</summary><p>Nearest frozen ARPAbet phone prototypes ranked by cosine similarity. Each ${escapeHTML(formatInteger((metadata?.effective_display_window_seconds || 0.1) * 1000))} ms cell pools five native 20 ms states; neighboring cells share one state. This is an exploratory fitted readout—not probability, a framewise vote, phoneme boundary, causal attribution, or local-only receptive field. The fit has no silence/unknown class.</p></details>
       </div>
     `;
@@ -1353,9 +1220,7 @@
       realizedDetail = `Realized target ${realized.label}, rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} logit`}.`;
     }
     if (family === "asr" && realized) {
-      realizedDetail = realized.excludedByFilter
-        ? `Realized target ${realized.label} is excluded by the active ≤${state.filterLimit}-character vocabulary; its unfiltered rank is #${formatInteger(realized.unfilteredRank)} of ${formatInteger(realized.unfilteredRankDenominator)}.`
-        : `Realized target ${realized.label}, exact ${realized.filterApplied ? `≤${state.filterLimit}-character` : "unfiltered"} rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} ${kind === "encoder" ? "logit delta" : "logit"}`}.`;
+      realizedDetail = `Realized target ${realized.label}, exact recorded rank #${formatInteger(realized.rank)} of ${formatInteger(realized.rankDenominator)}, ${finite(realized.probability) !== null ? formatProbability(realized.probability, 3) : `${formatScore(realized.score)} ${kind === "encoder" ? "logit delta" : "logit"}`}.`;
     }
     const detail = realizedDetail ? `${topDetail} ${realizedDetail}` : topDetail;
     return { candidates, realized, top, code, phone: false, coordinate, detail, realizedDetail, kind };
@@ -1412,16 +1277,12 @@
     const head = kind === "head" || kind === "tts-head";
     const top = descriptor.top;
     const scoreLabel = head ? "Actual probability" : descriptor.code ? "Fitted probability" : kind === "encoder" ? "Readout-logit delta" : "Readout logit";
-    const realizedScore = realized?.excludedByFilter
-      ? `Excluded by ≤${state.filterLimit} filter`
-      : finite(realized?.probability) !== null
+    const realizedScore = finite(realized?.probability) !== null
       ? formatProbability(realized.probability, 3)
       : finite(realized?.score) !== null
         ? `${formatScore(realized.score)} logit`
         : "Not in saved top 5";
-    const realizedRank = realized?.excludedByFilter
-      ? `Excluded · unfiltered #${formatInteger(realized?.unfilteredRank)}`
-      : realized?.available === false
+    const realizedRank = realized?.available === false
       ? "Not in saved top 5"
       : `#${formatInteger(realized?.rank)} / ${formatInteger(realized?.rankDenominator)}`;
     inspector.innerHTML = `
@@ -1581,45 +1442,6 @@
     workspace.querySelectorAll(".wave-region").forEach((button) => button.classList.toggle("playing", Number(button.dataset.encoderPosition) === playingEncoder));
   }
 
-  async function toggleFilter(enabled) {
-    state.filterEnabled = enabled;
-    if (!enabled) {
-      state.filterStatus = "idle";
-      renderWorkspace();
-      return;
-    }
-    if (state.filterCache) {
-      renderWorkspace();
-      return;
-    }
-    const cache = state.report.cache_policy?.character_length_filter_cache || state.reportEntry.character_length_filter_cache;
-    if (!cache?.url) {
-      state.filterStatus = "error";
-      state.filterError = "This report did not publish a character-length cache.";
-      renderWorkspace();
-      return;
-    }
-    state.filterController?.abort();
-    const controller = new AbortController();
-    state.filterController = controller;
-    state.filterStatus = "loading";
-    renderWorkspace();
-    try {
-      const payload = validateFilterCache(await fetchJSON(cache.url, { signal: controller.signal }));
-      state.filterCache = payload;
-      state.filterStatus = "ready";
-      state.filterError = "";
-      renderWorkspace();
-    } catch (error) {
-      if (error?.name === "AbortError") return;
-      state.filterStatus = "error";
-      state.filterError = error instanceof Error ? error.message : String(error);
-      renderWorkspace();
-    } finally {
-      if (state.filterController === controller) state.filterController = null;
-    }
-  }
-
   function renderTooltipFor(cell) {
     const kind = cell.dataset.kind;
     const layerIndex = Number(cell.dataset.layerIndex);
@@ -1707,14 +1529,6 @@
     }
     const cell = event.target.closest(".matrix-cell");
     if (cell) selectCoordinate(cell.dataset.kind, Number(cell.dataset.layerIndex), Number(cell.dataset.position));
-  });
-
-  workspace.addEventListener("change", (event) => {
-    if (event.target.id === "static-filter-toggle") toggleFilter(event.target.checked);
-    if (event.target.id === "static-filter-limit") {
-      state.filterLimit = clamp(Math.round(Number(event.target.value) || 2), 1, 64);
-      if (state.filterEnabled && state.filterCache) renderWorkspace();
-    }
   });
 
   workspace.addEventListener("keydown", (event) => {

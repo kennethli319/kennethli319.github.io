@@ -429,7 +429,7 @@
     grid.innerHTML = visible.length ? visible.map(({ entry, index }) => {
       const detail = entry.summary || entry.reference_transcript || entry.prompt || entry.teaching_role || entry.id;
       const steeringTag = family === "asr" && entry.id === "asr-laurel-yanny"
-        ? '<em class="sample-tag">steering exp</em>'
+        ? '<em class="sample-tag">steering experiment</em>'
         : "";
       return `
         <button class="sample-button" type="button" data-sample-index="${index}" aria-pressed="${index === state.reportIndex}">
@@ -565,6 +565,9 @@
     window.history.replaceState(null, "", url);
     hideTooltip();
     renderWorkspace();
+    window.requestAnimationFrame(() => {
+      workspace.querySelector(`[data-replay-condition="${condition.id}"]`)?.focus({ preventScroll: true });
+    });
   }
 
   function encoderCells() {
@@ -1811,6 +1814,9 @@
       window.history.replaceState(null, "", url);
       hideTooltip();
       renderWorkspace();
+      window.requestAnimationFrame(() => {
+        workspace.querySelector("#static-phone-signature-toggle")?.focus({ preventScroll: true });
+      });
       return;
     }
     const token = event.target.closest("[data-token-position]");

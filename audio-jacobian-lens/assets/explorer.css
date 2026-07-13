@@ -729,6 +729,9 @@
 @media (max-width: 980px) {
   .detailed-explorer .static-badge { display: none; }
   .matrix-layout { grid-template-columns: minmax(0, 1fr) 280px; }
+  .matrix-panel .replay-active-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .matrix-panel .phone-signature-control { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .matrix-panel .phone-signature-control details { grid-column: 1 / -1; }
   .provenance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -740,7 +743,8 @@
   .report-overview { grid-template-columns: 1fr; gap: 18px; }
   .recorded-replay-heading { display: block; }
   .recorded-replay-heading > span { display: inline-block; margin-top: 9px; }
-  .replay-active-summary { grid-template-columns: 1fr; }
+  .replay-active-summary,
+  .matrix-panel .replay-active-summary { grid-template-columns: 1fr; }
   .replay-attribution { grid-template-columns: 1fr; }
   .replay-change-notice { grid-column: auto; }
   .overview-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -784,8 +788,10 @@
   .matrix-panel,
   .detail-inspector { padding: 14px; }
   .cached-waveform { height: 88px; }
-  .phone-signature-control { grid-template-columns: 1fr; }
-  .phone-signature-control details { grid-column: auto; }
+  .phone-signature-control,
+  .matrix-panel .phone-signature-control { grid-template-columns: 1fr; }
+  .phone-signature-control details,
+  .matrix-panel .phone-signature-control details { grid-column: auto; }
   .position-timeline { gap: 2px; }
   .position-button { border-radius: 3px; }
   .position-button strong { writing-mode: vertical-rl; max-height: 28px; margin-inline: auto; }

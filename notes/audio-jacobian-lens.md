@@ -31,7 +31,7 @@ As I inspect Whisper, three observations make the *Inception* metaphor feel espe
 
 In plain terms, the lens asks: **which output-vocabulary directions become readable from an intermediate state?** It turns an unnamed activation into clues that I can compare across layers, time, and interventions.
 
-This brings me back to psycholinguistics. We used reaction time, priming, ambiguity, and mistakes to infer language processes we could not inspect directly. Models give us the opposite puzzle: nearly every activation is accessible, but there are too many, and most have no name. The challenge is finding a readable experiment inside all that access.
+This brings me back to psycholinguistics. We used reaction time, priming, ambiguity, and mistakes to infer language processes we could not inspect directly. Inspecting a model is both similar to and different from doing psycholinguistics. We are still trying to infer hidden language processes from observable patterns, but now nearly every activation is accessible. The difficulty is not simply seeing too little; it is making sense of too much. Most activations have no name, so we still need experiments that make their patterns readable.
 
 ## At the surface, `now`. One layer down, `who`.
 

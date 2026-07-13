@@ -59,11 +59,9 @@ But one level down, something more interesting appears.
 
 After `brother` has been decoded, we arrive at the next output position—the one that eventually emits `now`. In the first plotted decoder layer (L0), `who` is ranked first, while `now` is still #6,319. `Now` falls to #7,237 at the next layer, then jumps to #3, and finally reaches #1 at the output head.
 
-<figure class="note-figure">
-  <a href="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}">
-    <img src="{{ '/assets/img/audio-jacobian-lens/decoder-timing-now.png' | relative_url }}" alt="Whisper decoder layer-by-position matrix for Where is my brother now, with now selected. Who is the top early-layer candidate before now becomes top-ranked later." loading="lazy" decoding="async">
-  </a>
-  <figcaption><strong>Figure 1 — The answer takes time to settle.</strong> At the position that eventually becomes <code>now</code>, <code>who</code> is the early leader. Across the full vocabulary, <code>now</code> moves #6,319 → #7,237 → #3 → #1; the screenshot uses the explorer's display vocabulary. This is the observation behind the <code>brother → who</code>, then <code>now</code> hypothesis. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">Open the interactive example</a>.</figcaption>
+<figure class="note-figure note-explorer">
+  <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/' | relative_url }}?sample=asr-question&amp;embed=article&amp;panel=decoder&amp;kind=decoder&amp;layer=0&amp;position=4" title="Interactive cached Whisper Explorer focused on decoder layer 0 at the token now" aria-describedby="decoder-now-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <figcaption id="decoder-now-caption"><strong>Figure 1 — The answer takes time to settle.</strong> At the position that eventually becomes <code>now</code>, <code>who</code> is the early leader. Across the full vocabulary, <code>now</code> moves #6,319 → #7,237 → #3 → #1. Select other cells to inspect their saved candidates, or <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question">open the full example</a>.</figcaption>
 </figure>
 
 I read this as a word-association-shaped detour: *brother—identity—who*. It feels very much like the decoder is using an association as a hint before later computation resolves the answer to `now`.
@@ -90,11 +88,9 @@ In the preliminary speaker-held-out tests, phone information decoded directly fr
 
 The measurements operate on automatically aligned native **20 ms states**. The public explorer pools five states into overlapping **100 ms display cells with an 80 ms hop**. Those cells are for reading the map; they are not phone boundaries, probabilities, or a separately validated phone classifier.
 
-<figure class="note-figure">
-  <a href="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}">
-    <img src="{{ '/assets/img/audio-jacobian-lens/phone-signature-view.png' | relative_url }}" alt="Audio Jacobian Lens Phone Signature view for the buzzer example using 100 millisecond display cells. Encoder L3 from 0.56 to 0.66 seconds is selected, with B as the nearest prototype at cosine similarity 0.565." loading="lazy" decoding="async">
-  </a>
-  <figcaption><strong>Figure 2 — A constellation, not a single label.</strong> In this selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest fixed ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). The display pools native 20 ms states into overlapping 100 ms cells with an 80 ms hop, so these are similarities rather than phone boundaries or probabilities. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">Open Phone Signature view</a>.</figcaption>
+<figure class="note-figure note-explorer">
+  <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/' | relative_url }}?sample=asr-buzzer&amp;embed=article&amp;panel=encoder&amp;phone=1&amp;kind=encoder&amp;layer=3&amp;position=7" title="Interactive cached Phone Signature Explorer focused on encoder layer 3 from 0.56 to 0.66 seconds" aria-describedby="phone-signature-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <figcaption id="phone-signature-caption"><strong>Figure 2 — A constellation, not a single label.</strong> In this selected encoder-L3 window (0.56–0.66 s), <code>B</code> is the nearest fixed ARPAbet prototype (cosine 0.565; margin 0.479 over <code>AW</code>). The display pools native 20 ms states into overlapping 100 ms cells with an 80 ms hop, so these are similarities rather than phone boundaries or probabilities. Explore neighboring windows, or <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-buzzer">open the full Phone Signature view</a>.</figcaption>
 </figure>
 
 That gap is the observation I care about: the combination carries information that its brightest human label misses. Maybe vocabulary directions are being borrowed, through the fitted projection, to describe something more acoustic and less literal. Maybe part of the structure comes from the supervised phone map. Or maybe there is another explanation I have not thought of yet. The point is to design experiments that separate them.
@@ -121,11 +117,9 @@ But it is also not nothing: something placed early changed the surface transcrip
 
 A separate recorded Chatterbox TTS replay showed the temporal side of the same question. A **0.002×-relative-norm residual edit at L20 + L22** changed the actual speech-head winner from acoustic code `4106` to `4358`, followed by **43 changed downstream codes**.
 
-<figure class="note-figure">
-  <a href="{{ '/assets/img/audio-jacobian-lens/tts-residual-steering.png' | relative_url }}">
-    <img src="{{ '/assets/img/audio-jacobian-lens/tts-residual-steering.png' | relative_url }}" alt="Recorded Chatterbox TTS causal replay showing a small L20 plus L22 residual edit changing the actual speech-head winner from acoustic code 4106 to 4358 and changing 43 downstream codes." loading="lazy" decoding="async">
-  </a>
-  <figcaption><strong>Figure 3 — An anchor reaching later time steps.</strong> A 0.002×-relative-norm edit at L20 + L22 changes the winning acoustic code from 4106 to 4358, followed by 43 changed downstream codes. It shows propagation through the future autoregressive sequence, not yet semantic control or waveform attribution. <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">Open the TTS replay</a>.</figcaption>
+<figure class="note-figure note-explorer">
+  <iframe class="note-explorer__frame" src="{{ '/audio-jacobian-lens/tts/' | relative_url }}?sample=tts-bridge-s9&amp;embed=article&amp;panel=tts&amp;kind=tts-head&amp;layer=0&amp;position=8" title="Interactive cached Chatterbox TTS Explorer focused on the residual intervention at speech-code position S9" aria-describedby="tts-steering-caption" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <figcaption id="tts-steering-caption"><strong>Figure 3 — An anchor reaching later time steps.</strong> A 0.002×-relative-norm edit at L20 + L22 changes the winning acoustic code from 4106 to 4358, followed by 43 changed downstream codes. It shows propagation through the future autoregressive sequence, not yet semantic control or waveform attribution. Select a position or layer cell to inspect its saved replay, or <a href="https://kennethli319.github.io/audio-jacobian-lens/tts/?sample=tts-bridge-s9">open the full TTS example</a>.</figcaption>
 </figure>
 
 This shows propagation through an autoregressive suffix, but it does not give those code IDs word or phone meaning or establish waveform attribution. Repeated clips, matched perturbations, and waveform-level evaluation are still needed to separate useful control from ordinary autoregressive sensitivity.

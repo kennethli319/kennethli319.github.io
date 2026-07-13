@@ -4,10 +4,17 @@
   const body = document.body;
   const family = body.dataset.family;
   const manifestUrl = body.dataset.manifestUrl;
+  const queryParams = new URLSearchParams(window.location.search);
   const sampleList = document.querySelector("#sample-list");
   const workspace = document.querySelector("#explorer-workspace");
   const errorBox = document.querySelector("#explorer-error");
   const expectedReportCount = 10;
+
+  if (queryParams.get("embed") === "article") {
+    body.classList.add("article-embed");
+    const requestedPanel = queryParams.get("panel");
+    if (["encoder", "decoder", "tts"].includes(requestedPanel)) body.dataset.embedPanel = requestedPanel;
+  }
 
   const state = {
     manifest: null,
@@ -453,6 +460,7 @@
         state.selectedEncoder = nearestEncoderForToken(0);
         state.selection = { kind: "head", layerIndex: 0, position: 0 };
       }
+      applyRequestedView();
       const url = new URL(window.location.href);
       url.searchParams.set("sample", entry.id);
       window.history.replaceState(null, "", url);
@@ -533,6 +541,58 @@
       }
     });
     return best < 0 ? state.selectedToken || 0 : best;
+  }
+
+  function requestedInteger(name, fallback = null) {
+    const value = finite(queryParams.get(name));
+    return value === null ? fallback : Math.round(value);
+  }
+
+  function selectionLayerCount(kind) {
+    if (kind === "encoder") return state.report?.payload?.encoder?.cells?.length || 0;
+    if (kind === "decoder") return state.report?.payload?.decoder?.cells?.length || 0;
+    if (kind === "tts-layer") return fittedRows().length;
+    return 1;
+  }
+
+  function applyRequestedView() {
+    if (!state.report) return;
+    if (family === "asr") {
+      state.phoneSignatureEnabled = ["1", "true", "on"].includes(String(queryParams.get("phone")).toLowerCase())
+        && phoneSignatureAvailable();
+    }
+
+    const requestedPosition = requestedInteger("position");
+    if (requestedPosition === null) return;
+
+    const allowedKinds = family === "tts"
+      ? ["tts-layer", "tts-head"]
+      : family === "asr"
+        ? ["encoder", "decoder", "head"]
+        : ["decoder", "head"];
+    const requestedKind = queryParams.get("kind");
+    const kind = allowedKinds.includes(requestedKind) ? requestedKind : state.selection.kind;
+    const positionCount = kind === "encoder" ? (encoderCells()[0]?.length || 0) : tokenList().length;
+    if (!positionCount) return;
+
+    const position = clamp(requestedPosition, 0, positionCount - 1);
+    const layerCount = Math.max(1, selectionLayerCount(kind));
+    const layerIndex = clamp(requestedInteger("layer", 0), 0, layerCount - 1);
+    state.selection = { kind, layerIndex, position };
+
+    if (kind === "encoder") {
+      state.selectedEncoder = position;
+      const window = encoderWindow(position);
+      const recordedTokenPosition = finite(encoderCells()[0]?.[position]?.realized_token_position);
+      if (recordedTokenPosition !== null) {
+        state.selectedToken = clamp(Math.round(recordedTokenPosition), 0, Math.max(0, tokenList().length - 1));
+      } else if (window) {
+        state.selectedToken = nearestTokenForTime((window.start + window.end) / 2);
+      }
+    } else {
+      state.selectedToken = position;
+      if (family === "asr") state.selectedEncoder = nearestEncoderForToken(position);
+    }
   }
 
   function selectCoordinate(kind, layerIndex, position, { seek = false } = {}) {
@@ -910,9 +970,9 @@
     return `${rows}<div class="matrix-row" style="--position-count:${head.length};--matrix-min:${58 + head.length * ttsCellWidth}px"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false, scrollLabel = "Layer positions; scroll horizontally for later positions" } = {}) {
+  function renderMatrixPanel(title, description, rows, { panel = "", headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false, scrollLabel = "Layer positions; scroll horizontally for later positions" } = {}) {
     return `
-      <section class="matrix-panel${controls ? " phone-capable-panel" : ""}${scrollable ? " scrollable-matrix-panel" : ""}">
+      <section class="matrix-panel${controls ? " phone-capable-panel" : ""}${scrollable ? " scrollable-matrix-panel" : ""}"${panel ? ` data-explorer-panel="${escapeHTML(panel)}"` : ""}>
         <header class="explorer-panel-heading">
           <div><p class="section-label">LAYER × POSITION</p><h3>${escapeHTML(title)}</h3></div>
           <p>${escapeHTML(description)}</p>
@@ -1092,6 +1152,7 @@
         "Each cell shows the exact global rank of the realized code. Blue intensity uses a square-root display scale of its fitted probability; hover for the unrounded value and scroll horizontally for later speech-code positions.",
         renderTTSRows(),
         {
+          panel: "tts",
           headLegend: true,
           scrollable: true,
           scrollLabel: "Fitted T3 layers across speech-code positions; scroll horizontally for later positions",
@@ -1110,6 +1171,7 @@
           : "Each row is one encoder layer and each column is an overlapping time window. Blue tint is normalized within each row; exact readout logits stay in the tooltip and inspector.",
         renderStandardRows("encoder"),
         {
+          panel: "encoder",
           controls: renderPhoneSignatureControl(),
           legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
           scrollable: family === "asr",
@@ -1123,7 +1185,7 @@
         ? "Projected LFM readout rows are followed by the actual tied text head. They describe generated-language positions, not acoustic frames. Scroll horizontally to follow the complete generated sequence."
         : "Decoder boxes show each layer's top candidate in large text and the realized output token's exact rank below it. HEAD keeps the actual output token and probability semantics.",
       renderSpeechRows(),
-      { headLegend: true, windowed: true },
+      { panel: "decoder", headLegend: true, windowed: true },
     ));
     return panels.join("");
   }

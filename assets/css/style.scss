@@ -27,6 +27,37 @@
   line-height: 1.55;
 }
 
+.note-explorer__frame {
+  display: block;
+  width: 100%;
+  height: clamp(640px, 78vh, 880px);
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #f7f8fa;
+}
+
+.note-explorer__frame:focus-visible {
+  outline: 3px solid #267cb9;
+  outline-offset: -3px;
+}
+
+.note-explorer figcaption::before {
+  content: "Interactive Explorer · scroll inside the panel";
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #555;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media print {
+  .note-explorer__frame {
+    display: none;
+  }
+}
+
 .note-deck {
   margin: -0.4rem 0 2rem;
   color: #666;

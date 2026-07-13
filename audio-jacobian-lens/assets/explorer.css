@@ -1,4 +1,41 @@
 .detailed-explorer { min-width: 0; overflow-x: hidden; }
+.detailed-explorer.article-embed {
+  background: var(--bg);
+}
+.article-embed .skip-link,
+.article-embed .site-header,
+.article-embed .explorer-hero,
+.article-embed .sample-switcher,
+.article-embed .site-footer {
+  display: none;
+}
+.article-embed main {
+  width: 100%;
+  margin: 0;
+  padding: 0 14px;
+}
+.article-embed .explorer-workspace {
+  min-height: 0;
+  padding-bottom: 24px;
+}
+.article-embed .report-overview {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 18px 0;
+}
+.article-embed .report-overview h2 {
+  margin-block: 3px 6px;
+  font-size: clamp(23px, 5vw, 31px);
+}
+.article-embed .report-overview .overview-meta,
+.article-embed .cached-banner,
+.article-embed .report-provenance {
+  display: none;
+}
+.article-embed[data-embed-panel="decoder"] [data-explorer-panel="encoder"],
+.article-embed[data-embed-panel="encoder"] [data-explorer-panel="decoder"] {
+  display: none;
+}
 .detailed-explorer .summary-link {
   padding: 6px 9px;
   border: 1px solid var(--line);

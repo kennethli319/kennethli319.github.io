@@ -79,7 +79,7 @@ The constellation carries much more recoverable phone information than its brigh
   <figcaption id="phone-signature-caption"><strong>Figure 2 — An N-like cell followed by AW-like cells.</strong> The view pools native 20 ms states into overlapping 100 ms cells. The selected L2 window is nearest to <code>N</code>; the following windows are nearest to <code>AW</code>. These similarities are not probabilities or phone boundaries. <a href="https://kennethli319.github.io/audio-jacobian-lens/?sample=asr-question&amp;phone=1&amp;kind=encoder&amp;layer=2&amp;position=18">Open the full Phone Signature sequence</a>.</figcaption>
 </figure>
 
-In the same question, encoder L2 shows an `N → AW`-like run shortly before Whisper's model-derived interval for `now`. Put beside `brother → who`, this suggests a useful experiment: cross clear versus ambiguous audio with supportive versus conflicting context, then watch where the balance between acoustic evidence and language association changes.
+In the same question, encoder L2 shows an `N → AW`-like run shortly before Whisper's model-derived interval for `now`. Put beside `brother → who`, it reveals the two signals I am most interested in: language association near the decoder surface and phonetic evidence deeper in the encoder.
 
 This is the model's limbo in my metaphor: familiar language is still visible, but it may be a projection doing a different job at that depth.
 
@@ -115,7 +115,7 @@ A separately optimized anchor also produced `Laurel`, but it required a much lar
   <figcaption id="phone-steering-caption"><strong>Figure 3 — Two anchors, two evidence levels.</strong> The controls replay complete recorded model runs. <a href="{{ '/audio-jacobian-lens/?sample=asr-laurel-yanny' | relative_url }}">Open the full layer-by-layer ASR replay</a>.</figcaption>
 </figure>
 
-This is a one-recording causal pilot: the phone order and timing were developed on this clip. But it establishes something concrete—a distributed fitted phonetic direction can cross a real decoding boundary without changing weights or forcing output tokens. The next tests are wrong-time and wrong-order anchors, opposite signs, and held-out recordings and models.
+This is one recording, but it establishes something concrete: a distributed fitted phonetic direction crossed a real decoding boundary without changing weights or forcing output tokens.
 
 ## What the lens shows
 

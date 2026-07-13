@@ -19,11 +19,9 @@ permalink: /notes/audio-jacobian-lens/
   <figcaption><strong>Metaphorical illustration.</strong> At the surface, language is readable. Deeper down, familiar objects become projections and distributed patterns. One anchor planted at a particular depth sends an effect through the levels above. This is explanatory artwork, not experimental evidence.</figcaption>
 </figure>
 
-I keep thinking about *Inception*.
+I have been using the [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), which I adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace), to look through the layers of speech models. And the more I descend through them—from readable output toward earlier representations—the more I keep thinking about *Inception*.
 
 In the movie, you enter one dream, then another inside it, and then another. The surface still looks familiar. But as you descend, things become less literal. An object can be a projection. Several objects can combine to express something that none of them means alone. And something small, placed deep enough, can reorganize what happens in every level above it.
-
-That is almost how I now imagine looking through a speech model with the [Audio Jacobian Lens](https://github.com/kennethli319/audio-jacobian-lens), which I adapted from [Anthropic's Jacobian Lens](https://www.anthropic.com/research/global-workspace).
 
 Under the metaphor, the instrument is not mystical. The Jacobian Lens fits a first-order map from an intermediate residual state toward a later space that can be read through the vocabulary head. In practical terms, I use it to ask: **which vocabulary directions become readable from here?** I adapted it for Whisper ASR, Chatterbox TTS, and an experimental Apple-silicon MLX path for LFM2.5 Audio. The encoder-to-decoder transport used for Phone Signature is my speech-specific extension, not a setup validated in Anthropic's paper.
 

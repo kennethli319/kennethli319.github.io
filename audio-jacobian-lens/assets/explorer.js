@@ -558,7 +558,7 @@
         if (time !== null) seekAudio(time);
       }
     }
-    syncSelectionDOM();
+    syncSelectionDOM({ reveal: true, behavior: "auto" });
   }
 
   function seekAudio(time) {
@@ -812,6 +812,8 @@
       const boundedEnd = endPosition === null ? cells.length : Math.min(endPosition, cells.length);
       const positions = cells.slice(startPosition, boundedEnd).map((_, offset) => startPosition + offset);
       const phoneMode = encoderPhoneMode(streamName);
+      const scrollableEncoder = family === "asr" && streamName === "encoder";
+      const encoderCellWidth = phoneMode ? 28 : 72;
       const strengths = rowStrengths(cells.map((_, position) => (
         phoneMode
           ? finite(phoneSignaturesFor(layerIndex, position)[0]?.similarity) ?? 0
@@ -831,7 +833,7 @@
           label: phoneMode ? compactText(top?.phone) : compactText(top?.text, `ID ${top?.id ?? "—"}`),
         });
       }).join("");
-      return `<div class="matrix-row" style="--position-count:${positions.length}${phoneMode ? `;--matrix-min:${58 + positions.length * 28}px` : ""}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
+      return `<div class="matrix-row" style="--position-count:${positions.length}${scrollableEncoder ? `;--matrix-min:${58 + positions.length * encoderCellWidth}px` : ""}"><div class="matrix-layer-label">L${escapeHTML(layer)}</div>${cellHTML}</div>`;
     }).join("");
   }
 
@@ -906,16 +908,16 @@
     return `${rows}<div class="matrix-row" style="--position-count:${head.length}"><div class="matrix-layer-label">HEAD</div>${cells}</div>`;
   }
 
-  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity" } = {}) {
+  function renderMatrixPanel(title, description, rows, { headLegend = false, windowed = false, controls = "", legendLabel = "Fitted/readout intensity", scrollable = false } = {}) {
     return `
-      <section class="matrix-panel${controls ? " phone-capable-panel" : ""}">
+      <section class="matrix-panel${controls ? " phone-capable-panel" : ""}${scrollable ? " scrollable-matrix-panel" : ""}">
         <header class="explorer-panel-heading">
           <div><p class="section-label">LAYER × POSITION</p><h3>${escapeHTML(title)}</h3></div>
           <p>${escapeHTML(description)}</p>
         </header>
         ${controls}
         <div class="matrix-legend"><span><i></i> ${escapeHTML(legendLabel)}</span>${headLegend ? "<span><i class=\"head\"></i> Actual output probability</span>" : ""}</div>
-        <div class="layer-matrix${windowed ? " windowed" : ""}">${rows}</div>
+        <div class="layer-matrix${windowed ? " windowed" : ""}"${scrollable ? ' tabindex="0" aria-label="Encoder layers across audio windows; scroll horizontally for later windows"' : ""}>${rows}</div>
       </section>
     `;
   }
@@ -1095,14 +1097,15 @@
       panels.push(renderMatrixPanel(
         "Across the audio representation",
         phoneMode
-          ? "Each cell shows the nearest frozen phone prototype. Blue tint is the within-layer percentile of cosine similarity; exact ranks and alternatives are in the tooltip and inspector."
+          ? "Each cell shows the nearest frozen phone prototype. Blue tint is the within-layer percentile of cosine similarity; exact ranks and alternatives are in the tooltip and inspector. Scroll horizontally for later audio windows."
           : family === "asr"
-          ? "Large text is the layer's top candidate. The small # is the exact rank of the realized output token aligned by greatest time overlap; blue tint is normalized within each row."
+          ? "Large text is the layer's top candidate. The small # is the exact rank of the realized output token aligned by greatest time overlap; blue tint is normalized within each row. Scroll horizontally for later audio windows."
           : "Each row is one encoder layer and each column is an overlapping time window. Blue tint is normalized within each row; exact readout logits stay in the tooltip and inspector.",
         renderStandardRows("encoder"),
         {
           controls: renderPhoneSignatureControl(),
           legendLabel: phoneMode ? "Phone-prototype cosine similarity · not probability" : "Fitted/readout intensity",
+          scrollable: family === "asr",
         },
       ));
     }
@@ -1229,7 +1232,7 @@
       });
       audio.addEventListener("seeked", syncPlayheadDOM);
     }
-    syncSelectionDOM();
+    syncSelectionDOM({ reveal: true, behavior: "auto" });
   }
 
   function coordinateText(kind, layerIndex, position) {
@@ -1409,7 +1412,39 @@
     `;
   }
 
-  function syncSelectionDOM() {
+  function scrollTargetIntoHorizontalView(scroller, target, { behavior = "auto" } = {}) {
+    if (!scroller || !target || scroller.scrollWidth <= scroller.clientWidth) return;
+    const scrollerRect = scroller.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const inset = 12;
+    const fullyVisible = targetRect.left >= scrollerRect.left + inset
+      && targetRect.right <= scrollerRect.right - inset;
+    if (fullyVisible) return;
+    const centeredDelta = targetRect.left - scrollerRect.left
+      - (scroller.clientWidth - targetRect.width) / 2;
+    const maximum = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    const next = clamp(scroller.scrollLeft + centeredDelta, 0, maximum);
+    if (behavior === "smooth" && typeof scroller.scrollTo === "function") {
+      scroller.scrollTo({ left: next, behavior: "smooth" });
+    } else {
+      scroller.scrollLeft = next;
+    }
+  }
+
+  function revealSynchronizedSelection({ behavior = "auto" } = {}) {
+    if (family !== "asr") return;
+    const encoderScroller = workspace.querySelector(".scrollable-matrix-panel .layer-matrix");
+    const encoderTarget = encoderScroller?.querySelector(`.matrix-cell[data-kind="encoder"][data-position="${state.selectedEncoder}"]`);
+    scrollTargetIntoHorizontalView(encoderScroller, encoderTarget, { behavior });
+
+    workspace.querySelectorAll(".speech-matrix-scroll").forEach((decoderScroller) => {
+      const decoderTarget = decoderScroller.querySelector(`.speech-position-token[data-token-position="${state.selectedToken}"]`)
+        || decoderScroller.querySelector(`.matrix-cell[data-kind="head"][data-position="${state.selectedToken}"]`);
+      scrollTargetIntoHorizontalView(decoderScroller, decoderTarget, { behavior });
+    });
+  }
+
+  function syncSelectionDOM({ reveal = false, behavior = "auto" } = {}) {
     if (!state.report) return;
     workspace.querySelectorAll(".position-button, .speech-position-token").forEach((button) => {
       const selected = Number(button.dataset.tokenPosition) === state.selectedToken;
@@ -1453,6 +1488,7 @@
     renderInspector();
     renderTrace();
     syncPlayheadDOM();
+    if (reveal) revealSynchronizedSelection({ behavior });
   }
 
   function syncPlayheadDOM() {
@@ -1616,7 +1652,7 @@
     const sameKind = [...workspace.querySelectorAll(`.matrix-cell[data-kind="${kind}"]`)];
     const target = sameKind.find((candidate) => Number(candidate.dataset.layerIndex) === layerIndex && Number(candidate.dataset.position) === position);
     if (target) {
-      target.focus();
+      target.focus({ preventScroll: true });
       selectCoordinate(kind, layerIndex, position);
     }
   });

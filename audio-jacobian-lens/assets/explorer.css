@@ -379,8 +379,9 @@
 .matrix-cell .realized-rank-badge { display: none; }
 .matrix-cell.phone-signature-cell .matrix-cell-label { inset: 0; display: grid; color: var(--ink); font-size: 8px; font-weight: 750; }
 .matrix-cell.phone-signature-cell .realized-rank-badge { display: none; }
-.phone-capable-panel .layer-matrix { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; }
-.phone-capable-panel .matrix-row { min-width: max(100%, var(--matrix-min, 100%)); }
+.scrollable-matrix-panel .layer-matrix { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-color: var(--line-strong) transparent; scrollbar-width: thin; }
+.scrollable-matrix-panel .layer-matrix:focus-visible { border-radius: 6px; outline: 2px solid rgba(var(--lens-rgb), .45); outline-offset: 3px; }
+.scrollable-matrix-panel .matrix-row { min-width: max(100%, var(--matrix-min, 100%)); }
 
 [data-family="asr"] .matrix-cell .matrix-cell-label {
   inset: 1px 1px 13px;
@@ -621,6 +622,8 @@
   .matrix-layer-label { font-size: 8px; }
   .matrix-cell { min-height: 36px; border-radius: 3px; }
   .matrix-cell .matrix-cell-label { display: none; }
+  [data-family="asr"] .scrollable-matrix-panel .matrix-cell { min-height: 44px; }
+  [data-family="asr"] .scrollable-matrix-panel .matrix-cell .matrix-cell-label { display: grid; }
   .matrix-cell.phone-signature-cell .matrix-cell-label { display: grid; }
   [data-family="speech"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
   [data-family="asr"] .speech-matrix-grid .matrix-cell .matrix-cell-label { display: grid; }
